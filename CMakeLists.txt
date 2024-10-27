@@ -4,3 +4,4 @@ project(RigelEngine)
 
 add_subdirectory(Runtime)
 add_subdirectory(Sandbox)
+add_subdirectory(Editor)
