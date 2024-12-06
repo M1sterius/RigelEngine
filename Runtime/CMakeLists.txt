@@ -2,11 +2,16 @@ cmake_minimum_required(VERSION 3.29)
 
 project(RigelEngine)
 
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 23)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Runtime/${CMAKE_BUILD_TYPE})
 
 add_library(RigelEngine SHARED
     Source/RigelEngine.cpp
     Source/Core/Core.cpp
+    Source/Core/ECS/GameObject.cpp
+    Source/Core/Filesystem/File.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -24,9 +29,15 @@ endif ()
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
+target_precompile_headers(RigelEngine PUBLIC
+    Include/Utils/STD_PCH.hpp
+)
+
 target_include_directories(RigelEngine PUBLIC
     Include
     Include/Core
+    Include/Core/ECS
+    Include/Core/Filesystem
     Include/Utils
     Source/Utils
 )
