@@ -13,6 +13,8 @@
 #include "PrimitiveTypes.hpp"
 
 #include "Core.hpp"
+#include "Scene.hpp"
 #include "GameObject.hpp"
+#include "Component.hpp"
 
 #endif

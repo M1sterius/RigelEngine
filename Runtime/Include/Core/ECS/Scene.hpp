@@ -2,7 +2,7 @@
 
 namespace rge
 {
-    class GameObject final
+    class Scene final
     {
 
     };
