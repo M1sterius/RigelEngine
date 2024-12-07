@@ -33,6 +33,7 @@ target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
 target_precompile_headers(RigelEngine PUBLIC
     Include/Utils/STD_PCH.hpp
+    Include/Utils/RGE_PCH.hpp
 )
 
 target_include_directories(RigelEngine PUBLIC

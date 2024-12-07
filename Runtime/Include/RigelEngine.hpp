@@ -8,9 +8,7 @@
 
 #ifdef RIGEL_ENGINE
 
-#include "Assert.hpp"
-#include "Internal.hpp"
-#include "PrimitiveTypes.hpp"
+#include "RGE_PCH.hpp"
 
 #include "Core.hpp"
 #include "Scene.hpp"

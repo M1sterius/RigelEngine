@@ -14,9 +14,8 @@ typedef int64_t int64;
 
 typedef uint64 unique_id;
 
-static_assert(sizeof(float) >= 4, "Rigel engine does not support systems with float type size less than 32 bits");
-static_assert(sizeof(double) >= 8, "Rigel engine does not support systems with double type size less than 32 bits");
+static_assert(sizeof(float) == 4, "Rigel engine does not support systems with float type size not equal to 32 bits");
+static_assert(sizeof(double) == 8, "Rigel engine does not support systems with double type size not equal to 64 bits");
 
 typedef float float32;
 typedef double float64;
-
