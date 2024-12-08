@@ -3,11 +3,12 @@
 int32 main(int32 argc, char* argv[])
 {
     rge::Core::Startup();
-    auto instance = rge::Core::Get();
+    auto core = rge::Core::Get();
 
-    while (instance->IsRunning())
+    while (core->IsRunning())
     {
-        instance->EngineUpdate();
+        core->EngineUpdate();
+        break; // temp
     }
 
     rge::Core::Shutdown();
