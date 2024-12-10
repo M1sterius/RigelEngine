@@ -15,6 +15,7 @@ add_library(RigelEngine SHARED
     Source/Core/ECS/Component.cpp
     Source/Core/ECS/Scene.cpp
     Source/Core/Filesystem/Filesystem.cpp
+        Source/Core/Time.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

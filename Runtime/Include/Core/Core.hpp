@@ -18,6 +18,8 @@ namespace rge
         NODISCARD inline static Core* Get() { return m_Instance; }
         NODISCARD inline static bool IsInitialized() { return m_Instance != nullptr; }
 
+        NODISCARD inline Filesystem* GetFilesystem() const { return m_Filesystem; }
+
         void EngineUpdate();
         NODISCARD bool IsRunning() const { return m_IsRunning; }
     private:

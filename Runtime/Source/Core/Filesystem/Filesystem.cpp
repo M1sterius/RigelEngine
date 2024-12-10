@@ -11,7 +11,7 @@ namespace rge
         ASSERT(m_Instance == nullptr, "Filesystem subsystem has already been initialized!")
         m_Instance = new Filesystem();
 
-        std::cout << "Startup\n";
+        m_Instance->m_WorkingDirectory = std::filesystem::current_path();
     }
 
     void Filesystem::Shutdown()
@@ -22,6 +22,6 @@ namespace rge
         delete m_Instance;
         m_Instance = nullptr;
 
-        std::cout << "Shutdown\n";
+
     }
 }

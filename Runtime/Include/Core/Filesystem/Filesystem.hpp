@@ -17,10 +17,14 @@ namespace rge
 
         NODISCARD inline static Filesystem* Get() { return m_Instance; }
         NODISCARD inline static bool IsInitialized() { return m_Instance != nullptr; }
+
+        NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
     private:
         Filesystem() = default;
         ~Filesystem() = default;
 
         static Filesystem* m_Instance;
+
+        std::filesystem::path m_WorkingDirectory;
     };
 }
