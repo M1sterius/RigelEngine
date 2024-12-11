@@ -11,10 +11,10 @@ add_library(RigelEngine SHARED
     Source/RigelEngine.cpp
     Source/Core/Core.cpp
     Source/Core/ECS/GameObject.cpp
-    Source/Core/Filesystem/File.cpp
+        Source/Core/Subsystems/Filesystem/File.cpp
     Source/Core/ECS/Component.cpp
     Source/Core/ECS/Scene.cpp
-    Source/Core/Filesystem/Filesystem.cpp
+        Source/Core/Subsystems/Filesystem/Filesystem.cpp
         Source/Core/Time.cpp
 )
 
@@ -42,7 +42,7 @@ target_include_directories(RigelEngine PUBLIC
     Include
     Include/Core
     Include/Core/ECS
-    Include/Core/Filesystem
+        Include/Core/Subsystems/Filesystem
     Include/Utils
     Source/Utils
 )

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NODISCARD.hpp"
+
 #include <chrono>
 #include <cstdint>
 
@@ -16,42 +18,42 @@ namespace rge
 
         ~ElapsedTime() = default;
 
-        inline std::chrono::high_resolution_clock::duration DurationRaw() const
+        NODISCARD inline std::chrono::high_resolution_clock::duration DurationRaw() const
         {
             return m_Duration;
         }
 
-        inline double AsSeconds() const
+        NODISCARD inline double AsSeconds() const
         {
             const double seconds = std::chrono::duration<double>(m_Duration).count();
             return seconds;
         }
 
-        inline float AsSecondsF() const
+        NODISCARD inline float AsSecondsF() const
         {
             const float seconds = std::chrono::duration<float>(m_Duration).count();
             return seconds;
         }
 
-        inline uint64_t AsMilliseconds() const
+        NODISCARD inline uint64_t AsMilliseconds() const
         {
             const uint64_t milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(m_Duration).count();
             return milliseconds;
         }
 
-        inline double AsMillisecondsD() const
+        NODISCARD inline double AsMillisecondsD() const
         {
             const double milliseconds = std::chrono::duration<double, std::milli>(m_Duration).count();
             return milliseconds;
         }
 
-        inline float AsMillisecondsF() const
+        NODISCARD inline float AsMillisecondsF() const
         {
             const float milliseconds = std::chrono::duration<float, std::milli>(m_Duration).count();
             return milliseconds;
         }
 
-        inline uint64_t AsMicroseconds() const
+        NODISCARD inline uint64_t AsMicroseconds() const
         {
             const uint64_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>(m_Duration).count();
             return microseconds;
@@ -95,7 +97,7 @@ namespace rge
             return {elapsed};
         }
 
-        inline ElapsedTime GetElapsed() const
+        NODISCARD inline ElapsedTime GetElapsed() const
         {
             if (m_Running)
                 return {std::chrono::high_resolution_clock::now() - m_Start};

@@ -10,23 +10,27 @@ namespace rge
     {
         ASSERT(m_Instance == nullptr, "Core subsystem has already been initialized!")
         m_Instance = new Core();
-        m_Instance->m_IsRunning = true;
-
-        // Start up all subsystems
-        rge::Filesystem::Startup();
-        m_Instance->m_Filesystem = rge::Filesystem::Get();
+        m_Instance->InternalStartup(); // Startup redirected to non-static method to avoid having to use m_Instance->
     }
-
     void Core::Shutdown()
     {
         ASSERT(m_Instance != nullptr, "Unable to shutdown Core subsystem because "
-              "it's either not initialized yet or has already been shut down!")
+                                      "it's either not initialized yet or has already been shut down!")
 
-        // Shut down all subsystems
-        rge::Filesystem::Shutdown();
-
+        m_Instance->InternalShutdown(); // Shutdown redirected to non-static method to avoid having to use m_Instance->
         delete m_Instance;
         m_Instance = nullptr;
+    }
+
+    void Core::InternalStartup()
+    {
+        m_IsRunning = true;
+
+    }
+
+    void Core::InternalShutdown()
+    {
+
     }
 
     /**
