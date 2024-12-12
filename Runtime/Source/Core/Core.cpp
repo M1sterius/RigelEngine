@@ -26,11 +26,16 @@ namespace rge
     {
         m_IsRunning = true;
 
+        // Start up all subsystems
+        m_Filesystem = new rge::Filesystem();
+        m_Filesystem->Startup();
     }
 
     void Core::InternalShutdown()
     {
-
+        // Shut down all subsystems
+        m_Filesystem->Shutdown();
+        delete m_Filesystem;
     }
 
     /**

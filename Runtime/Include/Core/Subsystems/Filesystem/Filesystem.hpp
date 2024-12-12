@@ -2,21 +2,22 @@
 
 #include "NODISCARD.hpp"
 #include "Internal.hpp"
+#include "Subsystems/Subsystem.hpp"
 
 #include <filesystem>
 
 namespace rge
 {
-    class Filesystem
+    class Filesystem final : public rge::Subsystem
     {
     public:
-        Filesystem(const Filesystem& other) = delete;
-        Filesystem& operator =(Filesystem&&) = delete;
+        NODISCARD const std::filesystem::path& GetWorkingDirectory() const;
     INTERNAL:
-        Filesystem() = default;
-        ~Filesystem() = default;
+        void Startup() override;
+        void Shutdown() override;
 
-        void Startup();
-        void Shutdown();
+        ~Filesystem() override = default;
+    private:
+        std::filesystem::path m_WorkingDirectory;
     };
 }
