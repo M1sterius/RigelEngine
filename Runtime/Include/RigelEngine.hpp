@@ -20,4 +20,7 @@
 #include "GameObject.hpp"
 #include "Component.hpp"
 
+// Misc
+#include "Time.hpp"
+
 #endif

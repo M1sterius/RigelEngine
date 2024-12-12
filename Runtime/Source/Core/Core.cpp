@@ -1,6 +1,11 @@
 #include "Core.hpp"
+
+#include <Time.hpp>
 #include "Filesystem.hpp"
 #include "RGE_PCH.hpp"
+
+#include <thread>
+#include <chrono>
 
 namespace rge
 {
@@ -25,6 +30,7 @@ namespace rge
     void Core::InternalStartup()
     {
         m_IsRunning = true;
+        rge::Time::GlobalTimeStopwatch.Start();
 
         // Start up all subsystems
         m_Filesystem = new rge::Filesystem();
@@ -33,6 +39,8 @@ namespace rge
 
     void Core::InternalShutdown()
     {
+        rge::Time::GlobalTimeStopwatch.Stop();
+
         // Shut down all subsystems
         m_Filesystem->Shutdown();
         delete m_Filesystem;
@@ -43,6 +51,6 @@ namespace rge
      */
     void Core::EngineUpdate()
     {
-
+        rge::Time::DeltaTime = rge::Time::DeltaTimeStopwatch.Restart().AsSeconds();
     }
 }
