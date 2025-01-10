@@ -8,12 +8,12 @@
 
 #ifdef RIGEL_ENGINE
 
+// Precompiled headers
 #include "RGE_PCH.hpp"
 #include "STD_PCH.hpp"
 
 // Subsystems
 #include "Core.hpp"
-#include "Filesystem.hpp"
 
 // ECS
 #include "Scene.hpp"
@@ -21,6 +21,6 @@
 #include "Component.hpp"
 
 // Misc
-#include "Time.hpp"
+#include "EngineTools/Time.hpp"
 
 #endif

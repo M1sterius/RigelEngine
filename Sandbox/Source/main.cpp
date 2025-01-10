@@ -1,15 +1,13 @@
 #include "RigelEngine.hpp"
 
-int32 main(int32 argc, char* argv[])
+#define print(x) std::cout << x << '\n'
+
+int32_t main(int32_t argc, char* argv[])
 {
     rge::Core::Startup();
     auto core = rge::Core::Get();
 
-    while (core->IsRunning())
-    {
-        printf("%f\n", rge::Time::GetDeltaTime());
-        core->EngineUpdate();
-    }
+    core->Run();
 
     rge::Core::Shutdown();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PrimitiveTypes.hpp"
+#include "Types.hpp"
 #include "Assert.hpp"
 #include "Internal.hpp"
 #include "Stopwatch.hpp"

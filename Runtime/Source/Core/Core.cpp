@@ -1,11 +1,7 @@
 #include "Core.hpp"
 
-#include <Time.hpp>
-#include "Filesystem.hpp"
+#include "Time.hpp"
 #include "RGE_PCH.hpp"
-
-#include <thread>
-#include <chrono>
 
 namespace rge
 {
@@ -20,7 +16,7 @@ namespace rge
     void Core::Shutdown()
     {
         ASSERT(m_Instance != nullptr, "Unable to shutdown Core subsystem because "
-                                      "it's either not initialized yet or has already been shut down!")
+                  "it's either not initialized yet or has already been shut down!")
 
         m_Instance->InternalShutdown(); // Shutdown redirected to non-static method to avoid having to use m_Instance->
         delete m_Instance;
@@ -33,17 +29,19 @@ namespace rge
         rge::Time::GlobalTimeStopwatch.Start();
 
         // Start up all subsystems
-        m_Filesystem = new rge::Filesystem();
-        m_Filesystem->Startup();
     }
 
     void Core::InternalShutdown()
     {
         rge::Time::GlobalTimeStopwatch.Stop();
+    }
 
-        // Shut down all subsystems
-        m_Filesystem->Shutdown();
-        delete m_Filesystem;
+    void Core::Run()
+    {
+        while (!IsRunning())
+        {
+            EngineUpdate();
+        }
     }
 
     /**
@@ -52,5 +50,17 @@ namespace rge
     void Core::EngineUpdate()
     {
         rge::Time::DeltaTime = rge::Time::DeltaTimeStopwatch.Restart().AsSeconds();
+
+        // Poll and process events
+        // Update input state
+        // Game update
+        // Transform update
+        // Pre-render calculations
+        // Scene render
+        // Gizmo render
+        // GUI render
+        // Sleep to target FPS
+
+
     }
 }
