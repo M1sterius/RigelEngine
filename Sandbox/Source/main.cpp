@@ -4,6 +4,8 @@
 
 int32_t main(int32_t argc, char* argv[])
 {
+    rge::Logger::SetConsoleColorsVisibility(false);
+
     rge::Core::Startup();
     auto core = rge::Core::Get();
 

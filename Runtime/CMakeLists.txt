@@ -16,6 +16,7 @@ add_library(RigelEngine SHARED
     Source/EngineTools/Time.cpp
         Include/Subsystems/SubsystemBase.hpp
         Source/Subsystems/SceneManager.cpp
+        Source/Utils/Public/Logger.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

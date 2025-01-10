@@ -4,3 +4,4 @@
 #include "Assert.hpp"
 #include "Internal.hpp"
 #include "Stopwatch.hpp"
+#include "Logger.hpp"

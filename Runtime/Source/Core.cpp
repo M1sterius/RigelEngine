@@ -26,6 +26,8 @@ namespace rge
 
     void Core::InternalStartup()
     {
+        rge::Logger::VerboseMessage("Core subsystem successfully initialized.");
+
         // Start up all subsystems
         m_SceneManager = new SceneManager();
         m_SceneManager->Startup();
@@ -42,6 +44,8 @@ namespace rge
         delete m_SceneManager;
 
         rge::Time::GlobalTimeStopwatch.Stop();
+
+        rge::Logger::VerboseMessage("Core subsystem successfully shut down.");
     }
 
     void Core::Run()
@@ -49,6 +53,7 @@ namespace rge
         while (IsRunning())
         {
             EngineUpdate();
+            break;
         }
     }
 

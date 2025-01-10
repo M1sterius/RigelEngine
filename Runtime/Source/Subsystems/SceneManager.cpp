@@ -1,5 +1,6 @@
 #include "SceneManager.hpp"
 #include "Core.hpp"
+#include "RGE_PCH.hpp"
 
 namespace rge
 {
@@ -8,11 +9,15 @@ namespace rge
     void SceneManager::Startup()
     {
 
+
+        rge::Logger::VerboseMessage("SceneManager subsystem successfully initialized.");
     }
 
     void SceneManager::Shutdown()
     {
 
+
+        rge::Logger::VerboseMessage("SceneManager subsystem successfully shut down.");
     }
 
     void SceneManager::Foo()
