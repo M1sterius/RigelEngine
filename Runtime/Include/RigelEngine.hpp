@@ -14,6 +14,7 @@
 
 // Subsystems
 #include "Core.hpp"
+#include "SceneManager.hpp"
 
 // ECS
 #include "Scene.hpp"

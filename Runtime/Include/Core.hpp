@@ -6,6 +6,8 @@
 
 namespace rge
 {
+    class SceneManager;
+
     class Core
     {
     public:
@@ -16,20 +18,25 @@ namespace rge
         static void Shutdown();
 
         NODISCARD inline static Core* Get() { return m_Instance; }
-        NODISCARD inline static bool IsInitialized() { return m_Instance != nullptr; }
+        NODISCARD inline static bool IsInitialized() { return (m_Instance != nullptr); }
+
+        NODISCARD inline SceneManager* GetSceneManager() const { return m_SceneManager; }
 
         void Run();
-        void EngineUpdate();
         NODISCARD bool IsRunning() const { return m_IsRunning; }
     private:
         Core() = default;
         ~Core() = default;
 
-        static Core* m_Instance;
-
         bool m_IsRunning = false;
 
         void InternalStartup();
         void InternalShutdown();
+
+        void EngineUpdate();
+
+        SceneManager* m_SceneManager = nullptr;
+
+        static Core* m_Instance;
     };
 }

@@ -9,13 +9,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Runtime/${CMAKE_BUILD
 
 add_library(RigelEngine SHARED
     Source/RigelEngine.cpp
-    Source/Core/Core.cpp
-    Source/Core/GameObject.cpp
-    Source/Core/Component.cpp
-    Source/Core/Scene.cpp
+    Source/Core.cpp
+    Source/ECS/GameObject.cpp
+    Source/ECS/Component.cpp
+    Source/ECS/Scene.cpp
     Source/EngineTools/Time.cpp
-    Source/Core/Instantiate.cpp
-    Source/Core/Destroy.cpp
+        Include/Subsystems/SubsystemBase.hpp
+        Source/Subsystems/SceneManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -40,10 +40,10 @@ target_precompile_headers(RigelEngine PUBLIC
 
 target_include_directories(RigelEngine PUBLIC
     Include
-    Source/Utils
+    Include/ECS
     Include/Core
+    Source/Utils
     Include/Utils
-    Include/Core/ECS
     Include/Subsystems
     Include/EngineTools
     Include/Subsystems/Filesystem

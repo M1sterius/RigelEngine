@@ -1,6 +1,7 @@
 #include "Core.hpp"
 
 #include "Time.hpp"
+#include "SceneManager.hpp"
 #include "RGE_PCH.hpp"
 
 namespace rge
@@ -25,28 +26,32 @@ namespace rge
 
     void Core::InternalStartup()
     {
-        m_IsRunning = true;
-        rge::Time::GlobalTimeStopwatch.Start();
-
         // Start up all subsystems
+        m_SceneManager = new SceneManager();
+        m_SceneManager->Startup();
+        SceneManager::AssignGlobalInstance(m_SceneManager);
+
+        rge::Time::GlobalTimeStopwatch.Start();
+        m_IsRunning = true;
     }
 
     void Core::InternalShutdown()
     {
+        // Shut down all subsystems
+        m_SceneManager->Shutdown();
+        delete m_SceneManager;
+
         rge::Time::GlobalTimeStopwatch.Stop();
     }
 
     void Core::Run()
     {
-        while (!IsRunning())
+        while (IsRunning())
         {
             EngineUpdate();
         }
     }
 
-    /**
-     * @brief The main game loop function
-     */
     void Core::EngineUpdate()
     {
         rge::Time::DeltaTime = rge::Time::DeltaTimeStopwatch.Restart().AsSeconds();

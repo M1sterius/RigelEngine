@@ -4,6 +4,6 @@
 
 #include "Assert.hpp"
 #include "Internal.hpp"
-#include "PrimitiveTypes.hpp"
+#include "Types.hpp"
 
 #endif
