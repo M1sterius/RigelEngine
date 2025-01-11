@@ -4,12 +4,13 @@
 
 int32_t main(int32_t argc, char* argv[])
 {
-    rge::Logger::SetConsoleColorsVisibility(false);
+    rge::Logger::SetConsoleColorsVisibility(true);
+    rge::Time::SetTargetFPS(60);
 
-    rge::Core::Startup();
-    auto core = rge::Core::Get();
+    rge::Engine::Startup();
+    auto engine = rge::Engine::Get();
 
-    core->Run();
+    engine->Run();
 
-    rge::Core::Shutdown();
+    rge::Engine::Shutdown();
 }

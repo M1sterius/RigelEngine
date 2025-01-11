@@ -1,5 +1,5 @@
 #include "SceneManager.hpp"
-#include "Core.hpp"
+#include "Engine.hpp"
 #include "RGE_PCH.hpp"
 
 namespace rge

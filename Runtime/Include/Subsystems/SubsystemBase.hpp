@@ -1,10 +1,10 @@
 #pragma once
 
-#include "NODISCARD.hpp"
+#include "Utils/NODISCARD.hpp"
 
 namespace rge
 {
-    class Core;
+    class Engine;
 
     class SubsystemBase
     {

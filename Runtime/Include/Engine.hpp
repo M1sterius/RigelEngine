@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NODISCARD.hpp"
+#include "Utils/NODISCARD.hpp"
 
 #include <memory>
 
@@ -8,16 +8,16 @@ namespace rge
 {
     class SceneManager;
 
-    class Core
+    class Engine
     {
     public:
-        Core(const Core& other) = delete;
-        Core& operator = (const Core&) = delete;
+        Engine(const Engine& other) = delete;
+        Engine& operator = (const Engine&) = delete;
 
         static void Startup();
         static void Shutdown();
 
-        NODISCARD inline static Core* Get() { return m_Instance; }
+        NODISCARD inline static Engine* Get() { return m_Instance; }
         NODISCARD inline static bool IsInitialized() { return (m_Instance != nullptr); }
 
         NODISCARD inline SceneManager* GetSceneManager() const { return m_SceneManager; }
@@ -25,8 +25,8 @@ namespace rge
         void Run();
         NODISCARD bool IsRunning() const { return m_IsRunning; }
     private:
-        Core() = default;
-        ~Core() = default;
+        Engine() = default;
+        ~Engine() = default;
 
         bool m_IsRunning = false;
 
@@ -37,6 +37,6 @@ namespace rge
 
         SceneManager* m_SceneManager = nullptr;
 
-        static Core* m_Instance;
+        static Engine* m_Instance;
     };
 }

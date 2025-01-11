@@ -1,20 +1,21 @@
-#include "Core.hpp"
+#include "Engine.hpp"
 
 #include "Time.hpp"
 #include "SceneManager.hpp"
 #include "RGE_PCH.hpp"
+#include "SleepUtility.hpp"
 
 namespace rge
 {
-    Core* Core::m_Instance = nullptr;
+    Engine* Engine::m_Instance = nullptr;
 
-    void Core::Startup()
+    void Engine::Startup()
     {
         ASSERT(m_Instance == nullptr, "Core subsystem has already been initialized!")
-        m_Instance = new Core();
+        m_Instance = new Engine();
         m_Instance->InternalStartup(); // Startup redirected to non-static method to avoid having to use m_Instance->
     }
-    void Core::Shutdown()
+    void Engine::Shutdown()
     {
         ASSERT(m_Instance != nullptr, "Unable to shutdown Core subsystem because "
                   "it's either not initialized yet or has already been shut down!")
@@ -24,9 +25,9 @@ namespace rge
         m_Instance = nullptr;
     }
 
-    void Core::InternalStartup()
+    void Engine::InternalStartup()
     {
-        rge::Logger::VerboseMessage("Core subsystem successfully initialized.");
+        rge::Logger::VerboseMessage("Engine core successfully initialized.");
 
         // Start up all subsystems
         m_SceneManager = new SceneManager();
@@ -37,7 +38,7 @@ namespace rge
         m_IsRunning = true;
     }
 
-    void Core::InternalShutdown()
+    void Engine::InternalShutdown()
     {
         // Shut down all subsystems
         m_SceneManager->Shutdown();
@@ -45,22 +46,28 @@ namespace rge
 
         rge::Time::GlobalTimeStopwatch.Stop();
 
-        rge::Logger::VerboseMessage("Core subsystem successfully shut down.");
+        rge::Logger::VerboseMessage("Engine core successfully shut down.");
     }
 
-    void Core::Run()
+    void Engine::Run()
     {
         while (IsRunning())
         {
+            rge::Time::SetDeltaTime(rge::Time::DeltaTimeStopwatch.Restart().AsSeconds());
+            rge::Time::FrameCount++;
+
+            static auto sw = Stopwatch();
+            sw.Start();
+
             EngineUpdate();
-            break;
+
+            printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
+            LimitFPS(sw.Stop().AsSeconds(), Time::GetTargetFPS());
         }
     }
 
-    void Core::EngineUpdate()
+    void Engine::EngineUpdate()
     {
-        rge::Time::DeltaTime = rge::Time::DeltaTimeStopwatch.Restart().AsSeconds();
-
         // Poll and process events
         // Update input state
         // Game update
@@ -70,7 +77,5 @@ namespace rge
         // Gizmo render
         // GUI render
         // Sleep to target FPS
-
-
     }
 }

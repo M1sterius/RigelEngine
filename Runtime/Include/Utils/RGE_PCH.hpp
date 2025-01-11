@@ -5,3 +5,4 @@
 #include "Internal.hpp"
 #include "Stopwatch.hpp"
 #include "Logger.hpp"
+#include "NODISCARD.hpp"

@@ -8,15 +8,14 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Runtime/${CMAKE_BUILD_TYPE})
 
 add_library(RigelEngine SHARED
-    Source/RigelEngine.cpp
-    Source/Core.cpp
+    Source/Engine.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
     Source/ECS/Scene.cpp
     Source/EngineTools/Time.cpp
-        Include/Subsystems/SubsystemBase.hpp
-        Source/Subsystems/SceneManager.cpp
-        Source/Utils/Public/Logger.cpp
+    Include/Subsystems/SubsystemBase.hpp
+    Source/Subsystems/SceneManager.cpp
+    Source/Utils/Public/Logger.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -39,16 +38,27 @@ target_precompile_headers(RigelEngine PUBLIC
     Include/Utils/RGE_PCH.hpp
 )
 
-target_include_directories(RigelEngine PUBLIC
+target_include_directories(RigelEngine PRIVATE
     Include
     Include/ECS
     Include/Core
-    Source/Utils
     Include/Utils
     Include/Subsystems
     Include/EngineTools
     Include/Subsystems/Filesystem
     Include/Subsystems/SceneManager
+
+    Source/Utils/Internal
+)
+
+set(LINK_LIBRARIES "")
+
+if(WIN32)
+    list(APPEND LINK_LIBRARIES winmm)
+endif()
+
+target_link_libraries(RigelEngine PRIVATE
+    ${LINK_LIBRARIES}
 )
 
 # copy .dll file

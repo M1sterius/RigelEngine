@@ -66,9 +66,9 @@ namespace rge
         std::tm local_tm = *std::localtime(&time_now);
 
         std::ostringstream oss;
-        oss << std::setw(2) << std::setfill('0') << local_tm.tm_sec << ":"
+        oss << std::setw(2) << std::setfill('0') << local_tm.tm_hour << ":"
             << std::setw(2) << std::setfill('0') << local_tm.tm_min << ":"
-            << std::setw(2) << std::setfill('0') << local_tm.tm_hour;
+            << std::setw(2) << std::setfill('0') << local_tm.tm_sec;
 
         return "[" + oss.str() + "]";
     }

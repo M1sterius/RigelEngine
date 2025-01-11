@@ -8,18 +8,19 @@
 
 #ifdef RIGEL_ENGINE
 
+#include "Engine.hpp"
+
 // Precompiled headers
-#include "RGE_PCH.hpp"
-#include "STD_PCH.hpp"
+#include "Utils/RGE_PCH.hpp"
+#include "Utils/STD_PCH.hpp"
 
 // Subsystems
-#include "Core.hpp"
-#include "SceneManager.hpp"
+#include "Subsystems/SceneManager.hpp"
 
 // ECS
-#include "Scene.hpp"
-#include "GameObject.hpp"
-#include "Component.hpp"
+#include "ECS/Scene.hpp"
+#include "ECS/GameObject.hpp"
+#include "ECS/Component.hpp"
 
 // Misc
 #include "EngineTools/Time.hpp"
