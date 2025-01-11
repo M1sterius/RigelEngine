@@ -4,6 +4,7 @@
 #include "SceneManager.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
+#include "UIdGenerator.hpp"
 
 namespace rge
 {
@@ -30,9 +31,7 @@ namespace rge
         rge::Logger::VerboseMessage("Engine core successfully initialized.");
 
         // Start up all subsystems
-        m_SceneManager = new SceneManager();
-        m_SceneManager->Startup();
-        SceneManager::AssignGlobalInstance(m_SceneManager);
+        rge::SceneManager::Get().Startup();
 
         rge::Time::GlobalTimeStopwatch.Start();
         m_IsRunning = true;
@@ -41,8 +40,7 @@ namespace rge
     void Engine::InternalShutdown()
     {
         // Shut down all subsystems
-        m_SceneManager->Shutdown();
-        delete m_SceneManager;
+        rge::SceneManager::Get().Shutdown();
 
         rge::Time::GlobalTimeStopwatch.Stop();
 

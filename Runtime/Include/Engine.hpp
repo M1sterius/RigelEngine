@@ -20,8 +20,6 @@ namespace rge
         NODISCARD inline static Engine* Get() { return m_Instance; }
         NODISCARD inline static bool IsInitialized() { return (m_Instance != nullptr); }
 
-        NODISCARD inline SceneManager* GetSceneManager() const { return m_SceneManager; }
-
         void Run();
         NODISCARD bool IsRunning() const { return m_IsRunning; }
     private:
@@ -34,8 +32,6 @@ namespace rge
         void InternalShutdown();
 
         void EngineUpdate();
-
-        SceneManager* m_SceneManager = nullptr;
 
         static Engine* m_Instance;
     };
