@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Utils/Types.hpp"
 #include "NODISCARD.hpp"
 
 #include <chrono>
@@ -23,15 +24,15 @@ namespace rge
             return m_Duration;
         }
 
-        NODISCARD inline double AsSeconds() const
+        NODISCARD inline float64_t AsSeconds() const
         {
-            const double seconds = std::chrono::duration<double>(m_Duration).count();
+            const float64_t seconds = std::chrono::duration<float64_t>(m_Duration).count();
             return seconds;
         }
 
         NODISCARD inline float AsSecondsF() const
         {
-            const float seconds = std::chrono::duration<float>(m_Duration).count();
+            const float seconds = std::chrono::duration<float32_t>(m_Duration).count();
             return seconds;
         }
 
@@ -41,15 +42,15 @@ namespace rge
             return milliseconds;
         }
 
-        NODISCARD inline double AsMillisecondsD() const
+        NODISCARD inline float64_t AsMillisecondsD() const
         {
-            const double milliseconds = std::chrono::duration<double, std::milli>(m_Duration).count();
+            const float64_t milliseconds = std::chrono::duration<float64_t, std::milli>(m_Duration).count();
             return milliseconds;
         }
 
-        NODISCARD inline float AsMillisecondsF() const
+        NODISCARD inline float32_t AsMillisecondsF() const
         {
-            const float milliseconds = std::chrono::duration<float, std::milli>(m_Duration).count();
+            const float32_t milliseconds = std::chrono::duration<float32_t, std::milli>(m_Duration).count();
             return milliseconds;
         }
 

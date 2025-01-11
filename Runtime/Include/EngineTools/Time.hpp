@@ -2,6 +2,7 @@
 
 #include "Utils/NODISCARD.hpp"
 #include "Utils/Stopwatch.hpp"
+#include "Utils/Types.hpp"
 
 namespace rge
 {
@@ -12,26 +13,26 @@ namespace rge
     public:
         friend class Engine;
 
-        NODISCARD static inline double GetDeltaTime() { return DeltaTime; }
-        NODISCARD static inline float GetDeltaTimeF() { return static_cast<float>(DeltaTime); }
+        NODISCARD static inline float64_t GetDeltaTime() { return DeltaTime; }
+        NODISCARD static inline float32_t GetDeltaTimeF() { return static_cast<float32_t>(DeltaTime); }
 
-        NODISCARD static inline double GetGlobalTime() { return GlobalTimeStopwatch.GetElapsed().AsSeconds(); }
-        NODISCARD static inline double GetGlobalTimeF() { return static_cast<float>(GlobalTimeStopwatch.GetElapsed().AsSeconds()); }
+        NODISCARD static inline float64_t GetGlobalTime() { return GlobalTimeStopwatch.GetElapsed().AsSeconds(); }
+        NODISCARD static inline float64_t GetGlobalTimeF() { return static_cast<float32_t>(GlobalTimeStopwatch.GetElapsed().AsSeconds()); }
 
         NODISCARD static inline uint64_t GetFrameCount() { return FrameCount; }
 
         static inline void SetTargetFPS(const uint64_t fps) { TargetFPS = fps; }
         NODISCARD static inline uint64_t GetTargetFPS() { return TargetFPS; }
 
-        static constexpr double MAX_DELTA_TIME_SECONDS = 1.0;
-        static constexpr double MIN_DELTA_TIME_SECONDS = 0.000001;
-        static constexpr double FALLBACK_DELTA_TIME_SECONDS = 0.016;
+        static constexpr float64_t MAX_DELTA_TIME_SECONDS = 1.0;
+        static constexpr float64_t MIN_DELTA_TIME_SECONDS = 0.000001;
+        static constexpr float64_t FALLBACK_DELTA_TIME_SECONDS = 0.016;
     private:
-        static void SetDeltaTime(const double deltaTime);
+        static void SetDeltaTime(const float64_t deltaTime);
 
         static Stopwatch DeltaTimeStopwatch;
         static Stopwatch GlobalTimeStopwatch;
-        static double DeltaTime;
+        static float64_t DeltaTime;
         static uint64_t FrameCount;
         static uint64_t TargetFPS;
     };
