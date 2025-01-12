@@ -70,10 +70,9 @@ namespace rge
         // Update input state
         // Game update
         // Transform update
-        // Pre-render calculations
+        // Pre-render update
         // Scene render
         // Gizmo render
         // GUI render
-        // Sleep to target FPS
     }
 }

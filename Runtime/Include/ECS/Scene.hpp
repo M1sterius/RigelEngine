@@ -5,9 +5,14 @@
 #include "Utils/NODISCARD.hpp"
 
 #include <string>
+#include <memory>
+#include <unordered_map>
 
 namespace rge
 {
+    class GameObject;
+    struct GOHandle;
+
     class Scene final
     {
     public:
@@ -15,14 +20,20 @@ namespace rge
         Scene operator = (const Scene&) = delete;
 
         NODISCARD inline uid_t GetID() const { return m_ID; }
+
+        NODISCARD GOHandle AddGameObject();
     INTERNAL:
-        explicit Scene(std::string name, const uid_t uid);
+        Scene(std::string name, const uid_t uid);
         ~Scene();
 
         void OnLoad();
         void OnUnload();
+
+        NODISCARD bool CheckGOValidity(const uid_t id);
     private:
         std::string m_Name;
         uid_t m_ID;
+
+        std::unordered_map<uid_t, GameObject*> m_Objects;
     };
 }
