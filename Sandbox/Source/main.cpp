@@ -16,7 +16,10 @@ int32_t main(int32_t argc, char* argv[])
     auto go = scene->AddGameObject();
     auto go1 = scene->AddGameObject();
     auto go2 = scene->AddGameObject();
-    go2->Bruh();
+    auto go3 = scene->AddGameObject();
+    auto go4 = scene->AddGameObject();
+    auto go5 = scene->AddGameObject();
+    print(go2.IsValid());
 
     sceneManager.LoadScene(scene);
 

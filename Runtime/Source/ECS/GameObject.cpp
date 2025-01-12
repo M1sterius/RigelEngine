@@ -1,4 +1,6 @@
 #include "ECS/GameObject.hpp"
+#include "SceneManager.hpp"
+#include "ECS/Scene.hpp"
 
 namespace rge
 {
@@ -20,8 +22,7 @@ namespace rge
 
     bool GOHandle::IsValid() const
     {
-        return false;
+        auto scene = rge::SceneManager::Get().GetScene(m_SceneID);
+        return scene->CheckGOValidity(m_GameObjectID);
     }
-
-
 }

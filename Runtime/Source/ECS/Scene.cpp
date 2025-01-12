@@ -28,13 +28,35 @@ namespace rge
         auto go = new GameObject("New Game Object");
         auto id = UIDGenerator::Generate();
 
+        m_Objects[id] = go;
+
         return {go, m_ID, id};
     }
 
     bool Scene::CheckGOValidity(const uid_t id)
     {
+        auto it = m_Objects.find(id);
+        if (it != m_Objects.end())
+            return true;
         return false;
     }
 
     Scene::~Scene() = default;
+
+    void SceneManager::LoadScene(const uid_t id)
+    {
+        auto scene = GetScene(id);
+        LoadScene(scene);
+    }
+
+    SceneHandle::SceneHandle(Scene* ptr, const uid_t id)
+        :   m_Ptr(ptr), m_ID(id)
+    {
+
+    }
+
+    bool SceneHandle::IsValid()
+    {
+        return false;
+    }
 }

@@ -28,6 +28,8 @@ namespace rge
     {
     public:
         GameObject* operator -> () { return m_Ptr; }
+        NODISCARD inline uid_t GetID() const { return m_GameObjectID; }
+        NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
 
         NODISCARD bool IsValid() const;
 
@@ -36,7 +38,7 @@ namespace rge
         GOHandle(GameObject* ptr, const uid_t sceneID, const uid_t goID);
     private:
         GameObject* m_Ptr;
-        uid_t m_SceneID;
         uid_t m_GameObjectID;
+        uid_t m_SceneID;
     };
 }

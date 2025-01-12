@@ -37,4 +37,5 @@ namespace rge
         std::unordered_map<uid_t, std::shared_ptr<Scene>> m_Scenes;
         std::shared_ptr<Scene> m_LoadedScene;
     };
+
 }

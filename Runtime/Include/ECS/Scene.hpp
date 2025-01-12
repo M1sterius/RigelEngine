@@ -36,4 +36,19 @@ namespace rge
 
         std::unordered_map<uid_t, GameObject*> m_Objects;
     };
+
+    struct SceneHandle final
+    {
+    public:
+        Scene* operator -> () { return m_Ptr; }
+        NODISCARD uid_t GetID() const { return m_ID; }
+        NODISCARD bool IsValid();
+
+        ~SceneHandle() = default;
+    INTERNAL:
+        SceneHandle(Scene* ptr, const uid_t id);
+    private:
+        Scene* m_Ptr;
+        uid_t m_ID;
+    };
 }

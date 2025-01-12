@@ -50,10 +50,4 @@ namespace rge
         m_LoadedScene = scene;
         m_LoadedScene->OnLoad();
     }
-
-    void SceneManager::LoadScene(const uid_t id)
-    {
-        auto scene = GetScene(id);
-        LoadScene(scene);
-    }
 }
