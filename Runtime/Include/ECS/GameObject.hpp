@@ -30,8 +30,10 @@ namespace rge
         GameObject* operator -> () { return m_Ptr; }
         NODISCARD inline uid_t GetID() const { return m_GameObjectID; }
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
-
         NODISCARD bool IsValid() const;
+        NODISCARD bool IsNull() const;
+
+        static GOHandle NULL_HANDLE();
 
         ~GOHandle() = default;
     INTERNAL:

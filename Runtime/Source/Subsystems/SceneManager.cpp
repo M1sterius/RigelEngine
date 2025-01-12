@@ -24,30 +24,27 @@ namespace rge
         rge::Logger::VerboseMessage("SceneManager successfully shutdown.");
     }
 
-    std::shared_ptr<Scene> SceneManager::CreateScene(const std::string& name)
+    SceneHandle SceneManager::CreateScene(const std::string& name)
     {
         auto id = UIDGenerator::Generate();
-        auto scene = std::make_shared<Scene>(name, id);
+        auto scene = new Scene(name, id);
 
         m_Scenes[id] = scene;
-        return scene;
+
+        return {scene, id};
     }
 
-    std::shared_ptr<Scene> SceneManager::GetScene(const uid_t id)
+    SceneHandle SceneManager::GetSceneByID(const uid_t id)
     {
         auto it = m_Scenes.find(id);
-        if (it != m_Scenes.end())
-            return it->second;
+        if (it == m_Scenes.end())
+            return SceneHandle::NULL_HANDLE();
 
-        throw std::runtime_error("Cannot find the scene by the specified ID!");
+        return {it->second, id};
     }
 
-    void SceneManager::LoadScene(const std::shared_ptr<Scene>& scene)
+    void SceneManager::LoadScene(const SceneHandle& scene)
     {
-        if (IsSceneLoaded())
-            m_LoadedScene->OnUnload();
 
-        m_LoadedScene = scene;
-        m_LoadedScene->OnLoad();
     }
 }

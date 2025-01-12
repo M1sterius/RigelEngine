@@ -42,7 +42,10 @@ namespace rge
     public:
         Scene* operator -> () { return m_Ptr; }
         NODISCARD uid_t GetID() const { return m_ID; }
-        NODISCARD bool IsValid();
+        NODISCARD bool IsValid() const;
+        NODISCARD bool IsNull() const;
+
+        static SceneHandle NULL_HANDLE();
 
         ~SceneHandle() = default;
     INTERNAL:

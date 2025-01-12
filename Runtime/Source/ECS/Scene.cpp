@@ -43,20 +43,21 @@ namespace rge
 
     Scene::~Scene() = default;
 
-    void SceneManager::LoadScene(const uid_t id)
-    {
-        auto scene = GetScene(id);
-        LoadScene(scene);
-    }
-
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id)
-        :   m_Ptr(ptr), m_ID(id)
-    {
+        :   m_Ptr(ptr), m_ID(id) { }
 
+    bool SceneHandle::IsNull() const
+    {
+        return m_Ptr == nullptr || m_ID == NULL_ID;
     }
 
-    bool SceneHandle::IsValid()
+    bool SceneHandle::IsValid() const
     {
         return false;
+    }
+
+    SceneHandle SceneHandle::NULL_HANDLE()
+    {
+        return {nullptr, NULL_ID};
     }
 }

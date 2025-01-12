@@ -9,33 +9,29 @@
 namespace rge
 {
     class Scene;
+    struct SceneHandle;
 
     class SceneManager final
     {
     public:
         SceneManager(const SceneManager&) = delete;
         SceneManager operator = (const SceneManager&) = delete;
-
-        NODISCARD std::shared_ptr<Scene> CreateScene(const std::string& name);
-        NODISCARD std::shared_ptr<Scene> GetScene(const uid_t id);
-
-        void LoadScene(const std::shared_ptr<Scene>& scene);
-        void LoadScene(const uid_t id);
-
-        NODISCARD inline bool IsSceneLoaded() const { return m_LoadedScene != nullptr; }
-
         NODISCARD static SceneManager& Get();
+
+        NODISCARD inline bool IsSceneLoaded() const { return m_LoadedSceneID != NULL_ID; }
+
+        NODISCARD SceneHandle CreateScene(const std::string& name = "New Scene");
+        NODISCARD SceneHandle GetSceneByID(const uid_t id);
+
+        void LoadScene(const SceneHandle& scene);
     INTERNAL:
         void Startup();
         void Shutdown();
-
-        NODISCARD inline std::shared_ptr<Scene> GetLoadedScene() const { return m_LoadedScene; }
     private:
         SceneManager() = default;
         ~SceneManager() = default;
 
-        std::unordered_map<uid_t, std::shared_ptr<Scene>> m_Scenes;
-        std::shared_ptr<Scene> m_LoadedScene;
+        std::unordered_map<uid_t, Scene*> m_Scenes;
+        uid_t m_LoadedSceneID = NULL_ID;
     };
-
 }
