@@ -15,9 +15,6 @@ int32_t main(int32_t argc, char* argv[])
 
     print(scene.GetID());
 
-    auto go = scene->AddGameObject();
-    print(go.GetID());
-
     engine->Run();
 
     rge::Engine::Shutdown();

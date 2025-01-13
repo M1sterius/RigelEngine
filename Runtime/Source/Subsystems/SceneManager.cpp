@@ -12,7 +12,6 @@ namespace rge
     {
         rge::Logger::VerboseMessage("SceneManager successfully initialized.");
     }
-
     void SceneManager::Shutdown()
     {
         rge::Logger::VerboseMessage("SceneManager successfully shutdown.");
@@ -20,18 +19,14 @@ namespace rge
 
     SceneHandle SceneManager::CreateScene(const std::string& name)
     {
-        auto id = UIDGenerator::Generate();
-        auto scene = new Scene(name);
+        auto scene = new rge::Scene(name);
+        m_Scenes.push_back(scene);
 
-        return {scene, id};
+        return {scene, scene->GetID()};
     }
 
-    SceneHandle SceneManager::GetSceneByID(const uid_t id)
+    void SceneManager::LoadScene(const uid_t sceneID)
     {
-//        auto it = m_Scenes.find(id);
-//        if (it == m_Scenes.end())
-//            return {nullptr, NULL_ID};
 
-        return {nullptr, NULL_ID};
     }
 }

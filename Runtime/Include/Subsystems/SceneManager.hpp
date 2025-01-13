@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace rge
 {
@@ -18,9 +18,11 @@ namespace rge
         friend class RigelSubsystem<SceneManager>;
 
         NODISCARD SceneHandle CreateScene(const std::string& name = "New Scene");
-        NODISCARD SceneHandle GetSceneByID(const uid_t id);
+        void LoadScene(const uid_t sceneID);
     INTERNAL:
         void Startup() override;
         void Shutdown() override;
+
+        std::vector<Scene*> m_Scenes;
     };
 }

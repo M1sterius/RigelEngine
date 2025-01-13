@@ -23,10 +23,10 @@ namespace rge
         explicit Scene(std::string name = "New Scene");
         ~Scene();
 
+        NODISCARD bool CheckGOValidity(const uid_t id);
+
         void OnLoad();
         void OnUnload();
-
-        NODISCARD bool CheckGOValidity(const uid_t id);
     private:
         std::string m_Name;
 
