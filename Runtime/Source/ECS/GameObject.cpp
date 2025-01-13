@@ -22,6 +22,6 @@ namespace rge
     }
     bool GOHandle::IsNull()
     {
-        return m_Ptr == nullptr && m_ObjectID == NULL_ID;
+        return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }
 }

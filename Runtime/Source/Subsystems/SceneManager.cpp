@@ -8,12 +8,6 @@
 
 namespace rge
 {
-    SceneManager& SceneManager::Get()
-    {
-        static auto instance = SceneManager();
-        return instance;
-    }
-
     void SceneManager::Startup()
     {
         rge::Logger::VerboseMessage("SceneManager successfully initialized.");
@@ -29,22 +23,15 @@ namespace rge
         auto id = UIDGenerator::Generate();
         auto scene = new Scene(name);
 
-        m_Scenes[id] = scene;
-
         return {scene, id};
     }
 
     SceneHandle SceneManager::GetSceneByID(const uid_t id)
     {
-        auto it = m_Scenes.find(id);
-        if (it == m_Scenes.end())
-            return {nullptr, NULL_ID};
+//        auto it = m_Scenes.find(id);
+//        if (it == m_Scenes.end())
+//            return {nullptr, NULL_ID};
 
-        return {it->second, id};
-    }
-
-    void SceneManager::LoadScene(const SceneHandle& scene)
-    {
-
+        return {nullptr, NULL_ID};
     }
 }

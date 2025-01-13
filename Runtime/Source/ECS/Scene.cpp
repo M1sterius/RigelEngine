@@ -49,6 +49,6 @@ namespace rge
     }
     bool SceneHandle::IsNull()
     {
-        return m_Ptr == nullptr && m_ObjectID == NULL_ID;
+        return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }
 }
