@@ -25,8 +25,8 @@ namespace rge
     class GOHandle final : public RigelHandle<GameObject>
     {
     public:
-        NODISCARD bool IsValid() override;
-        NODISCARD bool IsNull() override;
+        NODISCARD bool IsValid() const override;
+        NODISCARD bool IsNull() const override;
     INTERNAL:
         GOHandle(GameObject* ptr, const uid_t id);
     };

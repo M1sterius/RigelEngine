@@ -1,7 +1,7 @@
 #include "ECS/GameObject.hpp"
 #include "SceneManager.hpp"
 #include "ECS/Scene.hpp"
-#include "UIdGenerator.hpp"
+#include "UIDGenerator.hpp"
 
 namespace rge
 {
@@ -16,11 +16,11 @@ namespace rge
 
     // Handle
     GOHandle::GOHandle(GameObject* ptr, const uid_t id) : RigelHandle(ptr, id) { }
-    bool GOHandle::IsValid()
+    bool GOHandle::IsValid() const
     {
         return false;
     }
-    bool GOHandle::IsNull()
+    bool GOHandle::IsNull() const
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }

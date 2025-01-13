@@ -3,7 +3,7 @@
 #include "ECS/Scene.hpp"
 #include "SceneManager.hpp"
 #include "GameObject.hpp"
-#include "UIdGenerator.hpp"
+#include "UIDGenerator.hpp"
 
 namespace rge
 {
@@ -43,11 +43,11 @@ namespace rge
 
     // Handle
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
-    bool SceneHandle::IsValid()
+    bool SceneHandle::IsValid() const
     {
         return true;
     }
-    bool SceneHandle::IsNull()
+    bool SceneHandle::IsNull() const
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }

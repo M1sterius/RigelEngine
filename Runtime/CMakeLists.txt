@@ -15,8 +15,8 @@ add_library(RigelEngine SHARED
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
     Source/Utils/Public/Logger.cpp
-    Source/Utils/Internal/UIdGenerator.cpp
-    Source/Utils/Internal/UIdGenerator.hpp
+    Source/Utils/Internal/UIDGenerator.cpp
+    Source/Utils/Internal/UIDGenerator.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

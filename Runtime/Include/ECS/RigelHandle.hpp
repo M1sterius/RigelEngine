@@ -26,7 +26,7 @@ namespace rge
 
         RigelHandle(T* ptr, const uid_t id) : m_Ptr(ptr), m_ObjectID(id) { }
 
-        NODISCARD virtual bool IsValid() = 0;
-        NODISCARD virtual bool IsNull() = 0;
+        NODISCARD virtual bool IsValid() const = 0;
+        NODISCARD virtual bool IsNull() const = 0;
     };
 }

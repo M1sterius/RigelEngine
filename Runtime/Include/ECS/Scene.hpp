@@ -36,8 +36,8 @@ namespace rge
     class SceneHandle final : public RigelHandle<Scene>
     {
     public:
-        NODISCARD bool IsValid() override;
-        NODISCARD bool IsNull() override;
+        NODISCARD bool IsValid() const override;
+        NODISCARD bool IsNull() const override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);
     };
