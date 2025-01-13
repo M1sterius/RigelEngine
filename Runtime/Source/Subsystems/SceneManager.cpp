@@ -27,7 +27,7 @@ namespace rge
     SceneHandle SceneManager::CreateScene(const std::string& name)
     {
         auto id = UIDGenerator::Generate();
-        auto scene = new Scene(name, id);
+        auto scene = new Scene(name);
 
         m_Scenes[id] = scene;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RigelObject.hpp"
 #include "Utils/Types.hpp"
 #include "Utils/Internal.hpp"
 #include "Utils/NODISCARD.hpp"
@@ -9,19 +10,15 @@
 
 namespace rge
 {
-    class GameObject final
+    class GameObject final : public RigelObject
     {
     public:
-        GameObject(const GameObject&) = delete;
-        GameObject operator = (const GameObject&) = delete;
-
         inline void Bruh() { std::cout << "Bruh\n"; }
     INTERNAL:
         explicit GameObject(std::string name = "Game Object");
         ~GameObject();
     private:
         std::string m_Name;
-        uid_t m_ID;
     };
 
     struct GOHandle final

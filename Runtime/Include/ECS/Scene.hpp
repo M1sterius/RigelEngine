@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RigelObject.hpp"
 #include "Utils/Internal.hpp"
 #include "Utils/Types.hpp"
 #include "Utils/NODISCARD.hpp"
@@ -13,17 +14,12 @@ namespace rge
     class GameObject;
     struct GOHandle;
 
-    class Scene final
+    class Scene final : public RigelObject
     {
     public:
-        Scene(const Scene&) = delete;
-        Scene operator = (const Scene&) = delete;
-
-        NODISCARD inline uid_t GetID() const { return m_ID; }
-
         NODISCARD GOHandle AddGameObject();
     INTERNAL:
-        Scene(std::string name, const uid_t uid);
+        explicit Scene(std::string name = "New Scene");
         ~Scene();
 
         void OnLoad();
@@ -32,7 +28,6 @@ namespace rge
         NODISCARD bool CheckGOValidity(const uid_t id);
     private:
         std::string m_Name;
-        uid_t m_ID;
 
         std::unordered_map<uid_t, GameObject*> m_Objects;
     };

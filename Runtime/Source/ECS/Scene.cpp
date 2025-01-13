@@ -7,11 +7,12 @@
 
 namespace rge
 {
-    Scene::Scene(std::string name, const uid_t uid)
-        : m_Name(std::move(name)), m_ID(uid)
+    Scene::Scene(std::string name)
+        : RigelObject(), m_Name(std::move(name))
     {
-
+        m_ID = UIDGenerator::Generate();
     }
+    Scene::~Scene() = default;
 
     void Scene::OnLoad()
     {
@@ -40,8 +41,6 @@ namespace rge
             return true;
         return false;
     }
-
-    Scene::~Scene() = default;
 
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id)
         :   m_Ptr(ptr), m_ID(id) { }
