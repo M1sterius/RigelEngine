@@ -27,11 +27,10 @@ namespace rge
     GOHandle Scene::AddGameObject()
     {
         auto go = new GameObject("New Game Object");
-        auto id = UIDGenerator::Generate();
 
-        m_Objects[id] = go;
+        m_Objects[go->GetID()] = go;
 
-        return {go, m_ID, id};
+        return {go, go->GetID()};
     }
 
     bool Scene::CheckGOValidity(const uid_t id)
@@ -42,21 +41,14 @@ namespace rge
         return false;
     }
 
-    SceneHandle::SceneHandle(Scene* ptr, const uid_t id)
-        :   m_Ptr(ptr), m_ID(id) { }
-
-    bool SceneHandle::IsNull() const
+    // Handle
+    SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
+    bool SceneHandle::IsValid()
     {
-        return m_Ptr == nullptr || m_ID == NULL_ID;
+        return true;
     }
-
-    bool SceneHandle::IsValid() const
+    bool SceneHandle::IsNull()
     {
-        return false;
-    }
-
-    SceneHandle SceneHandle::NULL_HANDLE()
-    {
-        return {nullptr, NULL_ID};
+        return m_Ptr == nullptr && m_ObjectID == NULL_ID;
     }
 }

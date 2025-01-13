@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RigelHandle.hpp"
 #include "RigelObject.hpp"
 #include "Utils/Types.hpp"
 #include "Utils/Internal.hpp"
@@ -21,23 +22,12 @@ namespace rge
         std::string m_Name;
     };
 
-    struct GOHandle final
+    class GOHandle final : public RigelHandle<GameObject>
     {
     public:
-        GameObject* operator -> () { return m_Ptr; }
-        NODISCARD inline uid_t GetID() const { return m_GameObjectID; }
-        NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
-        NODISCARD bool IsValid() const;
-        NODISCARD bool IsNull() const;
-
-        static GOHandle NULL_HANDLE();
-
-        ~GOHandle() = default;
+        NODISCARD bool IsValid() override;
+        NODISCARD bool IsNull() override;
     INTERNAL:
-        GOHandle(GameObject* ptr, const uid_t sceneID, const uid_t goID);
-    private:
-        GameObject* m_Ptr;
-        uid_t m_GameObjectID;
-        uid_t m_SceneID;
+        GOHandle(GameObject* ptr, const uid_t id);
     };
 }

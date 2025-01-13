@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RigelObject.hpp"
+#include "RigelHandle.hpp"
 #include "Utils/Internal.hpp"
 #include "Utils/Types.hpp"
 #include "Utils/NODISCARD.hpp"
@@ -32,21 +33,12 @@ namespace rge
         std::unordered_map<uid_t, GameObject*> m_Objects;
     };
 
-    struct SceneHandle final
+    class SceneHandle final : public RigelHandle<Scene>
     {
     public:
-        Scene* operator -> () { return m_Ptr; }
-        NODISCARD uid_t GetID() const { return m_ID; }
-        NODISCARD bool IsValid() const;
-        NODISCARD bool IsNull() const;
-
-        static SceneHandle NULL_HANDLE();
-
-        ~SceneHandle() = default;
+        NODISCARD bool IsValid() override;
+        NODISCARD bool IsNull() override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);
-    private:
-        Scene* m_Ptr;
-        uid_t m_ID;
     };
 }

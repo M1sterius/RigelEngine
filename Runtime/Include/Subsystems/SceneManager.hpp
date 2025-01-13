@@ -9,7 +9,7 @@
 namespace rge
 {
     class Scene;
-    struct SceneHandle;
+    class SceneHandle;
 
     class SceneManager final
     {

@@ -38,7 +38,7 @@ namespace rge
     {
         auto it = m_Scenes.find(id);
         if (it == m_Scenes.end())
-            return SceneHandle::NULL_HANDLE();
+            return {nullptr, NULL_ID};
 
         return {it->second, id};
     }

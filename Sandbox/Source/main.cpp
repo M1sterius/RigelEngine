@@ -13,6 +13,8 @@ int32_t main(int32_t argc, char* argv[])
     auto& sceneManager = rge::SceneManager::Get();
     auto scene = sceneManager.CreateScene();
 
+    print(scene.GetID());
+
     auto go = scene->AddGameObject();
     print(go.GetID());
 
