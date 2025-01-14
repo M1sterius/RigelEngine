@@ -18,11 +18,23 @@ namespace rge
     void Scene::OnLoad()
     {
         rge::Logger::VerboseMessage("Loading scene: " + m_Name);
+
+        for (auto& object : m_Objects)
+            object.second->OnLoad();
     }
 
     void Scene::OnUnload()
     {
         rge::Logger::VerboseMessage("Unloading scene: " + m_Name);
+
+        for (auto& object : m_Objects)
+            object.second->OnUnload();
+    }
+
+    void Scene::OnGameUpdate()
+    {
+        for (auto& object : m_Objects)
+            object.second->OnGameUpdate();
     }
 
     GOHandle Scene::AddGameObject()
@@ -42,6 +54,12 @@ namespace rge
         return false;
     }
 
+    bool Scene::IsLoaded() const
+    {
+        auto& manager = rge::Engine::Get()->GetSceneManager();
+        return m_ID == manager.GetLoadedScene().GetID();
+    }
+
     // Handle
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
     bool SceneHandle::IsValid() const
@@ -53,7 +71,6 @@ namespace rge
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }
-
     bool SceneHandle::operator == (const RigelHandle& other) const
     {
         auto otherHandle = dynamic_cast<const SceneHandle*>(&other);
@@ -61,7 +78,6 @@ namespace rge
 
         return m_Ptr == otherHandle->m_Ptr && m_ObjectID == otherHandle->m_ObjectID;
     }
-
     bool SceneHandle::operator != (const RigelHandle& other) const
     {
         return !(*this == other);

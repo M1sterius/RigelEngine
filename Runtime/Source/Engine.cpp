@@ -67,7 +67,6 @@ namespace rge
 
             EngineUpdate();
 
-            printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
             LimitFPS(sw.Stop().AsSeconds(), Time::GetTargetFPS());
         }
     }
@@ -82,5 +81,12 @@ namespace rge
         // Scene render
         // Gizmo render
         // GUI render
+
+        // Game update
+        if (GetSceneManager().IsSceneLoaded())
+        {
+            auto scene = GetSceneManager().GetLoadedScene();
+            scene->OnGameUpdate();
+        }
     }
 }

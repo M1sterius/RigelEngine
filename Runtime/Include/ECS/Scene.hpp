@@ -17,6 +17,8 @@ namespace rge
     {
     public:
         NODISCARD GOHandle AddGameObject();
+
+        NODISCARD bool IsLoaded() const;
     INTERNAL:
         explicit Scene(std::string name = "New Scene");
         ~Scene();
@@ -25,6 +27,7 @@ namespace rge
 
         void OnLoad();
         void OnUnload();
+        void OnGameUpdate();
     private:
         std::string m_Name;
 

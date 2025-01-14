@@ -10,8 +10,6 @@ namespace rge
     class RGE_API Time
     {
     public:
-        friend class Engine;
-
         NODISCARD static inline float64_t GetDeltaTime() { return DeltaTime; }
         NODISCARD static inline float32_t GetDeltaTimeF() { return static_cast<float32_t>(DeltaTime); }
 
@@ -34,5 +32,7 @@ namespace rge
         static float64_t DeltaTime;
         static uint64_t FrameCount;
         static uint64_t TargetFPS;
+
+        friend class Engine;
     };
 }
