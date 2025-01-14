@@ -13,6 +13,9 @@ namespace rge
     }
     void SceneManager::Shutdown()
     {
+        for (const auto& scene : m_Scenes)
+            delete scene.second;
+
         rge::Logger::VerboseMessage("SceneManager successfully shutdown.");
     }
 
@@ -26,8 +29,10 @@ namespace rge
 
     void SceneManager::LoadScene(SceneHandle& scene)
     {
-        if (scene.IsNull())
-            throw std::runtime_error("Attempted to load a null scene.");
+        if (scene.IsNull() || !IsSceneHandleValid(scene))
+            throw std::runtime_error("Attempted to load an invalid scene.");
+        if (m_LoadedScene == scene)
+            throw std::runtime_error("Attempted to load the scene that's already been loaded.");
 
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();
@@ -40,7 +45,8 @@ namespace rge
     {
         auto it = m_Scenes.find(id);
         if (it == m_Scenes.end())
-            return {nullptr, NULL_ID};
+            throw std::runtime_error("Attempted to retrieve a scene by an invalid ID.");
+
         return {it->second, id};
     }
 
@@ -50,5 +56,13 @@ namespace rge
             throw std::runtime_error("No scene is currently loaded.");
 
         return m_LoadedScene;
+    }
+
+    bool SceneManager::IsSceneHandleValid(const SceneHandle& handle) const
+    {
+        auto it = m_Scenes.find(handle.GetID());
+        if (it != m_Scenes.end())
+            return true;
+        else return false;
     }
 }

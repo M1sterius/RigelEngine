@@ -24,4 +24,17 @@ namespace rge
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }
+
+    bool GOHandle::operator == (const RigelHandle& other) const
+    {
+        auto otherHandle = dynamic_cast<const GOHandle*>(&other);
+        if (!otherHandle) return false; // Different types
+
+        return m_Ptr == otherHandle->m_Ptr && m_ObjectID == otherHandle->m_ObjectID;
+    }
+
+    bool GOHandle::operator != (const RigelHandle& other) const
+    {
+        return !(*this == other);
+    }
 }

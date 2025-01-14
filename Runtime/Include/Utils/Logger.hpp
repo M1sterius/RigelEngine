@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NODISCARD.hpp"
+#include "Utils/RGE_API.hpp"
 
 #include <cstdint>
 #include <string>
@@ -15,7 +16,7 @@ namespace rge
         ERROR = 8
     };
 
-    class Logger
+    class RGE_API Logger
     {
     public:
         static void Log(const std::string& log, const LOG_TYPE type);

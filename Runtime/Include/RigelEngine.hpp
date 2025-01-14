@@ -13,6 +13,7 @@
 // Precompiled headers
 #include "Utils/RGE_PCH.hpp"
 #include "Utils/STD_PCH.hpp"
+#include "Utils/RGE_API.hpp"
 
 // Subsystems
 #include "Subsystems/SceneManager.hpp"

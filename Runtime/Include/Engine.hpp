@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils/NODISCARD.hpp"
+#include "Utils/RGE_API.hpp"
 
 #include <memory>
 
@@ -8,7 +9,7 @@ namespace rge
 {
     class SceneManager;
 
-    class Engine
+    class RGE_API Engine
     {
     public:
         Engine(const Engine& other) = delete;

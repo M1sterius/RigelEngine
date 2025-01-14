@@ -5,6 +5,7 @@
 #include "Utils/Internal.hpp"
 #include "Utils/Types.hpp"
 #include "Utils/NODISCARD.hpp"
+#include "Utils/RGE_API.hpp"
 
 #include <string>
 #include <memory>
@@ -33,11 +34,14 @@ namespace rge
         std::unordered_map<uid_t, GameObject*> m_Objects;
     };
 
-    class SceneHandle final : public RigelHandle<Scene>
+    class RGE_API SceneHandle final : public RigelHandle<Scene>
     {
     public:
         NODISCARD bool IsValid() const override;
         NODISCARD bool IsNull() const override;
+
+        bool operator == (const RigelHandle& other) const override;
+        bool operator != (const RigelHandle& other) const override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);
     };

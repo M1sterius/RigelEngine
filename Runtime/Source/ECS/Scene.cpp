@@ -45,10 +45,24 @@ namespace rge
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
     bool SceneHandle::IsValid() const
     {
-        return true;
+        const auto& sceneManager = rge::SceneManager::Get();
+        return sceneManager.IsSceneHandleValid(*this);
     }
     bool SceneHandle::IsNull() const
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
+    }
+
+    bool SceneHandle::operator == (const RigelHandle& other) const
+    {
+        auto otherHandle = dynamic_cast<const SceneHandle*>(&other);
+        if (!otherHandle) return false; // Different types
+
+        return m_Ptr == otherHandle->m_Ptr && m_ObjectID == otherHandle->m_ObjectID;
+    }
+
+    bool SceneHandle::operator != (const RigelHandle& other) const
+    {
+        return !(*this == other);
     }
 }

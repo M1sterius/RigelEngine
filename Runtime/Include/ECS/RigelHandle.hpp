@@ -14,10 +14,13 @@ namespace rge
         inline T* operator -> ()
         {
             if (IsNull())
-                throw std::runtime_error("RigelHandle was a null handle!");
+                throw std::runtime_error("A RigelHandle was a null handle!");
             return m_Ptr;
         }
         NODISCARD inline uid_t GetID() const { return m_ObjectID; }
+
+        virtual bool operator == (const RigelHandle& other) const = 0;
+        virtual bool operator != (const RigelHandle& other) const = 0;
 
         ~RigelHandle() = default;
     protected:

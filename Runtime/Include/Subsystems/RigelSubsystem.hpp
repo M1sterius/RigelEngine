@@ -1,6 +1,8 @@
 #pragma once
 
+#include <mutex>
 #include "Utils/NODISCARD.hpp"
+#include "Utils/RGE_API.hpp"
 
 namespace rge
 {
@@ -13,7 +15,7 @@ namespace rge
 
         NODISCARD inline static T& Get()
         {
-            static auto instance = T();
+            static T instance;
             return instance;
         }
     protected:

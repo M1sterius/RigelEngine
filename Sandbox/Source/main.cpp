@@ -13,6 +13,9 @@ int32_t main(int32_t argc, char* argv[])
     auto& sceneManager = rge::SceneManager::Get();
     auto scene = sceneManager.CreateScene();
 
+    print(sceneManager.IsSceneHandleValid(scene));
+    print(scene.IsValid());
+
     sceneManager.LoadScene(scene);
 
     engine->Run();
