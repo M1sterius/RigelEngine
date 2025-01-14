@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Utils/HeaderUtils.hpp"
+
 #include <mutex>
-#include "Utils/NODISCARD.hpp"
-#include "Utils/RGE_API.hpp"
 
 namespace rge
 {

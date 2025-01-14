@@ -2,16 +2,14 @@
 
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
-#include "Utils/Types.hpp"
-#include "Utils/Internal.hpp"
-#include "Utils/NODISCARD.hpp"
+#include "Utils/HeaderUtils.hpp"
 
 #include <string>
 #include <iostream>
 
 namespace rge
 {
-    class GameObject final : public RigelObject
+    class RGE_API GameObject final : public RigelObject
     {
     public:
         inline void Bruh() { std::cout << "Bruh\n"; }

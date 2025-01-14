@@ -1,9 +1,8 @@
 #pragma once
 
 #include "RigelSubsystem.hpp"
-#include "Utils/Types.hpp"
 #include "ECS/Scene.hpp"
-#include "Utils/RGE_API.hpp"
+#include "Utils/HeaderUtils.hpp"
 
 #include <memory>
 #include <string>

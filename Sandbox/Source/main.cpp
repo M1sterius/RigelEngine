@@ -11,7 +11,9 @@ int32_t main(int32_t argc, char* argv[])
     auto engine = rge::Engine::Get();
 
     auto& sceneManager = engine->GetSceneManager();
+
     auto scene = sceneManager.CreateScene();
+    auto go = scene->AddGameObject();
 
     sceneManager.LoadScene(scene);
 

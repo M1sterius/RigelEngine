@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Utils/Types.hpp"
-#include "Utils/NODISCARD.hpp"
+#include "Utils/HeaderUtils.hpp"
 
 namespace rge
 {

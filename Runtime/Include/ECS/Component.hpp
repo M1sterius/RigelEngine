@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Utils/HeaderUtils.hpp"
+
 namespace rge
 {
-    class Component
+    class RGE_API Component
     {
 
     };

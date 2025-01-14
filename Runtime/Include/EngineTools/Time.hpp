@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Utils/NODISCARD.hpp"
 #include "Utils/Stopwatch.hpp"
-#include "Utils/Types.hpp"
-#include "Utils/RGE_API.hpp"
+#include "Utils/HeaderUtils.hpp"
 
 namespace rge
 {

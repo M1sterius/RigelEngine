@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Utils/NODISCARD.hpp"
-#include "Utils/RGE_API.hpp"
+#include "Utils/HeaderUtils.hpp"
 
 #include <memory>
 
