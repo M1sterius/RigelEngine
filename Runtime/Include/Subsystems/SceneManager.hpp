@@ -11,7 +11,9 @@
 
 namespace rge
 {
-    class RGE_API SceneManager final : public RigelSubsystem<SceneManager>
+    class Engine;
+
+    class RGE_API SceneManager final : public RigelSubsystem
     {
     public:
         NODISCARD SceneHandle CreateScene(const std::string& name = "New Scene");
@@ -32,6 +34,6 @@ namespace rge
         SceneManager();
         ~SceneManager() = default;
 
-        friend class RigelSubsystem<SceneManager>;
+        friend class Engine;
     };
 }

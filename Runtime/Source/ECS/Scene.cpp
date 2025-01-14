@@ -4,6 +4,7 @@
 #include "SceneManager.hpp"
 #include "GameObject.hpp"
 #include "UIDGenerator.hpp"
+#include "Engine.hpp"
 
 namespace rge
 {
@@ -45,7 +46,7 @@ namespace rge
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
     bool SceneHandle::IsValid() const
     {
-        const auto& sceneManager = rge::SceneManager::Get();
+        const auto& sceneManager = rge::Engine::Get()->GetSceneManager();
         return sceneManager.IsSceneHandleValid(*this);
     }
     bool SceneHandle::IsNull() const

@@ -31,7 +31,8 @@ namespace rge
         rge::Logger::VerboseMessage("Engine core successfully initialized.");
 
         // Start up all subsystems
-        rge::SceneManager::Get().Startup();
+        m_SceneManager = new SceneManager();
+        m_SceneManager->Startup();
 
         rge::Time::GlobalTimeStopwatch.Start();
         m_IsRunning = true;
@@ -40,11 +41,18 @@ namespace rge
     void Engine::InternalShutdown()
     {
         // Shut down all subsystems
-        rge::SceneManager::Get().Shutdown();
+        m_SceneManager->Shutdown();
+        delete m_SceneManager;
 
         rge::Time::GlobalTimeStopwatch.Stop();
 
         rge::Logger::VerboseMessage("Engine core successfully shut down.");
+    }
+
+    SceneManager& Engine::GetSceneManager() const
+    {
+        ASSERT(m_SceneManager != nullptr, "Attempted to retrieve a SceneManager instance before it has been initialized.")
+        return *m_SceneManager;
     }
 
     void Engine::Run()

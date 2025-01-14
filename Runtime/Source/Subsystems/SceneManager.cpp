@@ -6,7 +6,7 @@
 
 namespace rge
 {
-    SceneManager::SceneManager() : RigelSubsystem<SceneManager>(), m_LoadedScene(nullptr, NULL_ID) { }
+    SceneManager::SceneManager() : m_LoadedScene(nullptr, NULL_ID) { }
     void SceneManager::Startup()
     {
         rge::Logger::VerboseMessage("SceneManager successfully initialized.");
@@ -31,8 +31,8 @@ namespace rge
     {
         if (scene.IsNull() || !IsSceneHandleValid(scene))
             throw std::runtime_error("Attempted to load an invalid scene.");
-        if (m_LoadedScene == scene)
-            throw std::runtime_error("Attempted to load the scene that's already been loaded.");
+
+        ASSERT(m_LoadedScene != scene, "Attempted to load the scene that's already been loaded.");
 
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();
@@ -52,9 +52,7 @@ namespace rge
 
     SceneHandle SceneManager::GetLoadedScene() const
     {
-        if (!IsSceneLoaded())
-            throw std::runtime_error("No scene is currently loaded.");
-
+        ASSERT(IsSceneLoaded(), "No scene is currently loaded.");
         return m_LoadedScene;
     }
 

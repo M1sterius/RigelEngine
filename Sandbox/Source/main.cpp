@@ -10,11 +10,8 @@ int32_t main(int32_t argc, char* argv[])
     rge::Engine::Startup();
     auto engine = rge::Engine::Get();
 
-    auto& sceneManager = rge::SceneManager::Get();
+    auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();
-
-    print(sceneManager.IsSceneHandleValid(scene));
-    print(scene.IsValid());
 
     sceneManager.LoadScene(scene);
 
