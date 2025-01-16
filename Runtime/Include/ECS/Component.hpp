@@ -14,18 +14,18 @@ namespace rge
         virtual ~Component() = default;
     };
 
-    class ComponentHandle final : public RigelHandle<Component>
+    template<typename T>
+    class ComponentHandle
     {
     public:
-        NODISCARD bool IsValid() const override;
-        NODISCARD bool IsNull() const override;
-        NODISCARD inline uid_t GetGameObjectID() const { return m_GameObjectID; }
-
-        bool operator == (const RigelHandle& other) const override;
-        bool operator != (const RigelHandle& other) const override;
-    INTERNAL:
-        ComponentHandle(Component* ptr, const uid_t id, const uid_t objectID);
+        inline T* operator -> ()
+        {
+            return m_Ptr;
+        }
+        ComponentHandle(T* ptr, uid_t id, uid_t goID) : m_Ptr(ptr), m_ID(id), m_GameObjectID(goID) {}
     private:
-        uid_t m_GameObjectID = NULL_ID;
+        T* m_Ptr;
+        uid_t m_ID;
+        uid_t m_GameObjectID;
     };
 }

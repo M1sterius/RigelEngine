@@ -71,15 +71,4 @@ namespace rge
     {
         return m_Ptr == nullptr || m_ObjectID == NULL_ID;
     }
-    bool SceneHandle::operator == (const RigelHandle& other) const
-    {
-        auto otherHandle = dynamic_cast<const SceneHandle*>(&other);
-        if (!otherHandle) return false; // Different types
-
-        return m_Ptr == otherHandle->m_Ptr && m_ObjectID == otherHandle->m_ObjectID;
-    }
-    bool SceneHandle::operator != (const RigelHandle& other) const
-    {
-        return !(*this == other);
-    }
 }

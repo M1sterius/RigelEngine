@@ -22,7 +22,7 @@ namespace rge
         void SetActive(const bool active);
 
         template<typename T, typename... Args>
-        ComponentHandle AddComponent(Args&&... args)
+        ComponentHandle<T> AddComponent(Args&&... args)
         {
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
 
@@ -31,27 +31,27 @@ namespace rge
 
             m_Components[id] = component;
 
-            return ConstructComponentHandle(component, id);
+            return ComponentHandle<T>(static_cast<T*>(component), id, m_ID);
         }
 
         template<typename T>
-        ComponentHandle GetComponent()
+        ComponentHandle<T> GetComponent()
         {
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
 
             for (const auto& [id, component] : m_Components)
             {
                 if (auto cast = dynamic_cast<T*>(component))
-                    return ConstructComponentHandle(component, id);
+                    return ComponentHandle<T>(cast, id, m_ID);
             }
 
-            return ConstructComponentHandle(nullptr, NULL_ID);
+            return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID);
         }
     INTERNAL:
         explicit GameObject(std::string name = "Game Object");
         ~GameObject();
 
-        ComponentHandle ConstructComponentHandle(Component* ptr, const uid_t id);
+//        ComponentHandle ConstructComponentHandle(Component* ptr, const uid_t id);
 
         // Event functions
         void OnLoad();
@@ -70,9 +70,6 @@ namespace rge
     public:
         NODISCARD bool IsValid() const override;
         NODISCARD bool IsNull() const override;
-
-        bool operator == (const RigelHandle& other) const override;
-        bool operator != (const RigelHandle& other) const override;
     INTERNAL:
         GOHandle(GameObject* ptr, const uid_t id);
     };

@@ -39,9 +39,6 @@ namespace rge
     public:
         NODISCARD bool IsValid() const override;
         NODISCARD bool IsNull() const override;
-
-        bool operator == (const RigelHandle& other) const override;
-        bool operator != (const RigelHandle& other) const override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);
     };

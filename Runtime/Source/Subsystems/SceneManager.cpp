@@ -32,7 +32,7 @@ namespace rge
         if (scene.IsNull() || !IsSceneHandleValid(scene))
             throw std::runtime_error("Attempted to load an invalid scene.");
 
-        ASSERT(m_LoadedScene != scene, "Attempted to load the scene that's already been loaded.");
+        ASSERT(m_LoadedScene.GetID() != scene.GetID(), "Attempted to load the scene that's already been loaded.");
 
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();

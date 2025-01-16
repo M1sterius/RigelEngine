@@ -5,14 +5,8 @@
 class TestComponent : public rge::Component
 {
 public:
-    TestComponent()
-    {
-
-    }
-    ~TestComponent() override
-    {
-
-    }
+    TestComponent() = default;
+    ~TestComponent() override = default;
 
     void DoSomething()
     {
@@ -33,8 +27,8 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene();
     auto go = scene->AddGameObject();
     go->AddComponent<TestComponent>();
-
-    auto cp = go->GetComponent<TestComponent>();
+    auto c = go->GetComponent<TestComponent>();
+    c->DoSomething();
 
     sceneManager.LoadScene(scene);
 
