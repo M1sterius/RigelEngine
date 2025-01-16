@@ -34,8 +34,9 @@ namespace rge
 
         void EngineUpdate();
 
-        SceneManager* m_SceneManager = nullptr;
+        void GameUpdate() const;
 
+        SceneManager* m_SceneManager = nullptr;
         static RGE_API Engine* m_Instance;
     };
 }

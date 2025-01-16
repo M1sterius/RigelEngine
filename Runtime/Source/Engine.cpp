@@ -82,7 +82,12 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        // Game update
+        GameUpdate();
+
+    }
+
+    void Engine::GameUpdate() const
+    {
         if (GetSceneManager().IsSceneLoaded())
         {
             auto scene = GetSceneManager().GetLoadedScene();

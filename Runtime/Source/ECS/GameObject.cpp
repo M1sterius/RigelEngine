@@ -28,6 +28,30 @@ namespace rge
         printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
     }
 
+    void GameObject::SetActive(const bool active)
+    {
+        if (m_IsActive == false && active == true)
+            OnEnable();
+        else if (m_IsActive == true && active == false)
+            OnDisable();
+        m_IsActive = active;
+    }
+
+    void GameObject::OnEnable()
+    {
+
+    }
+
+    void GameObject::OnDisable()
+    {
+
+    }
+
+    ComponentHandle GameObject::ConstructComponentHandle(Component* ptr, const uid_t id)
+    {
+        return {ptr, id, m_ID};
+    }
+
     // Handle
     GOHandle::GOHandle(GameObject* ptr, const uid_t id) : RigelHandle(ptr, id) { }
     bool GOHandle::IsValid() const
