@@ -18,6 +18,7 @@ add_library(RigelEngine SHARED
     Source/Utils/Internal/UIDGenerator.cpp
     Source/Utils/Internal/UIDGenerator.hpp
         Source/ECS/RigelObject.cpp
+        Source/Renderer/Renderer.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

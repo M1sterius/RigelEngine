@@ -2,6 +2,7 @@
 
 #include "Time.hpp"
 #include "SceneManager.hpp"
+#include "Renderer/Renderer.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
 #include "UIDGenerator.hpp"
@@ -18,12 +19,18 @@ namespace rge
         m_SceneManager = new SceneManager();
         m_SceneManager->Startup();
 
+        m_Renderer = new Renderer();
+        m_Renderer->Startup();
+
         rge::Time::GlobalTimeStopwatch.Start();
         m_IsRunning = true;
     }
     void Engine::Shutdown()
     {
         // Shut down all subsystems
+        m_Renderer->Shutdown();
+        delete m_Renderer;
+
         m_SceneManager->Shutdown();
         delete m_SceneManager;
 
@@ -34,8 +41,14 @@ namespace rge
 
     SceneManager& Engine::GetSceneManager() const
     {
-        ASSERT(m_SceneManager != nullptr, "Attempted to retrieve a SceneManager instance before it has been initialized.")
+        ASSERT(m_SceneManager != nullptr, "Attempted to retrieve a rge::SceneManager instance before it has been initialized.")
         return *m_SceneManager;
+    }
+
+    Renderer& Engine::GetRenderer() const
+    {
+        ASSERT(m_Renderer != nullptr, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
+        return *m_Renderer;
     }
 
     void Engine::Run()

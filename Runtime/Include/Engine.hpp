@@ -7,6 +7,7 @@
 namespace rge
 {
     class SceneManager;
+    class Renderer;
 
     class RGE_API Engine
     {
@@ -20,6 +21,7 @@ namespace rge
         NODISCARD bool IsRunning() const { return m_IsRunning; }
 
         NODISCARD SceneManager& GetSceneManager() const;
+        NODISCARD Renderer& GetRenderer() const;
 
         void Startup();
         void Run();
@@ -37,6 +39,7 @@ namespace rge
 
         // Subsystem Instances
         SceneManager* m_SceneManager = nullptr;
+        Renderer* m_Renderer = nullptr;
 
         static RGE_API Engine* m_GlobalInstance;
     };
