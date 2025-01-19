@@ -12,20 +12,35 @@ namespace rge
     protected:
         Component();
         virtual ~Component() = default;
+
+        // Event functions
+        virtual void Load() { }
+        virtual void Start() { }
+        virtual void OnEnable() { }
+        virtual void OnDisable() { }
+        virtual void Update() { }
+        virtual void OnDestroy() { }
+
+        friend class GameObject;
     };
 
     template<typename T>
-    class ComponentHandle
+    class ComponentHandle final : public RigelHandle<T>
     {
     public:
-        inline T* operator -> ()
+        NODISCARD bool IsValid() const override
         {
-            return m_Ptr;
+            return true;
         }
-        ComponentHandle(T* ptr, uid_t id, uid_t goID) : m_Ptr(ptr), m_ID(id), m_GameObjectID(goID) {}
+        NODISCARD bool IsNull() const override
+        {
+            return this->m_Ptr == nullptr || this->m_ObjectID == NULL_ID || m_GameObjectID == NULL_ID;
+        }
+
+        ComponentHandle(T* ptr, uid_t id, uid_t goID)
+            : RigelHandle<T>(ptr, id), m_GameObjectID(goID) { }
     private:
-        T* m_Ptr;
-        uid_t m_ID;
-        uid_t m_GameObjectID;
+        uid_t m_GameObjectID = NULL_ID;
     };
+
 }

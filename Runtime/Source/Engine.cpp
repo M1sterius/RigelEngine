@@ -8,25 +8,9 @@
 
 namespace rge
 {
-    Engine* Engine::m_Instance = nullptr;
+    Engine* Engine::m_GlobalInstance = nullptr;
 
     void Engine::Startup()
-    {
-        ASSERT(m_Instance == nullptr, "Core subsystem has already been initialized!")
-        m_Instance = new Engine();
-        m_Instance->InternalStartup(); // Startup redirected to non-static method to avoid having to use m_Instance->
-    }
-    void Engine::Shutdown()
-    {
-        ASSERT(m_Instance != nullptr, "Unable to shutdown Core subsystem because "
-                  "it's either not initialized yet or has already been shut down!")
-
-        m_Instance->InternalShutdown(); // Shutdown redirected to non-static method to avoid having to use m_Instance->
-        delete m_Instance;
-        m_Instance = nullptr;
-    }
-
-    void Engine::InternalStartup()
     {
         rge::Logger::VerboseMessage("Engine core successfully initialized.");
 
@@ -37,8 +21,7 @@ namespace rge
         rge::Time::GlobalTimeStopwatch.Start();
         m_IsRunning = true;
     }
-
-    void Engine::InternalShutdown()
+    void Engine::Shutdown()
     {
         // Shut down all subsystems
         m_SceneManager->Shutdown();
@@ -93,5 +76,13 @@ namespace rge
             auto scene = GetSceneManager().GetLoadedScene();
             scene->OnGameUpdate();
         }
+    }
+
+    std::unique_ptr<Engine> Engine::CreateInstance()
+    {
+        auto instance = new Engine();
+        ASSERT(instance != nullptr, "Failed to create RigelEngine instance.");
+        m_GlobalInstance = instance;
+        return std::unique_ptr<Engine>(instance);
     }
 }

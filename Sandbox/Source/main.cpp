@@ -5,12 +5,28 @@
 class TestComponent : public rge::Component
 {
 public:
-    TestComponent() = default;
-    ~TestComponent() override = default;
-
-    void DoSomething()
+    void Load() override
     {
-        print("something is done!");
+        print("Load!");
+    }
+
+    void Start() override
+    {
+        print("Start!");
+    }
+
+    void Update() override
+    {
+        printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
+    }
+};
+
+class Rigidbody : public rge::Component
+{
+public:
+    void Calc()
+    {
+        print("Calc!");
     }
 };
 
@@ -19,20 +35,17 @@ int32_t main(int32_t argc, char* argv[])
     rge::Logger::SetConsoleColorsVisibility(true);
     rge::Time::SetTargetFPS(60);
 
-    rge::Engine::Startup();
-    auto engine = rge::Engine::Get();
+    auto engine = rge::Engine::CreateInstance();
+    engine->Startup();
 
     auto& sceneManager = engine->GetSceneManager();
-
     auto scene = sceneManager.CreateScene();
     auto go = scene->AddGameObject();
     go->AddComponent<TestComponent>();
-    auto c = go->GetComponent<TestComponent>();
-    c->DoSomething();
 
     sceneManager.LoadScene(scene);
 
     engine->Run();
 
-    rge::Engine::Shutdown();
+    engine->Shutdown();
 }

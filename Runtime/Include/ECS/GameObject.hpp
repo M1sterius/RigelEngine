@@ -51,8 +51,6 @@ namespace rge
         explicit GameObject(std::string name = "Game Object");
         ~GameObject();
 
-//        ComponentHandle ConstructComponentHandle(Component* ptr, const uid_t id);
-
         // Event functions
         void OnLoad();
         void OnUnload();

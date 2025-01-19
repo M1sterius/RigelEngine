@@ -15,17 +15,22 @@ namespace rge
 
     void GameObject::OnLoad()
     {
-
+        for (auto& [ _, ptr] : m_Components)
+            ptr->Load();
+        for (auto& [ _, ptr] : m_Components)
+            ptr->Start();
     }
 
     void GameObject::OnUnload()
     {
-
+        for (auto& [ _, ptr] : m_Components)
+            ptr->OnDestroy();
     }
 
     void GameObject::OnGameUpdate()
     {
-        printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
+        for (auto& [ _, ptr] : m_Components)
+            ptr->Update();
     }
 
     void GameObject::SetActive(const bool active)
@@ -39,18 +44,15 @@ namespace rge
 
     void GameObject::OnEnable()
     {
-
+        for (auto& [ _, ptr] : m_Components)
+            ptr->OnEnable();
     }
 
     void GameObject::OnDisable()
     {
-
+        for (auto& [ _, ptr] : m_Components)
+            ptr->OnDisable();
     }
-
-//    ComponentHandle GameObject::ConstructComponentHandle(Component* ptr, const uid_t id)
-//    {
-//        return {ptr, id, m_ID};
-//    }
 
     // Handle
     GOHandle::GOHandle(GameObject* ptr, const uid_t id) : RigelHandle(ptr, id) { }
