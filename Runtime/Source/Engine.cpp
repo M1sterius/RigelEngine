@@ -79,7 +79,6 @@ namespace rge
         // GUI render
 
         GameUpdate();
-
     }
 
     void Engine::GameUpdate() const

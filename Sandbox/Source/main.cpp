@@ -41,7 +41,7 @@ int32_t main(int32_t argc, char* argv[])
     auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();
     auto go = scene->AddGameObject();
-    go->AddComponent<TestComponent>();
+    auto t = go->AddComponent<TestComponent>();
 
     sceneManager.LoadScene(scene);
 

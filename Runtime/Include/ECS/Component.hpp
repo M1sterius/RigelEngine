@@ -38,9 +38,8 @@ namespace rge
         }
 
         ComponentHandle(T* ptr, uid_t id, uid_t goID)
-            : RigelHandle<T>(ptr, id), m_GameObjectID(goID) { }
+            :   RigelHandle<T>(ptr, id), m_GameObjectID(goID) { }
     private:
         uid_t m_GameObjectID = NULL_ID;
     };
-
 }

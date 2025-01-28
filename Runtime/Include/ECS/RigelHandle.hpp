@@ -17,6 +17,7 @@ namespace rge
                 throw std::runtime_error("A RigelHandle was a null handle!");
             return m_Ptr;
         }
+
         NODISCARD inline uid_t GetID() const { return m_ObjectID; }
 
         ~RigelHandle() = default;

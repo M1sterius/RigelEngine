@@ -17,7 +17,7 @@ namespace rge
         ~Engine() = default;
 
         static RGE_API std::unique_ptr<Engine> CreateInstance();
-        NODISCARD inline static bool IsInitialized() { return (m_GlobalInstance != nullptr); }
+
         NODISCARD bool IsRunning() const { return m_IsRunning; }
 
         NODISCARD SceneManager& GetSceneManager() const;
@@ -27,7 +27,7 @@ namespace rge
         void Run();
         void Shutdown();
     INTERNAL:
-        // Returns the global engine core instance, only for internal engine use
+        // Returns the global engine core instance, for internal engine use only
         NODISCARD inline static Engine* Get() { return m_GlobalInstance; }
     private:
         Engine() = default;
