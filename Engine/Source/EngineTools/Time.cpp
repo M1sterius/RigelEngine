@@ -50,8 +50,8 @@ namespace rge
         const float64_t correctedDeltaTime = (deltaTime >= MAX_DELTA_TIME_SECONDS || deltaTime <= MIN_DELTA_TIME_SECONDS)
                     ? FALLBACK_DELTA_TIME_SECONDS : deltaTime;
 
-        if (correctedDeltaTime != deltaTime)
-            Logger::Warning("Time::DeltaTime was outside of the allowed ranged with the value of: " + std::to_string(deltaTime));
+        // if (correctedDeltaTime != deltaTime)
+        //     Logger::Warning("Time::DeltaTime was outside of the allowed ranged with the value of: " + std::to_string(deltaTime));
 
         return correctedDeltaTime;
     }

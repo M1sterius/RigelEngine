@@ -14,11 +14,13 @@ add_library(RigelEngine SHARED
     Source/ECS/Scene.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-    Source/Utils/Public/Logger.cpp
-    Source/Utils/Internal/UIDGenerator.cpp
+        Source/Utils/Internal/UIDGenerator.cpp
     Source/Utils/Internal/UIDGenerator.hpp
     Source/ECS/RigelObject.cpp
     Source/Subsystems/Renderer/Renderer.cpp
+        Source/EngineTools/Debug.cpp
+        Include/EngineTools/Debug.hpp
+        Source/Backend/Logger.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

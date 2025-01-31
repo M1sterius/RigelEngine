@@ -9,14 +9,12 @@ namespace rge
     SceneManager::SceneManager() : m_LoadedScene(nullptr, NULL_ID) { }
     void SceneManager::Startup()
     {
-        rge::Logger::VerboseMessage("SceneManager successfully initialized.");
+
     }
     void SceneManager::Shutdown()
     {
         for (const auto& scene : m_Scenes)
             delete scene.second;
-
-        rge::Logger::VerboseMessage("SceneManager successfully shutdown.");
     }
 
     SceneHandle SceneManager::CreateScene(const std::string& name)

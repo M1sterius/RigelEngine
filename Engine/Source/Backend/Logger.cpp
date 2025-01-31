@@ -13,12 +13,17 @@ namespace rge
     const char* Logger::CONSOLE_COLOR_YELLOW = "\033[33m";
     const char* Logger::CONSOLE_COLOR_RED = "\033[31m";
 
-    bool Logger::EnableConsoleColors = true;
-    uint8_t Logger::VisibilityMask = LOG_TYPE::VERBOSE_MESSAGE | LOG_TYPE::MESSAGE | LOG_TYPE::WARNING | LOG_TYPE::ERROR;
-
-    void Logger::Log(const std::string& log, const LOG_TYPE type)
+    Logger::Logger()
+        : m_VisibilityMask(LOG_TYPE::LOG_MESSAGE | LOG_TYPE::LOG_WARNING | LOG_TYPE::LOG_ERROR | LOG_TYPE::LOG_VERBOSE_MESSAGE)
     {
-        if (!(VisibilityMask & type)) return;
+
+    }
+
+    Logger::~Logger() = default;
+
+    void Logger::Log(const std::string& log, const LOG_TYPE type) const
+    {
+        if (!(m_VisibilityMask & type)) return;
 
         if (EnableConsoleColors) ChangeConsoleTextColor(GetColorCode(type));
         printf("%s %s\n", GetFormattedTime().c_str(), log.c_str());
@@ -27,35 +32,27 @@ namespace rge
 
     void Logger::VerboseMessage(const std::string& message)
     {
-        #ifdef DEBUG_BUILD
-        Log(message, LOG_TYPE::VERBOSE_MESSAGE);
-        #endif
+        Log(message, LOG_TYPE::LOG_VERBOSE_MESSAGE);
     }
 
-    void Logger::Message(const std::string& message)
+    void Logger::Message(const std::string& message) const
     {
-        #ifdef DEBUG_BUILD
-        Log(message, LOG_TYPE::MESSAGE);
-        #endif
+        Log(message, LOG_TYPE::LOG_MESSAGE);
     }
 
-    void Logger::Warning(const std::string& warning)
+    void Logger::Warning(const std::string& warning) const
     {
-        #ifdef DEBUG_BUILD
-        Log(warning, LOG_TYPE::WARNING);
-        #endif
+        Log(warning, LOG_TYPE::LOG_WARNING);
     }
 
-    void Logger::Error(const std::string& error)
+    void Logger::Error(const std::string& error) const
     {
-        #ifndef RIGEL_DISABLE_ERROR_LOGS_IN_NON_DEBUG
-        Log(error, LOG_TYPE::ERROR);
-        #endif
+        Log(error, LOG_TYPE::LOG_ERROR);
     }
 
     void Logger::ChangeLogsVisibilityMask(const LOG_TYPE type, const bool visibility)
     {
-        VisibilityMask = visibility ? (VisibilityMask | type) : (VisibilityMask & ~type);
+        m_VisibilityMask = visibility ? (m_VisibilityMask | type) : (m_VisibilityMask & ~type);
     }
 
     std::string Logger::GetFormattedTime()
@@ -77,10 +74,10 @@ namespace rge
     {
         switch (type)
         {
-            case VERBOSE_MESSAGE: return CONSOLE_COLOR_GREEN;
-            case MESSAGE: return CONSOLE_COLOR_DEFAULT;
-            case WARNING: return CONSOLE_COLOR_YELLOW;
-            case ERROR: return CONSOLE_COLOR_RED;
+            case LOG_MESSAGE: return CONSOLE_COLOR_DEFAULT;
+            case LOG_WARNING: return CONSOLE_COLOR_YELLOW;
+            case LOG_ERROR: return CONSOLE_COLOR_RED;
+            case LOG_VERBOSE_MESSAGE: return CONSOLE_COLOR_GREEN;
             default: return CONSOLE_COLOR_DEFAULT;
         }
     }
@@ -88,10 +85,5 @@ namespace rge
     void Logger::ChangeConsoleTextColor(const char* colorCode)
     {
         std::cout << colorCode;
-    }
-
-    void Logger::SetConsoleColorsVisibility(const bool visibility)
-    {
-        EnableConsoleColors = visibility;
     }
 }

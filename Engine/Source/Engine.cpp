@@ -1,10 +1,10 @@
 #include "Engine.hpp"
 
-#include "Time.hpp"
 #include "SceneManager.hpp"
 #include "Renderer/Renderer.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
+#include "Backend/Logger.hpp"
 
 namespace rge
 {
@@ -12,8 +12,6 @@ namespace rge
 
     void Engine::Startup()
     {
-        rge::Logger::VerboseMessage("Initializing Rigel engine.");
-
         // Instantiate and start up all subsystems
         m_SceneManager = new SceneManager();
         m_SceneManager->Startup();
@@ -35,8 +33,6 @@ namespace rge
         delete m_SceneManager;
 
         m_GlobalTimeStopwatch.Stop();
-
-        rge::Logger::VerboseMessage("Engine core successfully shut down.");
     }
 
     SceneManager& Engine::GetSceneManager() const

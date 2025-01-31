@@ -35,7 +35,6 @@ int32_t main(int32_t argc, char* argv[])
     auto engine = rge::Engine::CreateInstance();
     engine->Startup();
 
-    rge::Logger::SetConsoleColorsVisibility(true);
     rge::Time::SetTargetFPS(30);
 
     auto& sceneManager = engine->GetSceneManager();

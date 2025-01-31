@@ -17,16 +17,12 @@ namespace rge
 
     void Scene::OnLoad()
     {
-        rge::Logger::VerboseMessage("Loading scene: " + m_Name);
-
         for (auto& object : m_Objects)
             object.second->OnLoad();
     }
 
     void Scene::OnUnload()
     {
-        rge::Logger::VerboseMessage("Unloading scene: " + m_Name);
-
         for (auto& object : m_Objects)
             object.second->OnUnload();
     }

@@ -9,6 +9,7 @@ namespace rge
 {
     class SceneManager;
     class Renderer;
+    class Logger;
 
     class RGE_API Engine
     {
@@ -42,7 +43,7 @@ namespace rge
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
         Stopwatch m_DeltaTimeStopwatch;
-        float64_t m_DeltaTime = 0.0;
+        float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
         uint64_t m_FrameCounter = 0;
 
         void EngineUpdate();
