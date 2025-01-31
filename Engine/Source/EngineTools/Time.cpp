@@ -8,7 +8,7 @@ namespace rge
     float64_t Time::GetDeltaTime()
     {
         const auto& engine = Engine::Get();
-        return engine.GetDeltaTime();
+        return CorrectDeltaTime(engine.GetDeltaTime());
     }
 
     float32_t Time::GetDeltaTimeF()
@@ -45,5 +45,15 @@ namespace rge
         engine.TargetFps = fps;
     }
 
+    float64_t Time::CorrectDeltaTime(const float64_t deltaTime)
+    {
+        const float64_t correctedDeltaTime = (deltaTime >= MAX_DELTA_TIME_SECONDS || deltaTime <= MIN_DELTA_TIME_SECONDS)
+                    ? FALLBACK_DELTA_TIME_SECONDS : deltaTime;
+
+        if (correctedDeltaTime != deltaTime)
+            Logger::Warning("Time::DeltaTime was outside of the allowed ranged with the value of: " + std::to_string(deltaTime));
+
+        return correctedDeltaTime;
+    }
 
 }

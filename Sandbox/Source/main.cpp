@@ -36,7 +36,7 @@ int32_t main(int32_t argc, char* argv[])
     engine->Startup();
 
     rge::Logger::SetConsoleColorsVisibility(true);
-    rge::Time::SetTargetFPS(120);
+    rge::Time::SetTargetFPS(30);
 
     auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();

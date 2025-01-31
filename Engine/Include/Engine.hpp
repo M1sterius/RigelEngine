@@ -19,7 +19,7 @@ namespace rge
 
         static RGE_API std::unique_ptr<Engine> CreateInstance();
 
-        NODISCARD bool IsRunning() const { return m_IsRunning; }
+        NODISCARD bool IsRunning() const { return m_Running; }
 
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
@@ -39,7 +39,7 @@ namespace rge
     private:
         Engine() = default;
 
-        bool m_IsRunning = false;
+        bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
         Stopwatch m_DeltaTimeStopwatch;
         float64_t m_DeltaTime = 0.0;

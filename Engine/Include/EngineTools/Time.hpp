@@ -21,5 +21,7 @@ namespace rge
         static constexpr float64_t MAX_DELTA_TIME_SECONDS = 1.0;
         static constexpr float64_t MIN_DELTA_TIME_SECONDS = 0.0001;
         static constexpr float64_t FALLBACK_DELTA_TIME_SECONDS = 0.016;
+    private:
+        NODISCARD static float64_t CorrectDeltaTime(float64_t deltaTime);
     };
 }

@@ -5,7 +5,6 @@
 #include "Renderer/Renderer.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
-#include "UIDGenerator.hpp"
 
 namespace rge
 {
@@ -22,7 +21,7 @@ namespace rge
         m_Renderer = new Renderer();
         m_Renderer->Startup();
 
-        m_IsRunning = true;
+        m_Running = true;
         m_GlobalTimeStopwatch.Start();
     }
 
@@ -95,7 +94,7 @@ namespace rge
 
     std::unique_ptr<Engine> Engine::CreateInstance()
     {
-        auto instance = new Engine();
+        const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance.");
         m_GlobalInstance = instance;
         return std::unique_ptr<Engine>(instance);
