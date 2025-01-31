@@ -13,18 +13,19 @@ namespace rge
 
     void Engine::Startup()
     {
-        rge::Logger::VerboseMessage("Engine core successfully initialized.");
+        rge::Logger::VerboseMessage("Initializing Rigel engine.");
 
-        // Start up all subsystems
+        // Instantiate and start up all subsystems
         m_SceneManager = new SceneManager();
         m_SceneManager->Startup();
 
         m_Renderer = new Renderer();
         m_Renderer->Startup();
 
-        rge::Time::GlobalTimeStopwatch.Start();
         m_IsRunning = true;
+        m_GlobalTimeStopwatch.Start();
     }
+
     void Engine::Shutdown()
     {
         // Shut down all subsystems
@@ -34,7 +35,7 @@ namespace rge
         m_SceneManager->Shutdown();
         delete m_SceneManager;
 
-        rge::Time::GlobalTimeStopwatch.Stop();
+        m_GlobalTimeStopwatch.Stop();
 
         rge::Logger::VerboseMessage("Engine core successfully shut down.");
     }
@@ -53,17 +54,19 @@ namespace rge
 
     void Engine::Run()
     {
+        auto fpsLimitStopwatch = Stopwatch();
+        m_DeltaTimeStopwatch.Start();
+
         while (IsRunning())
         {
-            rge::Time::SetDeltaTime(rge::Time::DeltaTimeStopwatch.Restart().AsSeconds());
-            rge::Time::FrameCount++;
-
-            static auto sw = Stopwatch();
-            sw.Start();
+            fpsLimitStopwatch.Start();
 
             EngineUpdate();
 
-            LimitFPS(sw.Stop().AsSeconds(), Time::GetTargetFPS());
+            LimitFPS(fpsLimitStopwatch.Stop().AsSeconds(), TargetFps);
+
+            m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
+            m_FrameCounter++;
         }
     }
 

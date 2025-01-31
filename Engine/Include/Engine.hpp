@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils/HeaderUtils.hpp"
+#include "Utils/Stopwatch.hpp"
 
 #include <memory>
 
@@ -27,12 +28,22 @@ namespace rge
         void Run();
         void Shutdown();
     INTERNAL:
-        // Returns the global engine core instance, for internal engine use only
-        NODISCARD inline static Engine* Get() { return m_GlobalInstance; }
+        // Returns the global engine core instance, for internal use only
+        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
+
+        NODISCARD inline float64_t GetGlobalTime() const { return m_GlobalTimeStopwatch.GetElapsed().AsSeconds(); }
+        NODISCARD inline float64_t GetDeltaTime() const { return m_DeltaTime; }
+        NODISCARD inline uint64_t GetFrameCount() const { return m_FrameCounter; }
+
+        uint64_t TargetFps = 240;
     private:
         Engine() = default;
 
         bool m_IsRunning = false;
+        Stopwatch m_GlobalTimeStopwatch;
+        Stopwatch m_DeltaTimeStopwatch;
+        float64_t m_DeltaTime = 0.0;
+        uint64_t m_FrameCounter = 0;
 
         void EngineUpdate();
         void GameUpdate() const;

@@ -5,7 +5,7 @@ project(RigelEngine)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Runtime/${CMAKE_BUILD_TYPE})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 
 add_library(RigelEngine SHARED
     Source/Engine.cpp
@@ -17,8 +17,8 @@ add_library(RigelEngine SHARED
     Source/Utils/Public/Logger.cpp
     Source/Utils/Internal/UIDGenerator.cpp
     Source/Utils/Internal/UIDGenerator.hpp
-        Source/ECS/RigelObject.cpp
-        Source/Renderer/Renderer.cpp
+    Source/ECS/RigelObject.cpp
+    Source/Subsystems/Renderer/Renderer.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -47,6 +47,7 @@ target_include_directories(RigelEngine PRIVATE
     Include/Core
     Include/Utils
     Include/Subsystems
+    Include/Subsystems/Renderer
     Include/EngineTools
     Include/Subsystems/Filesystem
     Include/Subsystems/SceneManager
@@ -65,7 +66,7 @@ target_link_libraries(RigelEngine PRIVATE
 )
 
 # copy .dll file
-set(DLL_DIR ${CMAKE_SOURCE_DIR}/Bin/Runtime/${CMAKE_BUILD_TYPE}/RigelEngine.dll)
+set(DLL_DIR ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/RigelEngine.dll)
 set(DLL_COPY_OUT_DIR ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD_TYPE})
 add_custom_command(TARGET RigelEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

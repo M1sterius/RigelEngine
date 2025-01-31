@@ -16,6 +16,11 @@
 
 // Subsystems
 #include "Subsystems/SceneManager.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
+
+// Object management
+#include "ECS/RigelObject.hpp"
+#include "ECS/RigelHandle.hpp"
 
 // ECS
 #include "ECS/Scene.hpp"

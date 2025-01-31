@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NODISCARD.hpp"
-#include "Utils/RGE_API.hpp"
+#include "RGE_API.hpp"
 
 #include <cstdint>
 #include <string>

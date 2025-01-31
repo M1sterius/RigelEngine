@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils/Types.hpp"
+#include "Types.hpp"
 #include "NODISCARD.hpp"
 
 #include <chrono>

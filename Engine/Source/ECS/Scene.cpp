@@ -56,7 +56,7 @@ namespace rge
 
     bool Scene::IsLoaded() const
     {
-        auto& manager = rge::Engine::Get()->GetSceneManager();
+        auto& manager = rge::Engine::Get().GetSceneManager();
         return m_ID == manager.GetLoadedScene().GetID();
     }
 
@@ -64,7 +64,7 @@ namespace rge
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle<Scene>(ptr, id) { }
     bool SceneHandle::IsValid() const
     {
-        const auto& sceneManager = rge::Engine::Get()->GetSceneManager();
+        const auto& sceneManager = rge::Engine::Get().GetSceneManager();
         return sceneManager.IsSceneHandleValid(*this);
     }
     bool SceneHandle::IsNull() const

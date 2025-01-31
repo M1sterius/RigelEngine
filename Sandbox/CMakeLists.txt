@@ -8,5 +8,5 @@ add_executable(Sandbox
     Source/main.cpp
 )
 
-target_include_directories(Sandbox PRIVATE ${CMAKE_SOURCE_DIR}/Runtime/Include)
+target_include_directories(Sandbox PRIVATE ${CMAKE_SOURCE_DIR}/Engine/Include)
 target_link_libraries(Sandbox PRIVATE RigelEngine)
