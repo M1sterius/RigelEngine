@@ -24,7 +24,7 @@ namespace rge
         bool EnableConsoleColors = true;
 
         void Log(const std::string& log, const LOG_TYPE type) const;
-        void VerboseMessage(const std::string& message);
+        void VerboseMessage(const std::string& message) const;
         void Message(const std::string& message) const;
         void Warning(const std::string& warning) const;
         void Error(const std::string& error) const;

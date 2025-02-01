@@ -24,6 +24,7 @@ namespace rge
 
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
+        NODISCARD Logger& GetLogger() const;
 
         void Run();
     INTERNAL:
@@ -52,7 +53,7 @@ namespace rge
         // Subsystem Instances
         std::unique_ptr<SceneManager> m_SceneManager;
         std::unique_ptr<Renderer> m_Renderer;
-        Logger* m_Logger = nullptr;
+        std::unique_ptr<Logger> m_Logger;
 
         static RGE_API Engine* m_GlobalInstance;
     };

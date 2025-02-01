@@ -29,6 +29,7 @@
 
 // Misc
 #include "EngineTools/Time.hpp"
+#include "EngineTools/Debug.hpp"
 #include "Utils/RGE_API.hpp"
 
 #endif

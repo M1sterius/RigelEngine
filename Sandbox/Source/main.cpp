@@ -35,6 +35,7 @@ int32_t main(int32_t argc, char* argv[])
     auto engine = rge::Engine::CreateInstance();
 
     rge::Time::SetTargetFPS(30);
+    rge::Debug::VerboseMessage("Some message!");
 
     auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();

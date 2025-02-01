@@ -32,6 +32,7 @@ namespace rge
     void Engine::Startup()
     {
         // Instantiate and start up all subsystems
+        m_Logger = std::make_unique<Logger>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_Renderer = std::make_unique<Renderer>();
 
@@ -50,14 +51,20 @@ namespace rge
 
     SceneManager& Engine::GetSceneManager() const
     {
-        ASSERT(m_SceneManager != nullptr, "Attempted to retrieve a rge::SceneManager instance before it has been initialized.")
+        ASSERT(m_SceneManager, "Attempted to retrieve a rge::SceneManager instance before it has been initialized.")
         return *m_SceneManager;
     }
 
     Renderer& Engine::GetRenderer() const
     {
-        ASSERT(m_Renderer != nullptr, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
+        ASSERT(m_Renderer, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
         return *m_Renderer;
+    }
+
+    Logger& Engine::GetLogger() const
+    {
+        ASSERT(m_Logger, "Attempted to retrieve a rge::Logger instance before it has been initialized.");
+        return *m_Logger;
     }
 
     void Engine::Run()

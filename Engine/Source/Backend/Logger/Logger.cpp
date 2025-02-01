@@ -30,7 +30,7 @@ namespace rge
         if (EnableConsoleColors) ChangeConsoleTextColor(CONSOLE_COLOR_DEFAULT);
     }
 
-    void Logger::VerboseMessage(const std::string& message)
+    void Logger::VerboseMessage(const std::string& message) const
     {
         Log(message, LOG_TYPE::LOG_VERBOSE_MESSAGE);
     }
