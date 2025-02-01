@@ -2,6 +2,16 @@
 
 namespace rge
 {
+    Renderer::Renderer()
+    {
+        Startup();
+    }
+
+    Renderer::~Renderer()
+    {
+        Shutdown();
+    }
+
     void Renderer::Startup()
     {
 

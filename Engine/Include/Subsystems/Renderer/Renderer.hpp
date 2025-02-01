@@ -10,12 +10,10 @@ namespace rge
     {
     public:
     INTERNAL:
+        Renderer();
+        ~Renderer();
+    private:
         void Startup() override;
         void Shutdown() override;
-    private:
-        Renderer() = default;
-        ~Renderer() = default;
-
-        friend class Engine;
     };
 }

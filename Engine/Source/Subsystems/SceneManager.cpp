@@ -6,7 +6,17 @@
 
 namespace rge
 {
-    SceneManager::SceneManager() : m_LoadedScene(nullptr, NULL_ID) { }
+    SceneManager::SceneManager()
+        :   m_LoadedScene(nullptr, NULL_ID)
+    {
+        Startup();
+    }
+
+    SceneManager::~SceneManager()
+    {
+        Shutdown();
+    }
+
     void SceneManager::Startup()
     {
 
@@ -41,7 +51,7 @@ namespace rge
 
     SceneHandle SceneManager::GetSceneByID(const uid_t id) const
     {
-        auto it = m_Scenes.find(id);
+        const auto it = m_Scenes.find(id);
         if (it == m_Scenes.end())
             throw std::runtime_error("Attempted to retrieve a scene by an invalid ID.");
 
@@ -56,8 +66,7 @@ namespace rge
 
     bool SceneManager::IsSceneHandleValid(const SceneHandle& handle) const
     {
-        auto it = m_Scenes.find(handle.GetID());
-        if (it != m_Scenes.end())
+        if (const auto it = m_Scenes.find(handle.GetID()); it != m_Scenes.end())
             return true;
         else return false;
     }

@@ -4,20 +4,36 @@
 #include "Renderer/Renderer.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
-#include "Backend/Logger.hpp"
+#include "Backend/Logger/Logger.hpp"
 
 namespace rge
 {
     Engine* Engine::m_GlobalInstance = nullptr;
 
+    Engine::Engine()
+    {
+        Startup();
+    }
+
+    Engine::~Engine()
+    {
+        Shutdown();
+    }
+
+    std::unique_ptr<Engine> Engine::CreateInstance()
+    {
+        ASSERT(m_GlobalInstance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
+        const auto instance = new Engine();
+        ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
+        m_GlobalInstance = instance;
+        return std::unique_ptr<Engine>(instance);
+    }
+
     void Engine::Startup()
     {
         // Instantiate and start up all subsystems
-        m_SceneManager = new SceneManager();
-        m_SceneManager->Startup();
-
-        m_Renderer = new Renderer();
-        m_Renderer->Startup();
+        m_SceneManager = std::make_unique<SceneManager>();
+        m_Renderer = std::make_unique<Renderer>();
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
@@ -26,11 +42,8 @@ namespace rge
     void Engine::Shutdown()
     {
         // Shut down all subsystems
-        m_Renderer->Shutdown();
-        delete m_Renderer;
-
-        m_SceneManager->Shutdown();
-        delete m_SceneManager;
+        m_Renderer.reset();
+        m_SceneManager.reset();
 
         m_GlobalTimeStopwatch.Stop();
     }
@@ -86,13 +99,5 @@ namespace rge
             auto scene = GetSceneManager().GetLoadedScene();
             scene->OnGameUpdate();
         }
-    }
-
-    std::unique_ptr<Engine> Engine::CreateInstance()
-    {
-        const auto instance = new Engine();
-        ASSERT(instance != nullptr, "Failed to create RigelEngine instance.");
-        m_GlobalInstance = instance;
-        return std::unique_ptr<Engine>(instance);
     }
 }

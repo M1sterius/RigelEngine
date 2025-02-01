@@ -33,7 +33,6 @@ public:
 int32_t main(int32_t argc, char* argv[])
 {
     auto engine = rge::Engine::CreateInstance();
-    engine->Startup();
 
     rge::Time::SetTargetFPS(30);
 
@@ -45,6 +44,4 @@ int32_t main(int32_t argc, char* argv[])
     sceneManager.LoadScene(scene);
 
     engine->Run();
-
-    engine->Shutdown();
 }

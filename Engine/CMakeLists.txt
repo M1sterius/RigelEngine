@@ -20,7 +20,7 @@ add_library(RigelEngine SHARED
     Source/Subsystems/Renderer/Renderer.cpp
         Source/EngineTools/Debug.cpp
         Include/EngineTools/Debug.hpp
-        Source/Backend/Logger.cpp
+        Source/Backend/Logger/Logger.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

@@ -24,15 +24,13 @@ namespace rge
 
         void LoadScene(SceneHandle& scene);
     INTERNAL:
+        SceneManager();
+        ~SceneManager();
+    private:
         void Startup() override;
         void Shutdown() override;
 
         std::unordered_map<uid_t, Scene*> m_Scenes;
         SceneHandle m_LoadedScene;
-    private:
-        SceneManager();
-        ~SceneManager() = default;
-
-        friend class Engine;
     };
 }

@@ -16,7 +16,7 @@ namespace rge
     public:
         Engine(const Engine& other) = delete;
         Engine& operator = (const Engine&) = delete;
-        ~Engine() = default;
+        ~Engine();
 
         static RGE_API std::unique_ptr<Engine> CreateInstance();
 
@@ -25,9 +25,7 @@ namespace rge
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
 
-        void Startup();
         void Run();
-        void Shutdown();
     INTERNAL:
         // Returns the global engine core instance, for internal use only
         NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
@@ -38,7 +36,9 @@ namespace rge
 
         uint64_t TargetFps = 240;
     private:
-        Engine() = default;
+        Engine();
+        void Shutdown();
+        void Startup();
 
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
@@ -50,8 +50,9 @@ namespace rge
         void GameUpdate() const;
 
         // Subsystem Instances
-        SceneManager* m_SceneManager = nullptr;
-        Renderer* m_Renderer = nullptr;
+        std::unique_ptr<SceneManager> m_SceneManager;
+        std::unique_ptr<Renderer> m_Renderer;
+        Logger* m_Logger = nullptr;
 
         static RGE_API Engine* m_GlobalInstance;
     };
