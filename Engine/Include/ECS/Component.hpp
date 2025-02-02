@@ -2,16 +2,17 @@
 
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
+#include "Utils/Serialization/ISerializable.hpp"
 #include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 namespace rge
 {
-    class RGE_API Component : public RigelObject
+    class RGE_API Component : public RigelObject, public ISerializable
     {
     public:
     protected:
         Component();
-        virtual ~Component() = default;
+        ~Component() override = default;
 
         // Event functions
         virtual void Load() { }

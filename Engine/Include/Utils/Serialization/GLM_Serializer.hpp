@@ -1,15 +1,21 @@
 #pragma once
 
+#include "glm.hpp"
 #include "json.hpp"
 #include "Utils/HeaderUtils/HeaderUtils.hpp"
-//#include "json_fwd.hpp"
-#include "glm.hpp"
 
 namespace rge
 {
     class RGE_API GLM_Serializer
     {
     public:
+        /**
+         * Serializes glm::vecN into a json
+         * @tparam T glm::vecN type (glm::vec1, glm::vec2, glm::vec3, glm::vec4)
+         * @tparam SIZE The number of floats the vector consists of
+         * @param obj The vector to be serialized
+         * @return nlohmann::json that contains serialized glm::vecN variable
+         */
         template <typename T, size_t SIZE>
         static nlohmann::json Serialize(const T& obj)
         {

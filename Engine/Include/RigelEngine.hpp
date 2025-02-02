@@ -27,9 +27,14 @@
 #include "ECS/GameObject.hpp"
 #include "ECS/Component.hpp"
 
+#include "ECS/Components/Transform.hpp"
+
 // Misc
 #include "EngineTools/Time.hpp"
 #include "EngineTools/Debug.hpp"
 #include "Utils/HeaderUtils/RGE_API.hpp"
+#include "Utils/Serialization/ISerializable.hpp"
+#include "Utils/Serialization/GLM_Serializer.hpp"
+#include "json.hpp"
 
 #endif

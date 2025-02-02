@@ -3,6 +3,7 @@
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
 #include "Component.hpp"
+#include "Components/Transform.hpp"
 #include "Utils/HeaderUtils/HeaderUtils.hpp"
 #include "Scene.hpp"
 

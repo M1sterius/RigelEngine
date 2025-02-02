@@ -17,13 +17,15 @@ add_library(RigelEngine SHARED
     Source/Utils/Internal/UIDGenerator.cpp
     Source/Utils/Internal/UIDGenerator.hpp
     Source/ECS/RigelObject.cpp
-        Source/Subsystems/Renderer.cpp
+    Source/Subsystems/Renderer.cpp
     Source/EngineTools/Debug.cpp
     Include/EngineTools/Debug.hpp
     Source/Backend/Logger/Logger.cpp
     Include/Utils/Serialization/ISerializable.hpp
-        Source/Utils/Serialization/GLM_Serializer.cpp
-        Include/Utils/Serialization/GLM_Serializer.hpp
+    Source/Utils/Serialization/GLM_Serializer.cpp
+    Include/Utils/Serialization/GLM_Serializer.hpp
+    Source/ECS/Components/Transform.cpp
+    Include/ECS/Components/Transform.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -47,6 +49,8 @@ target_precompile_headers(RigelEngine PUBLIC
 )
 
 set (DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+
+# Include paths that will only be included inside the library
 target_include_directories(RigelEngine PRIVATE
     Include
     Include/ECS
@@ -60,6 +64,10 @@ target_include_directories(RigelEngine PRIVATE
     Include/Subsystems/SceneManager
 
     Source/Utils/Internal
+)
+
+# Libraries that should be available outside to the projects linking Engine
+target_include_directories(RigelEngine PUBLIC
 
     ${DEPENDENCIES_DIR}/nlohmann_json
     ${DEPENDENCIES_DIR}/glm

@@ -19,14 +19,15 @@ public:
     {
         printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
     }
-};
 
-class Rigidbody : public rge::Component
-{
-public:
-    void Calc()
+    NODISCARD nlohmann::json Serialize() const override
     {
-        print("Calc!");
+
+    }
+
+    void Deserialize(const nlohmann::json& json) override
+    {
+
     }
 };
 
@@ -39,7 +40,7 @@ int32_t main(int32_t argc, char* argv[])
     auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();
     auto go = scene->AddGameObject();
-    auto t = go->AddComponent<TestComponent>();
+    auto transform = go->AddComponent<rge::Transform>();
 
     sceneManager.LoadScene(scene);
 
