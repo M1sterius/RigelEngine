@@ -1,24 +1,20 @@
 #include "Engine.hpp"
 
 #include "SceneManager.hpp"
-#include "Renderer/Renderer.hpp"
+#include "Subsystems/Renderer.hpp"
 #include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
 #include "Backend/Logger/Logger.hpp"
+#include "json.hpp"
+
+#include "Utils/Serialization/GLM_Serializer.hpp"
 
 namespace rge
 {
     Engine* Engine::m_GlobalInstance = nullptr;
 
-    Engine::Engine()
-    {
-        Startup();
-    }
-
-    Engine::~Engine()
-    {
-        Shutdown();
-    }
+    Engine::Engine() { Startup(); }
+    Engine::~Engine() { Shutdown(); }
 
     std::unique_ptr<Engine> Engine::CreateInstance()
     {
@@ -31,10 +27,25 @@ namespace rge
 
     void Engine::Startup()
     {
-        // Instantiate and start up all subsystems
+        // Instantiate and start up all subsystems and global tools
         m_Logger = std::make_unique<Logger>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_Renderer = std::make_unique<Renderer>();
+
+        auto vec = glm::vec3(1, 2, 3);
+        auto pos = GLM_Serializer::Serialize(vec);
+        auto scale = GLM_Serializer::Serialize(glm::vec3(1, 1, 1));
+
+//        std::cout << json.dump(4) << '\n';
+
+        nlohmann::json jM;
+
+        jM["position"] = pos;
+        jM["scale"] = scale;
+
+        std::cout << jM.dump(4) << '\n';
+
+        auto vecD = GLM_Serializer::Deserialize(jM["position"]);
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
@@ -42,9 +53,10 @@ namespace rge
 
     void Engine::Shutdown()
     {
-        // Shut down all subsystems
+        // Shut down all subsystems and global tools
         m_Renderer.reset();
         m_SceneManager.reset();
+        m_Logger.reset();
 
         m_GlobalTimeStopwatch.Stop();
     }

@@ -16,7 +16,7 @@
 
 // Subsystems
 #include "Subsystems/SceneManager.hpp"
-#include "Subsystems/Renderer/Renderer.hpp"
+#include "Subsystems/Renderer.hpp"
 
 // Object management
 #include "ECS/RigelObject.hpp"
@@ -30,6 +30,6 @@
 // Misc
 #include "EngineTools/Time.hpp"
 #include "EngineTools/Debug.hpp"
-#include "Utils/RGE_API.hpp"
+#include "Utils/HeaderUtils/RGE_API.hpp"
 
 #endif

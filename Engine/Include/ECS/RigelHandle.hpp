@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utils/Types.hpp"
-#include "Utils/NODISCARD.hpp"
+#include "Utils/HeaderUtils/Types.hpp"
+#include "Utils/HeaderUtils/NODISCARD.hpp"
 
 #include <stdexcept>
 

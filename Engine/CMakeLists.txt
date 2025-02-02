@@ -14,13 +14,16 @@ add_library(RigelEngine SHARED
     Source/ECS/Scene.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-        Source/Utils/Internal/UIDGenerator.cpp
+    Source/Utils/Internal/UIDGenerator.cpp
     Source/Utils/Internal/UIDGenerator.hpp
     Source/ECS/RigelObject.cpp
-    Source/Subsystems/Renderer/Renderer.cpp
-        Source/EngineTools/Debug.cpp
-        Include/EngineTools/Debug.hpp
-        Source/Backend/Logger/Logger.cpp
+        Source/Subsystems/Renderer.cpp
+    Source/EngineTools/Debug.cpp
+    Include/EngineTools/Debug.hpp
+    Source/Backend/Logger/Logger.cpp
+    Include/Utils/Serialization/ISerializable.hpp
+        Source/Utils/Serialization/GLM_Serializer.cpp
+        Include/Utils/Serialization/GLM_Serializer.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -43,18 +46,23 @@ target_precompile_headers(RigelEngine PUBLIC
     Include/Utils/RGE_PCH.hpp
 )
 
+set (DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
 target_include_directories(RigelEngine PRIVATE
     Include
     Include/ECS
     Include/Core
     Include/Utils
     Include/Subsystems
+    Include/Utils/HeaderUtils
     Include/Subsystems/Renderer
     Include/EngineTools
     Include/Subsystems/Filesystem
     Include/Subsystems/SceneManager
 
     Source/Utils/Internal
+
+    ${DEPENDENCIES_DIR}/nlohmann_json
+    ${DEPENDENCIES_DIR}/glm
 )
 
 set(LINK_LIBRARIES "")

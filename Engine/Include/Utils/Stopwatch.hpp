@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Types.hpp"
-#include "NODISCARD.hpp"
+#include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 #include <chrono>
 #include <cstdint>

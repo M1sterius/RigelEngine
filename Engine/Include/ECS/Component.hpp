@@ -2,7 +2,7 @@
 
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
-#include "Utils/HeaderUtils.hpp"
+#include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 namespace rge
 {

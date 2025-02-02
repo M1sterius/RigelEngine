@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils/HeaderUtils.hpp"
+#include "Utils/HeaderUtils/HeaderUtils.hpp"
 #include "Utils/Stopwatch.hpp"
 
 #include <memory>
@@ -38,8 +38,12 @@ namespace rge
         uint64_t TargetFps = 240;
     private:
         Engine();
-        void Shutdown();
+
         void Startup();
+        void Shutdown();
+
+        void EngineUpdate();
+        void GameUpdate() const;
 
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
@@ -47,12 +51,11 @@ namespace rge
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
         uint64_t m_FrameCounter = 0;
 
-        void EngineUpdate();
-        void GameUpdate() const;
-
-        // Subsystem Instances
+        // Subsystem instances
         std::unique_ptr<SceneManager> m_SceneManager;
         std::unique_ptr<Renderer> m_Renderer;
+
+        // Global tools instances
         std::unique_ptr<Logger> m_Logger;
 
         static RGE_API Engine* m_GlobalInstance;

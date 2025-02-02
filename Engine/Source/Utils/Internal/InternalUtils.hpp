@@ -3,7 +3,7 @@
 #ifdef RIGEL_INTERNAL
 
 #include "Assert.hpp"
-#include "Internal.hpp"
-#include "Types.hpp"
+#include "Utils/HeaderUtils/Internal.hpp"
+#include "Utils/HeaderUtils/Types.hpp"
 
 #endif

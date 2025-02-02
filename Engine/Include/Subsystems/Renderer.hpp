@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../RigelSubsystem.hpp"
+#include "RigelSubsystem.hpp"
 
 namespace rge
 {

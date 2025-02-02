@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.hpp"
+#include "Utils/HeaderUtils/Types.hpp"
 
 namespace rge
 {

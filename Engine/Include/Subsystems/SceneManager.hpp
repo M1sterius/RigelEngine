@@ -2,7 +2,7 @@
 
 #include "RigelSubsystem.hpp"
 #include "ECS/Scene.hpp"
-#include "Utils/HeaderUtils.hpp"
+#include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 #include <memory>
 #include <string>

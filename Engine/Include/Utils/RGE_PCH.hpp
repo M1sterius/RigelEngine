@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Types.hpp"
+#include "Utils/HeaderUtils/Types.hpp"
 #include "Assert.hpp"
-#include "Internal.hpp"
+#include "Utils/HeaderUtils/Internal.hpp"
 #include "Stopwatch.hpp"
-#include "NODISCARD.hpp"
+#include "Utils/HeaderUtils/NODISCARD.hpp"

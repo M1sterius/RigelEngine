@@ -2,7 +2,7 @@
 
 #include "RigelObject.hpp"
 #include "RigelHandle.hpp"
-#include "Utils/HeaderUtils.hpp"
+#include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 #include <string>
 #include <memory>
