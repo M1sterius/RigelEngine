@@ -6,6 +6,7 @@
 #include "SleepUtility.hpp"
 #include "Backend/Logger/Logger.hpp"
 #include "json.hpp"
+#include "gtx/string_cast.hpp"
 
 #include "Utils/Serialization/GLM_Serializer.hpp"
 
@@ -31,21 +32,6 @@ namespace rge
         m_Logger = std::make_unique<Logger>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_Renderer = std::make_unique<Renderer>();
-
-        auto vec = glm::vec3(1, 2, 3);
-        auto pos = GLM_Serializer::Serialize(vec);
-        auto scale = GLM_Serializer::Serialize(glm::vec3(1, 1, 1));
-
-//        std::cout << json.dump(4) << '\n';
-
-        nlohmann::json jM;
-
-        jM["position"] = pos;
-        jM["scale"] = scale;
-
-        std::cout << jM.dump(4) << '\n';
-
-        auto vecD = GLM_Serializer::Deserialize(jM["position"]);
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
