@@ -2,8 +2,10 @@
 
 #include "HeaderUtils.hpp"
 #include "RigelHandle.hpp"
+#include "GameObject.hpp"
 
 #include <string>
+#include <unordered_map>
 
 namespace rge
 {
@@ -15,8 +17,10 @@ namespace rge
 
         NODISCARD inline uid_t GetID() const { return m_ID; }
         NODISCARD inline std::string GetName() const { return m_Name; }
+
+        NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
     private:
-        Scene(std::string name = "New scene");
+        explicit Scene(std::string name = "New scene");
         ~Scene();
 
         void OnLoad();
@@ -24,6 +28,8 @@ namespace rge
 
         uid_t m_ID = NULL_ID;
         std::string m_Name;
+
+        std::unordered_map<uid_t, GameObject*> m_Objects;
 
         friend class SceneManager;
     };

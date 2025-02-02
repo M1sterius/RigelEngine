@@ -21,6 +21,7 @@ add_library(RigelEngine SHARED
     Source/Utils/Serialization/GLM_Serializer.cpp
     Include/Utils/Serialization/GLM_Serializer.hpp
     Source/ECS/Scene.cpp
+        Source/ECS/GameObject.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -55,6 +56,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Utils
     Include/Subsystems
     Include/Utils/HeaderUtils
+    Include/Utils/Serialization
     Include/EngineTools
 )
 

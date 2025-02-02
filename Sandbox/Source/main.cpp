@@ -12,7 +12,7 @@ int32_t main(int32_t argc, char* argv[])
     rge::Time::SetTargetFPS(30);
 
     auto scene = sceneManager.CreateScene();
-    print(sceneManager.IsSceneHandleValid(scene));
+    sceneManager.LoadScene(scene);
 
     engine->Run();
 }

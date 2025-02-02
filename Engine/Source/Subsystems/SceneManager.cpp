@@ -1,4 +1,4 @@
-#include "Subsystems/SceneManager.hpp"
+#include "SceneManager.hpp"
 #include "Assert.hpp"
 
 #include <stdexcept>
