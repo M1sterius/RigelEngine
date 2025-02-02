@@ -1,21 +1,13 @@
-#include "SceneManager.hpp"
-#include "RGE_PCH.hpp"
-#include "UIDGenerator.hpp"
+#include "Subsystems/SceneManager.hpp"
+#include "Assert.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 namespace rge
 {
-    SceneManager::SceneManager()
-        :   m_LoadedScene(nullptr, NULL_ID)
-    {
-        Startup();
-    }
-
-    SceneManager::~SceneManager()
-    {
-        Shutdown();
-    }
+    SceneManager::SceneManager() : m_LoadedScene(SceneHandle(nullptr, NULL_ID)) { Startup(); }
+    SceneManager::~SceneManager() { Shutdown(); }
 
     void SceneManager::Startup()
     {
@@ -23,13 +15,13 @@ namespace rge
     }
     void SceneManager::Shutdown()
     {
-        for (const auto& scene : m_Scenes)
-            delete scene.second;
+//        for (const auto& scene : m_Scenes)
+//            delete scene.second;
     }
 
-    SceneHandle SceneManager::CreateScene(const std::string& name)
+    SceneHandle SceneManager::CreateScene(std::string name)
     {
-        auto scene = new rge::Scene(name);
+        const auto scene = new rge::Scene(std::move(name));
         m_Scenes[scene->GetID()] = scene;
 
         return {scene, scene->GetID()};

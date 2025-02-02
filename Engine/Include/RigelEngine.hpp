@@ -10,24 +10,13 @@
 
 #include "Engine.hpp"
 
-// Precompiled headers
-#include "Utils/RGE_PCH.hpp"
-#include "Utils/STD_PCH.hpp"
-
 // Subsystems
-#include "Subsystems/SceneManager.hpp"
-#include "Subsystems/Renderer.hpp"
-
-// Object management
-#include "ECS/RigelObject.hpp"
-#include "ECS/RigelHandle.hpp"
+#include "SceneManager.hpp"
+#include "Renderer.hpp"
 
 // ECS
-#include "ECS/Scene.hpp"
-#include "ECS/GameObject.hpp"
-#include "ECS/Component.hpp"
-
-#include "ECS/Components/Transform.hpp"
+#include "RigelHandle.hpp"
+#include "Scene.hpp"
 
 // Misc
 #include "EngineTools/Time.hpp"

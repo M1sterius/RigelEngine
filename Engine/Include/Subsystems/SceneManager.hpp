@@ -1,8 +1,8 @@
 #pragma once
 
 #include "RigelSubsystem.hpp"
-#include "ECS/Scene.hpp"
-#include "Utils/HeaderUtils/HeaderUtils.hpp"
+#include "HeaderUtils.hpp"
+#include "Scene.hpp"
 
 #include <memory>
 #include <string>
@@ -10,12 +10,10 @@
 
 namespace rge
 {
-    class Engine;
-
     class RGE_API SceneManager final : public RigelSubsystem
     {
     public:
-        NODISCARD SceneHandle CreateScene(const std::string& name = "New Scene");
+        NODISCARD SceneHandle CreateScene(std::string name = "New Scene");
         NODISCARD SceneHandle GetSceneByID(const uid_t id) const;
 
         NODISCARD bool IsSceneLoaded() const { return !m_LoadedScene.IsNull(); }

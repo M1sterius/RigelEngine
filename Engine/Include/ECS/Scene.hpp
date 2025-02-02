@@ -1,44 +1,38 @@
 #pragma once
 
-#include "RigelObject.hpp"
+#include "HeaderUtils.hpp"
 #include "RigelHandle.hpp"
-#include "Utils/HeaderUtils/HeaderUtils.hpp"
 
 #include <string>
-#include <memory>
-#include <unordered_map>
 
 namespace rge
 {
-    class GameObject;
-    struct GOHandle;
-
-    class RGE_API Scene final : public RigelObject
+    class RGE_API Scene final
     {
     public:
-        NODISCARD GOHandle AddGameObject();
+        Scene(const Scene&) = delete;
+        Scene operator = (const Scene&) = delete;
 
-        NODISCARD bool IsLoaded() const;
-    INTERNAL:
-        explicit Scene(std::string name = "New Scene");
+        NODISCARD inline uid_t GetID() const { return m_ID; }
+        NODISCARD inline std::string GetName() const { return m_Name; }
+    private:
+        Scene(std::string name = "New scene");
         ~Scene();
-
-        NODISCARD bool CheckGOValidity(const uid_t id);
 
         void OnLoad();
         void OnUnload();
-        void OnGameUpdate();
-    private:
+
+        uid_t m_ID = NULL_ID;
         std::string m_Name;
 
-        std::unordered_map<uid_t, GameObject*> m_Objects;
+        friend class SceneManager;
     };
 
-    class SceneHandle final : public RigelHandle<Scene>
+    class RGE_API SceneHandle final : public RigelHandle<Scene>
     {
     public:
-        NODISCARD bool IsValid() const override;
         NODISCARD bool IsNull() const override;
+        NODISCARD bool IsValid() const override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);
     };

@@ -2,9 +2,9 @@
 
 #include "SceneManager.hpp"
 #include "Subsystems/Renderer.hpp"
-#include "RGE_PCH.hpp"
 #include "SleepUtility.hpp"
 #include "Backend/Logger/Logger.hpp"
+#include "Assert.hpp"
 #include "json.hpp"
 #include "gtx/string_cast.hpp"
 
@@ -99,10 +99,10 @@ namespace rge
 
     void Engine::GameUpdate() const
     {
-        if (GetSceneManager().IsSceneLoaded())
-        {
-            auto scene = GetSceneManager().GetLoadedScene();
-            scene->OnGameUpdate();
-        }
+//        if (GetSceneManager().IsSceneLoaded())
+//        {
+//            auto scene = GetSceneManager().GetLoadedScene();
+//            scene->OnGameUpdate();
+//        }
     }
 }

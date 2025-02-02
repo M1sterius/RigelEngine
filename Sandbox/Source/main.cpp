@@ -1,48 +1,18 @@
 #include "RigelEngine.hpp"
 
+#include <iostream>
+
 #define print(x) std::cout << x << '\n'
-
-class TestComponent : public rge::Component
-{
-public:
-    void Load() override
-    {
-        print("Load!");
-    }
-
-    void Start() override
-    {
-        print("Start!");
-    }
-
-    void Update() override
-    {
-        printf("Frame: %zu, Delta time: %.4f\n", rge::Time::GetFrameCount(), rge::Time::GetDeltaTime());
-    }
-
-    NODISCARD nlohmann::json Serialize() const override
-    {
-
-    }
-
-    void Deserialize(const nlohmann::json& json) override
-    {
-
-    }
-};
 
 int32_t main(int32_t argc, char* argv[])
 {
     auto engine = rge::Engine::CreateInstance();
+    auto& sceneManager = engine->GetSceneManager();
 
     rge::Time::SetTargetFPS(30);
 
-    auto& sceneManager = engine->GetSceneManager();
     auto scene = sceneManager.CreateScene();
-    auto go = scene->AddGameObject();
-    auto transform = go->AddComponent<rge::Transform>();
-
-    sceneManager.LoadScene(scene);
+    print(sceneManager.IsSceneHandleValid(scene));
 
     engine->Run();
 }

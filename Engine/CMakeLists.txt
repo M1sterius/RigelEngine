@@ -9,14 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_
 
 add_library(RigelEngine SHARED
     Source/Engine.cpp
-    Source/ECS/GameObject.cpp
-    Source/ECS/Component.cpp
-    Source/ECS/Scene.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
+    Include/Subsystems/SceneManager.hpp
     Source/Utils/Internal/UIDGenerator.cpp
-    Source/Utils/Internal/UIDGenerator.hpp
-    Source/ECS/RigelObject.cpp
     Source/Subsystems/Renderer.cpp
     Source/EngineTools/Debug.cpp
     Include/EngineTools/Debug.hpp
@@ -24,8 +20,7 @@ add_library(RigelEngine SHARED
     Include/Utils/Serialization/ISerializable.hpp
     Source/Utils/Serialization/GLM_Serializer.cpp
     Include/Utils/Serialization/GLM_Serializer.hpp
-    Source/ECS/Components/Transform.cpp
-    Include/ECS/Components/Transform.hpp
+    Source/ECS/Scene.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -43,34 +38,24 @@ endif ()
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
-target_precompile_headers(RigelEngine PUBLIC
-    Include/Utils/STD_PCH.hpp
-    Include/Utils/RGE_PCH.hpp
-)
-
 set (DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
 
 # Include paths that will only be included inside the library
 target_include_directories(RigelEngine PRIVATE
-    Include
-    Include/ECS
-    Include/Core
-    Include/Utils
-    Include/Subsystems
-    Include/Utils/HeaderUtils
-    Include/Subsystems/Renderer
-    Include/EngineTools
-    Include/Subsystems/Filesystem
-    Include/Subsystems/SceneManager
-
     Source/Utils/Internal
 )
 
 # Libraries that should be available outside to the projects linking Engine
 target_include_directories(RigelEngine PUBLIC
-
     ${DEPENDENCIES_DIR}/nlohmann_json
     ${DEPENDENCIES_DIR}/glm
+
+    Include
+    Include/ECS
+    Include/Utils
+    Include/Subsystems
+    Include/Utils/HeaderUtils
+    Include/EngineTools
 )
 
 set(LINK_LIBRARIES "")

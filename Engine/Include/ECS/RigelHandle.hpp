@@ -1,33 +1,43 @@
 #pragma once
 
-#include "Utils/HeaderUtils/Types.hpp"
-#include "Utils/HeaderUtils/NODISCARD.hpp"
+#include "HeaderUtils.hpp"
 
 #include <stdexcept>
 
 namespace rge
 {
     template<typename T>
-    class RigelHandle
+    class RGE_API RigelHandle
     {
     public:
         inline T* operator -> ()
         {
-            if (IsNull())
-                throw std::runtime_error("A RigelHandle was a null handle!");
+            CheckHandle();
             return m_Ptr;
         }
 
-        NODISCARD inline uid_t GetID() const { return m_ObjectID; }
+        inline const T* operator -> () const
+        {
+            CheckHandle();
+            return m_Ptr;
+        }
+
+        NODISCARD uid_t GetID() const { return m_ObjectID; }
 
         ~RigelHandle() = default;
     protected:
-        T* m_Ptr = nullptr;
-        uid_t m_ObjectID = NULL_ID;
-
         RigelHandle(T* ptr, const uid_t id) : m_Ptr(ptr), m_ObjectID(id) { }
 
         NODISCARD virtual bool IsValid() const = 0;
         NODISCARD virtual bool IsNull() const = 0;
+
+        T* m_Ptr = nullptr;
+        uid_t m_ObjectID = NULL_ID;
+    private:
+        void CheckHandle() const
+        {
+            const auto res = !IsNull() && IsValid();
+            if (!res) throw std::runtime_error("Attempted to use an invalid RigelHandle instance!");
+        }
     };
 }
