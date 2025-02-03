@@ -18,11 +18,31 @@ namespace rge
         NODISCARD inline uid_t GetID() const { return m_ID; }
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
 
-        template<typename T>
-        ComponentHandle<T> AddComponent(Component* component)
+        template<typename T, typename... Args>
+        ComponentHandle<T> AddComponent(Args&&... args)
         {
-            m_Components[component->GetID()] = component;
-            return ComponentHandle<T>(static_cast<T*>(component), component->GetID(), m_ID, m_SceneID);
+            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
+
+            const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
+            const auto id = component->GetID();
+
+            m_Components[id] = component;
+
+            return ComponentHandle<T>(static_cast<T*>(component), id, m_ID, m_SceneID);
+        }
+
+        template<typename T>
+        ComponentHandle<T> GetComponent()
+        {
+            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
+
+            for (const auto& [id, component] : m_Components)
+            {
+                if (const auto cast = dynamic_cast<T*>(component))
+                    return ComponentHandle<T>(cast, id, m_ID, m_SceneID);
+            }
+
+            return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }
     private:
         explicit GameObject(std::string name);

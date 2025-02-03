@@ -5,4 +5,8 @@
 namespace rge
 {
 
+    void Transform::DoStuff()
+    {
+        std::cout << "Stuff\n";
+    }
 }

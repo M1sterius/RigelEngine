@@ -6,8 +6,13 @@
 
 namespace rge
 {
-    class Transform
+    class Transform final : public Component
     {
+    public:
+        void DoStuff();
+    private:
+        Transform() : Component() { }
 
+        friend class GameObject;
     };
 }

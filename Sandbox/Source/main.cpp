@@ -13,6 +13,9 @@ int32_t main(int32_t argc, char* argv[])
 
     auto scene = sceneManager.CreateScene();
     auto go = scene->AddGameObject();
+    go->AddComponent<rge::Transform>();
+    auto t = go->GetComponent<rge::Transform>();
+    t->DoStuff();
 
     sceneManager.LoadScene(scene);
 
