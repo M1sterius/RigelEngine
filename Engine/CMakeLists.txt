@@ -21,6 +21,7 @@ add_library(RigelEngine STATIC
     Source/ECS/Component.cpp
     Source/ECS/Components/Transform.cpp
         Source/ECS/SceneHandle.cpp
+        Source/ECS/GOHandle.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

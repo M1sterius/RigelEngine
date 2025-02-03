@@ -1,7 +1,7 @@
 #include "Scene.hpp"
-#include "Engine.hpp"
 #include "SceneManager.hpp"
 #include "GameObject.hpp"
+#include "GOHandle.hpp"
 #include "UIDGenerator.hpp"
 
 namespace rge
@@ -43,8 +43,4 @@ namespace rge
             return true;
         else return false;
     }
-
-
-    // Handle methods definitions
-
 }

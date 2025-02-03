@@ -14,6 +14,8 @@
 
 // ECS
 #include "RigelHandle.hpp"
+#include "SceneHandle.hpp"
+#include "GOHandle.hpp"
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "Component.hpp"
