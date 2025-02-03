@@ -11,14 +11,14 @@ namespace rge
     class Renderer;
     class Logger;
 
-    class RGE_API Engine
+    class Engine
     {
     public:
         Engine(const Engine& other) = delete;
         Engine& operator = (const Engine&) = delete;
         ~Engine();
 
-        static RGE_API std::unique_ptr<Engine> CreateInstance();
+        static std::unique_ptr<Engine> CreateInstance();
 
         NODISCARD bool IsRunning() const { return m_Running; }
 
@@ -58,6 +58,6 @@ namespace rge
         // Global tools instances
         std::unique_ptr<Logger> m_Logger;
 
-        static RGE_API Engine* m_GlobalInstance;
+        static Engine* m_GlobalInstance;
     };
 }

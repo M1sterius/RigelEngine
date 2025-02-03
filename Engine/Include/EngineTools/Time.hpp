@@ -4,7 +4,7 @@
 
 namespace rge
 {
-    class RGE_API Time
+    class Time
     {
     public:
         NODISCARD static float64_t GetDeltaTime();

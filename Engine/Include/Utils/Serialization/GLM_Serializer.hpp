@@ -6,7 +6,7 @@
 
 namespace rge
 {
-    class RGE_API GLM_Serializer
+    class GLM_Serializer
     {
     public:
         /**

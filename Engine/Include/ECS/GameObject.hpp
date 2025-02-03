@@ -5,10 +5,11 @@
 #include "Component.hpp"
 
 #include <string>
+#include <unordered_map>
 
 namespace rge
 {
-    class RGE_API GameObject final
+    class GameObject final
     {
     public:
         GameObject(const GameObject&) = delete;
@@ -16,6 +17,13 @@ namespace rge
 
         NODISCARD inline uid_t GetID() const { return m_ID; }
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
+
+        template<typename T>
+        ComponentHandle<T> AddComponent(Component* component)
+        {
+            m_Components[component->GetID()] = component;
+            return ComponentHandle<T>(static_cast<T*>(component), component->GetID(), m_ID, m_SceneID);
+        }
     private:
         explicit GameObject(std::string name);
         ~GameObject();
@@ -24,10 +32,12 @@ namespace rge
         uid_t m_SceneID = NULL_ID;
         std::string m_Name;
 
+        std::unordered_map<uid_t, Component*> m_Components;
+
         friend class Scene;
     };
 
-    class RGE_API GOHandle final : public RigelHandle<GameObject>
+    class GOHandle final : public RigelHandle<GameObject>
     {
     public:
         NODISCARD bool IsNull() const override;

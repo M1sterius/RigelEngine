@@ -6,7 +6,7 @@
 
 namespace rge
 {
-    class RGE_API Debug
+    class Debug
     {
     public:
         static void VerboseMessage(const std::string& message);

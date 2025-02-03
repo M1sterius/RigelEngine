@@ -5,9 +5,9 @@ project(RigelEngine)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 
-add_library(RigelEngine SHARED
+add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
@@ -18,7 +18,8 @@ add_library(RigelEngine SHARED
     Source/Utils/Serialization/GLM_Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
-        Source/ECS/Component.cpp
+    Source/ECS/Component.cpp
+    Source/ECS/Components/Transform.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -67,11 +68,11 @@ target_link_libraries(RigelEngine PRIVATE
     ${LINK_LIBRARIES}
 )
 
-# copy .dll file
-set(DLL_DIR ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/RigelEngine.dll)
-set(DLL_COPY_OUT_DIR ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD_TYPE})
-add_custom_command(TARGET RigelEngine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${DLL_DIR}
-    ${DLL_COPY_OUT_DIR}
-)
+## copy .dll file
+#set(DLL_DIR ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/RigelEngine.dll)
+#set(DLL_COPY_OUT_DIR ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD_TYPE})
+#add_custom_command(TARGET RigelEngine POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#    ${DLL_DIR}
+#    ${DLL_COPY_OUT_DIR}
+#)

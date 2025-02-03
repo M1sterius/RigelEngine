@@ -10,7 +10,7 @@
 
 namespace rge
 {
-    class RGE_API SceneManager final : public RigelSubsystem
+    class SceneManager final : public RigelSubsystem
     {
     public:
         NODISCARD SceneHandle CreateScene(std::string name = "New Scene");

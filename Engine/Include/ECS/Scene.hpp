@@ -11,7 +11,7 @@ namespace rge
     class GOHandle;
     class GameObject;
 
-    class RGE_API Scene final
+    class Scene final
     {
     public:
         Scene(const Scene&) = delete;
@@ -38,7 +38,7 @@ namespace rge
         friend class SceneManager;
     };
 
-    class RGE_API SceneHandle final : public RigelHandle<Scene>
+    class SceneHandle final : public RigelHandle<Scene>
     {
     public:
         NODISCARD bool IsNull() const override;

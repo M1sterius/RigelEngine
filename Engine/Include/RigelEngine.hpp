@@ -18,6 +18,8 @@
 #include "GameObject.hpp"
 #include "Component.hpp"
 
+#include "Components/Transform.hpp"
+
 // Misc
 #include "Time.hpp"
 #include "Debug.hpp"

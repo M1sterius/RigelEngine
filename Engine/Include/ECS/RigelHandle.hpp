@@ -7,7 +7,7 @@
 namespace rge
 {
     template<typename T>
-    class RGE_API RigelHandle
+    class RigelHandle
     {
     public:
         inline T* operator -> ()
