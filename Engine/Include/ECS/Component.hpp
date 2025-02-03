@@ -7,12 +7,12 @@
 
 namespace rge
 {
-    class Component
+    class Component : public ISerializable
     {
     public:
         Component(const Component&) = delete;
         Component operator = (const Component&) = delete;
-        virtual ~Component() = default;
+        ~Component() override = default;
 
         NODISCARD inline uid_t GetID() const { return m_ID; }
     protected:
