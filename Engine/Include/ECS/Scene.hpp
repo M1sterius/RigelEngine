@@ -19,6 +19,8 @@ namespace rge
         NODISCARD inline std::string GetName() const { return m_Name; }
 
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
+
+        NODISCARD GOHandle AddGameObject(std::string name = "Game Object");
     private:
         explicit Scene(std::string name = "New scene");
         ~Scene();

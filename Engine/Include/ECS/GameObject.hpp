@@ -12,6 +12,9 @@ namespace rge
     public:
         GameObject(const GameObject&) = delete;
         GameObject operator = (const GameObject&) = delete;
+
+        NODISCARD inline uid_t GetID() const { return m_ID; }
+        NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
     private:
         explicit GameObject(std::string name);
         ~GameObject();

@@ -17,11 +17,12 @@ namespace rge
 
     }
 
+    // Handle methods definitions
     GOHandle::GOHandle(GameObject* ptr, const uid_t id, const uid_t sceneID) : RigelHandle(ptr, id), m_SceneID(sceneID) { }
 
     bool GOHandle::IsNull() const
     {
-        return m_Ptr == nullptr || m_ID == NULL_ID;
+        return m_Ptr == nullptr || m_ID == NULL_ID || m_SceneID == NULL_ID;
     }
 
     bool GOHandle::IsValid() const

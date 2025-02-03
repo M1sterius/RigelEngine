@@ -16,6 +16,16 @@ namespace rge
 
     }
 
+    GOHandle Scene::AddGameObject(std::string name)
+    {
+        const auto go = new GameObject(std::move(name));
+        const auto id = go->GetID();
+        go->m_SceneID = m_ID;
+
+        m_Objects[id] = go;
+        return {go, id, go->GetSceneID()};
+    }
+
     void Scene::OnLoad()
     {
 
@@ -34,7 +44,7 @@ namespace rge
     }
 
 
-    // Handle method definitions
+    // Handle methods definitions
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle(ptr, id) { }
 
     bool SceneHandle::IsNull() const
