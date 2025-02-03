@@ -1,5 +1,6 @@
 #include "SceneManager.hpp"
 #include "Assert.hpp"
+#include "Debug.hpp"
 
 #include <stdexcept>
 #include <utility>
@@ -13,10 +14,10 @@ namespace rge
     {
 
     }
+
     void SceneManager::Shutdown()
     {
-//        for (const auto& scene : m_Scenes)
-//            delete scene.second;
+
     }
 
     SceneHandle SceneManager::CreateScene(std::string name)
@@ -36,6 +37,8 @@ namespace rge
 
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();
+
+        Debug::VerboseMessage("Loading scene: " + scene->GetName());
 
         scene->OnLoad();
         m_LoadedScene = scene;

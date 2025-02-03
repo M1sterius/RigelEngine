@@ -1,14 +1,14 @@
 #include "Engine.hpp"
 
 #include "SceneManager.hpp"
-#include "Subsystems/Renderer.hpp"
+#include "Renderer.hpp"
 #include "SleepUtility.hpp"
+#include "Debug.hpp"
 #include "Backend/Logger/Logger.hpp"
 #include "Assert.hpp"
 #include "json.hpp"
-#include "gtx/string_cast.hpp"
 
-#include "Utils/Serialization/GLM_Serializer.hpp"
+#include "GLM_Serializer.hpp"
 
 namespace rge
 {
@@ -69,6 +69,8 @@ namespace rge
     {
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
+
+        Debug::VerboseMessage("Entering game loop.");
 
         while (IsRunning())
         {

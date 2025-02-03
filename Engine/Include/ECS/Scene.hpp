@@ -2,13 +2,15 @@
 
 #include "HeaderUtils.hpp"
 #include "RigelHandle.hpp"
-#include "GameObject.hpp"
 
 #include <string>
 #include <unordered_map>
 
 namespace rge
 {
+    class GOHandle;
+    class GameObject;
+
     class RGE_API Scene final
     {
     public:
@@ -20,13 +22,13 @@ namespace rge
 
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
 
-        NODISCARD GOHandle AddGameObject(std::string name = "Game Object");
+        GOHandle AddGameObject(std::string name = "Game Object");
     private:
         explicit Scene(std::string name = "New scene");
         ~Scene();
 
-        void OnLoad();
-        void OnUnload();
+        void OnLoad(); // Called when the scene is loaded. Used for initialization logic.
+        void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
 
         uid_t m_ID = NULL_ID;
         std::string m_Name;
@@ -40,6 +42,8 @@ namespace rge
     {
     public:
         NODISCARD bool IsNull() const override;
+
+        // Checks if this scene is correctly registered by the scene manager
         NODISCARD bool IsValid() const override;
     INTERNAL:
         SceneHandle(Scene* ptr, const uid_t id);

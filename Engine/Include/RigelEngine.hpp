@@ -15,6 +15,7 @@
 // ECS
 #include "RigelHandle.hpp"
 #include "Scene.hpp"
+#include "GameObject.hpp"
 
 // Misc
 #include "Time.hpp"

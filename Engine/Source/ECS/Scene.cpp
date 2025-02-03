@@ -1,6 +1,7 @@
 #include "Scene.hpp"
 #include "Engine.hpp"
 #include "SceneManager.hpp"
+#include "GameObject.hpp"
 #include "UIDGenerator.hpp"
 
 namespace rge
@@ -20,7 +21,7 @@ namespace rge
     {
         const auto go = new GameObject(std::move(name));
         const auto id = go->GetID();
-        go->m_SceneID = m_ID;
+        go->m_SceneID = m_ID; // assigning the ID of the scene that owns this game object
 
         m_Objects[id] = go;
         return {go, id, go->GetSceneID()};

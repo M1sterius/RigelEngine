@@ -11,17 +11,13 @@ add_library(RigelEngine SHARED
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-    Include/Subsystems/SceneManager.hpp
     Source/Utils/Internal/UIDGenerator.cpp
     Source/Subsystems/Renderer.cpp
     Source/EngineTools/Debug.cpp
-    Include/EngineTools/Debug.hpp
     Source/Backend/Logger/Logger.cpp
-    Include/Utils/Serialization/ISerializable.hpp
     Source/Utils/Serialization/GLM_Serializer.cpp
-    Include/Utils/Serialization/GLM_Serializer.hpp
     Source/ECS/Scene.cpp
-        Source/ECS/GameObject.cpp
+    Source/ECS/GameObject.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
