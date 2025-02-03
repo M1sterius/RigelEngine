@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HeaderUtils.hpp"
-#include "RigelHandle.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -36,16 +35,5 @@ namespace rge
         std::unordered_map<uid_t, GameObject*> m_Objects;
 
         friend class SceneManager;
-    };
-
-    class SceneHandle final : public RigelHandle<Scene>
-    {
-    public:
-        NODISCARD bool IsNull() const override;
-
-        // Checks if this scene is correctly registered by the scene manager
-        NODISCARD bool IsValid() const override;
-    INTERNAL:
-        SceneHandle(Scene* ptr, const uid_t id);
     };
 }

@@ -1,6 +1,7 @@
 #include "SceneManager.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
+#include "Scene.hpp"
 
 #include <stdexcept>
 #include <utility>

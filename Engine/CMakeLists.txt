@@ -20,6 +20,7 @@ add_library(RigelEngine STATIC
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
     Source/ECS/Components/Transform.cpp
+        Source/ECS/SceneHandle.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
