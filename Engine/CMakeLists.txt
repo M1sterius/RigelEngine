@@ -18,6 +18,7 @@ add_library(RigelEngine SHARED
     Source/Utils/Serialization/GLM_Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
+        Source/ECS/Component.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

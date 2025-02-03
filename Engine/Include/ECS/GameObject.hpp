@@ -2,6 +2,7 @@
 
 #include "HeaderUtils.hpp"
 #include "RigelHandle.hpp"
+#include "Component.hpp"
 
 #include <string>
 
