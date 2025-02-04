@@ -6,9 +6,8 @@
 
 namespace rge
 {
-    Scene::Scene(std::string name)
+    Scene::Scene(std::string name) : RigelObject()
     {
-        m_ID = UIDGenerator::Generate();
         m_Name = std::move(name);
     }
 
@@ -21,7 +20,7 @@ namespace rge
     {
         const auto go = new GameObject(std::move(name));
         const auto id = go->GetID();
-        go->m_SceneID = m_ID; // assigning the ID of the scene that owns this game object
+        go->m_SceneID = this->GetID(); // assigning the ID of the scene that owns this game object
 
         m_Objects[id] = go;
         return {go, id, go->GetSceneID()};

@@ -14,16 +14,19 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene();
 
     auto go = scene->AddGameObject();
-    auto t = go->AddComponent<rge::Transform>(glm::vec3(0.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
-    t->SetPosition(glm::vec3(100, 200, 300));
+    go->AddComponent<rge::Transform>(glm::vec3(0.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
 
-    auto json = t->Serialize();
+    auto json = go->GetComponent<rge::Transform>()->Serialize();
+    print(json.dump(4));
 
     auto go1 = scene->AddGameObject();
-    auto t1 = go->AddComponent<rge::Transform>();
-    t1->Deserialize(json);
+    go1->AddComponent<rge::Transform>(glm::vec3(1.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
 
-    print(glm::to_string(t1->GetPosition()));
+    auto go2 = scene->AddGameObject();
+    go2->AddComponent<rge::Transform>(glm::vec3(2.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
+
+    auto go3 = scene->AddGameObject();
+    go3->AddComponent<rge::Transform>(glm::vec3(3.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
 
     sceneManager.LoadScene(scene);
 

@@ -1,10 +1,9 @@
 #include "Component.hpp"
-#include "UIDGenerator.hpp"
 
 namespace rge
 {
-    Component::Component()
+    Component::Component() : RigelObject()
     {
-        m_ID = UIDGenerator::Generate();
+
     }
 }
