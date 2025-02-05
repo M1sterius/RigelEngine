@@ -9,6 +9,7 @@
 #include "Engine.hpp"
 
 // Subsystems
+#include "EventManager.hpp"
 #include "SceneManager.hpp"
 #include "Renderer.hpp"
 

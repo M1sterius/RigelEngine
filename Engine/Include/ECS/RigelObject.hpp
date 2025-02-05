@@ -4,6 +4,9 @@
 
 namespace rge
 {
+    /**
+     * Base class for objects managed by the engine and it's subsystems
+     */
     class RigelObject
     {
     public:

@@ -10,6 +10,7 @@ namespace rge
     class SceneManager;
     class Renderer;
     class Logger;
+    class EventManager;
 
     class Engine
     {
@@ -51,12 +52,13 @@ namespace rge
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
         uint64_t m_FrameCounter = 0;
 
-        // Subsystem instances
-        std::unique_ptr<SceneManager> m_SceneManager;
-        std::unique_ptr<Renderer> m_Renderer;
-
         // Global tools instances
         std::unique_ptr<Logger> m_Logger;
+
+        // Subsystem instances
+        std::unique_ptr<EventManager> m_EventManager;
+        std::unique_ptr<SceneManager> m_SceneManager;
+        std::unique_ptr<Renderer> m_Renderer;
 
         static Engine* m_GlobalInstance;
     };

@@ -10,9 +10,8 @@ namespace rge
 {
     class Component : public RigelObject, public ISerializable
     {
-    public:
-        ~Component() override = default;
     protected:
+        ~Component() override = default;
         Component();
     private:
         friend class GameObject;

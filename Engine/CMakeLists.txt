@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.28)
 
 project(RigelEngine)
 
@@ -20,9 +20,10 @@ add_library(RigelEngine STATIC
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
     Source/ECS/Components/Transform.cpp
-        Source/ECS/SceneHandle.cpp
-        Source/ECS/GOHandle.cpp
-        Source/ECS/RigelObject.cpp
+    Source/ECS/SceneHandle.cpp
+    Source/ECS/GOHandle.cpp
+    Source/ECS/RigelObject.cpp
+    Source/Subsystems/EventSystem/EventManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -40,14 +41,16 @@ endif ()
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
-set (DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
 
-# Include paths that will only be included inside the library
+# Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
     Source/Utils/Internal
+    Source/Backend
+    Source/Backend/Logger
 )
 
-# Libraries that should be available outside to the projects linking Engine
+# Include paths that should be available outside to the projects linking the engine
 target_include_directories(RigelEngine PUBLIC
     ${DEPENDENCIES_DIR}/nlohmann_json
     ${DEPENDENCIES_DIR}/glm
@@ -56,12 +59,13 @@ target_include_directories(RigelEngine PUBLIC
     Include/ECS
     Include/Utils
     Include/Subsystems
+    Include/Subsystems/EventSystem
     Include/Utils/HeaderUtils
     Include/Utils/Serialization
     Include/EngineTools
 )
 
-set(LINK_LIBRARIES "")
+set(LINK_LIBRARIES)
 
 if(WIN32)
     list(APPEND LINK_LIBRARIES winmm)

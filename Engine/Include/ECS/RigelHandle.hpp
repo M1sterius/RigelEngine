@@ -6,8 +6,11 @@
 
 namespace rge
 {
-    template<typename T>
-    class RigelHandle
+    /**
+     * Base class for handles to objects managed by Rigel engine and it's subsystems
+     * @tparam T The types of the underlying object pointer
+     */
+    template<typename T> class RigelHandle
     {
     public:
         inline T* operator -> ()
@@ -34,7 +37,7 @@ namespace rge
         T* m_Ptr = nullptr;
         uid_t m_ID = NULL_ID;
     private:
-        void CheckHandle() const
+        inline void CheckHandle() const
         {
             const auto res = !IsNull() && IsValid();
             if (!res) throw std::runtime_error("Attempted to use an invalid RigelHandle instance!");

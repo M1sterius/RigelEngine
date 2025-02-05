@@ -1,14 +1,12 @@
 #include "Engine.hpp"
 
 #include "SceneManager.hpp"
+#include "EventManager.hpp"
 #include "Renderer.hpp"
 #include "SleepUtility.hpp"
 #include "Debug.hpp"
-#include "Backend/Logger/Logger.hpp"
+#include "Logger.hpp"
 #include "Assert.hpp"
-#include "json.hpp"
-
-#include "GLM_Serializer.hpp"
 
 namespace rge
 {
@@ -30,6 +28,7 @@ namespace rge
     {
         // Instantiate and start up all subsystems and global tools
         m_Logger = std::make_unique<Logger>();
+        m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_Renderer = std::make_unique<Renderer>();
 
@@ -42,6 +41,7 @@ namespace rge
         // Shut down all subsystems and global tools
         m_Renderer.reset();
         m_SceneManager.reset();
+        m_EventManager.reset();
         m_Logger.reset();
 
         m_GlobalTimeStopwatch.Stop();

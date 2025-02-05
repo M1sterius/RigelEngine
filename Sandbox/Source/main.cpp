@@ -6,7 +6,7 @@
 
 int32_t main(int32_t argc, char* argv[])
 {
-    auto engine = rge::Engine::CreateInstance();
+    const auto engine = rge::Engine::CreateInstance();
     auto& sceneManager = engine->GetSceneManager();
 
     rge::Time::SetTargetFPS(30);
@@ -15,9 +15,6 @@ int32_t main(int32_t argc, char* argv[])
 
     auto go = scene->AddGameObject();
     go->AddComponent<rge::Transform>(glm::vec3(0.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
-
-    auto json = go->GetComponent<rge::Transform>()->Serialize();
-    print(json.dump(4));
 
     auto go1 = scene->AddGameObject();
     go1->AddComponent<rge::Transform>(glm::vec3(1.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
