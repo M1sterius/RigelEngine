@@ -4,6 +4,8 @@
 
 #define print(x) std::cout << x << '\n'
 
+#define NAME(n) "somename##n"
+
 int32_t main(int32_t argc, char* argv[])
 {
     const auto engine = rge::Engine::CreateInstance();
@@ -14,16 +16,10 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene();
 
     auto go = scene->AddGameObject();
-    go->AddComponent<rge::Transform>(glm::vec3(0.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
+    go->AddComponent<rge::Transform>(glm::vec3(10.0f), glm::identity<glm::quat>(), glm::vec3(1.0f));
 
-    auto go1 = scene->AddGameObject();
-    go1->AddComponent<rge::Transform>(glm::vec3(1.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
-
-    auto go2 = scene->AddGameObject();
-    go2->AddComponent<rge::Transform>(glm::vec3(2.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
-
-    auto go3 = scene->AddGameObject();
-    go3->AddComponent<rge::Transform>(glm::vec3(3.0f), glm::identity<glm::quat>(), glm::vec3(0.0f));
+    auto json = go->Serialize();
+    print(json.dump(4));
 
     sceneManager.LoadScene(scene);
 

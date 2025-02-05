@@ -6,20 +6,23 @@
 
 namespace rge
 {
-
     GameObject::GameObject(std::string name) : RigelObject()
     {
         m_Name = std::move(name);
     }
 
-    GameObject::~GameObject()
-    {
-
-    }
+    GameObject::~GameObject() = default;
 
     nlohmann::json GameObject::Serialize() const
     {
-        return nlohmann::json();
+        auto json = nlohmann::json();
+
+        json["ID"] = GetID();
+
+        for (const auto [_, component] : m_Components)
+            json[component->GetTypeName()] = component->Serialize();
+
+        return json;
     }
 
     void GameObject::Deserialize(const nlohmann::json& json)

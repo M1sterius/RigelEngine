@@ -7,3 +7,4 @@
 #include <filesystem>
 #include <stdexcept>
 #include <cstdint>
+#include <unordered_map>

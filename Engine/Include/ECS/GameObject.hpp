@@ -19,6 +19,10 @@ namespace rge
 
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
 
+        /*
+         * Adds a component of type T to this GameObject
+         * Currently DOES NOT instantiate the component
+         */
         template<typename T, typename... Args> ComponentHandle<T> AddComponent(Args&&... args)
         {
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
@@ -31,6 +35,9 @@ namespace rge
             return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_SceneID);
         }
 
+        /*
+         * Returns a handle to the first component of type T attached to this GameObject
+         */
         template<typename T> ComponentHandle<T> GetComponent()
         {
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
