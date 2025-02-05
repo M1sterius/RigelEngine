@@ -1,7 +1,7 @@
 #pragma once
 
 #include "json_fwd.hpp"
-#include "Utils/HeaderUtils/HeaderUtils.hpp"
+#include "Core.hpp"
 
 namespace rge
 {

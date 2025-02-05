@@ -26,7 +26,8 @@
 // Misc
 #include "Time.hpp"
 #include "Debug.hpp"
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
+#include "Core.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
 

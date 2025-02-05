@@ -41,6 +41,10 @@ endif ()
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
+target_precompile_headers(RigelEngine PRIVATE
+    Include/Utils/PCH/STD_PCH.hpp
+)
+
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
 
 # Include paths that will only be visible inside the library

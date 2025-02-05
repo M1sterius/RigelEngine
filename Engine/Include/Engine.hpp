@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utils/HeaderUtils/HeaderUtils.hpp"
-#include "Utils/Stopwatch.hpp"
+#include "Core.hpp"
+#include "Stopwatch.hpp"
 
 #include <memory>
 

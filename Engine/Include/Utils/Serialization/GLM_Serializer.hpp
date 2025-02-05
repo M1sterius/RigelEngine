@@ -3,7 +3,7 @@
 #include "glm.hpp"
 #include "gtx/quaternion.hpp"
 #include "json.hpp"
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 
 namespace rge
 {

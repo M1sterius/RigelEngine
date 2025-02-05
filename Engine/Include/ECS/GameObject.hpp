@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 #include "ComponentHandle.hpp"
 #include "Component.hpp"
 #include "ISerializable.hpp"

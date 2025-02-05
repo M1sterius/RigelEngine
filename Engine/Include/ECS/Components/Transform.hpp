@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 #include "Component.hpp"
 #include "RigelHandle.hpp"
 #include "glm.hpp"

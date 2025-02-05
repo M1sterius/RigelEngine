@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils/HeaderUtils/HeaderUtils.hpp"
+#include "Core.hpp"
 
 #include <mutex>
 

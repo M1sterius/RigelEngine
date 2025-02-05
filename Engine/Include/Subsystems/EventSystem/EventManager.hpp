@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "IEventListener.hpp"
 

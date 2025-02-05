@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RigelSubsystem.hpp"
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 #include "SceneHandle.hpp"
 
 #include <memory>

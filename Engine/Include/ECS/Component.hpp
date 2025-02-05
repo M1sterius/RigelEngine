@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ISerializable.hpp"
-#include "HeaderUtils.hpp"
+#include "Core.hpp"
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
 #include "Scene.hpp"
