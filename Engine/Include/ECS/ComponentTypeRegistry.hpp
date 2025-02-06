@@ -19,7 +19,7 @@ namespace rge
         ComponentTypeRegistry operator = (const ComponentTypeRegistry&) = delete;
 
         static bool ResisterComponent(const std::string& typeName, const RegisterTypeFunc& func);
-    INTERNAL:
+        static Component* FindType(const std::string& type);
     private:
         static std::unordered_map<std::string, RegisterTypeFunc> m_Registry;
     };

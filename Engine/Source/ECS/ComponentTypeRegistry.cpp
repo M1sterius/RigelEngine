@@ -9,4 +9,15 @@ namespace rge
         m_Registry[typeName] = func;
         return true;
     }
+
+    Component* ComponentTypeRegistry::FindType(const std::string& type)
+    {
+        for (const auto& [name, func] : m_Registry)
+        {
+            if (name == type)
+                return func();
+        }
+
+        return nullptr;
+    }
 }

@@ -15,10 +15,11 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene();
 
     auto go = scene->AddGameObject();
-    go->AddComponent<rge::Transform>(glm::vec3(10.0f), glm::identity<glm::quat>(), glm::vec3(1.0f));
+    auto t = go->AddComponent<rge::Transform>(glm::vec3(10.0f), glm::identity<glm::quat>(), glm::vec3(1.0f));
 
     const auto json = go->Serialize();
     print(json.dump(4));
+    go->Deserialize(json);
 
     sceneManager.LoadScene(scene);
 

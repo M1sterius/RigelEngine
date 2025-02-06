@@ -18,7 +18,7 @@ namespace rge
     Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) : Component(),
         m_Position(position), m_Rotation(rotation), m_Scale(scale)
     {
-        std::cout << Transform::m_Registered << '\n';
+
     }
 
     void Transform::SetPosition(const glm::vec3& position)
@@ -57,9 +57,9 @@ namespace rge
 
     void Transform::Deserialize(const nlohmann::json& json)
     {
-        if (!json.contains("position") || !json.contains("rotation") || !json.contains("scale"))
+        if (json["Type"] != GetTypeName())
         {
-            Debug::Error("Failed to serialize rge::Transform component!");
+            Debug::Error("Failed to deserialize rge::Transform component!");
             return;
         }
 
