@@ -46,9 +46,7 @@ namespace rge
 
     nlohmann::json Transform::Serialize() const
     {
-        auto json = nlohmann::json();
-        json["Type"] = GetTypeName();
-        json["ID"] = GetID();
+        auto json = Component::Serialize(); // Base class method must be explicitly called
         json["position"] = GLM_Serializer::Serialize(m_Position);
         json["rotation"] = GLM_Serializer::Serialize(m_Rotation);
         json["scale"] = GLM_Serializer::Serialize(m_Scale);
@@ -57,6 +55,8 @@ namespace rge
 
     void Transform::Deserialize(const nlohmann::json& json)
     {
+        Component::Deserialize(json);
+
         if (json["Type"] != GetTypeName())
         {
             Debug::Error("Failed to deserialize rge::Transform component!");

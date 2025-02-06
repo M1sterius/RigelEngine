@@ -15,11 +15,18 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene();
 
     auto go = scene->AddGameObject();
-    auto t = go->AddComponent<rge::Transform>(glm::vec3(10.0f), glm::identity<glm::quat>(), glm::vec3(1.0f));
+    auto t = go->AddComponent<rge::Transform>();
+    t->SetPosition(glm::vec3(1, 2, 3));
 
-    const auto json = go->Serialize();
-    print(json.dump(4));
-    go->Deserialize(json);
+    auto json = go->Serialize();
+
+    auto object = scene->AddGameObject();
+
+    object->Deserialize(json);
+
+    auto ts = object->GetComponent<rge::Transform>();
+
+    print(glm::to_string(ts->GetPosition()));
 
     sceneManager.LoadScene(scene);
 

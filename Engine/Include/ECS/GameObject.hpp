@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Debug.hpp>
+
 #include "Core.hpp"
 #include "ComponentHandle.hpp"
 #include "Component.hpp"
@@ -47,6 +49,8 @@ namespace rge
                 if (const auto cast = dynamic_cast<T*>(component))
                     return ComponentHandle<T>(cast, id, this->GetID(), m_SceneID);
             }
+
+            Debug::Error("Failed to retrieve a component of type " + (std::string)typeid(T).name());
 
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }

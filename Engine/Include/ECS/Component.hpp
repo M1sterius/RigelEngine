@@ -18,6 +18,9 @@ namespace rge
     protected:
         ~Component() override = default;
         Component();
+
+        NODISCARD nlohmann::json Serialize() const override;
+        void Deserialize(const nlohmann::json& json) override;
     private:
         friend class GameObject;
     };

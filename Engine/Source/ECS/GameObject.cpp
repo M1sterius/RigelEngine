@@ -35,6 +35,11 @@ namespace rge
             return;
         }
 
+        /*
+         * Iterate through all components inside the json array,
+         * retrieve the type represented as a string and then look it up in the registry.
+         * The registry will return a nullptr if the type is not found.
+         */
         for (const auto& component : json["Components"])
         {
             const auto type = component["Type"].get<std::string>();
