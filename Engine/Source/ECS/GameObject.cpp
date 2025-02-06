@@ -19,8 +19,8 @@ namespace rge
 
         json["ID"] = GetID();
 
-        for (const auto [_, component] : m_Components)
-            json[component->GetTypeName()] = component->Serialize();
+        for (const auto& [_, component] : m_Components)
+            json["Components"].push_back(component->Serialize());
 
         return json;
     }

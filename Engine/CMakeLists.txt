@@ -24,6 +24,7 @@ add_library(RigelEngine STATIC
     Source/ECS/GOHandle.cpp
     Source/ECS/RigelObject.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
+        Source/ECS/ComponentTypeRegistry.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

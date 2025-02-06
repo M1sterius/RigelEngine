@@ -11,8 +11,7 @@ namespace rge
     class Transform final : public Component
     {
     public:
-        // NODISCARD const char* GetTypeName() const override { return "rge::Transform"; }
-        RGE_GET_COMPONENT_TYPE_STR(rge::Transform);
+        DEFINE_COMPONENT_TYPE(Transform);
 
         void SetPosition(const glm::vec3& position);
         void SetRotation(const glm::quat& rotation);

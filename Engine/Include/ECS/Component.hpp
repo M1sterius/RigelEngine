@@ -6,7 +6,7 @@
 #include "RigelObject.hpp"
 #include "Scene.hpp"
 
-#define RGE_GET_COMPONENT_TYPE_STR(Type) NODISCARD const char* GetTypeName() const override { return #Type; }
+#define DEFINE_COMPONENT_TYPE(Type) NODISCARD const char* GetTypeName() const override { return #Type; }
 
 namespace rge
 {

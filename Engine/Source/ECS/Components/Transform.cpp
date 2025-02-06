@@ -45,6 +45,7 @@ namespace rge
     nlohmann::json Transform::Serialize() const
     {
         auto json = nlohmann::json();
+        json["Type"] = GetTypeName();
         json["ID"] = GetID();
         json["position"] = GLM_Serializer::Serialize(m_Position);
         json["rotation"] = GLM_Serializer::Serialize(m_Rotation);
