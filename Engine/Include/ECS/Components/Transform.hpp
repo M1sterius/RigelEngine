@@ -33,6 +33,7 @@ namespace rge
         glm::quat m_Rotation;
         glm::vec3 m_Scale;
 
+        static bool m_Registered;
         bool m_UpdateRequiredFlag = true;
 
         friend class GameObject;

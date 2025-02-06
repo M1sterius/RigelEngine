@@ -7,6 +7,8 @@
 
 namespace rge
 {
+    bool Transform::m_Registered = ComponentTypeRegistry::ResisterComponent("Transform", []() -> Component* { return new Transform(); });
+
     Transform::Transform() : Component(),
         m_Position(glm::vec3(0.0f)), m_Rotation(glm::identity<glm::quat>()), m_Scale(glm::vec3(1.0f))
     {
@@ -16,7 +18,7 @@ namespace rge
     Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) : Component(),
         m_Position(position), m_Rotation(rotation), m_Scale(scale)
     {
-
+        std::cout << Transform::m_Registered << '\n';
     }
 
     void Transform::SetPosition(const glm::vec3& position)

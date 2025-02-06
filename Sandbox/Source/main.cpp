@@ -1,6 +1,7 @@
 #include "RigelEngine.hpp"
 
 #include <iostream>
+#include <functional>
 
 #define print(x) std::cout << x << '\n'
 

@@ -5,6 +5,7 @@
 #include "RigelHandle.hpp"
 #include "RigelObject.hpp"
 #include "Scene.hpp"
+#include "ComponentTypeRegistry.hpp"
 
 #define DEFINE_COMPONENT_TYPE(Type) NODISCARD const char* GetTypeName() const override { return #Type; }
 
