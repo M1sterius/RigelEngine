@@ -2,6 +2,7 @@
 #include "SceneManager.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
+#include "json.hpp"
 #include "UIDGenerator.hpp"
 
 namespace rge
@@ -42,4 +43,17 @@ namespace rge
             return true;
         else return false;
     }
+
+    nlohmann::json Scene::Serialize() const
+    {
+        auto json = nlohmann::json();
+        json["ID"] = GetID();
+        return json;
+    }
+
+    void Scene::Deserialize(const nlohmann::json& json)
+    {
+
+    }
+
 }

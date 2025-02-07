@@ -32,7 +32,6 @@
 #include "GLM_Serializer.hpp"
 
 #include "json.hpp"
-#include "glm.hpp"
-#include "gtx/string_cast.hpp"
+#include "Math.hpp"
 
 #endif

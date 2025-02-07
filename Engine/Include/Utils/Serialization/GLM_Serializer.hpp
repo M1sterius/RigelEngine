@@ -1,7 +1,6 @@
 #pragma once
 
-#include "glm.hpp"
-#include "gtx/quaternion.hpp"
+#include "Math.hpp"
 #include "json.hpp"
 #include "Core.hpp"
 

@@ -50,7 +50,7 @@ namespace rge
                     return ComponentHandle<T>(cast, id, this->GetID(), m_SceneID);
             }
 
-            Debug::Error("Failed to retrieve a component of type " + (std::string)typeid(T).name());
+            Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
 
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }

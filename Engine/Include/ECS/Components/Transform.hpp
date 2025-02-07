@@ -3,8 +3,7 @@
 #include "Core.hpp"
 #include "Component.hpp"
 #include "RigelHandle.hpp"
-#include "glm.hpp"
-#include "gtx/quaternion.hpp"
+#include "Math.hpp"
 
 namespace rge
 {
@@ -33,9 +32,9 @@ namespace rge
         glm::quat m_Rotation;
         glm::vec3 m_Scale;
 
-        static bool m_Registered;
         bool m_UpdateRequiredFlag = true;
 
+        static bool m_Registered;
         friend class GameObject;
     };
 }

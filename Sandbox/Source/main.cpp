@@ -26,7 +26,7 @@ int32_t main(int32_t argc, char* argv[])
 
     auto ts = object->GetComponent<rge::Transform>();
 
-    print(glm::to_string(ts->GetPosition()));
+    print(scene->Serialize().dump(4));
 
     sceneManager.LoadScene(scene);
 

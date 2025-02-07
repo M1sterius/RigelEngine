@@ -1,10 +1,14 @@
 #pragma once
 
-// Standart integer types
+// Standard integer types
 #include <cstdint>
 
 // Unique ID type
-typedef uint64_t uid_t;
+#ifdef USE_64_BIT_ID_TYPE
+    typedef uint64_t uid_t;
+#else
+    typedef uint32_t uid_t;
+#endif
 
 #define NULL_ID 0
 

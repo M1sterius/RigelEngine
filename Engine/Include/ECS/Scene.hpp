@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelObject.hpp"
+#include "ISerializable.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -11,11 +12,14 @@ namespace rge
     class GOHandle;
     class GameObject;
 
-    class Scene final : public RigelObject
+    class Scene final : public RigelObject, public ISerializable
     {
     public:
         Scene(const Scene&) = delete;
         Scene operator = (const Scene&) = delete;
+
+        NODISCARD nlohmann::json Serialize() const override;
+        void Deserialize(const nlohmann::json& json) override;
 
         NODISCARD inline std::string GetName() const { return m_Name; }
 
