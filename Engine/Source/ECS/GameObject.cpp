@@ -1,5 +1,7 @@
 #include "GameObject.hpp"
 
+#include <UIDGenerator.hpp>
+
 #include "Debug.hpp"
 #include "ComponentTypeRegistry.hpp"
 #include "Engine.hpp"
@@ -8,7 +10,7 @@
 
 namespace rge
 {
-    GameObject::GameObject(std::string name) : RigelObject()
+    GameObject::GameObject(std::string name) : RigelObject(UIDGenerator::Generate())
     {
         m_Name = std::move(name);
     }

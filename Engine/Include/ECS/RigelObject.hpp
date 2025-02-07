@@ -15,9 +15,9 @@ namespace rge
 
         NODISCARD inline uid_t GetID() const { return m_ID; }
     protected:
-        RigelObject();
+        explicit inline RigelObject(const uid_t id) : m_ID(id) { }
         virtual ~RigelObject() = default;
     private:
-        uid_t m_ID = NULL_ID;
+        const uid_t m_ID = NULL_ID;
     };
 }

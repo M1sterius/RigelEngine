@@ -1,21 +1,16 @@
 #include "Scene.hpp"
-#include "SceneManager.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
 #include "json.hpp"
-#include "UIDGenerator.hpp"
 
 namespace rge
 {
-    Scene::Scene(std::string name) : RigelObject()
+    Scene::Scene(const uid_t id, std::string name) : RigelObject(id)
     {
         m_Name = std::move(name);
     }
 
-    Scene::~Scene()
-    {
-
-    }
+    Scene::~Scene() = default;
 
     GOHandle Scene::AddGameObject(std::string name)
     {

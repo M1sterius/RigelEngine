@@ -1,10 +1,11 @@
 #include "Component.hpp"
 #include "Debug.hpp"
+#include "UIDGenerator.hpp"
 #include "json.hpp"
 
 namespace rge
 {
-    Component::Component() : RigelObject()
+    Component::Component() : RigelObject(UIDGenerator::Generate())
     {
 
     }

@@ -3,8 +3,5 @@
 
 namespace rge
 {
-    RigelObject::RigelObject()
-    {
-        m_ID = UIDGenerator::Generate();
-    }
+
 }

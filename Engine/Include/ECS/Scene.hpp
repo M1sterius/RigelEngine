@@ -27,14 +27,13 @@ namespace rge
 
         GOHandle AddGameObject(std::string name = "Game Object");
     private:
-        explicit Scene(std::string name = "New scene");
+        explicit Scene(const uid_t id, std::string name = "New scene");
         ~Scene() override;
 
         void OnLoad(); // Called when the scene is loaded. Used for initialization logic.
         void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
 
         std::string m_Name;
-
         std::unordered_map<uid_t, GameObject*> m_Objects;
 
         friend class SceneManager;

@@ -10,6 +10,12 @@
 
 namespace rge
 {
+    /**
+    * Core subsystem for managing scenes, their creation, usage and lifetime
+    *
+    * Initialized during engine startup stage, an instance can be obtained by calling
+    * an appropriate Engine::GetSceneManager() member function
+    */
     class SceneManager final : public RigelSubsystem
     {
     public:
@@ -28,6 +34,7 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
+        uid_t m_NextSceneID = 1;
         std::unordered_map<uid_t, Scene*> m_Scenes;
         SceneHandle m_LoadedScene;
     };

@@ -1,4 +1,5 @@
 #include "SceneManager.hpp"
+#include "SceneHandle.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
@@ -23,7 +24,7 @@ namespace rge
 
     SceneHandle SceneManager::CreateScene(std::string name)
     {
-        const auto scene = new rge::Scene(std::move(name));
+        const auto scene = new Scene(m_NextSceneID++, std::move(name));
         m_Scenes[scene->GetID()] = scene;
 
         return {scene, scene->GetID()};
