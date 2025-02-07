@@ -16,8 +16,8 @@ namespace rge
     public:
         NODISCARD virtual const char* GetTypeName() const = 0;
     protected:
-        ~Component() override = default;
         Component();
+        ~Component() override = default;
 
         NODISCARD nlohmann::json Serialize() const override;
         void Deserialize(const nlohmann::json& json) override;

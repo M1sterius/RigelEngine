@@ -17,7 +17,11 @@ namespace rge
     protected:
         explicit inline RigelObject(const uid_t id) : m_ID(id) { }
         virtual ~RigelObject() = default;
+    INTERNAL:
+        // A way to assign ID's generate by the Scene class to the components.
+        // Should only be used for that, otherwise everything can break!
+        inline void OverrideID(const uid_t id) { m_ID = id; }
     private:
-        const uid_t m_ID = NULL_ID;
+        uid_t m_ID = NULL_ID;
     };
 }

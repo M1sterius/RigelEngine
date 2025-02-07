@@ -13,10 +13,16 @@ int32_t main(int32_t argc, char* argv[])
     rge::Time::SetTargetFPS(30);
 
     auto scene = sceneManager.CreateScene();
-    auto scene1 = sceneManager.CreateScene();
 
-    print(scene.GetID());
-    print(scene1.GetID());
+    auto go1 = scene->AddGameObject();
+    scene->AddGameObject();
+    scene->AddGameObject();
+    auto go = scene->AddGameObject();
+    scene->AddGameObject();
+
+    auto t = go->AddComponent<rge::Transform>();
+
+    print(t.GetID());
 
     // auto go = scene->AddGameObject();
     // auto t = go->AddComponent<rge::Transform>();

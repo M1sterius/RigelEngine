@@ -22,8 +22,7 @@ add_library(RigelEngine STATIC
     Source/ECS/Components/Transform.cpp
     Source/ECS/SceneHandle.cpp
     Source/ECS/GOHandle.cpp
-    Source/ECS/RigelObject.cpp
-    Source/Subsystems/EventSystem/EventManager.cpp
+        Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
 )
 

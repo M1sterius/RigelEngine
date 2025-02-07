@@ -26,6 +26,8 @@ namespace rge
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
 
         GOHandle AddGameObject(std::string name = "Game Object");
+    INTERNAL:
+        NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
         ~Scene() override;
@@ -34,6 +36,7 @@ namespace rge
         void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
 
         std::string m_Name;
+        uid_t m_NextObjectID = 1;
         std::unordered_map<uid_t, GameObject*> m_Objects;
 
         friend class SceneManager;

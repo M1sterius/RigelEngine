@@ -10,12 +10,21 @@
 
 namespace rge
 {
-    GameObject::GameObject(std::string name) : RigelObject(UIDGenerator::Generate())
+    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id)
     {
         m_Name = std::move(name);
     }
 
     GameObject::~GameObject() = default;
+
+    uid_t GameObject::AssignIDToComponent(Component* ptr) const
+    {
+        const auto& manager = Engine::Get().GetSceneManager();
+        auto scene = manager.GetSceneByID(m_SceneID);
+        const auto id = scene->GetNextObjectID();
+        ptr->OverrideID(id);
+        return id;
+    }
 
     nlohmann::json GameObject::Serialize() const
     {

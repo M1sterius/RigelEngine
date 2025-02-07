@@ -14,7 +14,7 @@ namespace rge
 
     GOHandle Scene::AddGameObject(std::string name)
     {
-        const auto go = new GameObject(std::move(name));
+        const auto go = new GameObject(m_NextObjectID++, std::move(name));
         const auto id = go->GetID();
         go->m_SceneID = this->GetID(); // assigning the ID of the scene that owns this game object
 
@@ -36,7 +36,7 @@ namespace rge
     {
         if (const auto it = m_Objects.find(handle.GetID()); it != m_Objects.end())
             return true;
-        else return false;
+        return false;
     }
 
     nlohmann::json Scene::Serialize() const

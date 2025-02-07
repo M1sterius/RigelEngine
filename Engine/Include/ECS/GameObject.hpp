@@ -30,7 +30,7 @@ namespace rge
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
 
             const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
-            const auto id = component->GetID();
+            const auto id = AssignIDToComponent(component);
 
             m_Components[id] = component;
 
@@ -55,8 +55,10 @@ namespace rge
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }
     private:
-        explicit GameObject(std::string name);
+        explicit GameObject(const uid_t id, std::string name);
         ~GameObject() override;
+
+        NODISCARD uid_t AssignIDToComponent(Component* ptr) const;
 
         uid_t m_SceneID = NULL_ID;
         std::string m_Name;
