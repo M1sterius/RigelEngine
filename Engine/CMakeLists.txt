@@ -11,7 +11,6 @@ add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-    Source/Utils/Internal/UIDGenerator.cpp
     Source/Subsystems/Renderer.cpp
     Source/EngineTools/Debug.cpp
     Source/Backend/Logger/Logger.cpp
@@ -22,7 +21,7 @@ add_library(RigelEngine STATIC
     Source/ECS/Components/Transform.cpp
     Source/ECS/SceneHandle.cpp
     Source/ECS/GOHandle.cpp
-        Source/Subsystems/EventSystem/EventManager.cpp
+    Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
 )
 
@@ -61,6 +60,7 @@ target_include_directories(RigelEngine PUBLIC
 
     Include
     Include/ECS
+    Include/ECS/Components
     Include/Utils
     Include/Utils/Math
     Include/Subsystems

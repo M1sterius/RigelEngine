@@ -1,7 +1,6 @@
 #include "RigelEngine.hpp"
 
 #include <iostream>
-#include <functional>
 
 #define print(x) std::cout << x << '\n'
 
@@ -14,31 +13,20 @@ int32_t main(int32_t argc, char* argv[])
 
     auto scene = sceneManager.CreateScene();
 
+    auto go0 = scene->AddGameObject();
+    go0->AddComponent<rge::Transform>();
+
     auto go1 = scene->AddGameObject();
-    scene->AddGameObject();
-    scene->AddGameObject();
-    auto go = scene->AddGameObject();
-    scene->AddGameObject();
+    go1->AddComponent<rge::Transform>();
 
-    auto t = go->AddComponent<rge::Transform>();
+    auto go2 = scene->AddGameObject();
+    go2->AddComponent<rge::Transform>();
 
-    print(t.GetID());
+    auto go3 = scene->AddGameObject();
+    go3->AddComponent<rge::Transform>();
 
-    // auto go = scene->AddGameObject();
-    // auto t = go->AddComponent<rge::Transform>();
-    // t->SetPosition(glm::vec3(1, 2, 3));
-    //
-    // auto json = go->Serialize();
-    //
-    // auto object = scene->AddGameObject();
-    //
-    // object->Deserialize(json);
-    //
-    // auto ts = object->GetComponent<rge::Transform>();
-    //
-    // print(scene->Serialize().dump(4));
-    //
-    // sceneManager.LoadScene(scene);
+    auto json = scene->Serialize();
+    print(json.dump(4));
 
     engine->Run();
 }

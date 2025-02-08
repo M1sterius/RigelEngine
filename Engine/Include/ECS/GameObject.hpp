@@ -13,6 +13,9 @@
 
 namespace rge
 {
+    /**
+    *   The class for all objects that can exist in a scene
+    */
     class GameObject final : public RigelObject, public ISerializable
     {
     public:
@@ -21,15 +24,13 @@ namespace rge
 
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
 
-        /*
-         * Adds a component of type T to this GameObject
-         * Currently DOES NOT instantiate the component
-         */
         template<typename T, typename... Args> ComponentHandle<T> AddComponent(Args&&... args)
         {
             static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
 
             const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
+
+            // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
             const auto id = AssignIDToComponent(component);
 
             m_Components[id] = component;
@@ -62,7 +63,6 @@ namespace rge
 
         uid_t m_SceneID = NULL_ID;
         std::string m_Name;
-
         std::unordered_map<uid_t, Component*> m_Components;
 
         friend class Scene;

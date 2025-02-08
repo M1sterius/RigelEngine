@@ -1,5 +1,6 @@
 #include "Components/Transform.hpp"
 #include "GLM_Serializer.hpp"
+#include "ComponentTypeRegistry.hpp"
 #include "json.hpp"
 #include "Debug.hpp"
 

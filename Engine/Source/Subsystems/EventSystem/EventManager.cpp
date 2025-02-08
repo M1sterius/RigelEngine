@@ -9,11 +9,11 @@ namespace rge
 
     void EventManager::Startup()
     {
-        std::cout << "Start up\n";
+
     }
 
     void EventManager::Shutdown()
     {
-        std::cout << "Shut down\n";
+
     }
 }

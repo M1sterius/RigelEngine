@@ -43,12 +43,35 @@ namespace rge
     {
         auto json = nlohmann::json();
         json["ID"] = GetID();
+
+        for (const auto& [_, gameObject] : m_Objects)
+            json["GameObjects"].push_back(gameObject->Serialize());
+
         return json;
     }
 
     void Scene::Deserialize(const nlohmann::json& json)
     {
+        if (!json.contains("GameObjects") || !json.contains("ID"))
+        {
+            Debug::Error("Failed to deserialize rge::Scene!");
+            return;
+        }
 
+        if (!m_Objects.empty())
+            Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be overridden!");
+        m_Objects.clear(); // Potential MEMORY LEAK!!!
+
+        // Maybe there should be a rule that deserialization can only
+        // be performed on an empty scene
+
+        for (const auto& goJson : json["GameObjects"])
+        {
+            auto go = AddGameObject();
+            go->Deserialize(goJson);
+
+            // TODO: Figure out the way to deal with IDs
+        }
     }
 
 }

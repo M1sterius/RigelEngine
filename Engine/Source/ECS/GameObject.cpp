@@ -1,10 +1,8 @@
 #include "GameObject.hpp"
-
-#include <UIDGenerator.hpp>
-
 #include "Debug.hpp"
 #include "ComponentTypeRegistry.hpp"
 #include "Engine.hpp"
+#include "Scene.hpp"
 #include "SceneManager.hpp"
 #include "json.hpp"
 
@@ -45,6 +43,8 @@ namespace rge
             Debug::Error("Failed to serialize rge::GameObject!");
             return;
         }
+
+        OverrideID(json["ID"].get<uid_t>());
 
         /*
          * Iterate through all components inside the json array,

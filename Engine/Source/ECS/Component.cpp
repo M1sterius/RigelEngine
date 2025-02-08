@@ -1,11 +1,11 @@
 #include "Component.hpp"
 #include "Debug.hpp"
-#include "UIDGenerator.hpp"
 #include "json.hpp"
 
 namespace rge
 {
-    Component::Component() : RigelObject(UIDGenerator::Generate())
+    // The NULL_ID will be overwritten by GameObject::AddComponent method
+    Component::Component() : RigelObject(NULL_ID)
     {
 
     }
@@ -20,6 +20,6 @@ namespace rge
 
     void Component::Deserialize(const nlohmann::json& json)
     {
-
+        OverrideID(json["ID"].get<uid_t>());
     }
 }
