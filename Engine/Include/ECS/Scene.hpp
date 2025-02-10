@@ -19,7 +19,7 @@ namespace rge
         Scene operator = (const Scene&) = delete;
 
         NODISCARD nlohmann::json Serialize() const override;
-        void Deserialize(const nlohmann::json& json) override;
+        bool Deserialize(const nlohmann::json& json) override;
 
         NODISCARD inline std::string GetName() const { return m_Name; }
 

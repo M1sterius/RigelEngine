@@ -50,12 +50,12 @@ namespace rge
         return json;
     }
 
-    void Scene::Deserialize(const nlohmann::json& json)
+    bool Scene::Deserialize(const nlohmann::json& json)
     {
         if (!json.contains("GameObjects") || !json.contains("ID"))
         {
             Debug::Error("Failed to deserialize rge::Scene!");
-            return;
+            return false;
         }
 
         if (!m_Objects.empty())
@@ -72,6 +72,8 @@ namespace rge
 
             // TODO: Figure out the way to deal with IDs
         }
+
+        return true;
     }
 
 }

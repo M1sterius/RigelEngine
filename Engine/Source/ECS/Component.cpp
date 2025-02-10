@@ -18,8 +18,16 @@ namespace rge
         return json;
     }
 
-    void Component::Deserialize(const nlohmann::json& json)
+    bool Component::Deserialize(const nlohmann::json& json)
     {
+        if (!json.contains("ID"))
+        {
+            Debug::Error("Failed to serialize component!");
+            return false;
+        }
+
         OverrideID(json["ID"].get<uid_t>());
+
+        return true;
     }
 }

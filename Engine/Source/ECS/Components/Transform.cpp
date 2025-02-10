@@ -54,18 +54,20 @@ namespace rge
         return json;
     }
 
-    void Transform::Deserialize(const nlohmann::json& json)
+    bool Transform::Deserialize(const nlohmann::json& json)
     {
         Component::Deserialize(json);
 
         if (json["Type"] != GetTypeName())
         {
             Debug::Error("Failed to deserialize rge::Transform component!");
-            return;
+            return false;
         }
 
         SetPosition(GLM_Serializer::DeserializeVec3(json["position"]));
         SetRotation(GLM_Serializer::DeserializeQuaternion(json["rotation"]));
         SetScale(GLM_Serializer::DeserializeVec3(json["scale"]));
+
+        return true;
     }
 }

@@ -28,6 +28,16 @@ add_library(RigelEngine STATIC
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
 
 set(PUBLIC_COMPILE_DEFINITIONS "RIGEL_ENGINE")
+set(LINK_LIBRARIES)
+
+if(WIN32)
+    list(APPEND LINK_LIBRARIES winmm)
+    list(APPEND PUBLIC_COMPILE_DEFINITIONS "RGE_PLATFORM_WINDOWS")
+elseif(APPLE)
+    list(APPEND PUBLIC_COMPILE_DEFINITIONS "RGE_PLATFORM_MACOS")
+elseif(UNIX)
+    list(APPEND PUBLIC_COMPILE_DEFINITIONS "RGE_PLATFORM_LINUX")
+endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     list(APPEND PUBLIC_COMPILE_DEFINITIONS "DEBUG_BUILD")
@@ -42,6 +52,7 @@ target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
 target_precompile_headers(RigelEngine PRIVATE
     Include/Utils/PCH/STD_PCH.hpp
+    Include/Utils/PCH/RGE_PCH.hpp
 )
 
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
@@ -69,12 +80,6 @@ target_include_directories(RigelEngine PUBLIC
     Include/Utils/Serialization
     Include/EngineTools
 )
-
-set(LINK_LIBRARIES)
-
-if(WIN32)
-    list(APPEND LINK_LIBRARIES winmm)
-endif()
 
 target_link_libraries(RigelEngine PRIVATE
     ${LINK_LIBRARIES}

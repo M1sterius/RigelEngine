@@ -36,12 +36,12 @@ namespace rge
         return json;
     }
 
-    void GameObject::Deserialize(const nlohmann::json& json)
+    bool GameObject::Deserialize(const nlohmann::json& json)
     {
         if (!json.contains("Components") || !json.contains("ID"))
         {
             Debug::Error("Failed to serialize rge::GameObject!");
-            return;
+            return false;
         }
 
         OverrideID(json["ID"].get<uid_t>());
@@ -63,5 +63,22 @@ namespace rge
             else
                 Debug::Error("Failed to serialize component of type: " + type);
         }
+
+        return true;
+    }
+
+    void GameObject::OnLoad()
+    {
+
+    }
+
+    void GameObject::OnStart()
+    {
+
+    }
+
+    void GameObject::OnDestroy()
+    {
+
     }
 }

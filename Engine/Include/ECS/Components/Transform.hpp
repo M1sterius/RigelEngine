@@ -21,7 +21,7 @@ namespace rge
         NODISCARD glm::vec3 GetScale() const { return m_Scale; }
 
         NODISCARD nlohmann::json Serialize() const override;
-        void Deserialize(const nlohmann::json& json) override;
+        bool Deserialize(const nlohmann::json& json) override;
     private:
         Transform();
         Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);

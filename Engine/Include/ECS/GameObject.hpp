@@ -20,8 +20,9 @@ namespace rge
     {
     public:
         NODISCARD nlohmann::json Serialize() const override;
-        void Deserialize(const nlohmann::json& json) override;
+        bool Deserialize(const nlohmann::json& json) override;
 
+        // Returns ID of the scene this object is attached to
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
 
         template<typename T, typename... Args> ComponentHandle<T> AddComponent(Args&&... args)
@@ -58,6 +59,10 @@ namespace rge
     private:
         explicit GameObject(const uid_t id, std::string name);
         ~GameObject() override;
+
+        void OnLoad();
+        void OnStart();
+        void OnDestroy();
 
         NODISCARD uid_t AssignIDToComponent(Component* ptr) const;
 

@@ -16,8 +16,12 @@ namespace rge
         Component();
         ~Component() override = default;
 
+        virtual void OnLoad() { };
+        virtual void OnStart() { };
+        virtual void OnDestroy() { };
+
         NODISCARD nlohmann::json Serialize() const override;
-        void Deserialize(const nlohmann::json& json) override;
+        bool Deserialize(const nlohmann::json& json) override;
     private:
         friend class GameObject;
     };
