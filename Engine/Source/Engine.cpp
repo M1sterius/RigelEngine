@@ -26,6 +26,8 @@ namespace rge
 
     void Engine::Startup()
     {
+        m_WorkingDirectory = std::filesystem::current_path();
+
         // Instantiate and start up all subsystems and global tools
         m_Logger = std::make_unique<Logger>();
         m_EventManager = std::make_unique<EventManager>();

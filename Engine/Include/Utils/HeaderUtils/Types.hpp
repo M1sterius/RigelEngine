@@ -17,3 +17,4 @@ static_assert(sizeof(double) == 8, "Rigel engine does not support systems with s
 
 typedef float float32_t;
 typedef double float64_t;
+typedef long double float128_t;

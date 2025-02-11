@@ -23,6 +23,7 @@ add_library(RigelEngine STATIC
     Source/ECS/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
+        Source/Utils/Filesystem/File.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -73,6 +74,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/ECS
     Include/ECS/Components
     Include/Utils
+    Include/Utils/Filesystem
     Include/Utils/Math
     Include/Subsystems
     Include/Subsystems/EventSystem

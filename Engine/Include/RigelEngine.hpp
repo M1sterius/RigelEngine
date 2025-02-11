@@ -30,6 +30,7 @@
 #include "Core.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
+#include "File.hpp"
 
 #include "json.hpp"
 #include "Math.hpp"

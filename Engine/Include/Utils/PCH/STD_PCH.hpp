@@ -6,6 +6,9 @@
 #include <cstdint>
 #include <functional>
 #include <thread>
+#include <fstream>
+#include <ostream>
+#include <sstream>
 
 // Data structures
 #include <string>

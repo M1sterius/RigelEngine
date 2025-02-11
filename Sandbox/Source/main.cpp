@@ -26,7 +26,6 @@ int32_t main(int32_t argc, char* argv[])
     go3->AddComponent<rge::Transform>();
 
     auto json = scene->Serialize();
-    print(json.dump(4));
 
     engine->Run();
 }

@@ -4,6 +4,7 @@
 #include "Stopwatch.hpp"
 
 #include <memory>
+#include <filesystem>
 
 namespace rge
 {
@@ -26,6 +27,8 @@ namespace rge
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
         NODISCARD Logger& GetLogger() const;
+
+        NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 
         void Run();
     INTERNAL:
@@ -51,6 +54,8 @@ namespace rge
         Stopwatch m_DeltaTimeStopwatch;
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
         uint64_t m_FrameCounter = 0;
+
+        std::filesystem::path m_WorkingDirectory;
 
         // Global tools instances
         std::unique_ptr<Logger> m_Logger;
