@@ -13,19 +13,13 @@ int32_t main(int32_t argc, char* argv[])
 
     auto scene = sceneManager.CreateScene();
 
-    auto go0 = scene->AddGameObject();
-    go0->AddComponent<rge::Transform>();
+    auto go = scene->InstantiateGO();
+    scene->InstantiateGO();
+    scene->InstantiateGO();
+    scene->InstantiateGO();
 
-    auto go1 = scene->AddGameObject();
-    go1->AddComponent<rge::Transform>();
-
-    auto go2 = scene->AddGameObject();
-    go2->AddComponent<rge::Transform>();
-
-    auto go3 = scene->AddGameObject();
-    go3->AddComponent<rge::Transform>();
-
-    auto json = scene->Serialize();
+    scene->DestroyGO(go);
+    scene->DestroyGO(go);
 
     engine->Run();
 }

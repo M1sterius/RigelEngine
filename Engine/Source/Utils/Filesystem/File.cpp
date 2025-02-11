@@ -31,4 +31,16 @@ namespace rge
         file << text;
         file.close();
     }
+
+    void File::WriteBinary(const std::filesystem::path& path, const std::vector<char>& data)
+    {
+        auto file = std::ofstream(path, std::ios::out | std::ios::binary);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Failed to open file at path: " + path.string());
+        }
+
+        file.write(data.data(), data.size());
+        file.close();
+    }
 }

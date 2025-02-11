@@ -12,30 +12,56 @@ namespace rge
 
     Scene::~Scene() = default;
 
-    GOHandle Scene::AddGameObject(std::string name)
+    GOHandle Scene::InstantiateGO(std::string name)
     {
-        const auto go = new GameObject(m_NextObjectID++, std::move(name));
-        const auto id = go->GetID();
-        go->m_SceneID = this->GetID(); // assigning the ID of the scene that owns this game object
+        const auto go = new GameObject(GetNextObjectID(), std::move(name));
+        go->m_SceneID = this->GetID();
+        m_Objects.push_back(go);
 
-        m_Objects[id] = go;
-        return {go, id, go->GetSceneID()};
+        if (IsLoaded())
+        {
+            go->OnLoad();
+            go->OnStart();
+        }
+
+        return { go, go->GetID(), this->GetID() };
+    }
+
+    void Scene::DestroyGO(const GOHandle& handle)
+    {
+        for (size_t i = 0; i < m_Objects.size(); i++)
+        {
+            if (const auto go = m_Objects[i]; go->GetID() == handle.GetID())
+            {
+                if (IsLoaded())
+                    go->OnDestroy();
+
+                delete go;
+                m_Objects.erase(m_Objects.begin() + i);
+
+                return;
+            }
+        }
+
+        Debug::Error("Failed to destroy game object with ID: " +
+                std::to_string(handle.GetID()) + ". " +
+                "Game object isn't present on the scene with ID: " + std::to_string(this->GetID()));
     }
 
     void Scene::OnLoad()
     {
-
+        m_IsLoaded = true;
     }
 
     void Scene::OnUnload()
     {
-
+        m_IsLoaded = false;
     }
 
     bool Scene::IsGOHandleValid(const GOHandle& handle) const
     {
-        if (const auto it = m_Objects.find(handle.GetID()); it != m_Objects.end())
-            return true;
+        for (const auto obj : m_Objects)
+            if (obj->GetID() == handle.GetID()) return true;
         return false;
     }
 
@@ -44,7 +70,7 @@ namespace rge
         auto json = nlohmann::json();
         json["ID"] = GetID();
 
-        for (const auto& [_, gameObject] : m_Objects)
+        for (const auto& gameObject : m_Objects)
             json["GameObjects"].push_back(gameObject->Serialize());
 
         return json;
@@ -54,7 +80,7 @@ namespace rge
     {
         if (!json.contains("GameObjects") || !json.contains("ID"))
         {
-            Debug::Error("Failed to deserialize rge::Scene!");
+            Debug::Error("Failed to deserialize rge::Scene! Some of the required data is not present in the json object.");
             return false;
         }
 
@@ -67,7 +93,7 @@ namespace rge
 
         for (const auto& goJson : json["GameObjects"])
         {
-            auto go = AddGameObject();
+            auto go = InstantiateGO();
             go->Deserialize(goJson);
 
             // TODO: Figure out the way to deal with IDs

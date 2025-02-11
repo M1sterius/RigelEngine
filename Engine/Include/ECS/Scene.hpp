@@ -1,11 +1,13 @@
 #pragma once
 
+#include <GOHandle.hpp>
+
 #include "Core.hpp"
 #include "RigelObject.hpp"
 #include "ISerializable.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace rge
 {
@@ -23,9 +25,11 @@ namespace rge
 
         NODISCARD inline std::string GetName() const { return m_Name; }
 
+        NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
 
-        GOHandle AddGameObject(std::string name = "Game Object");
+        GOHandle InstantiateGO(std::string name = "GameObject");
+        void DestroyGO(const GOHandle& handle);
     INTERNAL:
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
@@ -35,9 +39,11 @@ namespace rge
         void OnLoad(); // Called when the scene is loaded. Used for initialization logic.
         void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
 
+        bool m_IsLoaded = false;
         std::string m_Name;
         uid_t m_NextObjectID = 1;
-        std::unordered_map<uid_t, GameObject*> m_Objects;
+
+        std::vector<GameObject*> m_Objects;
 
         friend class SceneManager;
     };
