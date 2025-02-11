@@ -20,6 +20,8 @@ namespace rge
     {
     public:
         NODISCARD SceneHandle CreateScene(std::string name = "New Scene");
+        void DestroyScene(const SceneHandle& scene);
+
         NODISCARD SceneHandle GetSceneByID(const uid_t id) const;
 
         NODISCARD bool IsSceneLoaded() const { return !m_LoadedScene.IsNull(); }
@@ -33,6 +35,8 @@ namespace rge
     private:
         void Startup() override;
         void Shutdown() override;
+
+        NODISCARD inline uid_t GetNextSceneID() { return m_NextSceneID++; }
 
         uid_t m_NextSceneID = 1;
         std::unordered_map<uid_t, Scene*> m_Scenes;

@@ -17,13 +17,11 @@ namespace rge
     class Scene final : public RigelObject, public ISerializable
     {
     public:
-        Scene(const Scene&) = delete;
-        Scene operator = (const Scene&) = delete;
-
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
         NODISCARD inline std::string GetName() const { return m_Name; }
+        inline void SetName(std::string name) { m_Name = std::move(name); }
 
         NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;

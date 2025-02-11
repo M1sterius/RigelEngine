@@ -1,25 +1,22 @@
 #include "GameObject.hpp"
 #include "Debug.hpp"
-#include "ComponentTypeRegistry.hpp"
-#include "Engine.hpp"
 #include "Scene.hpp"
-#include "SceneManager.hpp"
+#include "Transform.hpp"
 #include "json.hpp"
+#include "ComponentTypeRegistry.hpp"
 
 namespace rge
 {
-    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id)
+    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id), m_Scene({nullptr, NULL_ID})
     {
         m_Name = std::move(name);
     }
 
     GameObject::~GameObject() = default;
 
-    uid_t GameObject::AssignIDToComponent(Component* ptr) const
+    uid_t GameObject::AssignIDToComponent(Component* ptr)
     {
-        const auto& manager = Engine::Get().GetSceneManager();
-        auto scene = manager.GetSceneByID(m_SceneID);
-        const auto id = scene->GetNextObjectID();
+        const auto id = m_Scene->GetNextObjectID();
         ptr->OverrideID(id);
         return id;
     }
@@ -40,17 +37,12 @@ namespace rge
     {
         if (!json.contains("Components") || !json.contains("ID"))
         {
-            Debug::Error("Failed to serialize rge::GameObject!");
+            Debug::Error("Failed to serialize rge::GameObject! Some of the required data is not present in the json object.");
             return false;
         }
 
         OverrideID(json["ID"].get<uid_t>());
 
-        /*
-         * Iterate through all components inside the json array,
-         * retrieve the type represented as a string and then look it up in the registry.
-         * The registry will return a nullptr if the type is not found.
-         */
         for (const auto& component : json["Components"])
         {
             const auto type = component["Type"].get<std::string>();

@@ -24,10 +24,28 @@ namespace rge
 
     SceneHandle SceneManager::CreateScene(std::string name)
     {
-        const auto scene = new Scene(m_NextSceneID++, std::move(name));
+        const auto scene = new Scene(GetNextSceneID(), std::move(name));
         m_Scenes[scene->GetID()] = scene;
 
         return {scene, scene->GetID()};
+    }
+
+    void SceneManager::DestroyScene(const SceneHandle& scene)
+    {
+        if (!IsSceneHandleValid(scene))
+        {
+            Debug::Error("An invalid handle was passed to SceneManager::DestroyScene!");
+            return;
+        }
+
+        if (scene->IsLoaded())
+        {
+            Debug::Error("Attempted to destroy a loaded scene, unload it and then try to destroy it again!");
+            return;
+        }
+
+        delete m_Scenes[scene.GetID()];
+        m_Scenes.erase(scene.GetID());
     }
 
     void SceneManager::LoadScene(SceneHandle& scene)
@@ -65,6 +83,6 @@ namespace rge
     {
         if (const auto it = m_Scenes.find(handle.GetID()); it != m_Scenes.end())
             return true;
-        else return false;
+        return false;
     }
 }

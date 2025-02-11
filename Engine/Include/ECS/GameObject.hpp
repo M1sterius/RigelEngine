@@ -1,14 +1,15 @@
 #pragma once
 
-#include <Debug.hpp>
-
+#include "Debug.hpp"
 #include "Core.hpp"
 #include "ComponentHandle.hpp"
 #include "Component.hpp"
 #include "ISerializable.hpp"
 #include "RigelObject.hpp"
+#include "SceneHandle.hpp"
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 namespace rge
@@ -22,8 +23,8 @@ namespace rge
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
-        // Returns ID of the scene this object is attached to
-        NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
+        // Returns handle to the scene this object is attached to
+        NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
         template<typename T, typename... Args> ComponentHandle<T> AddComponent(Args&&... args)
         {
@@ -36,7 +37,7 @@ namespace rge
 
             m_Components[id] = component;
 
-            return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_SceneID);
+            return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_Scene.GetID());
         }
 
         /*
@@ -49,7 +50,7 @@ namespace rge
             for (const auto& [id, component] : m_Components)
             {
                 if (const auto cast = dynamic_cast<T*>(component))
-                    return ComponentHandle<T>(cast, id, this->GetID(), m_SceneID);
+                    return ComponentHandle<T>(cast, id, this->GetID(), m_Scene.GetID());
             }
 
             Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
@@ -64,10 +65,11 @@ namespace rge
         void OnStart();
         void OnDestroy();
 
-        NODISCARD uid_t AssignIDToComponent(Component* ptr) const;
+        NODISCARD uid_t AssignIDToComponent(Component* ptr);
 
-        uid_t m_SceneID = NULL_ID;
+        SceneHandle m_Scene;
         std::string m_Name;
+        bool m_Instantiated = false;
         std::unordered_map<uid_t, Component*> m_Components;
 
         friend class Scene;
