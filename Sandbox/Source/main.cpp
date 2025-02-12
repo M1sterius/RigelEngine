@@ -21,7 +21,11 @@ int32_t main(int32_t argc, char* argv[])
     scene->DestroyGO(go);
 
     const auto json = scene->Serialize();
-    rge::File::WriteText("scene.json", json.dump());
+
+    auto scene1 = sceneManager.CreateScene();
+    scene1->Deserialize(json);
+
+    print(scene1->Serialize().dump(4));
 
     sceneManager.LoadScene(scene);
 

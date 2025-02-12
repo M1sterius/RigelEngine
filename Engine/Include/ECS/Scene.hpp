@@ -1,7 +1,6 @@
 #pragma once
 
-#include <GOHandle.hpp>
-
+#include "GOHandle.hpp"
 #include "Core.hpp"
 #include "RigelObject.hpp"
 #include "ISerializable.hpp"
@@ -37,8 +36,8 @@ namespace rge
         void OnLoad(); // Called when the scene is loaded. Used for initialization logic.
         void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
 
-        bool m_IsLoaded = false;
         std::string m_Name;
+        bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
 
         std::vector<GameObject*> m_Objects;

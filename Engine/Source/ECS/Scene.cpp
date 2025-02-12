@@ -1,8 +1,8 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
-#include "json.hpp"
 #include "Transform.hpp"
+#include "json.hpp"
 
 namespace rge
 {
@@ -116,13 +116,15 @@ namespace rge
                 delete go; // TODO: Fix a memory leak caused by not deleting components in the GameObject class
         }
 
+        m_Name = json["Name"].get<std::string>();
+
         for (const auto& goJson : json["GameObjects"])
         {
+            // TODO: Fix Transform class being added twice
             if (auto go = InstantiateGO(); !go->Deserialize(goJson))
                 DestroyGO(go);
         }
 
         return true;
     }
-
 }

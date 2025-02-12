@@ -26,6 +26,7 @@ namespace rge
         auto json = nlohmann::json();
 
         json["ID"] = GetID();
+        json["Name"] = GetName();
 
         for (const auto& [_, component] : m_Components)
             json["Components"].push_back(component->Serialize());
@@ -35,12 +36,13 @@ namespace rge
 
     bool GameObject::Deserialize(const nlohmann::json& json)
     {
-        if (!json.contains("Components") || !json.contains("ID"))
+        if (!json.contains("Components") || !json.contains("ID") || !json.contains("Name"))
         {
             Debug::Error("Failed to serialize rge::GameObject! Some of the required data is not present in the json object.");
             return false;
         }
 
+        m_Name = json["Name"].get<std::string>();
         OverrideID(json["ID"].get<uid_t>());
 
         for (const auto& component : json["Components"])

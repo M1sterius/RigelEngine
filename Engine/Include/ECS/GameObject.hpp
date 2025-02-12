@@ -23,6 +23,9 @@ namespace rge
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
+        NODISCARD inline std::string GetName() const { return m_Name; }
+        inline void SetName(std::string name) { m_Name = std::move(name); }
+
         // Returns handle to the scene this object is attached to
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
