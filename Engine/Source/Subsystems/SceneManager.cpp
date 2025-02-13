@@ -25,7 +25,7 @@ namespace rge
     SceneHandle SceneManager::CreateScene(std::string name)
     {
         const auto scene = new Scene(GetNextSceneID(), std::move(name));
-        m_Scenes[scene->GetID()] = scene;
+        m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
 
         return {scene, scene->GetID()};
     }
@@ -44,7 +44,7 @@ namespace rge
             return;
         }
 
-        delete m_Scenes[scene.GetID()];
+        m_Scenes[scene.GetID()].reset();
         m_Scenes.erase(scene.GetID());
     }
 
@@ -68,9 +68,12 @@ namespace rge
     {
         const auto it = m_Scenes.find(id);
         if (it == m_Scenes.end())
-            throw std::runtime_error("Attempted to retrieve a scene by an invalid ID.");
+        {
+            Debug::Error("Cannot find a valid scene by specified ID: " + std::to_string(id));
+            return {nullptr, NULL_ID };
+        }
 
-        return {it->second, id};
+        return {it->second.get(), id};
     }
 
     SceneHandle SceneManager::GetLoadedScene() const

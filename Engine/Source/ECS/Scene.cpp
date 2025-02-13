@@ -11,14 +11,12 @@ namespace rge
         m_Name = std::move(name);
     }
 
-    Scene::~Scene() = default;
-
     GOHandle Scene::InstantiateGO(std::string name)
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
         go->AddComponent<Transform>(); // Every game object must have a transform component attached to it
-        m_Objects.push_back(go);
+        m_Objects.emplace_back(std::unique_ptr<GameObject>(go));
 
         /*
          * If the scene is loaded, appropriate event functions must be invoked
@@ -39,12 +37,12 @@ namespace rge
     {
         for (size_t i = 0; i < m_Objects.size(); i++)
         {
-            if (const auto go = m_Objects[i]; go->GetID() == handle.GetID())
+            if (auto& go = m_Objects[i]; go->GetID() == handle.GetID())
             {
                 if (IsLoaded())
                     go->OnDestroy();
 
-                delete go;
+                go.reset();
                 m_Objects.erase(m_Objects.begin() + i);
 
                 return;
@@ -77,7 +75,7 @@ namespace rge
 
     bool Scene::IsGOHandleValid(const GOHandle& handle) const
     {
-        for (const auto obj : m_Objects)
+        for (const auto& obj : m_Objects)
             if (obj->GetID() == handle.GetID()) return true;
         return false;
     }
@@ -112,8 +110,8 @@ namespace rge
         {
             Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be deleted!");
 
-            for (const auto& go : m_Objects)
-                delete go; // TODO: Fix a memory leak caused by not deleting components in the GameObject class
+            for (auto& go : m_Objects)
+                go.reset(); // TODO: Fix a memory leak caused by not deleting components in the GameObject class
         }
 
         m_Name = json["Name"].get<std::string>();

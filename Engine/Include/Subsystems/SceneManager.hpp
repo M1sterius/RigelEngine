@@ -19,9 +19,24 @@ namespace rge
     class SceneManager final : public RigelSubsystem
     {
     public:
+        /**
+         * Creates a new instance of an empty scene.
+         * @param name Optional name for the scene, does not uniquely identify it.
+         * @return Handle to the scene that will be created.
+         */
         NODISCARD SceneHandle CreateScene(std::string name = "New Scene");
+
+        /**
+         * Deletes a scene and all objects on it. On an unloaded scene can be deleted.
+         * @param scene Handle to the scene that will be deleted.
+         */
         void DestroyScene(const SceneHandle& scene);
 
+        /**
+         * Find a scene by it's unique ID.
+         * @param id
+         * @return Handle to the scene that was found. Will return a null handle if the scene cannot be found.
+         */
         NODISCARD SceneHandle GetSceneByID(const uid_t id) const;
 
         NODISCARD bool IsSceneLoaded() const { return !m_LoadedScene.IsNull(); }
@@ -39,7 +54,7 @@ namespace rge
         NODISCARD inline uid_t GetNextSceneID() { return m_NextSceneID++; }
 
         uid_t m_NextSceneID = 1;
-        std::unordered_map<uid_t, Scene*> m_Scenes;
+        std::unordered_map<uid_t, std::unique_ptr<Scene>> m_Scenes; // The scene manager owns all scenes
         SceneHandle m_LoadedScene;
     };
 }

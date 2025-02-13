@@ -60,13 +60,14 @@ namespace rge
 
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }
+    INTERNAL:
+        ~GameObject() override;
     private:
         explicit GameObject(const uid_t id, std::string name);
-        ~GameObject() override;
 
-        void OnLoad();
-        void OnStart();
-        void OnDestroy();
+        void OnLoad(); // Handles asset loading
+        void OnStart(); // Handles start behaviour that does not involve loading assets, guaranteed to run after OnLoad
+        void OnDestroy(); // Handles freeing assets and other behaviour that may be required during object's destruction
 
         NODISCARD uid_t AssignIDToComponent(Component* ptr);
 

@@ -3,8 +3,10 @@
 #include "GOHandle.hpp"
 #include "Core.hpp"
 #include "RigelObject.hpp"
+#include "GameObject.hpp"
 #include "ISerializable.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,19 +30,20 @@ namespace rge
         GOHandle InstantiateGO(std::string name = "GameObject");
         void DestroyGO(const GOHandle& handle);
     INTERNAL:
+        ~Scene() override = default;
+
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
-        ~Scene() override;
 
-        void OnLoad(); // Called when the scene is loaded. Used for initialization logic.
-        void OnUnload(); // Called when the scene is unloaded. Used for cleanup logic.
+        void OnLoad(); // Used for initialization logic. Will invoke OnLoad and OnStart for each game object.
+        void OnUnload(); // Used for cleanup logic. Will invoke OnDestroy for each game object.
 
         std::string m_Name;
         bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
 
-        std::vector<GameObject*> m_Objects;
+        std::vector<std::unique_ptr<GameObject>> m_Objects; // Scene owns game objects
 
         friend class SceneManager;
     };
