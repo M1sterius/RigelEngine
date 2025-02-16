@@ -15,7 +15,5 @@ int32_t main(int32_t argc, char* argv[])
 
     scene->Deserialize(rge::File::ReadJSON("scene.json"));
 
-    print(scene->Serialize().dump(4));
-
     engine->Run();
 }

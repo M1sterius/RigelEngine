@@ -20,7 +20,7 @@ namespace rge
 
         std::string logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
 
-        std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << "\n";
+        std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
 
         // TODO: Implement saving logs into a file
     }

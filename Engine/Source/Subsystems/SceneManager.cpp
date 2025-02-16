@@ -2,6 +2,7 @@
 #include "SceneHandle.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
+#include "Logger.hpp"
 #include "Scene.hpp"
 
 #include <stdexcept>
@@ -14,12 +15,12 @@ namespace rge
 
     void SceneManager::Startup()
     {
-
+        VERBOSE_MESSAGE("Starting up scene manager.");
     }
 
     void SceneManager::Shutdown()
     {
-
+        VERBOSE_MESSAGE("Shutting down scene manager.");
     }
 
     SceneHandle SceneManager::CreateScene(std::string name)

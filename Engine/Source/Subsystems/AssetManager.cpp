@@ -1,4 +1,5 @@
 #include "AssetManager.hpp"
+#include "Logger.hpp"
 
 namespace rge
 {
@@ -9,11 +10,11 @@ namespace rge
 
     void AssetManager::Startup()
     {
-
+        VERBOSE_MESSAGE("Starting up asset manager.");
     }
 
     void AssetManager::Shutdown()
     {
-
+        VERBOSE_MESSAGE("Shutting down asset manager.");
     }
 }

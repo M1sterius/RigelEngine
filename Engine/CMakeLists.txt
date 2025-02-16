@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 project(RigelEngine)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 
@@ -23,8 +23,8 @@ add_library(RigelEngine STATIC
     Source/ECS/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
-        Source/Utils/Filesystem/File.cpp
-        Source/Subsystems/AssetManager.cpp
+    Source/Utils/Filesystem/File.cpp
+    Source/Subsystems/AssetManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -47,6 +47,11 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Test")
     list(APPEND PUBLIC_COMPILE_DEFINITIONS "TEST_BUILD")
 else ()
     list(APPEND PUBLIC_COMPILE_DEFINITIONS "RELEASE_BUILD")
+endif ()
+
+# statically link necessary runtime libraries when using gcc
+if (MINGW)
+    list(APPEND LINK_LIBRARIES -static-libgcc -static-libstdc++ -static)
 endif ()
 
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
