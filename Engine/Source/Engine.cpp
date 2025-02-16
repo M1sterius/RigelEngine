@@ -31,8 +31,8 @@ namespace rge
         VERBOSE_MESSAGE("Starting up Rigel engine");
         m_WorkingDirectory = std::filesystem::current_path();
         VERBOSE_MESSAGE("Engine working directory: " + m_WorkingDirectory.string());
-
         VERBOSE_MESSAGE("Starting up subsystems:");
+
         // Instantiate and start up all subsystems
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
@@ -110,6 +110,7 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(m_DeltaTime));
+        GameUpdateEvent e(m_DeltaTime);
+        m_EventManager->Dispatch<GameUpdateEvent>(e);
     }
 }

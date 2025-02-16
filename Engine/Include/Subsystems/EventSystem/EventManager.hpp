@@ -18,7 +18,7 @@ namespace rge
         using CallbackID = uid_t;
 
         template<typename EventType>
-        CallbackID Subscribe(EventCallback& callback)
+        CallbackID Subscribe(const EventCallback& callback)
         {
             CallbackID id = m_NextCallbackID++;
 
@@ -55,7 +55,7 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, EventCallback>>> m_Subscribers;
+        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, EventCallback>>> m_Subscribers { };
         CallbackID m_NextCallbackID = 0;
     };
 }
