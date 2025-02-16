@@ -2,10 +2,18 @@
 #include "Debug.hpp"
 #include "json.hpp"
 
+#include "Engine.hpp"
+#include "SceneManager.hpp"
+#include "EventManager.hpp"
+#include "AssetManager.hpp"
+#include "Renderer.hpp"
+
 namespace rge
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
-    Component::Component() : RigelObject(NULL_ID)
+    Component::Component() : RigelObject(NULL_ID),
+    Engine(Engine::Get()), AssetManager(Engine.GetAssetManager()),
+    EventManager(Engine.GetEventManager()), SceneManager(Engine.GetSceneManager())
     {
 
     }

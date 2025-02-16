@@ -2,6 +2,7 @@
 
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
+#include "EngineEvents.hpp"
 #include "AssetManager.hpp"
 #include "Renderer.hpp"
 #include "SleepUtility.hpp"
@@ -110,7 +111,6 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        GameUpdateEvent e(m_DeltaTime);
-        m_EventManager->Dispatch<GameUpdateEvent>(e);
+        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(m_DeltaTime, m_FrameCounter));
     }
 }

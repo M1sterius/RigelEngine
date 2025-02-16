@@ -11,7 +11,13 @@
 
 namespace rge
 {
-    class EventManager : public RigelSubsystem
+    template<typename EventType>
+    const EventType& CastEvent(const Event& event)
+    {
+        return static_cast<const EventType&>(event);
+    }
+
+    class EventManager final : public RigelSubsystem
     {
     public:
         using EventCallback = std::function<void(const Event&)>;
@@ -34,7 +40,7 @@ namespace rge
             {
                 auto& vec = it->second;
                 vec.erase(std::remove_if(vec.begin(), vec.end(),
-                                         [id](const auto& pair) { return pair.first == id; }), vec.end());
+                    [id](const auto& pair) { return pair.first == id; }), vec.end());
             }
         }
 

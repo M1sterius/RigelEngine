@@ -11,17 +11,8 @@ namespace rge
 {
     class SceneManager;
     class Renderer;
-    class Logger;
     class EventManager;
     class AssetManager;
-
-    struct GameUpdateEvent : public Event
-    {
-    public:
-        explicit GameUpdateEvent(float32_t dt) : dt(dt) { }
-        ~GameUpdateEvent() override = default;
-        float32_t dt;
-    };
 
     class Engine
     {
@@ -34,6 +25,8 @@ namespace rge
 
         NODISCARD bool IsRunning() const { return m_Running; }
 
+        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
+
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
@@ -43,9 +36,6 @@ namespace rge
 
         void Run();
     INTERNAL:
-        // Returns the global engine core instance, for internal use only
-        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
-
         NODISCARD inline float64_t GetGlobalTime() const { return m_GlobalTimeStopwatch.GetElapsed().AsSeconds(); }
         NODISCARD inline float64_t GetDeltaTime() const { return m_DeltaTime; }
         NODISCARD inline uint64_t GetFrameCount() const { return m_FrameCounter; }

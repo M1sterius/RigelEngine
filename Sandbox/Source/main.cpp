@@ -1,27 +1,26 @@
 #include "RigelEngine.hpp"
+#include "TestComponent.hpp"
 
 #include <iostream>
 
 #define print(x) std::cout << x << '\n'
-
-void OnUpdate(const rge::Event& event)
-{
-    const auto& e = static_cast<const rge::GameUpdateEvent&>(event);
-    print("Update" + std::to_string(e.dt));
-}
 
 int32_t main(int32_t argc, char* argv[])
 {
     const auto engine = rge::Engine::CreateInstance();
     auto& sceneManager = engine->GetSceneManager();
 
-    engine->GetEventManager().Subscribe<rge::GameUpdateEvent>(OnUpdate);
-
     rge::Time::SetTargetFPS(30);
 
     auto scene = sceneManager.CreateScene("Sample Scene");
 
-    scene->Deserialize(rge::File::ReadJSON("scene.json"));
+    auto go = scene->InstantiateGO();
+    go->AddComponent<rge::Transform>();
+    go->AddComponent<TestComponent>();
+
+    print(scene->Serialize().dump(4));
+
+    sceneManager.LoadScene(scene);
 
     engine->Run();
 }

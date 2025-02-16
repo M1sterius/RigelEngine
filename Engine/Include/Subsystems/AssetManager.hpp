@@ -5,7 +5,7 @@
 
 namespace rge
 {
-    class AssetManager : public RigelSubsystem
+    class AssetManager final : public RigelSubsystem
     {
     public:
     INTERNAL:

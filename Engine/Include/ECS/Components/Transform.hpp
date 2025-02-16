@@ -3,7 +3,6 @@
 #include "Core.hpp"
 #include "Component.hpp"
 #include "ComponentTypeRegistry.hpp"
-#include "RigelHandle.hpp"
 #include "Math.hpp"
 
 #include <iostream>

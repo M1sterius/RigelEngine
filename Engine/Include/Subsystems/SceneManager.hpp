@@ -33,7 +33,7 @@ namespace rge
         void DestroyScene(const SceneHandle& scene);
 
         /**
-         * Find a scene by it's unique ID.
+         * Find a scene by its unique ID.
          * @param id
          * @return Handle to the scene that was found. Will return a null handle if the scene cannot be found.
          */

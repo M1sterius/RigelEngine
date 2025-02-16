@@ -10,6 +10,7 @@
 
 // Subsystems
 #include "Event.hpp"
+#include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "SceneManager.hpp"
 #include "Renderer.hpp"
@@ -22,6 +23,7 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "Component.hpp"
+#include "ComponentTypeRegistry.hpp"
 
 #include "Components/Transform.hpp"
 
