@@ -2,15 +2,18 @@
 
 #include "Core.hpp"
 #include "Component.hpp"
+#include "ComponentTypeRegistry.hpp"
 #include "RigelHandle.hpp"
 #include "Math.hpp"
+
+#include <iostream>
 
 namespace rge
 {
     class Transform final : public Component
     {
     public:
-        DEFINE_COMPONENT_TYPE(Transform);
+        REGISTER_COMPONENT(Transform);
 
         void SetPosition(const glm::vec3& position);
         void SetRotation(const glm::quat& rotation);
@@ -34,7 +37,6 @@ namespace rge
 
         bool m_UpdateRequiredFlag = true;
 
-        static bool m_Registered;
         friend class GameObject;
     };
 }

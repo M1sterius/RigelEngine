@@ -8,7 +8,7 @@
 
 namespace rge
 {
-    bool Transform::m_Registered = ComponentTypeRegistry::ResisterComponent("Transform", []() -> Component* { return new Transform(); });
+//    bool Transform::m_Registered = ComponentTypeRegistry::RegisterComponent("Transform", []() -> Component* { return new Transform(); });
 
     Transform::Transform() : Component(),
         m_Position(glm::vec3(0.0f)), m_Rotation(glm::identity<glm::quat>()), m_Scale(glm::vec3(1.0f))

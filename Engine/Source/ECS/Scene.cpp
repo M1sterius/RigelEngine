@@ -15,8 +15,8 @@ namespace rge
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
-        go->AddComponent<Transform>(); // Every game object must have a transform component attached to it
-        m_Objects.emplace_back(std::unique_ptr<GameObject>(go));
+//        go->AddComponent<Transform>(); // Every game object must have a transform component attached to it
+        m_GameObjects.emplace_back(std::unique_ptr<GameObject>(go));
 
         /*
          * If the scene is loaded, appropriate event functions must be invoked
@@ -35,15 +35,15 @@ namespace rge
 
     void Scene::DestroyGO(const GOHandle& handle)
     {
-        for (size_t i = 0; i < m_Objects.size(); i++)
+        for (size_t i = 0; i < m_GameObjects.size(); i++)
         {
-            if (auto& go = m_Objects[i]; go->GetID() == handle.GetID())
+            if (auto& go = m_GameObjects[i]; go->GetID() == handle.GetID())
             {
                 if (IsLoaded())
                     go->OnDestroy();
 
                 go.reset();
-                m_Objects.erase(m_Objects.begin() + i);
+                m_GameObjects.erase(m_GameObjects.begin() + i);
 
                 return;
             }
@@ -58,7 +58,7 @@ namespace rge
     {
         m_IsLoaded = true;
 
-        for (const auto& go : m_Objects)
+        for (const auto& go : m_GameObjects)
         {
             go->OnLoad();
             go->OnStart();
@@ -67,7 +67,7 @@ namespace rge
 
     void Scene::OnUnload()
     {
-        for (const auto& go : m_Objects)
+        for (const auto& go : m_GameObjects)
             go->OnDestroy();
 
         m_IsLoaded = false;
@@ -75,7 +75,7 @@ namespace rge
 
     bool Scene::IsGOHandleValid(const GOHandle& handle) const
     {
-        for (const auto& obj : m_Objects)
+        for (const auto& obj : m_GameObjects)
             if (obj->GetID() == handle.GetID()) return true;
         return false;
     }
@@ -83,10 +83,11 @@ namespace rge
     nlohmann::json Scene::Serialize() const
     {
         auto json = nlohmann::json();
+
         json["ID"] = GetID();
         json["Name"] = GetName();
 
-        for (const auto& gameObject : m_Objects)
+        for (const auto& gameObject : m_GameObjects)
             json["GameObjects"].push_back(gameObject->Serialize());
 
         return json;
@@ -96,7 +97,7 @@ namespace rge
     {
         if (IsLoaded())
         {
-            Debug::Error("Attempted to deserialize a scene that is already loaded. That behaviour is currently unsupported. Deserialization aborted!");
+            Debug::Error("Deserialization on a loaded scene is not allowed. Deserialization aborted!");
             return false;
         }
 
@@ -106,15 +107,20 @@ namespace rge
             return false;
         }
 
-        if (!m_Objects.empty())
+        if (!m_GameObjects.empty())
         {
             Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be deleted!");
 
-            for (auto& go : m_Objects)
+            for (auto& go : m_GameObjects)
                 go.reset(); // TODO: Fix a memory leak caused by not deleting components in the GameObject class
+
+            m_GameObjects.clear();
         }
 
+        // maybe scene manager should be responsible for scene deserialization
+
         m_Name = json["Name"].get<std::string>();
+        // TODO: Handle IDs for different scene.
 
         for (const auto& goJson : json["GameObjects"])
         {

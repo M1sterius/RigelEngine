@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Debug.hpp"
 #include "Core.hpp"
+#include "Debug.hpp"
 #include "ComponentHandle.hpp"
 #include "Component.hpp"
 #include "ISerializable.hpp"
@@ -43,8 +43,8 @@ namespace rge
             return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_Scene.GetID());
         }
 
-        /*
-         * Returns a handle to the first component of type T attached to this GameObject
+        /**
+         * Returns handle to the first component of type T attached to this GameObject
          */
         template<typename T> ComponentHandle<T> GetComponent()
         {
@@ -60,20 +60,32 @@ namespace rge
 
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }
+
+        template<typename T> NODISCARD bool HasComponent()
+        {
+            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
+
+            for (const auto& [id, component] : m_Components)
+            {
+                if (const auto cast = dynamic_cast<T*>(component))
+                    return true;
+            }
+
+            return false;
+        }
     INTERNAL:
         ~GameObject() override;
     private:
         explicit GameObject(const uid_t id, std::string name);
 
-        void OnLoad(); // Handles asset loading
-        void OnStart(); // Handles start behaviour that does not involve loading assets, guaranteed to run after OnLoad
-        void OnDestroy(); // Handles freeing assets and other behaviour that may be required during object's destruction
+        void OnLoad(); // Handles asset loading.
+        void OnStart(); // Handles start behaviour that does not involve loading assets, guaranteed to run after OnLoad.
+        void OnDestroy(); // Handles freeing assets and other behaviour that may be required during object's destruction.
 
         NODISCARD uid_t AssignIDToComponent(Component* ptr);
 
         SceneHandle m_Scene;
         std::string m_Name;
-        bool m_Instantiated = false;
         std::unordered_map<uid_t, Component*> m_Components;
 
         friend class Scene;

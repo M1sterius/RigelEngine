@@ -22,7 +22,7 @@ namespace rge
     {
         if (!json.contains("ID"))
         {
-            Debug::Error("Failed to serialize component!");
+            Debug::Error("Failed to serialize rge::Component! Some of the required data is not present in the json object.");
             return false;
         }
 

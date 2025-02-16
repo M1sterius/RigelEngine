@@ -11,6 +11,7 @@ namespace rge
     class Component : public RigelObject, public ISerializable
     {
     public:
+        // Returns the name of a derived component represented as a string
         NODISCARD virtual const char* GetTypeName() const = 0;
     protected:
         Component();

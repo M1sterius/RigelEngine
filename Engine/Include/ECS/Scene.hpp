@@ -43,7 +43,7 @@ namespace rge
         bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
 
-        std::vector<std::unique_ptr<GameObject>> m_Objects; // Scene owns game objects
+        std::vector<std::unique_ptr<GameObject>> m_GameObjects; // Scene owns game objects
 
         friend class SceneManager;
     };
