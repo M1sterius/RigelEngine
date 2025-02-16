@@ -55,6 +55,12 @@ namespace rge
         m_GlobalTimeStopwatch.Stop();
     }
 
+    EventManager& Engine::GetEventManager() const
+    {
+        ASSERT(m_EventManager, "Attempted to retrieve a rge::EventManager instance before it has been initialized.")
+        return *m_EventManager;
+    }
+
     AssetManager& Engine::GetAssetManager() const
     {
         ASSERT(m_AssetManager, "Attempted to retrieve a rge::AssetManager instance before it has been initialized.")
@@ -104,15 +110,6 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        GameUpdate();
-    }
-
-    void Engine::GameUpdate() const
-    {
-//        if (GetSceneManager().IsSceneLoaded())
-//        {
-//            auto scene = GetSceneManager().GetLoadedScene();
-//            scene->OnGameUpdate();
-//        }
+        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(m_DeltaTime));
     }
 }

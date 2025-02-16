@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "Stopwatch.hpp"
+#include "Event.hpp"
 
 #include <memory>
 #include <filesystem>
@@ -13,6 +14,14 @@ namespace rge
     class Logger;
     class EventManager;
     class AssetManager;
+
+    struct GameUpdateEvent : public Event
+    {
+    public:
+        explicit GameUpdateEvent(float32_t dt) : dt(dt) { }
+        ~GameUpdateEvent() override = default;
+        float32_t dt;
+    };
 
     class Engine
     {
@@ -28,7 +37,7 @@ namespace rge
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
-//        NODISCARD Logger& GetLogger() const;
+        NODISCARD EventManager& GetEventManager() const;
 
         NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 

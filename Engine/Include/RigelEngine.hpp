@@ -9,9 +9,11 @@
 #include "Engine.hpp"
 
 // Subsystems
+#include "Event.hpp"
 #include "EventManager.hpp"
 #include "SceneManager.hpp"
 #include "Renderer.hpp"
+#include "AssetManager.hpp"
 
 // ECS
 #include "RigelHandle.hpp"
