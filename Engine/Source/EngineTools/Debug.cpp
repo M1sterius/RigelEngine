@@ -1,30 +1,30 @@
 #include "Debug.hpp"
 #include "Engine.hpp"
-#include "../Backend/Logger/Logger.hpp"
+#include "Logger.hpp"
 
 namespace rge
 {
     void Debug::VerboseMessage(const std::string& message)
     {
-        const auto& logger = Engine::Get().GetLogger();
-        logger.VerboseMessage(message);
+        const auto& logger = Logger::Get();
+        logger.Log(message, LogType::VerboseMessage);
     }
 
     void Debug::Message(const std::string& message)
     {
-        const auto& logger = Engine::Get().GetLogger();
-        logger.Message(message);
+        const auto& logger = Logger::Get();
+        logger.Log(message, LogType::Message);
     }
 
     void Debug::Warning(const std::string& warning)
     {
-        const auto& logger = Engine::Get().GetLogger();
-        logger.Warning(warning);
+        const auto& logger = Logger::Get();
+        logger.Log(warning, LogType::Warning);
     }
 
     void Debug::Error(const std::string& error)
     {
-        const auto& logger = Engine::Get().GetLogger();
-        logger.Error(error);
+        const auto& logger = Logger::Get();
+        logger.Log(error, LogType::Error);
     }
 }

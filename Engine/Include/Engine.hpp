@@ -28,7 +28,7 @@ namespace rge
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
-        NODISCARD Logger& GetLogger() const;
+//        NODISCARD Logger& GetLogger() const;
 
         NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 
@@ -58,9 +58,6 @@ namespace rge
         uint64_t m_FrameCounter = 0;
 
         std::filesystem::path m_WorkingDirectory;
-
-        // Global tools instances
-        std::unique_ptr<Logger> m_Logger;
 
         // Subsystem instances
         std::unique_ptr<EventManager> m_EventManager;

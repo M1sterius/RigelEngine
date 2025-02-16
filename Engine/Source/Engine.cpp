@@ -30,7 +30,6 @@ namespace rge
         m_WorkingDirectory = std::filesystem::current_path();
 
         // Instantiate and start up all subsystems and global tools
-        m_Logger = std::make_unique<Logger>();
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -46,7 +45,6 @@ namespace rge
         m_Renderer.reset();
         m_SceneManager.reset();
         m_EventManager.reset();
-        m_Logger.reset();
 
         m_GlobalTimeStopwatch.Stop();
     }
@@ -67,12 +65,6 @@ namespace rge
     {
         ASSERT(m_Renderer, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
         return *m_Renderer;
-    }
-
-    Logger& Engine::GetLogger() const
-    {
-        ASSERT(m_Logger, "Attempted to retrieve a rge::Logger instance before it has been initialized.");
-        return *m_Logger;
     }
 
     void Engine::Run()

@@ -507,7 +507,7 @@ and other applications performing advanced rendering will want to leave it
 disabled.
 
 A bundled application that wishes to participate in Automatic Graphics Switching
-should also declare this in its `Info.plist` by setting the
+should also declare this in its `VerboseMessage.plist` by setting the
 `NSSupportsAutomaticGraphicsSwitching` key to `true`.
 
 
