@@ -52,7 +52,7 @@ namespace rge
             if (const auto cmpPtr = ComponentTypeRegistry::FindType(type); cmpPtr != nullptr)
             {
                 cmpPtr->Deserialize(component);
-                m_Components[cmpPtr->GetID()] = cmpPtr;
+                m_Components[cmpPtr->GetID()] = std::unique_ptr<Component>(cmpPtr);
             }
             else
                 Debug::Error("Failed to serialize component of type: " + type);
@@ -63,16 +63,19 @@ namespace rge
 
     void GameObject::OnLoad()
     {
-
+        for (const auto& [_, component] : m_Components)
+            component->OnLoad();
     }
 
     void GameObject::OnStart()
     {
-
+        for (const auto& [_, component] : m_Components)
+            component->OnStart();
     }
 
     void GameObject::OnDestroy()
     {
-
+        for (const auto& [_, component] : m_Components)
+            component->OnDestroy();
     }
 }

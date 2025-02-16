@@ -12,6 +12,7 @@ namespace rge
     class Renderer;
     class Logger;
     class EventManager;
+    class AssetManager;
 
     class Engine
     {
@@ -24,6 +25,7 @@ namespace rge
 
         NODISCARD bool IsRunning() const { return m_Running; }
 
+        NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
         NODISCARD Logger& GetLogger() const;
@@ -62,6 +64,7 @@ namespace rge
 
         // Subsystem instances
         std::unique_ptr<EventManager> m_EventManager;
+        std::unique_ptr<AssetManager> m_AssetManager;
         std::unique_ptr<SceneManager> m_SceneManager;
         std::unique_ptr<Renderer> m_Renderer;
 

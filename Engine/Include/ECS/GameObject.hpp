@@ -38,7 +38,7 @@ namespace rge
             // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
             const auto id = AssignIDToComponent(component);
 
-            m_Components[id] = component;
+            m_Components[id] = std::unique_ptr<Component>(component);
 
             return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_Scene.GetID());
         }
@@ -86,7 +86,7 @@ namespace rge
 
         SceneHandle m_Scene;
         std::string m_Name;
-        std::unordered_map<uid_t, Component*> m_Components;
+        std::unordered_map<uid_t, std::unique_ptr<Component>> m_Components;
 
         friend class Scene;
     };

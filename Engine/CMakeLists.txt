@@ -24,6 +24,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
         Source/Utils/Filesystem/File.cpp
+        Source/Subsystems/AssetManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

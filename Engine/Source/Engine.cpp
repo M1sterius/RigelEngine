@@ -2,6 +2,7 @@
 
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
+#include "AssetManager.hpp"
 #include "Renderer.hpp"
 #include "SleepUtility.hpp"
 #include "Debug.hpp"
@@ -30,6 +31,7 @@ namespace rge
 
         // Instantiate and start up all subsystems and global tools
         m_Logger = std::make_unique<Logger>();
+        m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_Renderer = std::make_unique<Renderer>();
@@ -47,6 +49,12 @@ namespace rge
         m_Logger.reset();
 
         m_GlobalTimeStopwatch.Stop();
+    }
+
+    AssetManager& Engine::GetAssetManager() const
+    {
+        ASSERT(m_AssetManager, "Attempted to retrieve a rge::AssetManager instance before it has been initialized.")
+        return *m_AssetManager;
     }
 
     SceneManager& Engine::GetSceneManager() const

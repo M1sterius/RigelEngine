@@ -14,8 +14,6 @@ int32_t main(int32_t argc, char* argv[])
     auto scene = sceneManager.CreateScene("Sample Scene");
 
     scene->Deserialize(rge::File::ReadJSON("scene.json"));
-    auto go = scene->InstantiateGO();
-    go->AddComponent<rge::Transform>();
 
     print(scene->Serialize().dump(4));
 

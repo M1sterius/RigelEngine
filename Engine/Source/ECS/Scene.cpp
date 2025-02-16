@@ -15,7 +15,6 @@ namespace rge
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
-//        go->AddComponent<Transform>(); // Every game object must have a transform component attached to it
         m_GameObjects.emplace_back(std::unique_ptr<GameObject>(go));
 
         /*
@@ -112,12 +111,10 @@ namespace rge
             Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be deleted!");
 
             for (auto& go : m_GameObjects)
-                go.reset(); // TODO: Fix a memory leak caused by not deleting components in the GameObject class
+                go.reset();
 
             m_GameObjects.clear();
         }
-
-        // maybe scene manager should be responsible for scene deserialization
 
         m_Name = json["Name"].get<std::string>();
         // TODO: Handle IDs for different scene.
