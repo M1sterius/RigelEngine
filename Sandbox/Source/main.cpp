@@ -12,11 +12,8 @@ int32_t main(int32_t argc, char* argv[])
 
     rge::Time::SetTargetFPS(30);
 
-    auto scene = sceneManager.CreateScene("Sample Scene");
-
-    auto go = scene->InstantiateGO();
-    go->AddComponent<rge::Transform>();
-    go->AddComponent<TestComponent>();
+    auto scene = sceneManager.CreateScene();
+    scene->Deserialize(rge::File::ReadJSON("Sample Scene.json"));
 
     print(scene->Serialize().dump(4));
 

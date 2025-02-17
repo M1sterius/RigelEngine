@@ -12,12 +12,11 @@ bool TestComponent::Deserialize(const nlohmann::json& json)
 
 void TestComponent::OnLoad()
 {
-    rge::Debug::Message("OnLoad");
+
 }
 
 void TestComponent::OnStart()
 {
-    rge::Debug::Message("OnStart");
     EventManager.Subscribe<rge::GameUpdateEvent>(
         [this](const rge::Event& e) { this->OnUpdate(e); });
 }
@@ -30,5 +29,5 @@ void TestComponent::OnDestroy()
 void TestComponent::OnUpdate(const rge::Event& e)
 {
     const auto& event = rge::CastEvent<rge::GameUpdateEvent>(e);
-    rge::Debug::Message(std::to_string(event.frameIndex));
+    // rge::Debug::Message(std::to_string(event.frameIndex));
 }

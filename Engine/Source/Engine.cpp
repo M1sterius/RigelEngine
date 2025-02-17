@@ -1,20 +1,22 @@
 #include "Engine.hpp"
 
+#include <Time.hpp>
+
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
 #include "AssetManager.hpp"
 #include "Renderer.hpp"
 #include "SleepUtility.hpp"
-#include "Debug.hpp"
 #include "Logger.hpp"
 #include "Assert.hpp"
+#include "Debug.hpp"
 
 namespace rge
 {
     Engine* Engine::m_GlobalInstance = nullptr;
 
-    Engine::Engine() { Startup(); }
+    Engine::Engine() { }
     Engine::~Engine() { Shutdown(); }
 
     std::unique_ptr<Engine> Engine::CreateInstance()
@@ -24,12 +26,13 @@ namespace rge
         const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
         m_GlobalInstance = instance;
+        instance->Startup();
         return std::unique_ptr<Engine>(instance);
     }
 
     void Engine::Startup()
     {
-        VERBOSE_MESSAGE("Starting up Rigel engine");
+        VERBOSE_MESSAGE("Starting up Rigel engine.");
         m_WorkingDirectory = std::filesystem::current_path();
         VERBOSE_MESSAGE("Engine working directory: " + m_WorkingDirectory.string());
         VERBOSE_MESSAGE("Starting up subsystems:");
@@ -52,6 +55,7 @@ namespace rge
         m_Renderer.reset();
         m_SceneManager.reset();
         m_EventManager.reset();
+        m_AssetManager.reset();
 
         m_GlobalTimeStopwatch.Stop();
     }
@@ -85,7 +89,7 @@ namespace rge
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
 
-        Debug::VerboseMessage("Entering game loop. Target FPS: " + std::to_string(TargetFps));
+        VERBOSE_MESSAGE("Entering game loop. Target FPS: " + std::to_string(TargetFps));
 
         while (IsRunning())
         {
@@ -111,6 +115,6 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(m_DeltaTime, m_FrameCounter));
+        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
     }
 }

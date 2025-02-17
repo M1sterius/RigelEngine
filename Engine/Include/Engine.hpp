@@ -2,7 +2,6 @@
 
 #include "Core.hpp"
 #include "Stopwatch.hpp"
-#include "Event.hpp"
 
 #include <memory>
 #include <filesystem>
