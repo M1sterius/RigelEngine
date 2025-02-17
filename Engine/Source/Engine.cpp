@@ -118,6 +118,10 @@ namespace rge
         // Gizmo render
         // GUI render
 
+        m_EventManager->Dispatch<PollEventsEvent>(PollEventsEvent());
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
+
+        // for now the only condition for the engine to keep running is the window not being closed
+        m_Running = !m_WindowManager->WindowShouldClose();
     }
 }
