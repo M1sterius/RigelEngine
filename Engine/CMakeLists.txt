@@ -25,6 +25,7 @@ add_library(RigelEngine STATIC
     Source/ECS/ComponentTypeRegistry.cpp
     Source/Utils/Filesystem/File.cpp
     Source/Subsystems/AssetManager.cpp
+    Source/Subsystems/WindowManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -69,6 +70,8 @@ target_include_directories(RigelEngine PRIVATE
     Source/Utils/Internal
     Source/Backend
     Source/Backend/Logger
+
+    ${DEPENDENCIES_DIR}/glfw/include/GLFW
 )
 
 # Include paths that should be available outside to the projects linking the engine
@@ -89,8 +92,11 @@ target_include_directories(RigelEngine PUBLIC
     Include/EngineTools
 )
 
+# compile glfw library from source
+add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
+
 target_link_libraries(RigelEngine PRIVATE
-    ${LINK_LIBRARIES}
+    ${LINK_LIBRARIES} glfw
 )
 
 ## copy .dll file

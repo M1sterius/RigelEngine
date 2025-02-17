@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <string>
+#include <stdexcept>
 
 namespace rge
 {
@@ -52,6 +53,14 @@ namespace rge
         inline static const char* CONSOLE_COLOR_YELLOW = "\033[33m";
         inline static const char* CONSOLE_COLOR_RED = "\033[31m";
     };
+
+/**
+* A macro that helps to throw std::runtime_error while simultaneously
+* properly logging it vie rge::Logger
+*/
+#define THROW_RUNTIME_ERROR(Text) \
+    rge::Logger::Get().Log(Text, rge::LogType::Error); \
+    throw std::runtime_error(Text)
 
 #ifdef DEBUG_BUILD
     #define VERBOSE_MESSAGE(message) rge::Logger::Get().Log(message, LogType::VerboseMessage)

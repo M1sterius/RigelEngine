@@ -12,6 +12,7 @@ namespace rge
     class Renderer;
     class EventManager;
     class AssetManager;
+    class WindowManager;
 
     class Engine
     {
@@ -61,6 +62,7 @@ namespace rge
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<AssetManager> m_AssetManager;
         std::unique_ptr<SceneManager> m_SceneManager;
+        std::unique_ptr<WindowManager> m_WindowManager;
         std::unique_ptr<Renderer> m_Renderer;
 
         static Engine* m_GlobalInstance;

@@ -6,6 +6,7 @@
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
 #include "AssetManager.hpp"
+#include "WindowManager.hpp"
 #include "Renderer.hpp"
 #include "SleepUtility.hpp"
 #include "Logger.hpp"
@@ -16,7 +17,7 @@ namespace rge
 {
     Engine* Engine::m_GlobalInstance = nullptr;
 
-    Engine::Engine() { }
+    Engine::Engine() = default;
     Engine::~Engine() { Shutdown(); }
 
     std::unique_ptr<Engine> Engine::CreateInstance()
@@ -41,6 +42,7 @@ namespace rge
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
+        m_WindowManager = std::make_unique<WindowManager>();
         m_Renderer = std::make_unique<Renderer>();
 
         m_Running = true;
@@ -53,6 +55,7 @@ namespace rge
     {
         // Shut down all subsystems and global tools
         m_Renderer.reset();
+        m_WindowManager.reset();
         m_SceneManager.reset();
         m_EventManager.reset();
         m_AssetManager.reset();

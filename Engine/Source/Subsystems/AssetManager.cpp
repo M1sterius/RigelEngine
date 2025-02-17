@@ -23,8 +23,7 @@ namespace rge
 
         if (!fs::exists(m_AssetsDirectory))
         {
-            Debug::Error("Cannot find root Assets directory in the working directory. Asset manager initialisation failed!");
-            throw std::runtime_error("Cannot find root Assets directory in the working directory. Asset manager initialisation failed!");
+            THROW_RUNTIME_ERROR("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
         }
     }
 
