@@ -16,6 +16,26 @@ namespace rge
         const auto newSize = glm::uvec2(width, height);
         Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
     }
+
+    static void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+
+    }
+
+    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    {
+
+    }
+
+    static void mouse_move_callback(GLFWwindow* window, double xPos, double yPos)
+    {
+
+    }
+
+    static void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+    {
+
+    }
 #pragma endregion
 
     WindowManager::WindowManager() { Startup(); }
