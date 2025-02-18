@@ -1,7 +1,7 @@
 #include "GameObject.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
-#include "Transform.hpp"
+#include "Components/Transform.hpp"
 #include "json.hpp"
 #include "ComponentTypeRegistry.hpp"
 

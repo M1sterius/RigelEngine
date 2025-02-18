@@ -1,7 +1,7 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
-#include "Transform.hpp"
+#include "Components/Transform.hpp"
 #include "json.hpp"
 
 namespace rge

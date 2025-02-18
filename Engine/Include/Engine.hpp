@@ -48,7 +48,6 @@ namespace rge
         void Shutdown();
 
         void EngineUpdate();
-        void GameUpdate() const;
 
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;

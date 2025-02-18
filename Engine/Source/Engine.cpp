@@ -1,7 +1,4 @@
 #include "Engine.hpp"
-
-#include <Time.hpp>
-
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
@@ -12,6 +9,7 @@
 #include "Logger.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
+#include "Time.hpp"
 
 namespace rge
 {
@@ -38,7 +36,6 @@ namespace rge
         VERBOSE_MESSAGE("Engine working directory: " + m_WorkingDirectory.string());
         VERBOSE_MESSAGE("Starting up subsystems:");
 
-        // Instantiate and start up all subsystems
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -48,11 +45,13 @@ namespace rge
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
 
-        VERBOSE_MESSAGE("Rigel engine initialization completed.");
+        VERBOSE_MESSAGE("Rigel engine initialization complete.");
     }
 
     void Engine::Shutdown()
     {
+        VERBOSE_MESSAGE("Shutting down Rigel engine.");
+
         // Shut down all subsystems and global tools
         m_Renderer.reset();
         m_WindowManager.reset();
@@ -63,6 +62,7 @@ namespace rge
         m_GlobalTimeStopwatch.Stop();
     }
 
+#pragma region SubsystemGetters
     EventManager& Engine::GetEventManager() const
     {
         ASSERT(m_EventManager, "Attempted to retrieve a rge::EventManager instance before it has been initialized.")
@@ -86,6 +86,7 @@ namespace rge
         ASSERT(m_Renderer, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
         return *m_Renderer;
     }
+#pragma endregion
 
     void Engine::Run()
     {

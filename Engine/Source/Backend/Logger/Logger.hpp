@@ -56,7 +56,7 @@ namespace rge
 
 /**
 * A macro that helps to throw std::runtime_error while simultaneously
-* properly logging it vie rge::Logger
+* properly logging it via rge::Logger
 */
 #define THROW_RUNTIME_ERROR(Text) \
     rge::Logger::Get().Log(Text, rge::LogType::Error); \

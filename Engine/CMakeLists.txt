@@ -18,7 +18,7 @@ add_library(RigelEngine STATIC
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
-    Source/ECS/Components/Transform.cpp
+    Source/Components/Transform.cpp
     Source/ECS/SceneHandle.cpp
     Source/ECS/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
@@ -81,7 +81,7 @@ target_include_directories(RigelEngine PUBLIC
 
     Include
     Include/ECS
-    Include/ECS/Components
+    Include/Components
     Include/Utils
     Include/Utils/Filesystem
     Include/Utils/Math

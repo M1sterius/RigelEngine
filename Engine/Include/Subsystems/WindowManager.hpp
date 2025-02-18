@@ -14,6 +14,8 @@ namespace rge
 
     class WindowManager final : public RigelSubsystem
     {
+    public:
+        NODISCARD inline glm::uvec2 GetSize() const { return m_WindowSize; }
     INTERNAL:
         WindowManager();
         ~WindowManager();
@@ -26,7 +28,10 @@ namespace rge
         void OnPollGlfwEvents(const Event& e) const;
         void OnWindowResize(const Event& e);
 
+        void EnumerateMonitorInfo();
+
         GLFWwindow* m_GLFWWindow = nullptr;
+
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
         std::string m_WindowTitle = "Rigel engine app.";
 

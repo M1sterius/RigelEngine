@@ -9,12 +9,14 @@
 
 namespace rge
 {
+
+#pragma region GLFW_Callbacks
     static void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
     {
         const auto newSize = glm::uvec2(width, height);
-
         Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
     }
+#pragma endregion
 
     WindowManager::WindowManager() { Startup(); }
     WindowManager::~WindowManager() { Shutdown(); }
@@ -40,6 +42,8 @@ namespace rge
         {
             THROW_RUNTIME_ERROR("Window manager initialization failed. Failed to create glfw window.");
         }
+
+        VERBOSE_MESSAGE("GLFW window instance successfully created.");
 
         auto& eventManager = Engine::Get().GetEventManager();
 
@@ -71,5 +75,33 @@ namespace rge
         const auto& event = CastEvent<WindowResizeEvent>(e);
         m_WindowResizeFlag = true;
         m_WindowSize = event.NewSize;
+    }
+
+    void WindowManager::EnumerateMonitorInfo()
+    {
+        int count;
+        GLFWmonitor** monitors = glfwGetMonitors(&count);
+
+        for (size_t i = 0; i < count; i++)
+        {
+            GLFWmonitor* monitor = monitors[i];
+            const char* name = glfwGetMonitorName(monitor);
+            printf("Monitor %d: %s\n", i + 1, name);
+
+            int modeCount;
+            const GLFWvidmode* modes = glfwGetVideoModes(monitor, &modeCount);
+
+            printf("Supported video modes:\n");
+            for (int j = 0; j < modeCount; j++)
+            {
+                printf("  %dx%d @ %dHz (RGB Bits: %d, %d, %d)\n",
+                       modes[j].width, modes[j].height, modes[j].refreshRate,
+                       modes[j].redBits, modes[j].greenBits, modes[j].blueBits);
+            }
+
+            const GLFWvidmode* currentMode = glfwGetVideoMode(monitor);
+            printf("Current video mode: %dx%d @ %dHz\n",
+                   currentMode->width, currentMode->height, currentMode->refreshRate);
+        }
     }
 }
