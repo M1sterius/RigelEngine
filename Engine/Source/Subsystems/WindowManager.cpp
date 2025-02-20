@@ -65,6 +65,8 @@ namespace rge
 
         VERBOSE_MESSAGE("GLFW window instance successfully created.");
 
+        EnumerateMonitorInfo();
+
         auto& eventManager = Engine::Get().GetEventManager();
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
@@ -100,28 +102,28 @@ namespace rge
     void WindowManager::EnumerateMonitorInfo()
     {
         int count;
-        GLFWmonitor** monitors = glfwGetMonitors(&count);
+        const auto monitors = glfwGetMonitors(&count);
+
+        m_Monitors.resize(count);
 
         for (size_t i = 0; i < count; i++)
         {
-            GLFWmonitor* monitor = monitors[i];
-            const char* name = glfwGetMonitorName(monitor);
-            printf("Monitor %d: %s\n", i + 1, name);
+            const auto glfwMonitor = monitors[i];
+            auto& monitor = m_Monitors[i];
+
+            monitor.ID = i;
+            monitor.Name = glfwGetMonitorName(glfwMonitor);
 
             int modeCount;
-            const GLFWvidmode* modes = glfwGetVideoModes(monitor, &modeCount);
+            const auto modes = glfwGetVideoModes(glfwMonitor, &modeCount);
 
-            printf("Supported video modes:\n");
+            monitor.VideoMods.resize(modeCount);
+
             for (int j = 0; j < modeCount; j++)
-            {
-                printf("  %dx%d @ %dHz (RGB Bits: %d, %d, %d)\n",
-                       modes[j].width, modes[j].height, modes[j].refreshRate,
-                       modes[j].redBits, modes[j].greenBits, modes[j].blueBits);
-            }
+                monitor.VideoMods[j] = MonitorVideoModInfo({modes[j].width, modes[j].height}, modes[j].refreshRate, modes[j].redBits);
 
-            const GLFWvidmode* currentMode = glfwGetVideoMode(monitor);
-            printf("Current video mode: %dx%d @ %dHz\n",
-                   currentMode->width, currentMode->height, currentMode->refreshRate);
+            const auto currentMode = glfwGetVideoMode(glfwMonitor);
+            monitor.CurrentVideoMod = MonitorVideoModInfo({currentMode->width, currentMode->height}, currentMode->refreshRate, currentMode->redBits);
         }
     }
 }

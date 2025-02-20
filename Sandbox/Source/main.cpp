@@ -14,7 +14,6 @@ int32_t main(int32_t argc, char* argv[])
 
     auto scene = sceneManager.CreateScene();
 
-
     sceneManager.LoadScene(scene);
 
     engine->Run();
