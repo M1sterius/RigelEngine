@@ -1,7 +1,7 @@
 #include "InputManager.hpp"
 #include "InternalEvents.hpp"
-#include "WindowManager.hpp"
 #include "EventManager.hpp"
+#include "WindowManager.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "Logger.hpp"
@@ -11,12 +11,6 @@
 namespace rge
 {
 #pragma region GLFW_Callbacks
-    static void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
-    {
-        const auto newSize = glm::uvec2(width, height);
-        Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
-    }
-
     static void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
 
@@ -57,7 +51,6 @@ namespace rge
             [this](const InputUpdateEvent&) { this->OnInputUpdate(); }
         );
 
-        glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
         glfwSetKeyCallback(m_GLFWWindow, key_action_callback);
         glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
         glfwSetCursorPosCallback(m_GLFWWindow, mouse_move_callback);

@@ -7,7 +7,7 @@
 
 int32_t main(int32_t argc, char* argv[])
 {
-    auto engine = rge::Engine::CreateInstance();
+    const auto engine = rge::Engine::CreateInstance();
     auto& sceneManager = engine->GetSceneManager();
 
     rge::Time::SetTargetFPS(30);

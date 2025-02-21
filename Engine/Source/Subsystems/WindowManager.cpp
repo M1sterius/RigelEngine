@@ -9,6 +9,12 @@
 
 namespace rge
 {
+    static void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
+    {
+        const auto newSize = glm::uvec2(width, height);
+        Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
+    }
+
     WindowManager::WindowManager() { Startup(); }
     WindowManager::~WindowManager() { Shutdown(); }
 
@@ -47,6 +53,8 @@ namespace rge
         auto& eventManager = Engine::Get().GetEventManager();
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
+
+        glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
 
         eventManager.Subscribe<PollGlfwEventsEvent>(
         [this](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }

@@ -62,12 +62,10 @@ namespace rge
         void EnumerateMonitorInfo();
 
         GLFWwindow* m_GLFWWindow = nullptr;
-
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
         std::string m_WindowTitle = "Rigel engine app.";
+        bool m_WindowResizeFlag = false;
 
         std::vector<MonitorInfo> m_Monitors;
-
-        bool m_WindowResizeFlag = false;
     };
 }
