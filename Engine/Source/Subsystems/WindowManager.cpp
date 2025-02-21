@@ -76,12 +76,15 @@ namespace rge
         auto& eventManager = Engine::Get().GetEventManager();
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
+
         glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
         glfwSetKeyCallback(m_GLFWWindow, key_action_callback);
         glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
+        glfwSetCursorPosCallback(m_GLFWWindow, mouse_move_callback);
+        glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
 
-        eventManager.Subscribe<PollEventsEvent>(
-        [this](const PollEventsEvent& e) -> void { this->OnPollGlfwEvents(e); }
+        eventManager.Subscribe<PollGlfwEventsEvent>(
+        [this](const PollGlfwEventsEvent& e) -> void { this->OnPollGlfwEvents(e); }
         );
 
         eventManager.Subscribe<WindowResizeEvent>(
@@ -97,7 +100,7 @@ namespace rge
         glfwTerminate();
     }
 
-    void WindowManager::OnPollGlfwEvents(const PollEventsEvent& event) const
+    void WindowManager::OnPollGlfwEvents(const PollGlfwEventsEvent& event) const
     {
         glfwPollEvents();
     }

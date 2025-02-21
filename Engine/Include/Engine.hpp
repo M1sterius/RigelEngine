@@ -13,6 +13,7 @@ namespace rge
     class EventManager;
     class AssetManager;
     class WindowManager;
+    class InputManager;
 
     class Engine
     {
@@ -31,6 +32,8 @@ namespace rge
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
         NODISCARD EventManager& GetEventManager() const;
+        NODISCARD WindowManager& GetWindowManager() const;
+        NODISCARD InputManager& GetInputManager() const;
 
         NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 
@@ -62,6 +65,7 @@ namespace rge
         std::unique_ptr<AssetManager> m_AssetManager;
         std::unique_ptr<SceneManager> m_SceneManager;
         std::unique_ptr<WindowManager> m_WindowManager;
+        std::unique_ptr<InputManager> m_InputManager;
         std::unique_ptr<Renderer> m_Renderer;
 
         static Engine* m_GlobalInstance;

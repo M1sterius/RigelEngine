@@ -35,7 +35,7 @@ namespace rge
         GOHandle InstantiateGO(std::string name = "GameObject");
         void DestroyGO(const GOHandle& handle);
 
-        std::vector<GOHandle> Search(SceneSearchFunc condition, const size_t countLimit = 32);
+        std::vector<GOHandle> Search(const SceneSearchFunc condition, const size_t countLimit = 32) const;
     INTERNAL:
         ~Scene() override = default;
 

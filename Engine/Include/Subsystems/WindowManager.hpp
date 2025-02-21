@@ -32,9 +32,9 @@ namespace rge
 
     struct MonitorInfo
     {
+        MonitorInfo() = default;
 
-
-        uint32_t ID;
+        uint32_t ID = 0;
         std::string Name;
         MonitorVideoModInfo CurrentVideoMod {};
         std::vector<MonitorVideoModInfo> VideoMods {};
@@ -50,12 +50,14 @@ namespace rge
         WindowManager();
         ~WindowManager();
 
+        NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
+
         NODISCARD bool WindowShouldClose() const;
     private:
         void Startup() override;
         void Shutdown() override;
 
-        void OnPollGlfwEvents(const PollEventsEvent& event) const;
+        void OnPollGlfwEvents(const PollGlfwEventsEvent& event) const;
         void OnWindowResize(const WindowResizeEvent& event);
 
         void EnumerateMonitorInfo();

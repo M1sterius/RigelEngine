@@ -54,7 +54,7 @@ namespace rge
         try
         {
             // Convert to string with proper formatting and write directly
-            std::string jsonStr = json.dump();
+            const std::string jsonStr = json.dump();
             file.write(jsonStr.c_str(), jsonStr.length());
         }
         catch (const std::exception& e)

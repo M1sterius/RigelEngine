@@ -29,6 +29,7 @@ add_library(RigelEngine STATIC
         Source/Backend/Renderer/Vulkan/VulkanRenderer.cpp
         Source/Backend/Renderer/Vulkan/VulkanRenderer.hpp
         Source/EngineTools/Input.cpp
+        Source/Subsystems/InputManager.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")

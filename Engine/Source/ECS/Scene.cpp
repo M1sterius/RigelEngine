@@ -122,7 +122,6 @@ namespace rge
 
         for (const auto& goJson : json["GameObjects"])
         {
-            // TODO: Fix Transform class being added twice
             if (auto go = InstantiateGO(); !go->Deserialize(goJson))
                 DestroyGO(go);
         }
@@ -130,17 +129,22 @@ namespace rge
         return true;
     }
 
-    std::vector<GOHandle> Scene::Search(SceneSearchFunc condition, const size_t countLimit)
+    std::vector<GOHandle> Scene::Search(const SceneSearchFunc condition, const size_t countLimit) const
     {
-        static auto objects = std::vector<GOHandle>();
-        objects.clear();
+        std::vector<GOHandle> objects;
+        objects.reserve(std::min(countLimit, m_GameObjects.size()));
 
         for (const auto& go : m_GameObjects)
         {
             const auto handle = GOHandle(go.get(), go->GetID(), GetID());
 
             if (condition(handle))
+            {
                 objects.push_back(handle);
+
+                if (objects.size() >= countLimit)
+                    break;
+            }
         }
 
         return objects;

@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "Event.hpp"
+#include "KeysAndButtons.hpp"
 #include "glm.hpp"
 
 namespace rge
@@ -23,9 +24,9 @@ namespace rge
     /**
     * Represents an event fired to process glfw window and input events
     */
-    struct PollEventsEvent final : public Event
+    struct PollGlfwEventsEvent final : public Event
     {
-        PollEventsEvent() = default;
+        PollGlfwEventsEvent() = default;
     };
 
     /**
@@ -37,5 +38,26 @@ namespace rge
             :   NewSize(newSize) { }
 
         glm::uvec2 NewSize;
+    };
+
+    struct OnKeyDownEvent final : public Event
+    {
+        explicit OnKeyDownEvent(const KeyCode key) : Key(key) { }
+
+        KeyCode Key;
+    };
+
+    struct OnKeyUpEvent final : public Event
+    {
+        explicit OnKeyUpEvent(const KeyCode key) : Key(key) { }
+
+        KeyCode Key;
+    };
+
+    struct OnKeyPressedEvent final : public Event
+    {
+        explicit OnKeyPressedEvent(const KeyCode key) : Key(key) { }
+
+        KeyCode Key;
     };
 }

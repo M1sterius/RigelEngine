@@ -1,4 +1,7 @@
 #include "Engine.hpp"
+
+#include <InputManager.hpp>
+
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
@@ -40,6 +43,7 @@ namespace rge
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
         m_WindowManager = std::make_unique<WindowManager>();
+        m_InputManager = std::make_unique<InputManager>();
         m_Renderer = std::make_unique<Renderer>();
 
         m_Running = true;
@@ -54,6 +58,7 @@ namespace rge
 
         // Shut down all subsystems and global tools
         m_Renderer.reset();
+        m_InputManager.reset();
         m_WindowManager.reset();
         m_SceneManager.reset();
         m_EventManager.reset();
@@ -79,6 +84,18 @@ namespace rge
     {
         ASSERT(m_SceneManager, "Attempted to retrieve a rge::SceneManager instance before it has been initialized.")
         return *m_SceneManager;
+    }
+
+    WindowManager& Engine::GetWindowManager() const
+    {
+        ASSERT(m_WindowManager, "Attempted to retrieve a rge::WindowManager instance before it has been initialized.")
+        return *m_WindowManager;
+    }
+
+    InputManager& Engine::GetInputManager() const
+    {
+        ASSERT(m_InputManager, "Attempted to retrieve a rge::InputManager instance before it has been initialized.")
+        return *m_InputManager;
     }
 
     Renderer& Engine::GetRenderer() const
@@ -119,7 +136,7 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        m_EventManager->Dispatch<PollEventsEvent>(PollEventsEvent());
+        m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 
         // for now the only condition for the engine to keep running is the window not being closed
