@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
+#include "KeysAndButtons.hpp"
 
 struct GLFWwindow;
 
@@ -16,6 +17,8 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        GLFWwindow* m_GLFWwindow = nullptr;
+        void OnInputUpdate();
+
+        GLFWwindow* m_GLFWWindow = nullptr;
     };
 }

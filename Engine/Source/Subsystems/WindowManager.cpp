@@ -1,43 +1,14 @@
 #include "WindowManager.hpp"
-
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "Debug.hpp"
+#include "InternalEvents.hpp"
 #include "Logger.hpp"
 
 #include "glfw3.h"
 
 namespace rge
 {
-
-#pragma region GLFW_Callbacks
-    static void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
-    {
-        const auto newSize = glm::uvec2(width, height);
-        Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
-    }
-
-    static void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-    {
-
-    }
-
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-    {
-
-    }
-
-    static void mouse_move_callback(GLFWwindow* window, double xPos, double yPos)
-    {
-
-    }
-
-    static void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
-    {
-
-    }
-#pragma endregion
-
     WindowManager::WindowManager() { Startup(); }
     WindowManager::~WindowManager() { Shutdown(); }
 
@@ -77,14 +48,8 @@ namespace rge
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
 
-        glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
-        glfwSetKeyCallback(m_GLFWWindow, key_action_callback);
-        glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
-        glfwSetCursorPosCallback(m_GLFWWindow, mouse_move_callback);
-        glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
-
         eventManager.Subscribe<PollGlfwEventsEvent>(
-        [this](const PollGlfwEventsEvent& e) -> void { this->OnPollGlfwEvents(e); }
+        [this](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }
         );
 
         eventManager.Subscribe<WindowResizeEvent>(
@@ -98,11 +63,6 @@ namespace rge
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
-    }
-
-    void WindowManager::OnPollGlfwEvents(const PollGlfwEventsEvent& event) const
-    {
-        glfwPollEvents();
     }
 
     void WindowManager::OnWindowResize(const WindowResizeEvent& event)

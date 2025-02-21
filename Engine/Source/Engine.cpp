@@ -1,10 +1,10 @@
 #include "Engine.hpp"
 
-#include <InputManager.hpp>
-
+#include "InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
+#include "InternalEvents.hpp"
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
 #include "Renderer.hpp"
@@ -137,6 +137,7 @@ namespace rge
         // GUI render
 
         m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
+        m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent());
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 
         // for now the only condition for the engine to keep running is the window not being closed

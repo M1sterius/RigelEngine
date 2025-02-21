@@ -22,14 +22,6 @@ namespace rge
     };
 
     /**
-    * Represents an event fired to process glfw window and input events
-    */
-    struct PollGlfwEventsEvent final : public Event
-    {
-        PollGlfwEventsEvent() = default;
-    };
-
-    /**
     * Represents an event fired when the window is being resized
     */
     struct WindowResizeEvent final : public Event

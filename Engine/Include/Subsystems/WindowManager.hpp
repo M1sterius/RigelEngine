@@ -57,7 +57,6 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        void OnPollGlfwEvents(const PollGlfwEventsEvent& event) const;
         void OnWindowResize(const WindowResizeEvent& event);
 
         void EnumerateMonitorInfo();
