@@ -22,7 +22,7 @@ namespace rge
 
         NODISCARD inline std::string ToString() const
         {
-            return std::to_string(Resolution.x) + "x" + std::to_string(Resolution.y) + " @" + std::to_string(RefreshRate);
+            return std::to_string(Resolution.x) + "x" + std::to_string(Resolution.y) + " @" + std::to_string(RefreshRate) + "Hz";
         }
 
         glm::uvec2 Resolution = {0, 0};
@@ -55,8 +55,8 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        void OnPollGlfwEvents(const Event& e) const;
-        void OnWindowResize(const Event& e);
+        void OnPollGlfwEvents(const PollEventsEvent& event) const;
+        void OnWindowResize(const WindowResizeEvent& event);
 
         void EnumerateMonitorInfo();
 

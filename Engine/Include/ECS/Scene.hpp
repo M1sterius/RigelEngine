@@ -15,6 +15,8 @@ namespace rge
     class GOHandle;
     class GameObject;
 
+    typedef bool (*SceneSearchFunc)(const GOHandle&);
+
     class Scene final : public RigelObject, public ISerializable
     {
     public:
@@ -32,6 +34,8 @@ namespace rge
 
         GOHandle InstantiateGO(std::string name = "GameObject");
         void DestroyGO(const GOHandle& handle);
+
+        std::vector<GOHandle> Search(SceneSearchFunc condition, const size_t countLimit = 32);
     INTERNAL:
         ~Scene() override = default;
 

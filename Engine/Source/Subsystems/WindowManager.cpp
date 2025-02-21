@@ -67,34 +67,43 @@ namespace rge
 
         EnumerateMonitorInfo();
 
+        VERBOSE_MESSAGE("Detected monitors:");
+        for (const auto& monitor : m_Monitors)
+        {
+            VERBOSE_MESSAGE("    " + monitor.Name + ". Current mode: " + monitor.CurrentVideoMod.ToString());
+        }
+
         auto& eventManager = Engine::Get().GetEventManager();
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
         glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
+        glfwSetKeyCallback(m_GLFWWindow, key_action_callback);
+        glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
 
         eventManager.Subscribe<PollEventsEvent>(
-        [this](const Event& e) { this->OnPollGlfwEvents(e); }
+        [this](const PollEventsEvent& e) -> void { this->OnPollGlfwEvents(e); }
         );
 
         eventManager.Subscribe<WindowResizeEvent>(
-        [this](const Event& e) { this->OnWindowResize(e); }
+        [this](const WindowResizeEvent& e) -> void { this->OnWindowResize(e); }
         );
     }
 
     void WindowManager::Shutdown()
     {
         VERBOSE_MESSAGE("Shutting down window manager.");
+
+        glfwDestroyWindow(m_GLFWWindow);
+        glfwTerminate();
     }
 
-    void WindowManager::OnPollGlfwEvents(const Event& e) const
+    void WindowManager::OnPollGlfwEvents(const PollEventsEvent& event) const
     {
-        const auto& event = CastEvent<PollEventsEvent>(e);
         glfwPollEvents();
     }
 
-    void WindowManager::OnWindowResize(const Event& e)
+    void WindowManager::OnWindowResize(const WindowResizeEvent& event)
     {
-        const auto& event = CastEvent<WindowResizeEvent>(e);
         m_WindowResizeFlag = true;
         m_WindowSize = event.NewSize;
     }

@@ -1,7 +1,6 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
-#include "Components/Transform.hpp"
 #include "json.hpp"
 
 namespace rge
@@ -28,6 +27,8 @@ namespace rge
             go->OnLoad();
             go->OnStart();
         }
+
+        SceneSearchFunc f = [](const GOHandle& go) { return true; };
 
         return { go, go->GetID(), this->GetID() };
     }
@@ -127,5 +128,21 @@ namespace rge
         }
 
         return true;
+    }
+
+    std::vector<GOHandle> Scene::Search(SceneSearchFunc condition, const size_t countLimit)
+    {
+        static auto objects = std::vector<GOHandle>();
+        objects.clear();
+
+        for (const auto& go : m_GameObjects)
+        {
+            const auto handle = GOHandle(go.get(), go->GetID(), GetID());
+
+            if (condition(handle))
+                objects.push_back(handle);
+        }
+
+        return objects;
     }
 }

@@ -20,15 +20,16 @@ namespace rge
     class EventManager final : public RigelSubsystem
     {
     public:
-        using EventCallback = std::function<void(const Event&)>;
         using CallbackID = uid_t;
 
         template<typename EventType>
-        CallbackID Subscribe(const EventCallback& callback)
+        CallbackID Subscribe(const std::function<void(const EventType&)>& callback)
         {
             CallbackID id = m_NextCallbackID++;
-
-            m_Subscribers[typeid(EventType)].emplace_back(id, callback);
+            auto wrapper = [callback](const Event& event) {
+                callback(static_cast<const EventType&>(event)); // Safe cast
+            };
+            m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
             return id;
         }
 
@@ -61,7 +62,7 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, EventCallback>>> m_Subscribers { };
+        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers { };
         CallbackID m_NextCallbackID = 0;
     };
 }
