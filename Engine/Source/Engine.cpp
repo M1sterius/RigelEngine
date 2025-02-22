@@ -7,12 +7,23 @@
 #include "InternalEvents.hpp"
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
-#include "Renderer.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
 #include "SleepUtility.hpp"
 #include "Logger.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
+
+/*
+ * Helps avoid boilerplate when writing a dozen of identical getters for engine subsystems.
+ * Use it only for that and nothing else!!!
+ */
+#define DEFINE_SUBSYSTEM_GETTER(Subsystem) \
+    Subsystem& Engine::Get##Subsystem() const \
+    { \
+        ASSERT(m_##Subsystem, "Attempted to retrieve a rge::"#Subsystem" instance before it has been initialized"); \
+        return *m_##Subsystem; \
+    }
 
 namespace rge
 {
@@ -68,41 +79,12 @@ namespace rge
     }
 
 #pragma region SubsystemGetters
-    EventManager& Engine::GetEventManager() const
-    {
-        ASSERT(m_EventManager, "Attempted to retrieve a rge::EventManager instance before it has been initialized.")
-        return *m_EventManager;
-    }
-
-    AssetManager& Engine::GetAssetManager() const
-    {
-        ASSERT(m_AssetManager, "Attempted to retrieve a rge::AssetManager instance before it has been initialized.")
-        return *m_AssetManager;
-    }
-
-    SceneManager& Engine::GetSceneManager() const
-    {
-        ASSERT(m_SceneManager, "Attempted to retrieve a rge::SceneManager instance before it has been initialized.")
-        return *m_SceneManager;
-    }
-
-    WindowManager& Engine::GetWindowManager() const
-    {
-        ASSERT(m_WindowManager, "Attempted to retrieve a rge::WindowManager instance before it has been initialized.")
-        return *m_WindowManager;
-    }
-
-    InputManager& Engine::GetInputManager() const
-    {
-        ASSERT(m_InputManager, "Attempted to retrieve a rge::InputManager instance before it has been initialized.")
-        return *m_InputManager;
-    }
-
-    Renderer& Engine::GetRenderer() const
-    {
-        ASSERT(m_Renderer, "Attempted to retrieve a rge::Renderer instance before it has been initialized.");
-        return *m_Renderer;
-    }
+    DEFINE_SUBSYSTEM_GETTER(EventManager)
+    DEFINE_SUBSYSTEM_GETTER(AssetManager)
+    DEFINE_SUBSYSTEM_GETTER(SceneManager)
+    DEFINE_SUBSYSTEM_GETTER(WindowManager)
+    DEFINE_SUBSYSTEM_GETTER(InputManager)
+    DEFINE_SUBSYSTEM_GETTER(Renderer)
 #pragma endregion
 
     void Engine::Run()
@@ -110,7 +92,7 @@ namespace rge
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
 
-        VERBOSE_MESSAGE("Entering game loop. Target FPS: " + std::to_string(TargetFps));
+        VERBOSE_MESSAGE("Entering game loop. Target FPS: " + std::to_string(Time::GetTargetFPS()));
 
         while (IsRunning())
         {
@@ -118,7 +100,7 @@ namespace rge
 
             EngineUpdate();
 
-            LimitFPS(fpsLimitStopwatch.Stop().AsSeconds(), TargetFps);
+            LimitFPS(fpsLimitStopwatch.Stop().AsSeconds(), Time::GetTargetFPS());
 
             m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
             m_FrameCounter++;

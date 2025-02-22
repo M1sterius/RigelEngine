@@ -15,7 +15,12 @@ namespace rge
     class WindowManager;
     class InputManager;
 
-    class Engine
+    struct EngineConfigInfo
+    {
+        uint64_t TargetFPS;
+    };
+
+    class Engine final
     {
     public:
         Engine(const Engine& other) = delete;
@@ -38,12 +43,6 @@ namespace rge
         NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 
         void Run();
-    INTERNAL:
-        NODISCARD inline float64_t GetGlobalTime() const { return m_GlobalTimeStopwatch.GetElapsed().AsSeconds(); }
-        NODISCARD inline float64_t GetDeltaTime() const { return m_DeltaTime; }
-        NODISCARD inline uint64_t GetFrameCount() const { return m_FrameCounter; }
-
-        uint64_t TargetFps = 240;
     private:
         Engine();
 
@@ -55,6 +54,7 @@ namespace rge
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
         Stopwatch m_DeltaTimeStopwatch;
+        uint64_t TargetFps = 240;
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
         uint64_t m_FrameCounter = 0;
 
@@ -69,5 +69,7 @@ namespace rge
         std::unique_ptr<Renderer> m_Renderer;
 
         static Engine* m_GlobalInstance;
+
+        friend class Time;
     };
 }

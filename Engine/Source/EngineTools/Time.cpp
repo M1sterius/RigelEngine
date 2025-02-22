@@ -8,7 +8,7 @@ namespace rge
     float64_t Time::GetDeltaTime()
     {
         const auto& engine = Engine::Get();
-        return CorrectDeltaTime(engine.GetDeltaTime());
+        return CorrectDeltaTime(engine.m_DeltaTime);
     }
 
     float32_t Time::GetDeltaTimeF()
@@ -19,7 +19,7 @@ namespace rge
     float64_t Time::GetGlobalTime()
     {
         const auto& engine = Engine::Get();
-        return engine.GetGlobalTime();
+        return engine.m_GlobalTimeStopwatch.GetElapsed().AsSeconds();
     }
 
     float32_t Time::GetGlobalTimeF()
@@ -30,7 +30,7 @@ namespace rge
     uint64_t Time::GetFrameCount()
     {
         const auto& engine = Engine::Get();
-        return engine.GetFrameCount();
+        return engine.m_FrameCounter;
     }
 
     uint64_t Time::GetTargetFPS()

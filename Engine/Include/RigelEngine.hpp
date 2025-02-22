@@ -13,7 +13,7 @@
 #include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "SceneManager.hpp"
-#include "Renderer.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
 #include "AssetManager.hpp"
 
 // ECS

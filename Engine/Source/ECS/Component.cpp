@@ -6,7 +6,7 @@
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "AssetManager.hpp"
-#include "Renderer.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
 
 namespace rge
 {

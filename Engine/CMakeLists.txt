@@ -11,7 +11,7 @@ add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-    Source/Subsystems/Renderer.cpp
+        Source/Subsystems/Renderer/Renderer.cpp
     Source/EngineTools/Debug.cpp
     Source/Backend/Logger/Logger.cpp
     Source/Utils/Serialization/GLM_Serializer.cpp
@@ -55,10 +55,6 @@ else ()
     list(APPEND PUBLIC_COMPILE_DEFINITIONS "RELEASE_BUILD")
 endif ()
 
-# statically link necessary runtime libraries when using gcc
-if (MINGW)
-    list(APPEND LINK_LIBRARIES -static-libgcc -static-libstdc++ -static)
-endif ()
 
 target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")

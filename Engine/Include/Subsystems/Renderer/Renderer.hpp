@@ -4,7 +4,11 @@
 
 namespace rge
 {
-    class Engine;
+    enum class GraphicsApi
+    {
+        Vulkan,
+        OpenGL
+    };
 
     class Renderer final : public RigelSubsystem
     {
