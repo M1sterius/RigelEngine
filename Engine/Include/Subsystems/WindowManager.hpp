@@ -40,8 +40,6 @@ namespace rge
         std::vector<MonitorVideoModInfo> VideoMods {};
     };
 
-    class EventManager;
-
     class WindowManager final : public RigelSubsystem
     {
     public:

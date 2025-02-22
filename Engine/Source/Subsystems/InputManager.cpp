@@ -11,24 +11,66 @@
 namespace rge
 {
 #pragma region GLFW_Callbacks
-    static void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
+        const auto& engine = Engine::Get();
+        auto& inputManager = engine.GetInputManager();
+        auto& eventManager = engine.GetEventManager();
 
+        if (action == GLFW_PRESS)
+        {
+            eventManager.Dispatch<KeyDownEvent>(KeyDownEvent(static_cast<KeyCode>(key)));
+        }
+        else if (action == GLFW_REPEAT)
+        {
+            eventManager.Dispatch<KeyPressedEvent>(KeyPressedEvent(static_cast<KeyCode>(key)));
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            eventManager.Dispatch<KeyUpEvent>(KeyUpEvent(static_cast<KeyCode>(key)));
+        }
     }
 
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
+        const auto& engine = Engine::Get();
+        auto& inputManager = engine.GetInputManager();
+        auto& eventManager = engine.GetEventManager();
 
+        if (action == GLFW_PRESS)
+        {
+            eventManager.Dispatch<MouseButtonDownEvent>(MouseButtonDownEvent(static_cast<MouseButton>(button)));
+        }
+        else if (action == GLFW_REPEAT)
+        {
+            eventManager.Dispatch<MouseButtonPressedEvent>(MouseButtonPressedEvent(static_cast<MouseButton>(button)));
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            eventManager.Dispatch<MouseButtonUpEvent>(MouseButtonUpEvent(static_cast<MouseButton>(button)));
+        }
     }
 
-    static void mouse_move_callback(GLFWwindow* window, double xPos, double yPos)
+    void mouse_move_callback(GLFWwindow* window, double xPos, double yPos)
     {
+        const auto& engine = Engine::Get();
+        auto& inputManager = engine.GetInputManager();
+        auto& eventManager = engine.GetEventManager();
 
+        const auto pos = glm::vec2(xPos, yPos);
+        inputManager.m_MouseDelta = pos - inputManager.m_MousePosition;
+        inputManager.m_MousePosition = pos;
+
+        eventManager.Dispatch<MouseMoveEvent>(MouseMoveEvent(inputManager.m_MousePosition, inputManager.m_MouseDelta));
     }
 
-    static void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+    void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
     {
+        const auto& engine = Engine::Get();
+        auto& inputManager = engine.GetInputManager();
+        auto& eventManager = engine.GetEventManager();
 
+        eventManager.Dispatch<MouseScrollEvent>(MouseScrollEvent(glm::vec2(xOffset, yOffset)));
     }
 #pragma endregion
 
@@ -44,7 +86,7 @@ namespace rge
         m_GLFWWindow = engine.GetWindowManager().GetGLFWWindowPtr();
         if (!m_GLFWWindow)
         {
-            THROW_RUNTIME_ERROR("Input manager failed to retrieve GLFWwindow instance. Input manager initialization failed!");
+            THROW_RUNTIME_ERROR("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
         }
 
         engine.GetEventManager().Subscribe<InputUpdateEvent>(

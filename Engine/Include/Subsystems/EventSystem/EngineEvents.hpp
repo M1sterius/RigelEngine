@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Event.hpp"
 #include "KeysAndButtons.hpp"
-#include "glm.hpp"
+#include "Math.hpp"
 
 namespace rge
 {
@@ -15,10 +15,10 @@ namespace rge
     struct GameUpdateEvent final : public Event
     {
         explicit GameUpdateEvent(const float64_t dt, const uint64_t frameIndex)
-            :   deltaTime(dt), frameIndex(frameIndex) {}
+            : DeltaTime(dt), FrameIndex(frameIndex) {}
 
-        float64_t deltaTime;
-        uint64_t frameIndex;
+        float64_t DeltaTime;
+        uint64_t FrameIndex;
     };
 
     /**
@@ -27,29 +27,65 @@ namespace rge
     struct WindowResizeEvent final : public Event
     {
         explicit WindowResizeEvent(const glm::uvec2& newSize)
-            :   NewSize(newSize) { }
+            : NewSize(newSize) { }
 
         glm::uvec2 NewSize;
     };
 
-    struct OnKeyDownEvent final : public Event
+    struct KeyDownEvent final : public Event
     {
-        explicit OnKeyDownEvent(const KeyCode key) : Key(key) { }
+        explicit KeyDownEvent(const KeyCode key) : Key(key) { }
 
         KeyCode Key;
     };
 
-    struct OnKeyUpEvent final : public Event
+    struct KeyUpEvent final : public Event
     {
-        explicit OnKeyUpEvent(const KeyCode key) : Key(key) { }
+        explicit KeyUpEvent(const KeyCode key) : Key(key) { }
 
         KeyCode Key;
     };
 
-    struct OnKeyPressedEvent final : public Event
+    struct KeyPressedEvent final : public Event
     {
-        explicit OnKeyPressedEvent(const KeyCode key) : Key(key) { }
+        explicit KeyPressedEvent(const KeyCode key) : Key(key) { }
 
         KeyCode Key;
+    };
+
+    struct MouseMoveEvent final : public Event
+    {
+        MouseMoveEvent(const glm::vec2 pos, const glm::vec2 delta) : Position(pos), Delta(delta) { }
+
+        glm::vec2 Position;
+        glm::vec2 Delta;
+    };
+
+    struct MouseScrollEvent final : public Event
+    {
+        explicit MouseScrollEvent(const glm::vec2 offset) : ScrollOffset(offset) { }
+
+        glm::vec2 ScrollOffset;
+    };
+
+    struct MouseButtonDownEvent final : public Event
+    {
+        explicit MouseButtonDownEvent(const MouseButton button) : Button(button) { }
+
+        MouseButton Button;
+    };
+
+    struct MouseButtonPressedEvent final : public Event
+    {
+        explicit MouseButtonPressedEvent(const MouseButton button) : Button(button) { }
+
+        MouseButton Button;
+    };
+
+    struct MouseButtonUpEvent final : public Event
+    {
+        explicit MouseButtonUpEvent(const MouseButton button) : Button(button) { }
+
+        MouseButton Button;
     };
 }
