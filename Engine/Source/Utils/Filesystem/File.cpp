@@ -2,8 +2,9 @@
 #include "json.hpp"
 
 #include <stdexcept>
-#include <fstream>
 #include <ostream>
+#include <utility>
+#include <iostream>
 
 namespace rge
 {
@@ -96,5 +97,73 @@ namespace rge
         catch (const std::exception& e) {
             throw std::runtime_error("Error reading JSON file: " + std::string(e.what()));
         }
+    }
+
+    File::File(std::filesystem::path path)
+        :   m_Path(std::move(path)), m_CurrentOpenMode(std::ios::in)
+    {
+        OpenInMode(std::ios::in); // Open for reading by default
+    }
+
+    File::~File()
+    {
+        m_File.close();
+    }
+
+    void File::OpenInMode(const std::ios::openmode mode)
+    {
+        if (m_File.is_open() && (mode & m_CurrentOpenMode)) return;
+
+        if (m_File.is_open())
+        {
+            m_File.clear();
+            m_File.close();
+        }
+
+        m_File.open(m_Path, mode);
+
+        if (!m_File.is_open())
+            throw std::runtime_error("Failed to open file at path: " + m_Path.string());
+
+        m_CurrentOpenMode = mode;
+    }
+
+    std::string File::ReadText()
+    {
+        OpenInMode(std::ios::in);
+        m_File.seekg(0, std::ios::beg);
+        return {std::istreambuf_iterator<char>(m_File),  std::istreambuf_iterator<char>()};
+    }
+
+    void File::WriteText(const std::string& text)
+    {
+        OpenInMode(std::ios::out);
+        m_File.seekp(0, std::ios::end);
+        m_File << text;
+    }
+
+    std::vector<char> File::ReadBinary()
+    {
+        // Maybe there is an issue with type conversion when reading bytes,
+        // but generally it seems to be working. Check this function for errors in the future.
+
+        OpenInMode(std::ios::in | std::ios::binary);
+        m_File.seekg(0, std::ios::end);
+
+        const size_t size = m_File.tellg();
+        auto buffer = std::vector<char>(size, 0);
+
+        m_File.seekg(0, std::ios::beg);
+        m_File.read(buffer.data(), static_cast<std::streamsize>(size));
+
+        return buffer;
+    }
+
+    void File::WriteBinary(const std::vector<char>& data)
+    {
+        OpenInMode(std::ios::out | std::ios::binary);
+        m_File.seekp(0, std::ios::end);
+
+        m_File.write(data.data(), static_cast<std::streamsize>(data.size()));
     }
 }
