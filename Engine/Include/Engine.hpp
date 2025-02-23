@@ -31,10 +31,9 @@ namespace rge
         ~Engine();
 
         static std::unique_ptr<Engine> CreateInstance();
+        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
         NODISCARD bool IsRunning() const { return m_Running; }
-
-        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;

@@ -13,7 +13,8 @@
 #include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "SceneManager.hpp"
-#include "Subsystems/Renderer/Renderer.hpp"
+#include "Renderer.hpp"
+#include "InputManager.hpp"
 #include "AssetManager.hpp"
 
 // ECS
@@ -31,10 +32,12 @@
 #include "Time.hpp"
 #include "Debug.hpp"
 #include "Core.hpp"
-#include "Core.hpp"
+#include "Input.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
 #include "File.hpp"
+#include "Directory.hpp"
+#include "KeysAndButtons.hpp"
 
 #include "json.hpp"
 #include "Math.hpp"

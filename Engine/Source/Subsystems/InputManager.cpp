@@ -20,6 +20,7 @@ namespace rge
         if (action == GLFW_PRESS)
         {
             eventManager.Dispatch<KeyDownEvent>(KeyDownEvent(static_cast<KeyCode>(key)));
+            inputManager.m_KeyboardKeys.insert(static_cast<KeyCode>(key));
         }
         else if (action == GLFW_REPEAT)
         {
@@ -28,6 +29,7 @@ namespace rge
         else if (action == GLFW_RELEASE)
         {
             eventManager.Dispatch<KeyUpEvent>(KeyUpEvent(static_cast<KeyCode>(key)));
+            inputManager.m_KeyboardKeys.erase(static_cast<KeyCode>(key));
         }
     }
 
@@ -40,6 +42,7 @@ namespace rge
         if (action == GLFW_PRESS)
         {
             eventManager.Dispatch<MouseButtonDownEvent>(MouseButtonDownEvent(static_cast<MouseButton>(button)));
+            inputManager.m_MouseButtons.insert(static_cast<MouseButton>(button));
         }
         else if (action == GLFW_REPEAT)
         {
@@ -48,6 +51,7 @@ namespace rge
         else if (action == GLFW_RELEASE)
         {
             eventManager.Dispatch<MouseButtonUpEvent>(MouseButtonUpEvent(static_cast<MouseButton>(button)));
+            inputManager.m_MouseButtons.erase(static_cast<MouseButton>(button));
         }
     }
 
@@ -58,10 +62,10 @@ namespace rge
         auto& eventManager = engine.GetEventManager();
 
         const auto pos = glm::vec2(xPos, yPos);
-        inputManager.m_MouseDelta = pos - inputManager.m_MousePosition;
+        const auto mouseDelta = pos - inputManager.m_MousePosition;
         inputManager.m_MousePosition = pos;
 
-        eventManager.Dispatch<MouseMoveEvent>(MouseMoveEvent(inputManager.m_MousePosition, inputManager.m_MouseDelta));
+        eventManager.Dispatch<MouseMoveEvent>(MouseMoveEvent(inputManager.m_MousePosition, mouseDelta));
     }
 
     void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
@@ -89,6 +93,12 @@ namespace rge
             THROW_RUNTIME_ERROR("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
         }
 
+        m_KeyboardKeys = std::unordered_set<KeyCode>();
+        m_OldKeyboardKeys = std::unordered_set<KeyCode>();
+
+        m_MouseButtons = std::unordered_set<MouseButton>();
+        m_OldMouseButtons = std::unordered_set<MouseButton>();
+
         engine.GetEventManager().Subscribe<InputUpdateEvent>(
             [this](const InputUpdateEvent&) { this->OnInputUpdate(); }
         );
@@ -106,6 +116,13 @@ namespace rge
 
     void InputManager::OnInputUpdate()
     {
+        m_OldKeyboardKeys.clear();
+        m_OldKeyboardKeys.insert(m_KeyboardKeys.begin(), m_KeyboardKeys.end());
 
+        m_OldMouseButtons.clear();
+        m_OldMouseButtons.insert(m_MouseButtons.begin(), m_MouseButtons.end());
+
+        m_MouseDelta = m_MousePosition - m_OldMousePosition;
+        m_OldMousePosition = m_MousePosition;
     }
 }

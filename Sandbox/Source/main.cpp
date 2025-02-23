@@ -6,7 +6,7 @@ int32_t main(int32_t argc, char* argv[])
     const auto engine = rge::Engine::CreateInstance();
     auto& sceneManager = engine->GetSceneManager();
 
-    rge::Time::SetTargetFPS(10);
+    rge::Time::SetTargetFPS(30);
 
     auto scene = sceneManager.CreateScene("SampleScene");
 
@@ -19,7 +19,7 @@ int32_t main(int32_t argc, char* argv[])
 
     auto go2 = scene->InstantiateGO();
     go2->AddComponent<rge::Transform>();
-//    go2->AddComponent<TestComponent>();
+    go2->AddComponent<TestComponent>();
 
     auto go3 = scene->InstantiateGO();
     go3->AddComponent<rge::Transform>();

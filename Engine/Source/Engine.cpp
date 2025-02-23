@@ -5,8 +5,8 @@
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
 #include "AssetManager.hpp"
-#include "Renderer/Renderer.hpp"
 #include "WindowManager.hpp"
+#include "Renderer.hpp"
 
 #include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
@@ -109,8 +109,8 @@ namespace rge
 
     void Engine::EngineUpdate()
     {
-        // Poll and process events
         // Update input state
+        // Poll and process glfw events
         // Physics update
         // Game update
         // Transform update
@@ -119,9 +119,10 @@ namespace rge
         // Gizmo render
         // GUI render
 
+        m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent()); // InputUpdate event must be dispatched before processing glfw events
         m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
-        m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent());
 
+#pragma region PhysicsTick
         static float64_t accumulator = 0.0;
         accumulator += Time::GetDeltaTime();
         while (accumulator >= m_PhysicsTickTime)
@@ -134,6 +135,7 @@ namespace rge
             m_EventManager->Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_PhysicsTickTime));
             accumulator -= m_PhysicsTickTime;
         }
+#pragma endregion
 
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 

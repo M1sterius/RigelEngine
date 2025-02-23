@@ -11,7 +11,7 @@ add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
-        Source/Subsystems/Renderer/Renderer.cpp
+    Source/Subsystems/Renderer/Renderer.cpp
     Source/EngineTools/Debug.cpp
     Source/Backend/Logger/Logger.cpp
     Source/Utils/Serialization/GLM_Serializer.cpp
@@ -26,11 +26,10 @@ add_library(RigelEngine STATIC
     Source/Utils/Filesystem/File.cpp
     Source/Subsystems/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
-        Source/Backend/Renderer/Vulkan/VulkanRenderer.cpp
-        Source/Backend/Renderer/Vulkan/VulkanRenderer.hpp
-        Source/EngineTools/Input.cpp
-        Source/Subsystems/InputManager.cpp
-        Source/Utils/Filesystem/Directory.cpp
+    Source/Backend/Renderer/Vulkan/VulkanRenderer.cpp
+    Source/EngineTools/Input.cpp
+    Source/Subsystems/InputManager.cpp
+    Source/Utils/Filesystem/Directory.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES PREFIX "")
@@ -87,6 +86,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Utils/Filesystem
     Include/Utils/Math
     Include/Subsystems
+    Include/Subsystems/Renderer
     Include/Subsystems/EventSystem
     Include/Utils/HeaderUtils
     Include/Utils/Serialization

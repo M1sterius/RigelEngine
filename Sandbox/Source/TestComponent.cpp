@@ -17,10 +17,17 @@ void TestComponent::OnLoad()
 
 void TestComponent::OnStart()
 {
-
+    EventManager.Subscribe<rge::GameUpdateEvent>(
+    [this](const rge::GameUpdateEvent& e) { this->OnGameUpdate(e); }
+    );
 }
 
 void TestComponent::OnDestroy()
+{
+
+}
+
+void TestComponent::OnGameUpdate(const rge::GameUpdateEvent& event)
 {
 
 }
