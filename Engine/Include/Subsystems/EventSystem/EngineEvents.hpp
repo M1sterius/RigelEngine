@@ -22,6 +22,18 @@ namespace rge
     };
 
     /**
+     * Represents a physics update/tick event.
+     *
+     * Dispatched fixed number of times per second according to the desired Tickrate setting
+     */
+    struct PhysicsTickEvent final : public Event
+    {
+        explicit PhysicsTickEvent(const float64_t dt) : TickTime(dt) { }
+
+        float64_t TickTime;
+    };
+
+    /**
     * Represents an event fired when the window is being resized
     */
     struct WindowResizeEvent final : public Event

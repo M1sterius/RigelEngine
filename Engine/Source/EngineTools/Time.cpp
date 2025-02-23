@@ -36,13 +36,13 @@ namespace rge
     uint64_t Time::GetTargetFPS()
     {
         const auto& engine = Engine::Get();
-        return engine.TargetFps;
+        return engine.m_TargetFps;
     }
 
     void Time::SetTargetFPS(const uint64_t fps)
     {
         auto& engine = Engine::Get();
-        engine.TargetFps = fps;
+        engine.m_TargetFps = fps;
     }
 
     float64_t Time::CorrectDeltaTime(const float64_t deltaTime)

@@ -17,8 +17,6 @@ private:
     void OnStart() override;
     void OnDestroy() override;
 
-    void OnUpdate(const rge::Event& e);
-
     friend class rge::GameObject;
 };
 

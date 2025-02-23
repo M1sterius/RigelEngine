@@ -46,7 +46,7 @@ namespace rge
      * Sleeps give amount of time by spinning it a tight loop
      * @param seconds The time in seconds this function will spin
      */
-    void Spin(const double seconds)
+    inline void Spin(const double seconds)
     {
         const auto beginTime = std::chrono::high_resolution_clock::now();
 

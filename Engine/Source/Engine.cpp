@@ -4,13 +4,13 @@
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
-#include "InternalEvents.hpp"
 #include "AssetManager.hpp"
+#include "Renderer/Renderer.hpp"
 #include "WindowManager.hpp"
-#include "Subsystems/Renderer/Renderer.hpp"
+
+#include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
 #include "Logger.hpp"
-#include "Assert.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
 
@@ -111,6 +111,7 @@ namespace rge
     {
         // Poll and process events
         // Update input state
+        // Physics update
         // Game update
         // Transform update
         // Pre-render update
@@ -120,6 +121,20 @@ namespace rge
 
         m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
         m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent());
+
+        static float64_t accumulator = 0.0;
+        accumulator += Time::GetDeltaTime();
+        while (accumulator >= m_PhysicsTickTime)
+        {
+            /*
+             * Handles dispatching physics update event at the exact tickrate.
+             * For more info see: https://gafferongames.com/post/fix_your_timestep/
+             */
+
+            m_EventManager->Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_PhysicsTickTime));
+            accumulator -= m_PhysicsTickTime;
+        }
+
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 
         // for now the only condition for the engine to keep running is the window not being closed.

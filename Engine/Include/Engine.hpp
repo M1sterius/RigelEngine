@@ -17,7 +17,10 @@ namespace rge
 
     struct EngineConfigInfo
     {
-        uint64_t TargetFPS;
+        uint64_t TargetFPS = 240;
+        uint64_t TargetTickrate = 50;
+
+        uint64_t MaxThreads = 0;
     };
 
     class Engine final
@@ -54,8 +57,9 @@ namespace rge
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
         Stopwatch m_DeltaTimeStopwatch;
-        uint64_t TargetFps = 240;
-        float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(TargetFps);
+        uint64_t m_TargetFps = 240;
+        float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
+        float64_t m_PhysicsTickTime = 0.05;
         uint64_t m_FrameCounter = 0;
 
         std::filesystem::path m_WorkingDirectory;

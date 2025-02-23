@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Assert.hpp"
+#include "Stopwatch.hpp"
 
 #include <string>
 
