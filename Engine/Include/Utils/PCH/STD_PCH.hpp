@@ -9,6 +9,7 @@
 #include <fstream>
 #include <ostream>
 #include <sstream>
+#include <format>
 
 // Data structures
 #include <string>

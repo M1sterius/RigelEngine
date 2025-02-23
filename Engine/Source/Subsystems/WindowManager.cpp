@@ -1,19 +1,33 @@
 #include "WindowManager.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
-#include "Debug.hpp"
 #include "InternalEvents.hpp"
 #include "Logger.hpp"
-
+#include "Debug.hpp"
 #include "glfw3.h"
+
+#include <format>
 
 namespace rge
 {
-    static void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
+#pragma region GLFW_Callbacks
+    void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
     {
+        auto& windowManager = Engine::Get().GetWindowManager();
+
         const auto newSize = glm::uvec2(width, height);
+        windowManager.m_WindowResizeFlag = true;
+        windowManager.m_WindowSize = newSize;
+
         Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
     }
+
+    void window_move_callback(GLFWwindow* window, int xPos, int yPos)
+    {
+        auto& windowManager = Engine::Get().GetWindowManager();
+        windowManager.m_WindowPosition = glm::vec2(xPos, yPos);
+    }
+#pragma endregion
 
     WindowManager::WindowManager() { Startup(); }
     WindowManager::~WindowManager() { Shutdown(); }
@@ -32,6 +46,7 @@ namespace rge
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api for vulkan.
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
+        EnumerateMonitorInfo();
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_WindowSize.x), static_cast<int>(m_WindowSize.y),
             m_WindowTitle.c_str(), nullptr, nullptr);
 
@@ -40,28 +55,21 @@ namespace rge
             THROW_RUNTIME_ERROR("Window manager initialization failed. Failed to create glfw window.");
         }
 
+        int winPosX, winPosY;
+        glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
+        m_WindowPosition = glm::ivec2(winPosX, winPosY);
+
         VERBOSE_MESSAGE("GLFW window instance successfully created.");
-
-        EnumerateMonitorInfo();
-
-        VERBOSE_MESSAGE("Detected monitors:");
-        for (const auto& monitor : m_Monitors)
-        {
-            VERBOSE_MESSAGE("    " + monitor.Name + ". Current mode: " + monitor.CurrentVideoMod.ToString());
-        }
 
         auto& eventManager = Engine::Get().GetEventManager();
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
 
         glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
+        glfwSetWindowPosCallback(m_GLFWWindow, window_move_callback);
 
         eventManager.Subscribe<PollGlfwEventsEvent>(
-        [this](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }
-        );
-
-        eventManager.Subscribe<WindowResizeEvent>(
-        [this](const WindowResizeEvent& e) -> void { this->OnWindowResize(e); }
+        [](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }
         );
     }
 
@@ -73,37 +81,68 @@ namespace rge
         glfwTerminate();
     }
 
-    void WindowManager::OnWindowResize(const WindowResizeEvent& event)
+    void WindowManager::ChangeScreenMode(const ScreenMode mode)
     {
-        m_WindowResizeFlag = true;
-        m_WindowSize = event.NewSize;
+
     }
 
     void WindowManager::EnumerateMonitorInfo()
     {
-        int count;
-        const auto monitors = glfwGetMonitors(&count);
+        int monitorCount;
+        const auto monitors = glfwGetMonitors(&monitorCount);
 
-        m_Monitors.resize(count);
-
-        for (size_t i = 0; i < count; i++)
+        if (monitorCount == 0)
         {
-            const auto glfwMonitor = monitors[i];
-            auto& monitor = m_Monitors[i];
+            THROW_RUNTIME_ERROR("Failed to detect any connected monitors!");
+        }
 
-            monitor.ID = i;
-            monitor.Name = glfwGetMonitorName(glfwMonitor);
+        m_Monitors.resize(monitorCount);
+
+        for (size_t i = 0; i < m_Monitors.size(); i++)
+        {
+            auto& monitorInfo = m_Monitors[i];
+            const auto glfwMonitor = monitors[i];
+
+            monitorInfo.GLFWmonitorPtr = glfwMonitor;
+            monitorInfo.Name = glfwGetMonitorName(glfwMonitor);
+            monitorInfo.Primary = (monitorInfo.GLFWmonitorPtr == glfwGetPrimaryMonitor());
+
+            if (monitorInfo.Primary) m_PrimaryMonitorIndex = i;
+
+            const auto currentGlfwVideoMod = glfwGetVideoMode(glfwMonitor);
+            monitorInfo.CurrentMod = {glm::uvec2(currentGlfwVideoMod->width, currentGlfwVideoMod->height),
+                      static_cast<uint32_t>(currentGlfwVideoMod->refreshRate),
+                      glm::uvec3(currentGlfwVideoMod->redBits, currentGlfwVideoMod->greenBits, currentGlfwVideoMod->blueBits)};
 
             int modeCount;
             const auto modes = glfwGetVideoModes(glfwMonitor, &modeCount);
+            monitorInfo.AvailableModes.resize(modeCount);
 
-            monitor.VideoMods.resize(modeCount);
+            for (size_t j = 0; j < modeCount; j++)
+            {
+                // Retrieve info about all video modes a monitor can support
 
-            for (int j = 0; j < modeCount; j++)
-                monitor.VideoMods[j] = MonitorVideoModInfo({modes[j].width, modes[j].height}, modes[j].refreshRate, modes[j].redBits);
+                const auto glfwMode = modes[j];
+                auto& mode = monitorInfo.AvailableModes[j];
 
-            const auto currentMode = glfwGetVideoMode(glfwMonitor);
-            monitor.CurrentVideoMod = MonitorVideoModInfo({currentMode->width, currentMode->height}, currentMode->refreshRate, currentMode->redBits);
+                mode.Resolution = glm::uvec2(glfwMode.width, glfwMode.height);
+                mode.RefreshRate = glfwMode.refreshRate;
+                mode.BitsPerColor = glm::uvec3(glfwMode.redBits, glfwMode.greenBits, glfwMode.blueBits);
+            }
+        }
+
+        if (m_PrimaryMonitorIndex == -1)
+        {
+            THROW_RUNTIME_ERROR("Failed to detect primary monitor!");
+        }
+
+        VERBOSE_MESSAGE(std::format("Detected {} available monitors:", m_Monitors.size()));
+        for (const auto& monitor : m_Monitors)
+        {
+            auto text = std::format("    {}. {}x{} @{}Hz ", monitor.Name, monitor.CurrentMod.Resolution.x,
+                            monitor.CurrentMod.Resolution.y, monitor.CurrentMod.RefreshRate);
+            if (monitor.Primary) text += "[PRIMARY]";
+            VERBOSE_MESSAGE(text);
         }
     }
 }

@@ -9,23 +9,8 @@ int32_t main(int32_t argc, char* argv[])
     rge::Time::SetTargetFPS(30);
 
     auto scene = sceneManager.CreateScene("SampleScene");
-
-    auto go = scene->InstantiateGO();
-    go->AddComponent<rge::Transform>();
-    go->AddComponent<TestComponent>();
-
-    auto go1 = scene->InstantiateGO();
-    go1->AddComponent<rge::Transform>();
-
-    auto go2 = scene->InstantiateGO();
-    go2->AddComponent<rge::Transform>();
-    go2->AddComponent<TestComponent>();
-
-    auto go3 = scene->InstantiateGO();
-    go3->AddComponent<rge::Transform>();
-
-    auto go4 = scene->InstantiateGO();
-    go4->AddComponent<rge::Transform>();
+    const auto json = rge::File::ReadJSON("Assets/Scenes/Scene.rigelscene");
+    scene->Deserialize(json);
 
     sceneManager.LoadScene(scene);
 

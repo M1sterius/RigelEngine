@@ -10,60 +10,63 @@
 #include <vector>
 
 struct GLFWwindow;
+struct GLFWmonitor;
 
 namespace rge
 {
     struct MonitorVideoModInfo
     {
-        MonitorVideoModInfo() = default;
-
-        MonitorVideoModInfo(const glm::uvec2 resolution, const uint32_t refreshRate, const uint32_t bitsPerColor)
-            :   Resolution(resolution), RefreshRate(refreshRate), BitsPerColor(bitsPerColor) { }
-
-        NODISCARD inline std::string ToString() const
-        {
-            return std::to_string(Resolution.x) + "x" + std::to_string(Resolution.y) + " @" + std::to_string(RefreshRate) + "Hz";
-        }
-
         glm::uvec2 Resolution = {0, 0};
         uint32_t RefreshRate = 0;
-        uint32_t BitsPerColor = 0;
+        glm::uvec3 BitsPerColor = { 0, 0, 0};
     };
 
     struct MonitorInfo
     {
-        MonitorInfo() = default;
+        const char* Name = "";
+        bool Primary = false;
+        GLFWmonitor* GLFWmonitorPtr = nullptr;
+        MonitorVideoModInfo CurrentMod = {};
+        std::vector<MonitorVideoModInfo> AvailableModes = {};
+    };
 
-        uint32_t ID = 0;
-        std::string Name;
-        MonitorVideoModInfo CurrentVideoMod {};
-        std::vector<MonitorVideoModInfo> VideoMods {};
+    enum class ScreenMode
+    {
+        Windowed,
+        Fullscreen,
     };
 
     class WindowManager final : public RigelSubsystem
     {
     public:
         NODISCARD inline glm::uvec2 GetSize() const { return m_WindowSize; }
+
+        void ChangeScreenMode(const ScreenMode mode);
     INTERNAL:
         WindowManager();
         ~WindowManager();
 
         NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
-
         NODISCARD bool WindowShouldClose() const;
+
+        NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
+        inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
     private:
         void Startup() override;
         void Shutdown() override;
 
-        void OnWindowResize(const WindowResizeEvent& event);
-
         void EnumerateMonitorInfo();
 
-        GLFWwindow* m_GLFWWindow = nullptr;
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
+        glm::ivec2 m_WindowPosition = {};
         std::string m_WindowTitle = "Rigel engine app.";
         bool m_WindowResizeFlag = false;
 
+        GLFWwindow* m_GLFWWindow = nullptr;
         std::vector<MonitorInfo> m_Monitors;
+        uint32_t m_PrimaryMonitorIndex = -1;
+
+        friend void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
+        friend void window_move_callback(GLFWwindow* window, int xPos, int yPos);
     };
 }

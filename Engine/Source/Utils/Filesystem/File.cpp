@@ -46,26 +46,6 @@ namespace rge
         file.close();
     }
 
-    void File::WriteJSON(const std::filesystem::path& path, const nlohmann::json& json)
-    {
-        auto file = std::ofstream(path, std::ios::out | std::ios::binary);
-        if (!file.is_open())
-            throw std::runtime_error("Failed to open file for writing: " + path.string());
-
-        try
-        {
-            // Convert to string with proper formatting and write directly
-            const std::string jsonStr = json.dump();
-            file.write(jsonStr.c_str(), jsonStr.length());
-        }
-        catch (const std::exception& e)
-        {
-            throw std::runtime_error("Failed to write JSON to file: " + std::string(e.what()));
-        }
-
-        file.close();
-    }
-
     nlohmann::json File::ReadJSON(const std::filesystem::path& path)
     {
         auto file = std::ifstream(path, std::ios::in | std::ios::binary);
