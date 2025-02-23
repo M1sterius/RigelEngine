@@ -29,8 +29,5 @@ void TestComponent::OnDestroy()
 
 void TestComponent::OnGameUpdate(const rge::GameUpdateEvent& event)
 {
-    if (rge::Input::GetKeyDown(rge::KeyCode::SPACE))
-    {
-        rge::Debug::Message("Space is pressed!");
-    }
+
 }

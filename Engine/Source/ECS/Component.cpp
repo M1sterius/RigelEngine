@@ -13,7 +13,8 @@ namespace rge
     // The NULL_ID will be overwritten by GameObject::AddComponent method
     Component::Component() : RigelObject(NULL_ID),
     Engine(Engine::Get()), AssetManager(Engine.GetAssetManager()),
-    EventManager(Engine.GetEventManager()), SceneManager(Engine.GetSceneManager())
+    EventManager(Engine.GetEventManager()), SceneManager(Engine.GetSceneManager()),
+    WindowManager(Engine.GetWindowManager())
     {
 
     }

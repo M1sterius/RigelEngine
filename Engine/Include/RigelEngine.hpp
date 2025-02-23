@@ -16,6 +16,7 @@
 #include "Renderer.hpp"
 #include "InputManager.hpp"
 #include "AssetManager.hpp"
+#include "WindowManager.hpp"
 
 // ECS
 #include "RigelHandle.hpp"

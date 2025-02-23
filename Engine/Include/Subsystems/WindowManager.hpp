@@ -41,7 +41,8 @@ namespace rge
     public:
         NODISCARD inline glm::uvec2 GetSize() const { return m_WindowSize; }
 
-        void ChangeScreenMode(const ScreenMode mode);
+        void SetScreenMode(const ScreenMode mode);
+        NODISCARD inline ScreenMode GetScreenMode() const { return m_CurrentScreenMode; }
     INTERNAL:
         WindowManager();
         ~WindowManager();
@@ -63,8 +64,9 @@ namespace rge
         bool m_WindowResizeFlag = false;
 
         GLFWwindow* m_GLFWWindow = nullptr;
-        std::vector<MonitorInfo> m_Monitors;
         uint32_t m_PrimaryMonitorIndex = -1;
+        std::vector<MonitorInfo> m_Monitors;
+        ScreenMode m_CurrentScreenMode = ScreenMode::Windowed;
 
         friend void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
         friend void window_move_callback(GLFWwindow* window, int xPos, int yPos);

@@ -81,9 +81,25 @@ namespace rge
         glfwTerminate();
     }
 
-    void WindowManager::ChangeScreenMode(const ScreenMode mode)
+    void WindowManager::SetScreenMode(const ScreenMode mode)
     {
+        if (mode == m_CurrentScreenMode) return;
+        m_CurrentScreenMode = mode;
 
+        if (mode == ScreenMode::Fullscreen)
+        {
+            const auto& primaryMonitor = m_Monitors[m_PrimaryMonitorIndex];
+
+            glfwSetWindowMonitor(m_GLFWWindow, primaryMonitor.GLFWmonitorPtr,
+                 0, 0, primaryMonitor.CurrentMod.Resolution.x,
+                 primaryMonitor.CurrentMod.Resolution.y, primaryMonitor.CurrentMod.RefreshRate);
+        }
+        else if (mode == ScreenMode::Windowed)
+        {
+            // Use arbitrary window size and position values because the correct ones always
+            // get overridden when switching to fullscreen
+            glfwSetWindowMonitor(m_GLFWWindow, nullptr, 100, 100, 1280, 720, 0);
+        }
     }
 
     void WindowManager::EnumerateMonitorInfo()

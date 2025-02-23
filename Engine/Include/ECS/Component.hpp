@@ -11,6 +11,7 @@ namespace rge
     class Renderer;
     class EventManager;
     class AssetManager;
+    class WindowManager;
 
     class Component : public RigelObject, public ISerializable
     {
@@ -34,6 +35,7 @@ namespace rge
         AssetManager& AssetManager;
         EventManager& EventManager;
         SceneManager& SceneManager;
+        WindowManager& WindowManager;
     private:
         friend class GameObject;
     };
