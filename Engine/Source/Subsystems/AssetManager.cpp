@@ -2,6 +2,7 @@
 #include "Logger.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
+#include "Directory.hpp"
 
 #include <stdexcept>
 
@@ -18,7 +19,7 @@ namespace rge
     {
         VERBOSE_MESSAGE("Starting up asset manager.");
 
-        m_WorkingDirectory = Engine::Get().GetWorkingDirectory();
+        m_WorkingDirectory = rge::Directory::WorkingDirectory();
         m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
 
         if (!fs::exists(m_AssetsDirectory))

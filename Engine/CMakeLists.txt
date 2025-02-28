@@ -64,6 +64,8 @@ target_precompile_headers(RigelEngine PRIVATE
 )
 
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+set(VULKAN_SDK $ENV{VULKAN_SDK})
+set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
 # Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
@@ -71,6 +73,8 @@ target_include_directories(RigelEngine PRIVATE
     Source/Backend
     Source/Backend/Logger
 
+    ${Vulkan_INCLUDE_DIRS}
+    ${VULKAN_SDK_PATH}/Include/vulkan
     ${DEPENDENCIES_DIR}/glfw/include/GLFW
 )
 
@@ -96,8 +100,11 @@ target_include_directories(RigelEngine PUBLIC
 # compile glfw library from source
 add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
+find_package(Vulkan REQUIRED)
+#find_package(OpenGL REQUIRED)
+
 target_link_libraries(RigelEngine PRIVATE
-    ${LINK_LIBRARIES} glfw
+    ${LINK_LIBRARIES} glfw Vulkan::Vulkan
 )
 
 ## copy .dll file

@@ -30,6 +30,10 @@ namespace rge
         Engine& operator = (const Engine&) = delete;
         ~Engine();
 
+        /**
+        * Creates a single global instance of rigel engine.
+        * Must be the first call before any other engine api contents are accessed
+        */
         static std::unique_ptr<Engine> CreateInstance();
         NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
@@ -41,8 +45,6 @@ namespace rge
         NODISCARD EventManager& GetEventManager() const;
         NODISCARD WindowManager& GetWindowManager() const;
         NODISCARD InputManager& GetInputManager() const;
-
-        NODISCARD inline std::filesystem::path GetWorkingDirectory() const { return m_WorkingDirectory; }
 
         void Run();
     private:
@@ -60,8 +62,6 @@ namespace rge
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
         float64_t m_PhysicsTickTime = 0.05;
         uint64_t m_FrameCounter = 0;
-
-        std::filesystem::path m_WorkingDirectory;
 
         // Subsystem instances
         std::unique_ptr<EventManager> m_EventManager;

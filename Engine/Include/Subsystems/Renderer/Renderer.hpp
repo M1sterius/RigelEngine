@@ -4,8 +4,9 @@
 
 namespace rge
 {
-    enum class GraphicsApi
+    enum class GraphicsApi : uint8_t
     {
+        Default = 0,
         Vulkan,
         OpenGL
     };
@@ -19,5 +20,9 @@ namespace rge
     private:
         void Startup() override;
         void Shutdown() override;
+
+        GraphicsApi ChooseGraphicsAPI() const;
+
+        GraphicsApi m_GraphicsAPI = GraphicsApi::Default;
     };
 }

@@ -13,6 +13,7 @@
 #include "Logger.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
+#include "Directory.hpp"
 
 /*
  * Helps avoid boilerplate when writing a dozen of identical getters for engine subsystems.
@@ -46,8 +47,7 @@ namespace rge
     void Engine::Startup()
     {
         VERBOSE_MESSAGE("Starting up Rigel engine.");
-        m_WorkingDirectory = std::filesystem::current_path();
-        VERBOSE_MESSAGE("Engine working directory: " + m_WorkingDirectory.string());
+        VERBOSE_MESSAGE("Engine working directory: " + rge::Directory::WorkingDirectory().string());
         VERBOSE_MESSAGE("Starting up subsystems:");
 
         m_AssetManager = std::make_unique<AssetManager>();
