@@ -1,5 +1,3 @@
-#include <numbers>
-
 #include "RigelEngine.hpp"
 #include "TestComponent.hpp"
 
@@ -13,6 +11,21 @@ public:
     {
         m_Engine = rge::Engine::CreateInstance();
         rge::Time::SetTargetFPS(30);
+
+        auto& sceneManager = m_Engine->GetSceneManager();
+        auto scene = sceneManager.CreateScene();
+
+        try
+        {
+            const auto json = rge::File::ReadJSON("Assets/Scenes/SampleScene.rigelscene");
+            scene->Deserialize(json);
+        }
+        catch (const std::exception&)
+        {
+            rge::Debug::Error("Failed to find the file to load the sample scene from!");
+        }
+
+        sceneManager.LoadScene(scene);
     }
 
     void Run()

@@ -64,6 +64,7 @@ target_precompile_headers(RigelEngine PRIVATE
 )
 
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
@@ -101,10 +102,10 @@ target_include_directories(RigelEngine PUBLIC
 add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
 find_package(Vulkan REQUIRED)
-#find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED)
 
-target_link_libraries(RigelEngine PRIVATE
-    ${LINK_LIBRARIES} glfw Vulkan::Vulkan
+target_link_libraries(RigelEngine PUBLIC
+    ${LINK_LIBRARIES} glfw Vulkan::Vulkan OpenGL::GL
 )
 
 ## copy .dll file

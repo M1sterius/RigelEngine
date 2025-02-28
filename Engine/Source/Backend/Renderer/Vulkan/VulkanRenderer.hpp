@@ -5,7 +5,6 @@
 
 namespace rge
 {
-
     class VulkanRenderer final : public RigelSubsystem
     {
     INTERNAL:
