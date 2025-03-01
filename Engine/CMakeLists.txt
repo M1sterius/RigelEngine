@@ -5,8 +5,6 @@ project(RigelEngine)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
-
 add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
@@ -32,7 +30,10 @@ add_library(RigelEngine STATIC
     Source/Utils/Filesystem/Directory.cpp
 )
 
-set_target_properties(RigelEngine PROPERTIES PREFIX "")
+set_target_properties(RigelEngine PROPERTIES
+    PREFIX ""
+    CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}
+)
 
 set(PUBLIC_COMPILE_DEFINITIONS "RIGEL_ENGINE")
 set(LINK_LIBRARIES)

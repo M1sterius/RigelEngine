@@ -12,13 +12,13 @@ namespace rge
         None = 0,
         Recursive = 1,
         LocalPath = 2,
-
     };
 
     class Directory
     {
     public:
         NODISCARD static std::filesystem::path WorkingDirectory();
+        NODISCARD static std::filesystem::path LogsDirectory();
 
         NODISCARD static std::vector<std::filesystem::path> Search(const std::filesystem::path& directory,
             const uint32_t args = SearchArgs::None, const std::string& extension = "");

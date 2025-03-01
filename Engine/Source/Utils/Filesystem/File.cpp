@@ -79,10 +79,10 @@ namespace rge
         }
     }
 
-    File::File(std::filesystem::path path)
-        :   m_Path(std::move(path)), m_CurrentOpenMode(std::ios::in)
+    File::File(std::filesystem::path path, const std::ios::openmode mode)
+        :   m_Path(std::move(path)), m_CurrentOpenMode(mode)
     {
-        OpenInMode(std::ios::in); // Open for reading by default
+        OpenInMode(mode);
     }
 
     File::~File()

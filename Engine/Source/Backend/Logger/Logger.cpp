@@ -1,8 +1,8 @@
 #include "Logger.hpp"
+#include "Directory.hpp"
 
 #include <iomanip>
 #include <sstream>
-#include <chrono>
 #include <ctime>
 #include <iostream>
 
@@ -12,6 +12,19 @@ namespace rge
     {
         m_VisibilityMask = static_cast<uint8_t>(LogType::VerboseMessage) | static_cast<uint8_t>(LogType::Message) |
                            static_cast<uint8_t>(LogType::Warning) | static_cast<uint8_t>(LogType::Error);
+
+        const auto logsDir = Directory::LogsDirectory();
+
+        if (!std::filesystem::exists(logsDir))
+            std::filesystem::create_directory(logsDir);
+
+        const auto logsFile = std::filesystem::path(logsDir).concat("/Logs.txt");
+
+        // If an old logs file exists, delete it so that the old logs won't be mixed with new logs
+        if (std::filesystem::exists(logsFile))
+            std::filesystem::remove(logsFile);
+
+        m_LogsFile = std::make_unique<File>(logsFile, std::ios::out | std::ios::app);
     }
 
     void Logger::Log(const std::string& log, const LogType type) const
@@ -21,8 +34,7 @@ namespace rge
         std::string logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
 
         std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
-
-        // TODO: Implement saving logs into a file
+        m_LogsFile->WriteText(logTxt + '\n');
     }
 
     void Logger::ChangeLogsVisibilityMask(const LogType type, const bool visibility)

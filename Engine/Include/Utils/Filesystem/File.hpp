@@ -18,7 +18,7 @@ namespace rge
         static void WriteText(const std::filesystem::path& path, const std::string& text);
         static void WriteBinary(const std::filesystem::path& path, const std::vector<char>& data);
 
-        explicit File(std::filesystem::path path);
+        explicit File(std::filesystem::path path, const std::ios::openmode mode = std::ios::in);
         ~File();
 
         File(const File&) = delete;

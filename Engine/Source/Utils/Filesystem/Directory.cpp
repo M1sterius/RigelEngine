@@ -39,4 +39,9 @@ namespace rge
 
         return contents;
     }
+
+    std::filesystem::path Directory::LogsDirectory()
+    {
+        return Directory::WorkingDirectory().concat("/Logs");
+    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "File.hpp"
 
 #include <cstdint>
 #include <string>
@@ -42,6 +43,7 @@ namespace rge
         ~Logger() = default;
 
         uint8_t m_VisibilityMask;
+        std::unique_ptr<File> m_LogsFile;
 
         NODISCARD static std::string GetFormattedTime();
         NODISCARD static const char* GetColorCode(const ConsoleColor color);
