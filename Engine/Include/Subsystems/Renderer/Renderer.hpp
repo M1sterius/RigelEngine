@@ -1,12 +1,16 @@
 #pragma once
 
+#include "Core.hpp"
 #include "RigelSubsystem.hpp"
+
+#include <memory>
 
 namespace rge
 {
+    class VK_Renderer;
+
     enum class GraphicsApi : uint8_t
     {
-        Default = 0,
         Vulkan,
         OpenGL
     };
@@ -21,8 +25,6 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        GraphicsApi ChooseGraphicsAPI() const;
-
-        GraphicsApi m_GraphicsAPI = GraphicsApi::Default;
+        std::unique_ptr<VK_Renderer> m_VKRenderer;
     };
 }

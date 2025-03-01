@@ -35,6 +35,7 @@ namespace rge
         * Must be the first call before any other engine api contents are accessed
         */
         static std::unique_ptr<Engine> CreateInstance();
+
         NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
         NODISCARD bool IsRunning() const { return m_Running; }
@@ -54,6 +55,7 @@ namespace rge
         void Shutdown();
 
         void EngineUpdate();
+        void PhysicsTick();
 
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;

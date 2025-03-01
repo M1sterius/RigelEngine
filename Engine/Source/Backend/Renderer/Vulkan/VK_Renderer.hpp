@@ -5,14 +5,13 @@
 
 namespace rge
 {
-    class VulkanRenderer final : public RigelSubsystem
+    class VK_Renderer final : public RigelSubsystem
     {
     INTERNAL:
-        VulkanRenderer();
-        ~VulkanRenderer();
+        VK_Renderer();
+        ~VK_Renderer();
     private:
         void Startup() override;
         void Shutdown() override;
     };
-
 }

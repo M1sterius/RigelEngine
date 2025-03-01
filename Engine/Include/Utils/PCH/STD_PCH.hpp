@@ -10,6 +10,7 @@
 #include <ostream>
 #include <sstream>
 #include <format>
+#include <cmath>
 
 // Data structures
 #include <string>

@@ -36,7 +36,7 @@ private:
     std::unique_ptr<rge::Engine> m_Engine;
 };
 
-int32_t main(int32_t argc, char* argv[])
+int32_t main(int32_t argc, char** argv)
 {
     Game game;
     game.Init();

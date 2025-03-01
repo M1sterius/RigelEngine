@@ -1,6 +1,8 @@
 #include "Renderer.hpp"
 #include "Logger.hpp"
 
+#include "Renderer/Vulkan/VK_Renderer.hpp"
+
 namespace rge
 {
     Renderer::Renderer() { Startup(); }
@@ -10,21 +12,12 @@ namespace rge
     {
         VERBOSE_MESSAGE("Starting up renderer.");
 
-        m_GraphicsAPI = ChooseGraphicsAPI();
-
-        if (m_GraphicsAPI == GraphicsApi::Default)
-        {
-            THROW_RUNTIME_ERROR("Failed to select any of the available graphics APIs");
-        }
+        // For now only vulkan renderer is supported
+        m_VKRenderer = std::make_unique<VK_Renderer>();
     }
 
     void Renderer::Shutdown()
     {
         VERBOSE_MESSAGE("Shutting down renderer.");
-    }
-
-    GraphicsApi Renderer::ChooseGraphicsAPI() const
-    {
-        return GraphicsApi::Vulkan;
     }
 }

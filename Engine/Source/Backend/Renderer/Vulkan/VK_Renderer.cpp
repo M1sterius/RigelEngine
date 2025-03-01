@@ -1,0 +1,20 @@
+#include "VK_Renderer.hpp"
+#include "Debug.hpp"
+
+#include "vulkan.h"
+
+namespace rge
+{
+    VK_Renderer::VK_Renderer() { Startup(); }
+    VK_Renderer::~VK_Renderer() { Shutdown(); }
+
+    void VK_Renderer::Startup()
+    {
+        VERBOSE_MESSAGE("Starting up Vulkan renderer!");
+    }
+
+    void VK_Renderer::Shutdown()
+    {
+
+    }
+}

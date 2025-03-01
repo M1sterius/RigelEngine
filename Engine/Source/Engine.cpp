@@ -121,8 +121,15 @@ namespace rge
 
         m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent()); // InputUpdate event must be dispatched before processing glfw events
         m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
+        PhysicsTick();
+        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 
-#pragma region PhysicsTick
+        // for now the only condition for the engine to keep running is the window not being closed.
+        m_Running = !m_WindowManager->WindowShouldClose();
+    }
+
+    void Engine::PhysicsTick()
+    {
         static float64_t accumulator = 0.0;
         accumulator += Time::GetDeltaTime();
         while (accumulator >= m_PhysicsTickTime)
@@ -135,11 +142,5 @@ namespace rge
             m_EventManager->Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_PhysicsTickTime));
             accumulator -= m_PhysicsTickTime;
         }
-#pragma endregion
-
-        m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-
-        // for now the only condition for the engine to keep running is the window not being closed.
-        m_Running = !m_WindowManager->WindowShouldClose();
     }
 }

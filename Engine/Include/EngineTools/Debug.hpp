@@ -4,6 +4,10 @@
 #include "Assert.hpp"
 #include "Stopwatch.hpp"
 
+#ifdef RIGEL_INTERNAL
+    #include "Logger.hpp"
+#endif
+
 #include <string>
 
 namespace rge

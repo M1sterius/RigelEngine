@@ -6,6 +6,7 @@
 
 #ifdef RIGEL_ENGINE
 
+#include "Core.hpp"
 #include "Engine.hpp"
 
 // Subsystems
@@ -27,20 +28,19 @@
 #include "Component.hpp"
 #include "ComponentTypeRegistry.hpp"
 
-#include "Components/Transform.hpp"
+// Components
+#include "Transform.hpp"
 
 // Misc
 #include "Time.hpp"
 #include "Debug.hpp"
-#include "Core.hpp"
 #include "Input.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
 #include "File.hpp"
 #include "Directory.hpp"
 #include "KeysAndButtons.hpp"
-
-#include "json.hpp"
 #include "Math.hpp"
+#include "json.hpp"
 
 #endif
