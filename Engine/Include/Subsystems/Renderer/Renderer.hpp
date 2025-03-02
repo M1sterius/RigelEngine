@@ -5,10 +5,13 @@
 
 #include <memory>
 
-namespace rge
+namespace rge_bcknd
 {
     class VK_Renderer;
+}
 
+namespace rge
+{
     enum class GraphicsApi : uint8_t
     {
         Vulkan,
@@ -25,6 +28,6 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unique_ptr<VK_Renderer> m_VKRenderer;
+        std::unique_ptr<rge_bcknd::VK_Renderer> m_VKRenderer;
     };
 }

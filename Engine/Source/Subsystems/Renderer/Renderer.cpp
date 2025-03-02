@@ -13,7 +13,7 @@ namespace rge
         VERBOSE_MESSAGE("Starting up renderer.");
 
         // For now only vulkan renderer is supported
-        m_VKRenderer = std::make_unique<VK_Renderer>();
+        m_VKRenderer = std::make_unique<rge_bcknd::VK_Renderer>();
     }
 
     void Renderer::Shutdown()

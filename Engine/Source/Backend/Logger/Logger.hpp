@@ -65,7 +65,7 @@ namespace rge
     throw std::runtime_error(Text)
 
 #ifdef DEBUG_BUILD
-    #define VERBOSE_MESSAGE(message) rge::Logger::Get().Log(message, LogType::VerboseMessage)
+    #define VERBOSE_MESSAGE(message) rge::Logger::Get().Log(message, rge::LogType::VerboseMessage)
 #else
     #define VERBOSE_MESSAGE(message)
 #endif

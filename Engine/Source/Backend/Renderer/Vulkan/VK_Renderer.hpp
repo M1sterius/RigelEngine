@@ -3,9 +3,9 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 
-namespace rge
+namespace rge_bcknd
 {
-    class VK_Renderer final : public RigelSubsystem
+class VK_Renderer final : public rge::RigelSubsystem
     {
     INTERNAL:
         VK_Renderer();

@@ -1,9 +1,10 @@
 #include "VK_Renderer.hpp"
+#include "VK_Config.hpp"
 #include "Debug.hpp"
 
 #include "vulkan.h"
 
-namespace rge
+namespace rge_bcknd
 {
     VK_Renderer::VK_Renderer() { Startup(); }
     VK_Renderer::~VK_Renderer() { Shutdown(); }

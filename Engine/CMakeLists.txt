@@ -28,6 +28,8 @@ add_library(RigelEngine STATIC
     Source/EngineTools/Input.cpp
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
+        Source/Backend/Renderer/Vulkan/VK_Instance.cpp
+        Source/Backend/Renderer/Vulkan/VK_Instance.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
