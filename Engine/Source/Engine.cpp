@@ -36,7 +36,7 @@ namespace rge
     std::unique_ptr<Engine> Engine::CreateInstance()
     {
         ASSERT(m_GlobalInstance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
-        VERBOSE_MESSAGE("Creating Rigel engine instance.");
+        RGE_TRACE("Creating Rigel engine instance.");
         const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
         m_GlobalInstance = instance;
@@ -46,9 +46,9 @@ namespace rge
 
     void Engine::Startup()
     {
-        VERBOSE_MESSAGE("Starting up Rigel engine.");
-        VERBOSE_MESSAGE("Engine working directory: " + rge::Directory::WorkingDirectory().string());
-        VERBOSE_MESSAGE("Starting up subsystems:");
+        RGE_TRACE("Starting up Rigel engine.");
+        RGE_TRACE("Engine working directory: " + rge::Directory::WorkingDirectory().string());
+        RGE_TRACE("Starting up subsystems:");
 
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
@@ -60,12 +60,12 @@ namespace rge
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
 
-        VERBOSE_MESSAGE("Rigel engine initialization complete.");
+        RGE_TRACE("Rigel engine initialization complete.");
     }
 
     void Engine::Shutdown()
     {
-        VERBOSE_MESSAGE("Shutting down Rigel engine.");
+        RGE_TRACE("Shutting down Rigel engine.");
 
         // Shut down all subsystems and global tools
         m_Renderer.reset();
@@ -92,7 +92,7 @@ namespace rge
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
 
-        VERBOSE_MESSAGE("Entering game loop. Target FPS: " + std::to_string(Time::GetTargetFPS()));
+        RGE_TRACE("Entering game loop. Target FPS: " + std::to_string(Time::GetTargetFPS()));
 
         while (IsRunning())
         {

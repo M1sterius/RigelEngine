@@ -11,7 +11,7 @@ namespace rge_bcknd
 
     void VK_Renderer::Startup()
     {
-        VERBOSE_MESSAGE("Starting up Vulkan renderer!");
+        RGE_TRACE("Starting up Vulkan renderer!");
     }
 
     void VK_Renderer::Shutdown()

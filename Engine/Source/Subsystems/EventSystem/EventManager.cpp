@@ -8,11 +8,11 @@ namespace rge
 
     void EventManager::Startup()
     {
-        VERBOSE_MESSAGE("Starting up event manager.");
+        RGE_TRACE("Starting up event manager.");
     }
 
     void EventManager::Shutdown()
     {
-        VERBOSE_MESSAGE("Shutting down event manager.");
+        RGE_TRACE("Shutting down event manager.");
     }
 }

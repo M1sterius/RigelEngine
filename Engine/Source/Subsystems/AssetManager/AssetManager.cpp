@@ -17,7 +17,7 @@ namespace rge
 
     void AssetManager::Startup()
     {
-        VERBOSE_MESSAGE("Starting up asset manager.");
+        RGE_TRACE("Starting up asset manager.");
 
         m_WorkingDirectory = rge::Directory::WorkingDirectory();
         m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
@@ -30,6 +30,6 @@ namespace rge
 
     void AssetManager::Shutdown()
     {
-        VERBOSE_MESSAGE("Shutting down asset manager.");
+        RGE_TRACE("Shutting down asset manager.");
     }
 }

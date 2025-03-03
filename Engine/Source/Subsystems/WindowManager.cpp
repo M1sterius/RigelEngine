@@ -38,7 +38,7 @@ namespace rge
 
     void WindowManager::Startup()
     {
-        VERBOSE_MESSAGE("Staring up window manager.");
+        RGE_TRACE("Staring up window manager.");
 
         if (!glfwInit())
         {
@@ -61,7 +61,7 @@ namespace rge
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
         m_WindowPosition = glm::ivec2(winPosX, winPosY);
 
-        VERBOSE_MESSAGE("GLFW window instance successfully created.");
+        RGE_TRACE("GLFW window instance successfully created.");
 
         auto& eventManager = Engine::Get().GetEventManager();
 
@@ -77,7 +77,7 @@ namespace rge
 
     void WindowManager::Shutdown()
     {
-        VERBOSE_MESSAGE("Shutting down window manager.");
+        RGE_TRACE("Shutting down window manager.");
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
@@ -154,13 +154,13 @@ namespace rge
             THROW_RUNTIME_ERROR("Failed to detect primary monitor!");
         }
 
-        VERBOSE_MESSAGE(std::format("Detected {} available monitors:", m_Monitors.size()));
+        RGE_TRACE(std::format("Detected {} available monitors:", m_Monitors.size()));
         for (const auto& monitor : m_Monitors)
         {
             auto text = std::format("    {}. {}x{} @{}Hz ", monitor.Name, monitor.CurrentMod.Resolution.x,
                             monitor.CurrentMod.Resolution.y, monitor.CurrentMod.RefreshRate);
             if (monitor.Primary) text += "[PRIMARY]";
-            VERBOSE_MESSAGE(text);
+            RGE_TRACE(text);
         }
     }
 }

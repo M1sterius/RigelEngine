@@ -10,8 +10,8 @@ add_library(RigelEngine STATIC
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
     Source/Subsystems/Renderer/Renderer.cpp
-    Source/EngineTools/Debug.cpp
-    Source/Backend/Logger/Logger.cpp
+    Source/Debug/Debug.cpp
+    Source/Debug/Logger.cpp
     Source/Utils/Serialization/GLM_Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
@@ -22,9 +22,9 @@ add_library(RigelEngine STATIC
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
     Source/Utils/Filesystem/File.cpp
-    Source/Subsystems/AssetManager.cpp
+        Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
-        Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
+    Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
     Source/EngineTools/Input.cpp
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
@@ -73,7 +73,6 @@ set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 # Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
     Source/Utils/Internal
-    Source/Backend/Logger
     Source/Backend
 
     ${Vulkan_INCLUDE_DIRS}
@@ -87,12 +86,14 @@ target_include_directories(RigelEngine PUBLIC
     ${DEPENDENCIES_DIR}/glm
 
     Include
+    Include/Debug
     Include/ECS
     Include/Components
     Include/Utils
     Include/Utils/Filesystem
     Include/Utils/Math
     Include/Subsystems
+    Include/Subsystems/AssetManager
     Include/Subsystems/Renderer
     Include/Subsystems/EventSystem
     Include/Utils/HeaderUtils
