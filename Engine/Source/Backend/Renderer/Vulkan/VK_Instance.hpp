@@ -19,6 +19,10 @@ namespace rge::backend
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
 
-        std::vector<VkExtensionProperties> m_SupportedExtensions;
+        NODISCARD static std::vector<VkExtensionProperties> GetSupportedExtensions();
+        NODISCARD static std::vector<VkLayerProperties> GetSupportedLayers();
+
+        // Will return true if vulkan version supported on this device is greater or equal to the specified version
+        NODISCARD static bool CheckVulkanVersionSupport(const uint32_t version);
     };
 }

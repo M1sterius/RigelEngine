@@ -35,6 +35,7 @@
 #include "Time.hpp"
 #include "Debug.hpp"
 #include "Input.hpp"
+#include "Exceptions.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
 #include "File.hpp"

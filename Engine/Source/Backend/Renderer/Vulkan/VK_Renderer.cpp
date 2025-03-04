@@ -14,7 +14,8 @@ namespace rge::backend
     {
         RGE_TRACE("Starting up Vulkan renderer!");
 
-        const auto instance = VK_Instance();
+        RGE_TRACE("Creating vulkan instance.");
+        m_Instance = std::make_unique<VK_Instance>();
     }
 
     void VK_Renderer::Shutdown()
