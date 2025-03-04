@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 
-namespace rge_bcknd
+namespace rge::backend
 {
 class VK_Renderer final : public rge::RigelSubsystem
     {

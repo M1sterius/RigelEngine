@@ -13,7 +13,7 @@ namespace rge
         RGE_TRACE("Starting up renderer.");
 
         // For now only vulkan renderer is supported
-        m_VKRenderer = std::make_unique<rge_bcknd::VK_Renderer>();
+        m_VKRenderer = std::make_unique<backend::VK_Renderer>();
     }
 
     void Renderer::Shutdown()

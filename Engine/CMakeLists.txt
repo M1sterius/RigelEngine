@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project(RigelEngine)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 20)
-
 add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
@@ -22,18 +19,19 @@ add_library(RigelEngine STATIC
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/ECS/ComponentTypeRegistry.cpp
     Source/Utils/Filesystem/File.cpp
-        Source/Subsystems/AssetManager/AssetManager.cpp
+    Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
     Source/EngineTools/Input.cpp
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
-        Source/Backend/Renderer/Vulkan/VK_Instance.cpp
-        Source/Backend/Renderer/Vulkan/VK_Instance.hpp
+    Source/Backend/Renderer/Vulkan/VK_Instance.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
     PREFIX ""
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD 20
     CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}
 )
 

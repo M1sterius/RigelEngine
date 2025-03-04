@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace rge_bcknd
+namespace rge::backend
 {
     class VK_Renderer;
 }
@@ -28,6 +28,6 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unique_ptr<rge_bcknd::VK_Renderer> m_VKRenderer;
+        std::unique_ptr<backend::VK_Renderer> m_VKRenderer;
     };
 }

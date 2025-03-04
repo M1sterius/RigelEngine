@@ -5,7 +5,8 @@
 namespace rge
 {
     /**
-     * Base class for objects managed by the engine and it's subsystems
+     * Base class for objects managed by the engine and it's subsystems.
+     * Always contains a unique ID assigned to it.
      */
     class RigelObject
     {

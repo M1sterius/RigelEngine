@@ -2,7 +2,9 @@
 
 #include "vulkan.h"
 
-namespace rge_bcknd
+#include <vector>
+
+namespace rge::backend
 {
     class VK_Instance
     {
@@ -13,8 +15,10 @@ namespace rge_bcknd
         VK_Instance(const VK_Instance&) = delete;
         VK_Instance operator = (const VK_Instance&) = delete;
 
-        operator VkInstance() const { return m_Instance; } // implicit conversion intended
+        NODISCARD operator VkInstance() const { return m_Instance; } // implicit conversion intended
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
+
+        std::vector<VkExtensionProperties> m_SupportedExtensions;
     };
 }
