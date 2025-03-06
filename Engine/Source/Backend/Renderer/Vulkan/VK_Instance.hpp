@@ -18,11 +18,25 @@ namespace rge::backend
         NODISCARD operator VkInstance() const { return m_Instance; } // implicit conversion intended
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
-
-        NODISCARD static std::vector<VkExtensionProperties> GetSupportedExtensions();
-        NODISCARD static std::vector<VkLayerProperties> GetSupportedLayers();
+        VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE;
 
         // Will return true if vulkan version supported on this device is greater or equal to the specified version
         NODISCARD static bool CheckVulkanVersionSupport(const uint32_t version);
+
+        /**
+         * Gets all extensions available on this device and checks if requested extensions are among them.
+         * If at least one extension is not supported, returns false.
+         *
+         * @param extensionsToEnable Puts all extensions that were requested and now have to be enable into this vector
+         */
+        NODISCARD static bool CheckExtensionsSupport(std::vector<const char*>& extensionsToEnable);
+
+        /**
+         * Checks if a requested validations layers are supported on this device.
+         */
+        NODISCARD static bool CheckValidationLayersSupport();
+
+        void CreateDebugMessenger();
+        void DestroyDebugMessenger();
     };
 }

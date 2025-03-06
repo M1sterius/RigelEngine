@@ -8,25 +8,29 @@
 
 namespace rge::backend
 {
-#ifdef DEBUG_BUILD
-    constexpr bool EnableValidationLayers = true;
-#else
-    constexpr bool EnableValidationLayers = false;
-#endif
+    class VK_Config
+    {
+    public:
+        #ifdef DEBUG_BUILD
+        static constexpr bool EnableValidationLayers = true;
+        #else
+        static constexpr bool EnableValidationLayers = false;
+        #endif
 
-    static constexpr auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_3;
+        static constexpr auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_3;
 
-    static const std::vector<const char*> ValidationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+        inline static const std::vector<const char*> ValidationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+        };
 
-    // Put instance extensions you need to be enabled here
-    static const std::vector<VkExtensionProperties> RequiredInstanceExtensions = {
+        // Put instance extensions you need to be enabled here
+        inline static const std::vector<const char*> RequiredInstanceExtensions = {
 
-    };
+        };
 
-    // Put physical device extensions you need to be enabled here
-    static const std::vector<VkPhysicalDeviceFeatures> RequiredPhysicalDeviceFeatures = {
+        // Put physical device extensions you need to be enabled here
+        inline static const std::vector<const char*> RequiredPhysicalDeviceFeatures = {
 
+        };
     };
 }
