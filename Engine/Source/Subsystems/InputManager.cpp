@@ -4,7 +4,6 @@
 #include "WindowManager.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
-#include "Logger.hpp"
 
 #include "glfw3.h"
 
@@ -90,7 +89,7 @@ namespace rge
         m_GLFWWindow = engine.GetWindowManager().GetGLFWWindowPtr();
         if (!m_GLFWWindow)
         {
-            THROW_RUNTIME_ERROR("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
+            RGE_THROW_ERROR("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
         }
 
         m_KeyboardKeys = std::unordered_set<KeyCode>();

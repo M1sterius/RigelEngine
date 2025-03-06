@@ -2,7 +2,6 @@
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "InternalEvents.hpp"
-#include "Logger.hpp"
 #include "Debug.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -42,7 +41,7 @@ namespace rge
 
         if (!glfwInit())
         {
-            THROW_RUNTIME_ERROR("Window manager initialization failed! glfw initialization failed.");
+            RGE_THROW_ERROR("Window manager initialization failed! glfw initialization failed.");
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api for vulkan.
@@ -54,7 +53,7 @@ namespace rge
 
         if (!m_GLFWWindow)
         {
-            THROW_RUNTIME_ERROR("Window manager initialization failed. Failed to create glfw window.");
+            RGE_THROW_ERROR("Window manager initialization failed. Failed to create glfw window.");
         }
 
         int winPosX, winPosY;
@@ -111,7 +110,7 @@ namespace rge
 
         if (monitorCount == 0)
         {
-            THROW_RUNTIME_ERROR("Failed to detect any connected monitors!");
+            RGE_THROW_ERROR("Failed to detect any connected monitors!");
         }
 
         m_Monitors.resize(monitorCount);
@@ -151,7 +150,7 @@ namespace rge
 
         if (m_PrimaryMonitorIndex == -1)
         {
-            THROW_RUNTIME_ERROR("Failed to detect primary monitor!");
+            RGE_THROW_ERROR("Failed to detect primary monitor!");
         }
 
         RGE_TRACE(std::format("Detected {} available monitors:", m_Monitors.size()));

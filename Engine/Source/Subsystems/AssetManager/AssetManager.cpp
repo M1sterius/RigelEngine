@@ -1,5 +1,4 @@
 #include "AssetManager.hpp"
-#include "Logger.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "Directory.hpp"
@@ -24,7 +23,7 @@ namespace rge
 
         if (!fs::exists(m_AssetsDirectory))
         {
-            THROW_RUNTIME_ERROR("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
+            RGE_THROW_ERROR("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
         }
     }
 

@@ -24,6 +24,8 @@ namespace rge
         File(const File&) = delete;
         File operator = (const File&) = delete;
 
+        void Flush();
+
         std::string ReadText();
         std::vector<char> ReadBinary();
 

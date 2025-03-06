@@ -1,5 +1,5 @@
 #include "Renderer.hpp"
-#include "Logger.hpp"
+#include "Debug.hpp"
 
 #include "Renderer/Vulkan/VK_Renderer.hpp"
 

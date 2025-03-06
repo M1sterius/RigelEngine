@@ -146,4 +146,9 @@ namespace rge
 
         m_File.write(data.data(), static_cast<std::streamsize>(data.size()));
     }
+
+    void File::Flush()
+    {
+        m_File.flush();
+    }
 }

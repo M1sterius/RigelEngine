@@ -10,7 +10,6 @@
 
 #include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
-#include "Logger.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "Directory.hpp"

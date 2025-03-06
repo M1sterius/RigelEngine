@@ -2,7 +2,6 @@
 #include "SceneHandle.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
-#include "Logger.hpp"
 #include "Scene.hpp"
 
 #include <stdexcept>

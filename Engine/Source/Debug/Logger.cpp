@@ -35,6 +35,7 @@ namespace rge
 
         std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
         m_LogsFile->WriteText(logTxt + '\n');
+        m_LogsFile->Flush();
     }
 
     void Logger::ChangeLogsVisibilityMask(const LogType type, const bool visibility)

@@ -1,5 +1,5 @@
 #include "EventManager.hpp"
-#include "Logger.hpp"
+#include "Debug.hpp"
 
 namespace rge
 {

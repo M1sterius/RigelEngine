@@ -12,4 +12,5 @@ namespace rge::backend
     template <typename T>
     NODISCARD T MakeInfo(T = {});
 
-} // namespace inexor::vulkan_renderer::wrapper
+}
+

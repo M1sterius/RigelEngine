@@ -1,6 +1,5 @@
 #include "Debug.hpp"
 #include "Engine.hpp"
-#include "Logger.hpp"
 
 namespace rge
 {

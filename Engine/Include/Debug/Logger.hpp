@@ -56,14 +56,6 @@ namespace rge
         inline static const char* CONSOLE_COLOR_RED = "\033[31m";
     };
 
-/**
-* A macro that helps to throw std::runtime_error while simultaneously
-* properly logging it via rge::Logger
-*/
-#define THROW_RUNTIME_ERROR(Text) \
-    rge::Logger::Get().Log(Text, rge::LogType::Error); \
-    throw std::runtime_error(Text)
-
 #ifdef DEBUG_BUILD
     #define RGE_TRACE(message) rge::Logger::Get().Log(message, rge::LogType::VerboseMessage)
 #else
