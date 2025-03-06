@@ -10,22 +10,13 @@ namespace rge::backend
     VK_Instance::VK_Instance()
     {
         if (!CheckVulkanVersionSupport(MinimalRequiredVulkanVersion))
-        {
-            RGE_THROW_ERROR("Minimal required vulkan version is not supported on this device!");
-        }
+            Debug::ThrowError("Minimal required vulkan version is not supported on this device!");
 
         uint32_t glfwExtensionCount = 0;
         const auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
         if (glfwExtensionCount == 0)
-        {
-            RGE_THROW_ERROR("glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.");
-        }
-
-        for (uint32_t i = 0; i < glfwExtensionCount; i++)
-        {
-            Debug::Message(glfwExtensions[i]);
-        }
+            Debug::ThrowError("glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.");
     }
 
     VK_Instance::~VK_Instance()
@@ -41,9 +32,7 @@ namespace rge::backend
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
         if (extensionCount == 0)
-        {
-            RGE_THROW_ERROR("Failed to find any supported instance extensions.");
-        }
+            Debug::ThrowError("Failed to find any supported instance extensions.");
 
         extensions = std::vector<VkExtensionProperties>(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());

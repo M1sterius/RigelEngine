@@ -18,12 +18,4 @@ namespace rge
     private:
         const std::string m_Description;
     };
-
-/**
-* A macro that helps to throw RigelError while simultaneously
-* properly logging it via rge::Logger
-*/
-#define RGE_THROW_ERROR(Text) \
-    rge::Logger::Get().Log(Text, rge::LogType::Error); \
-    throw rge::RigelError(Text)
 }

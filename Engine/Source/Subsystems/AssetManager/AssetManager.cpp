@@ -22,9 +22,7 @@ namespace rge
         m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
 
         if (!fs::exists(m_AssetsDirectory))
-        {
-            RGE_THROW_ERROR("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
-        }
+            Debug::ThrowError("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
     }
 
     void AssetManager::Shutdown()

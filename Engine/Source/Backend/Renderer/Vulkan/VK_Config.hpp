@@ -14,7 +14,7 @@ namespace rge::backend
     constexpr bool EnableValidationLayers = false;
 #endif
 
-    static const auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_3;
+    static constexpr auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_3;
 
     static const std::vector<const char*> ValidationLayers = {
         "VK_LAYER_KHRONOS_validation"
