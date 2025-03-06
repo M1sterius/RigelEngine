@@ -13,7 +13,7 @@ namespace rge
         RigelSubsystem operator = (const RigelSubsystem&) = delete;
     protected:
         RigelSubsystem() = default;
-        ~RigelSubsystem() = default;
+        virtual ~RigelSubsystem() = default;
 
         virtual void Startup() = 0;
         virtual void Shutdown() = 0;

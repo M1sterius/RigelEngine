@@ -1,11 +1,12 @@
 #include "VK_Device.hpp"
+#include "VK_Config.hpp"
 #include "MakeInfo.hpp"
 
 #include <format>
+#include <set>
 
 namespace rge::backend
 {
-
     VK_Device::VK_Device(VkInstance instance)
         : m_Instance(instance)
     {
@@ -52,4 +53,26 @@ namespace rge::backend
     {
         return nullptr;
     }
+
+#pragma region PhysicalDeviceChecks
+
+    bool VK_Device::CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device)
+    {
+        // Checks if all required physical device extensions are supported
+
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+        auto availableExtensions = std::vector<VkExtensionProperties>(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(VK_Config::RequiredPhysicalDeviceExtensions.begin(), VK_Config::RequiredPhysicalDeviceExtensions.end());
+
+        for (const auto& extension : availableExtensions)
+            requiredExtensions.erase(extension.extensionName);
+
+        return requiredExtensions.empty();
+    }
+
+#pragma endregion
 }

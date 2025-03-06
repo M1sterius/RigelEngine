@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "RigelSubsystem.hpp"
+#include "../RenderingBackend.hpp"
 
 #include <memory>
 
@@ -11,11 +11,11 @@ namespace rge::backend
     class VK_Device;
     class VK_Surface;
 
-    class VK_Renderer final : public RigelSubsystem
+    class VK_Renderer final : public RenderingBackend
     {
     INTERNAL:
         VK_Renderer();
-        ~VK_Renderer();
+        ~VK_Renderer() override;
     private:
         void Startup() override;
         void Shutdown() override;

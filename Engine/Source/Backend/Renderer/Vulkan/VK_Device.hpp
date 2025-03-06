@@ -28,5 +28,7 @@ namespace rge::backend
 
         NODISCARD std::vector<PhysicalDeviceInfo> FindPhysicalDevices();
         NODISCARD VkPhysicalDevice PickBestPhysicalDevice(const std::vector<VkPhysicalDevice>& availableDevices);
+
+        NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device);
     };
 }

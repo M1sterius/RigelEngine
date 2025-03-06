@@ -7,27 +7,30 @@
 
 namespace rge::backend
 {
-    class VK_Renderer;
+    class RenderingBackend;
 }
 
 namespace rge
 {
     enum class GraphicsApi : uint8_t
     {
+        None,
         Vulkan,
         OpenGL
     };
 
     class Renderer final : public RigelSubsystem
     {
-    public:
     INTERNAL:
         Renderer();
-        ~Renderer();
+        ~Renderer() override;
     private:
         void Startup() override;
         void Shutdown() override;
 
-        std::unique_ptr<backend::VK_Renderer> m_VKRenderer;
+        NODISCARD GraphicsApi SelectGraphicsAPI();
+
+        GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
+        std::unique_ptr<backend::RenderingBackend> m_BackendRenderer;
     };
 }
