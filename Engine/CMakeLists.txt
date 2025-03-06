@@ -28,6 +28,9 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
     Source/Debug/Exceptions.cpp
+        Source/Backend/Renderer/Vulkan/VK_Device.cpp
+        Source/Backend/Renderer/Vulkan/VK_Device.hpp
+        Source/Backend/Renderer/Vulkan/VK_Surface.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

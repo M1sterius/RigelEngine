@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.hpp"
 #include "vulkan.h"
 
 #include <vector>
@@ -15,7 +16,7 @@ namespace rge::backend
         VK_Instance(const VK_Instance&) = delete;
         VK_Instance operator = (const VK_Instance&) = delete;
 
-        NODISCARD operator VkInstance() const { return m_Instance; } // implicit conversion intended
+        NODISCARD VkInstance Get() const { return m_Instance; }
     private:
         VkInstance m_Instance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE;

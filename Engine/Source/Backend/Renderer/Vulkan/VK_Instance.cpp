@@ -50,7 +50,7 @@ namespace rge::backend
 
     VK_Instance::VK_Instance()
     {
-        RGE_TRACE("Creating Vulkan instance");
+        RGE_TRACE("Creating Vulkan instance.");
 
         if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredVulkanVersion))
             Debug::ThrowError("Minimal required vulkan version is not supported on this device!");
