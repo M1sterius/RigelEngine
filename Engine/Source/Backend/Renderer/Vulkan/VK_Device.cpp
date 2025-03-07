@@ -19,9 +19,18 @@ namespace rge::backend
         m_SelectedPhysicalDevice = PickBestPhysicalDevice(availableDevices, m_Surface);
         if (m_SelectedPhysicalDevice.IsNull())
             Debug::ThrowError("Failed to find any GPUs with adequate support of required features!");
+
+        RGE_TRACE(std::format("Selected GPU: {}", m_SelectedPhysicalDevice.Properties.deviceName));
+
+        CreateLogicalDevice();
     }
 
     VK_Device::~VK_Device()
+    {
+
+    }
+
+    void VK_Device::CreateLogicalDevice()
     {
 
     }
@@ -55,15 +64,60 @@ namespace rge::backend
 
     PhysicalDeviceInfo VK_Device::PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface)
     {
-        return availableDevices[0]; // TEMP!!!
+        // If there is only one GPU we don't have to do anything besides checking it for minimal requirements
+        if (availableDevices.size() == 1)
+            return IsDeviceSuitable(availableDevices[0].PhysicalDevice, surface) ? availableDevices[0] : PhysicalDeviceInfo();
+
+        PhysicalDeviceInfo chosenDevice {};
+        int32_t maxScore = -1000;
+
+        // Extensions required for RT pipeline
+        static const std::vector<const char*> RTPipelineExtensions = {
+            VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+            VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+            VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME
+        };
+
+        // Choosing a GPU based on its features, GPUs with RT pipeline are favoured the most
+        for (const auto& dev : availableDevices)
+        {
+            if (!IsDeviceSuitable(dev.PhysicalDevice, surface)) continue;
+
+            int32_t currentScore = 0;
+
+            if (dev.Properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                currentScore += 1000;
+
+            if (CheckPhysicalDeviceExtensionsSupport(dev.PhysicalDevice, RTPipelineExtensions))
+                currentScore += 10000;
+
+            if (currentScore > maxScore)
+            {
+                maxScore = currentScore;
+                chosenDevice = dev;
+            }
+        }
+
+        return chosenDevice;
     }
 
 #pragma region PhysicalDeviceChecks
-
-    bool VK_Device::CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device)
+    bool VK_Device::IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
-        // Checks if all extensions specified in VK_Config::RequiredPhysicalDeviceExtensions
-        // are supported by a device
+        // Checks if all minimal requirements are satisfied by a device
+
+        const auto indices = FindQueueFamilies(device, surface);
+        const auto areExtensionsSupported = CheckPhysicalDeviceExtensionsSupport(device, VK_Config::RequiredPhysicalDeviceExtensions);
+        const auto swapchainSupportDetails = QuerySwapchainSupportDetails(device, surface);
+
+        return indices.IsComplete() && areExtensionsSupported && swapchainSupportDetails.IsSupportAdequate();
+    }
+
+    bool VK_Device::CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device, const std::vector<const char*>& extensions)
+    {
+        // Checks if all specified extensions are supported by a device
+        // returns false if at least one extension is not supported
 
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -71,7 +125,7 @@ namespace rge::backend
         auto availableExtensions = std::vector<VkExtensionProperties>(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(VK_Config::RequiredPhysicalDeviceExtensions.begin(), VK_Config::RequiredPhysicalDeviceExtensions.end());
+        std::set<std::string> requiredExtensions(extensions.begin(), extensions.end());
 
         for (const auto& extension : availableExtensions)
             requiredExtensions.erase(extension.extensionName);
@@ -142,6 +196,5 @@ namespace rge::backend
 
         return details;
     }
-
 #pragma endregion
 }

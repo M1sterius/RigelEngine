@@ -57,10 +57,13 @@ namespace rge::backend
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         VkDevice m_Device = VK_NULL_HANDLE;
 
+        void CreateLogicalDevice();
+
         NODISCARD static std::vector<PhysicalDeviceInfo> FindPhysicalDevices(VkInstance instance);
         NODISCARD static PhysicalDeviceInfo PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface);
 
-        NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device);
+        NODISCARD static bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
+        NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device, const std::vector<const char*>& extensions);
         NODISCARD static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
         NODISCARD static SwapChainSupportDetails QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
     };
