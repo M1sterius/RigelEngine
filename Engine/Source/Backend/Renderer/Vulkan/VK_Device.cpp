@@ -20,19 +20,63 @@ namespace rge::backend
         if (m_SelectedPhysicalDevice.IsNull())
             Debug::ThrowError("Failed to find any GPUs with adequate support of required features!");
 
-        RGE_TRACE(std::format("Selected GPU: {}", m_SelectedPhysicalDevice.Properties.deviceName));
+        RGE_TRACE(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
 
         CreateLogicalDevice();
     }
 
     VK_Device::~VK_Device()
     {
-
+        vkDestroyDevice(m_Device, nullptr);
     }
 
     void VK_Device::CreateLogicalDevice()
     {
+        RGE_TRACE("Creating logical Vulkan device.");
 
+        const auto indices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
+
+        auto queueCreateInfos = std::vector<VkDeviceQueueCreateInfo>();
+
+        // Eliminates duplicates if a single queue supports multiple operations
+        std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+
+        float queuePriority = 1.0f; // Priorities only matter when creating multiple queues within a single family
+        for (uint32_t queueFamily : uniqueQueueFamilies)
+        {
+            auto queueCreateInfo = MakeInfo<VkDeviceQueueCreateInfo>();
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
+        // Put physical device features you want to be enabled here
+        VkPhysicalDeviceFeatures deviceFeatures {};
+        deviceFeatures.samplerAnisotropy = true;
+
+        auto createInfo = MakeInfo<VkDeviceCreateInfo>();
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+        createInfo.pEnabledFeatures = &deviceFeatures;
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(VK_Config::RequiredPhysicalDeviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = VK_Config::RequiredPhysicalDeviceExtensions.data();
+
+        if (VK_Config::EnableValidationLayers)
+        {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(VK_Config::ValidationLayers.size());
+            createInfo.ppEnabledLayerNames = VK_Config::ValidationLayers.data();
+        }
+        else
+        {
+            createInfo.enabledLayerCount = 0;
+        }
+
+        if (vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
+            Debug::ThrowError("Failed to create Vulkan logical device");
+
+        vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
+        vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
     }
 
     std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices(VkInstance instance)

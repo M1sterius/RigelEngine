@@ -54,8 +54,11 @@ namespace rge::backend
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;
-        PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         VkDevice m_Device = VK_NULL_HANDLE;
+        PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
+
+        VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
+        VkQueue m_PresentQueue = VK_NULL_HANDLE;
 
         void CreateLogicalDevice();
 
