@@ -16,15 +16,23 @@ namespace rge::backend
 
         VK_Swapchain(const VK_Swapchain&) = delete;
         VK_Swapchain operator = (const VK_Swapchain) = delete;
+
+        void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
     private:
+        NODISCARD std::vector<VkImage> GetSwapchainImages();
+
         VK_Device& m_Device;
         VkSurfaceKHR m_Surface;
-        VkExtent2D m_Extent;
+        glm::uvec2 m_Extent;
+
+        VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
 
         SwapchainSupportDetails m_SwapchainSupportDetails;
+        std::vector<VkImage> m_Images {};
+        std::vector<VkImageView> m_ImageViews {};
 
         NODISCARD static VkPresentModeKHR ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, const bool vsyncEnabled);
-        NODISCARD static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& capabilities, VkExtent2D extent);
+        NODISCARD static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& capabilities, const glm::uvec2 extent);
         NODISCARD static VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     };
 }

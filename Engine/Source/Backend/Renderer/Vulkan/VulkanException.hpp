@@ -6,6 +6,8 @@
 
 namespace rge::backend
 {
+#define UNKNOWN_VK_RESULT static_cast<VkResult>(-69420)
+
     /**
      * A little helper function that converts VkResult enumerated code into its string representation
      */
