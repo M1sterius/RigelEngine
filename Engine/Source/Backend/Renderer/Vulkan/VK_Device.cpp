@@ -22,6 +22,7 @@ namespace rge::backend
             throw RigelException("Failed to find any GPUs with adequate support of required features!");
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
+        m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 
         RGE_TRACE(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
 
@@ -226,11 +227,11 @@ namespace rge::backend
         return indices;
     }
 
-    SwapChainSupportDetails VK_Device::QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
+    SwapchainSupportDetails VK_Device::QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         // Retrieve information about swap chain support details on a device
 
-        SwapChainSupportDetails details;
+        SwapchainSupportDetails details;
 
         // Supported surface capabilities (e.g. min/max number of swapchain images, min/max swapchain image extents, etc.)
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.Capabilities);

@@ -35,5 +35,9 @@ namespace rge::backend
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
         };
+
+        inline static VkPresentModeKHR PriorityPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+        inline static VkFormat PrioritySwapchainSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+        inline static VkColorSpaceKHR PrioritySwapchainSurfaceColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     };
 }

@@ -31,7 +31,7 @@ namespace rge::backend
         }
     };
 
-    struct SwapChainSupportDetails
+    struct SwapchainSupportDetails
     {
         VkSurfaceCapabilitiesKHR Capabilities {};
         std::vector<VkSurfaceFormatKHR> Formats {};
@@ -51,12 +51,15 @@ namespace rge::backend
 
         VK_Device(const VK_Device&) = delete;
         VK_Device operator = (const VK_Device) = delete;
+
+        NODISCARD SwapchainSupportDetails GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;
         VkDevice m_Device = VK_NULL_HANDLE;
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         QueueFamilyIndices m_QueueFamilyIndices = {};
+        SwapchainSupportDetails m_SwapchainSupportDetails;
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
@@ -72,6 +75,6 @@ namespace rge::backend
         NODISCARD static bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
         NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device, const std::vector<const char*>& extensions);
         NODISCARD static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-        NODISCARD static SwapChainSupportDetails QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
+        NODISCARD static SwapchainSupportDetails QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
     };
 }
