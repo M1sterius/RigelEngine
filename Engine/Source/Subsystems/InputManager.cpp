@@ -104,6 +104,8 @@ namespace rge
         glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
         glfwSetCursorPosCallback(m_GLFWWindow, mouse_move_callback);
         glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
+
+        m_Initialized = true;
     }
 
     void InputManager::Shutdown()

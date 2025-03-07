@@ -18,7 +18,9 @@ namespace rge::backend
 
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
-        m_Device = std::make_unique<VK_Device>(m_Instance->Get());
+        m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
+
+        m_Initialized = true;
     }
 
     void VK_Renderer::Shutdown()

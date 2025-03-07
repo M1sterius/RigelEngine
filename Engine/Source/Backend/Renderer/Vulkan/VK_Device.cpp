@@ -7,14 +7,18 @@
 
 namespace rge::backend
 {
-    VK_Device::VK_Device(VkInstance instance)
-        : m_Instance(instance)
+    VK_Device::VK_Device(VkInstance instance, VkSurfaceKHR surface)
+        : m_Instance(instance), m_Surface(surface)
     {
         RGE_TRACE("Searching for GPUs with Vulkan support.");
-        auto availableDevices = FindPhysicalDevices();
+        auto availableDevices = FindPhysicalDevices(m_Instance);
         RGE_TRACE("Detected GPUs:");
         for (const auto& device : availableDevices)
             RGE_TRACE(std::format("    {}", device.Properties.deviceName));
+
+        m_SelectedPhysicalDevice = PickBestPhysicalDevice(availableDevices, m_Surface);
+        if (m_SelectedPhysicalDevice.IsNull())
+            Debug::ThrowError("Failed to find any GPUs with adequate support of required features!");
     }
 
     VK_Device::~VK_Device()
@@ -22,18 +26,18 @@ namespace rge::backend
 
     }
 
-    std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices()
+    std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices(VkInstance instance)
     {
         auto devices = std::vector<VkPhysicalDevice>();
 
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
         if (deviceCount == 0)
             Debug::ThrowError("Failed to find GPUs with Vulkan support!");
 
         devices.resize(deviceCount);
-        vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
         auto devicesInfo = std::vector<PhysicalDeviceInfo>(deviceCount);
 
@@ -49,16 +53,17 @@ namespace rge::backend
         return devicesInfo;
     }
 
-    VkPhysicalDevice VK_Device::PickBestPhysicalDevice(const std::vector<VkPhysicalDevice>& availableDevices)
+    PhysicalDeviceInfo VK_Device::PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface)
     {
-        return nullptr;
+        return availableDevices[0]; // TEMP!!!
     }
 
 #pragma region PhysicalDeviceChecks
 
     bool VK_Device::CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device)
     {
-        // Checks if all required physical device extensions are supported
+        // Checks if all extensions specified in VK_Config::RequiredPhysicalDeviceExtensions
+        // are supported by a device
 
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -72,6 +77,70 @@ namespace rge::backend
             requiredExtensions.erase(extension.extensionName);
 
         return requiredExtensions.empty();
+    }
+
+    QueueFamilyIndices VK_Device::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+    {
+        // Searches for support of graphics and present queue families on device,
+        // corresponding std::optional in QueueFamilyIndices won't have a values if the queue isn't supported
+
+        QueueFamilyIndices indices;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        int32_t i = 0;
+        for (const auto& queueFamily : queueFamilies)
+        {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                indices.GraphicsFamily = i;
+
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+            if (presentSupport)
+                indices.PresentFamily = i;
+
+            if (indices.IsComplete())
+                break;
+
+            i++;
+        }
+
+        return indices;
+    }
+
+    SwapChainSupportDetails VK_Device::QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
+    {
+        // Retrieve information about swap chain support details on a device
+
+        SwapChainSupportDetails details;
+
+        // Supported surface capabilities (e.g. min/max number of swapchain images, min/max swapchain image extents, etc.)
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.Capabilities);
+
+        // Supported swapchain surface formats
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+        if (formatCount != 0)
+        {
+            details.Formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.Formats.data());
+        }
+
+        // Supported swapchain surface present modes
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+        if (presentModeCount != 0)
+        {
+            details.PresentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.PresentModes.data());
+        }
+
+        return details;
     }
 
 #pragma endregion

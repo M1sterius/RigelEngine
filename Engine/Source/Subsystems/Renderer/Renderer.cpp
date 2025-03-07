@@ -22,6 +22,8 @@ namespace rge
             RGE_TRACE("Selected Vulkan graphics API.");
             m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
         }
+
+        m_Initialized = true;
     }
 
     void Renderer::Shutdown()

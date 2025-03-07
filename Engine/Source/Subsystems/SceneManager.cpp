@@ -15,6 +15,8 @@ namespace rge
     void SceneManager::Startup()
     {
         RGE_TRACE("Starting up scene manager.");
+
+        m_Initialized = true;
     }
 
     void SceneManager::Shutdown()

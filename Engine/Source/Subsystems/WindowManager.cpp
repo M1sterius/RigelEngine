@@ -68,6 +68,8 @@ namespace rge
         eventManager.Subscribe<PollGlfwEventsEvent>(
         [](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }
         );
+
+        m_Initialized = true;
     }
 
     void WindowManager::Shutdown()

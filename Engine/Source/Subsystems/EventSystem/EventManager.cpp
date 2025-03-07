@@ -9,6 +9,8 @@ namespace rge
     void EventManager::Startup()
     {
         RGE_TRACE("Starting up event manager.");
+
+        m_Initialized = true;
     }
 
     void EventManager::Shutdown()
