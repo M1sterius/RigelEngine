@@ -40,7 +40,7 @@ namespace rge
         RGE_TRACE("Staring up window manager.");
 
         if (!glfwInit())
-            Debug::ThrowError("Window manager initialization failed! glfw initialization failed.");
+            throw RigelException("Window manager initialization failed! glfw initialization failed.");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api for vulkan.
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -50,7 +50,7 @@ namespace rge
             m_WindowTitle.c_str(), nullptr, nullptr);
 
         if (!m_GLFWWindow)
-            Debug::ThrowError("Window manager initialization failed. Failed to create glfw window.");
+            throw RigelException("Window manager initialization failed. Failed to create glfw window.");
 
         int winPosX, winPosY;
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
@@ -103,7 +103,7 @@ namespace rge
         const auto monitors = glfwGetMonitors(&monitorCount);
 
         if (monitorCount == 0)
-            Debug::ThrowError("Failed to detect any connected monitors!");
+            throw RigelException("Failed to detect any connected monitors!");
 
         m_Monitors.resize(monitorCount);
 
@@ -141,7 +141,7 @@ namespace rge
         }
 
         if (m_PrimaryMonitorIndex == -1)
-            Debug::ThrowError("Failed to detect primary monitor!");
+            throw RigelException("Failed to detect primary monitor!");
 
         RGE_TRACE(std::format("Detected {} available monitors:", m_Monitors.size()));
         for (const auto& monitor : m_Monitors)

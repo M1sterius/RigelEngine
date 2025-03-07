@@ -5,10 +5,14 @@
 
 namespace rge
 {
-    RigelError::RigelError(const std::string& what)
-        : m_Description("RigelError: " + what) { }
+    RigelException::RigelException(std::string what)
+        : m_Description(std::move(what))
+    {
+        // Ensures that the exception description gets logged properly
+        Debug::Error(m_Description);
+    }
 
-    const char* RigelError::what() const noexcept
+    const char* RigelException::what() const noexcept
     {
         return m_Description.c_str();
     }

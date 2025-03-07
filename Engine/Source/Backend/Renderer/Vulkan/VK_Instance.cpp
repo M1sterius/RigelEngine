@@ -2,6 +2,7 @@
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
+#include "VulkanException.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
@@ -53,14 +54,14 @@ namespace rge::backend
         RGE_TRACE("Creating Vulkan instance.");
 
         if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredVulkanVersion))
-            Debug::ThrowError("Minimal required vulkan version is not supported on this device!");
+            throw RigelException("Minimal required vulkan version is not supported on this device!");
 
         if (VK_Config::EnableValidationLayers && !CheckValidationLayersSupport())
-            Debug::ThrowError("Validation layers requested, but not available!");
+            throw RigelException("Validation layers requested, but not available!");
 
         auto extensionsToEnable = std::vector<const char*>();
         if (!CheckExtensionsSupport(extensionsToEnable))
-            Debug::ThrowError("Not all requested vulkan instance extensions are supported on this device!");
+            throw RigelException("Not all requested vulkan instance extensions are supported on this device!");
 
         auto appInfo = MakeInfo<VkApplicationInfo>();
         appInfo.pApplicationName = "Application";
@@ -89,8 +90,8 @@ namespace rge::backend
             createInfo.pNext = nullptr;
         }
 
-        if (vkCreateInstance(&createInfo, nullptr, &m_Instance) != VK_SUCCESS)
-            Debug::ThrowError("Failed to create Vulkan instance!");
+        if (const auto result = vkCreateInstance(&createInfo, nullptr, &m_Instance); result != VK_SUCCESS)
+            throw VulkanException("Failed to create Vulkan instance!", result);
 
         if (VK_Config::EnableValidationLayers)
             CreateDebugMessenger();
@@ -125,7 +126,7 @@ namespace rge::backend
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
         if (extensionCount == 0)
-            Debug::ThrowError("Failed to find any supported instance extensions.");
+            throw RigelException("Failed to find any supported instance extensions.");
 
         supportedExtensions.resize(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
@@ -135,7 +136,7 @@ namespace rge::backend
         const auto glfwRequiredExtensions = glfwGetRequiredInstanceExtensions(&glfwRequiredExtensionsCount);
 
         if (glfwRequiredExtensionsCount == 0)
-            Debug::ThrowError("glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.");
+            throw RigelException("glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.");
 
         // Combine all requested extensions into one vector
         auto requiredExtensions = VK_Config::RequiredInstanceExtensions;
@@ -213,8 +214,8 @@ namespace rge::backend
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         PopulateDebugMessengerCreateInfo(createInfo);
 
-        if (CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
-            Debug::Error("Failed to set up Vulkan debug messenger!");
+        if (const auto result = CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger); result != VK_SUCCESS)
+            throw VulkanException("Failed to set up Vulkan debug messenger!", result);
     }
 
     void VK_Instance::DestroyDebugMessenger()

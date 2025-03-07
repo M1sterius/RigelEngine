@@ -88,7 +88,7 @@ namespace rge
 
         m_GLFWWindow = engine.GetWindowManager().GetGLFWWindowPtr();
         if (!m_GLFWWindow)
-            Debug::ThrowError("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
+            throw RigelException("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
 
         m_KeyboardKeys = std::unordered_set<KeyCode>();
         m_OldKeyboardKeys = std::unordered_set<KeyCode>();

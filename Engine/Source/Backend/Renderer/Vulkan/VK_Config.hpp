@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Exceptions.hpp"
 #include "vulkan.h"
 
+#include <format>
 #include <vector>
 #include <array>
 

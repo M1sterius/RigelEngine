@@ -56,11 +56,15 @@ namespace rge::backend
         VkSurfaceKHR m_Surface;
         VkDevice m_Device = VK_NULL_HANDLE;
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
+        QueueFamilyIndices m_QueueFamilyIndices = {};
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
 
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+
         void CreateLogicalDevice();
+        void CreateCommandPool();
 
         NODISCARD static std::vector<PhysicalDeviceInfo> FindPhysicalDevices(VkInstance instance);
         NODISCARD static PhysicalDeviceInfo PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface);

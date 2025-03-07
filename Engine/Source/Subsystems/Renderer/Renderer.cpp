@@ -15,7 +15,7 @@ namespace rge
         m_SelectedGraphicsAPI = SelectGraphicsAPI();
 
         if (m_SelectedGraphicsAPI == GraphicsApi::None)
-            Debug::ThrowError("This device does not support any of the available graphics APIs!");
+            throw RigelException("This device does not support any of the available graphics APIs!");
 
         if (m_SelectedGraphicsAPI == GraphicsApi::Vulkan)
         {
@@ -35,5 +35,21 @@ namespace rge
     {
         // For now only vulkan is supported
         return GraphicsApi::Vulkan;
+    }
+
+    backend::RenderingBackend& Renderer::GetBackend() const
+    {
+        ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
+        return *m_BackendRenderer;
+    }
+
+    std::string Renderer::GetGraphicsAPIString(const GraphicsApi api)
+    {
+        switch (api)
+        {
+            case GraphicsApi::Vulkan: return "Vulkan";
+            case GraphicsApi::OpenGL: return "OpenGL";
+            default: return "None";
+        }
     }
 }

@@ -1,6 +1,7 @@
 #include "VK_Surface.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
+#include "VulkanException.hpp"
 #include "WindowManager.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -16,8 +17,8 @@ namespace rge::backend
 
         const auto glfwWindow = Engine::Get().GetWindowManager().GetGLFWWindowPtr();
 
-        if (glfwCreateWindowSurface(instance, glfwWindow, nullptr, &m_Surface) != VK_SUCCESS)
-            Debug::ThrowError("Failed to create Vulkan window surface!");
+        if (const auto result = glfwCreateWindowSurface(instance, glfwWindow, nullptr, &m_Surface); result != VK_SUCCESS)
+            throw VulkanException("Failed to create Vulkan window surface!", result);
     }
 
     VK_Surface::~VK_Surface()

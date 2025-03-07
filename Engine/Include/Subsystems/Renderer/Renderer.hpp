@@ -21,9 +21,14 @@ namespace rge
 
     class Renderer final : public RigelSubsystem
     {
+    public:
+        NODISCARD GraphicsApi GetSelectedGraphicsAPI() const { return m_SelectedGraphicsAPI; }
+        NODISCARD static std::string GetGraphicsAPIString(const GraphicsApi api);
     INTERNAL:
         Renderer();
         ~Renderer() override;
+
+        NODISCARD backend::RenderingBackend& GetBackend() const;
     private:
         void Startup() override;
         void Shutdown() override;

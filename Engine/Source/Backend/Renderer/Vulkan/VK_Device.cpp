@@ -1,5 +1,6 @@
 #include "VK_Device.hpp"
 #include "VK_Config.hpp"
+#include "VulkanException.hpp"
 #include "MakeInfo.hpp"
 
 #include <format>
@@ -18,15 +19,19 @@ namespace rge::backend
 
         m_SelectedPhysicalDevice = PickBestPhysicalDevice(availableDevices, m_Surface);
         if (m_SelectedPhysicalDevice.IsNull())
-            Debug::ThrowError("Failed to find any GPUs with adequate support of required features!");
+            throw RigelException("Failed to find any GPUs with adequate support of required features!");
+
+        m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
         RGE_TRACE(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
 
         CreateLogicalDevice();
+        CreateCommandPool();
     }
 
     VK_Device::~VK_Device()
     {
+        vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
         vkDestroyDevice(m_Device, nullptr);
     }
 
@@ -72,11 +77,21 @@ namespace rge::backend
             createInfo.enabledLayerCount = 0;
         }
 
-        if (vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
-            Debug::ThrowError("Failed to create Vulkan logical device");
+        if (const auto result = vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device); result != VK_SUCCESS)
+            throw VulkanException("Failed to create Vulkan logical device", result);
 
         vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
         vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
+    }
+
+    void VK_Device::CreateCommandPool()
+    {
+        auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
+        poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();
+
+        if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &m_CommandPool); result != VK_SUCCESS)
+            throw VulkanException("Failed to create Vulkan command pool!", result);
     }
 
     std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices(VkInstance instance)
@@ -87,7 +102,7 @@ namespace rge::backend
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
         if (deviceCount == 0)
-            Debug::ThrowError("Failed to find GPUs with Vulkan support!");
+            throw RigelException("Failed to find GPUs with Vulkan support!");
 
         devices.resize(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -179,7 +194,7 @@ namespace rge::backend
 
     QueueFamilyIndices VK_Device::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
-        // Searches for support of graphics and present queue families on device,
+        // Searches for support of graphics and present queue families on a device,
         // corresponding std::optional in QueueFamilyIndices won't have a values if the queue isn't supported
 
         QueueFamilyIndices indices;
