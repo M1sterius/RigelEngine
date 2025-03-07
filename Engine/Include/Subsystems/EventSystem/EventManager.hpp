@@ -57,7 +57,7 @@ namespace rge
         }
     INTERNAL:
         EventManager();
-        ~EventManager();
+        ~EventManager() override;
     private:
         void Startup() override;
         void Shutdown() override;

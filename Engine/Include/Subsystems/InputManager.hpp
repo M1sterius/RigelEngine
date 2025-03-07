@@ -14,12 +14,12 @@ namespace rge
     {
     INTERNAL:
         InputManager();
-        ~InputManager();
+        ~InputManager() override;
+
+        void InputUpdate();
     private:
         void Startup() override;
         void Shutdown() override;
-
-        void OnInputUpdate();
 
         NODISCARD inline bool InKeys(const KeyCode key) const { return m_KeyboardKeys.find(key) != m_KeyboardKeys.end(); }
         NODISCARD inline bool InOldKeys(const KeyCode key) const { return m_OldKeyboardKeys.find(key) != m_OldKeyboardKeys.end(); }

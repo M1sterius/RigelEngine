@@ -65,10 +65,6 @@ namespace rge
         glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);
         glfwSetWindowPosCallback(m_GLFWWindow, window_move_callback);
 
-        eventManager.Subscribe<PollGlfwEventsEvent>(
-        [](const PollGlfwEventsEvent&) -> void { glfwPollEvents(); }
-        );
-
         m_Initialized = true;
     }
 
@@ -155,5 +151,10 @@ namespace rge
             if (monitor.Primary) text += "[PRIMARY]";
             RGE_TRACE(text);
         }
+    }
+
+    void WindowManager::PollGLFWEvents() const
+    {
+        glfwPollEvents();
     }
 }

@@ -45,7 +45,9 @@ namespace rge
         NODISCARD inline ScreenMode GetScreenMode() const { return m_CurrentScreenMode; }
     INTERNAL:
         WindowManager();
-        ~WindowManager();
+        ~WindowManager() override;
+
+        void PollGLFWEvents() const;
 
         NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
         NODISCARD bool WindowShouldClose() const;

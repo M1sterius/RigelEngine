@@ -48,7 +48,7 @@ namespace rge
         void LoadScene(SceneHandle& scene);
     INTERNAL:
         SceneManager();
-        ~SceneManager();
+        ~SceneManager() override;
     private:
         void Startup() override;
         void Shutdown() override;

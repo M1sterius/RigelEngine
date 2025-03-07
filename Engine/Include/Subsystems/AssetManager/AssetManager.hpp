@@ -12,7 +12,7 @@ namespace rge
     public:
     INTERNAL:
         AssetManager();
-        ~AssetManager();
+        ~AssetManager() override;
     private:
         void Startup() override;
         void Shutdown() override;

@@ -118,8 +118,8 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        m_EventManager->Dispatch<InputUpdateEvent>(InputUpdateEvent()); // InputUpdate event must be dispatched before processing glfw events
-        m_EventManager->Dispatch<PollGlfwEventsEvent>(PollGlfwEventsEvent());
+        m_InputManager->InputUpdate(); // TODO: Fix whatever the fuck is wrong with the input system having to process input before polling input events
+        m_WindowManager->PollGLFWEvents();
         PhysicsTick();
         m_EventManager->Dispatch<GameUpdateEvent>(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
 

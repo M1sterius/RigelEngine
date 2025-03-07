@@ -26,9 +26,10 @@ namespace rge
     class Engine final
     {
     public:
+        ~Engine();
+
         Engine(const Engine& other) = delete;
         Engine& operator = (const Engine&) = delete;
-        ~Engine();
 
         /**
         * Creates a single global instance of rigel engine.

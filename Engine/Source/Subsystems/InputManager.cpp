@@ -96,10 +96,6 @@ namespace rge
         m_MouseButtons = std::unordered_set<MouseButton>();
         m_OldMouseButtons = std::unordered_set<MouseButton>();
 
-        engine.GetEventManager().Subscribe<InputUpdateEvent>(
-            [this](const InputUpdateEvent&) { this->OnInputUpdate(); }
-        );
-
         glfwSetKeyCallback(m_GLFWWindow, key_action_callback);
         glfwSetMouseButtonCallback(m_GLFWWindow, mouse_button_callback);
         glfwSetCursorPosCallback(m_GLFWWindow, mouse_move_callback);
@@ -108,12 +104,7 @@ namespace rge
         m_Initialized = true;
     }
 
-    void InputManager::Shutdown()
-    {
-        RGE_TRACE("Shutting down input manager");
-    }
-
-    void InputManager::OnInputUpdate()
+    void InputManager::InputUpdate()
     {
         m_OldKeyboardKeys.clear();
         m_OldKeyboardKeys.insert(m_KeyboardKeys.begin(), m_KeyboardKeys.end());
@@ -123,5 +114,10 @@ namespace rge
 
         m_MouseDelta = m_MousePosition - m_OldMousePosition;
         m_OldMousePosition = m_MousePosition;
+    }
+
+    void InputManager::Shutdown()
+    {
+        RGE_TRACE("Shutting down input manager");
     }
 }
