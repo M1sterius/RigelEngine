@@ -52,4 +52,14 @@ namespace rge
             default: return "None";
         }
     }
+
+    void Renderer::PrepareRender()
+    {
+
+    }
+
+    void Renderer::RenderFrame()
+    {
+
+    }
 }

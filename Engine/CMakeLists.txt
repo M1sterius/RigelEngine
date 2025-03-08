@@ -25,17 +25,14 @@ add_library(RigelEngine STATIC
     Source/EngineTools/Input.cpp
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
+    Source/Debug/Exceptions.cpp
     Source/Backend/Renderer/Vulkan/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
-    Source/Debug/Exceptions.cpp
-        Source/Backend/Renderer/Vulkan/VK_Device.cpp
-        Source/Backend/Renderer/Vulkan/VK_Device.hpp
-        Source/Backend/Renderer/Vulkan/VK_Surface.cpp
-        Source/Backend/Renderer/RenderingBackend.hpp
-        Source/Backend/Renderer/Vulkan/VK_Swapchain.cpp
-        Source/Backend/Renderer/Vulkan/VK_Swapchain.hpp
-        Source/Backend/Renderer/Vulkan/VK_Fence.cpp
-        Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
+    Source/Backend/Renderer/Vulkan/VK_Device.cpp
+    Source/Backend/Renderer/Vulkan/VK_Surface.cpp
+    Source/Backend/Renderer/Vulkan/VK_Swapchain.cpp
+    Source/Backend/Renderer/Vulkan/VK_Fence.cpp
+    Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

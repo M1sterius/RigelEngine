@@ -16,7 +16,7 @@ namespace rge
         InputManager();
         ~InputManager() override;
 
-        void InputUpdate();
+        void PreProcessInput();
     private:
         void Startup() override;
         void Shutdown() override;

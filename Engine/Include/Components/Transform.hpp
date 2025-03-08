@@ -28,13 +28,18 @@ namespace rge
         Transform();
         Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
+        void OnStart() override;
+        void OnDestroy() override;
+
         void Update();
 
         glm::vec3 m_Position;
         glm::quat m_Rotation;
         glm::vec3 m_Scale;
 
+        // No serialization intended
         bool m_UpdateRequiredFlag = true;
+        uid_t m_UpdateCallbackID = NULL_ID;
 
         friend class GameObject;
     };

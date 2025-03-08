@@ -45,6 +45,7 @@ namespace rge
             }
         }
 
+        // TODO: Implement multithreaded dispatch
         template<typename EventType>
         void Dispatch(const EventType& event)
         {
@@ -62,7 +63,7 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers { };
+        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers {};
         CallbackID m_NextCallbackID = 0;
     };
 }

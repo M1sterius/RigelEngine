@@ -104,7 +104,7 @@ namespace rge
         m_Initialized = true;
     }
 
-    void InputManager::InputUpdate()
+    void InputManager::PreProcessInput()
     {
         m_OldKeyboardKeys.clear();
         m_OldKeyboardKeys.insert(m_KeyboardKeys.begin(), m_KeyboardKeys.end());

@@ -7,7 +7,11 @@
  * Contains events that should be inaccessible outside of the engine library
  */
 
-namespace rge
+namespace rge::backend
 {
-
+    struct TransformUpdateEvent final : public Event
+    {
+        explicit TransformUpdateEvent() = default;
+        ~TransformUpdateEvent() override = default;
+    };
 }

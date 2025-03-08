@@ -1,15 +1,13 @@
 #include "Components/Transform.hpp"
 #include "GLM_Serializer.hpp"
-#include "ComponentTypeRegistry.hpp"
-#include "json.hpp"
+#include "Engine.hpp"
+#include "EventManager.hpp"
+#include "InternalEvents.hpp"
 #include "Debug.hpp"
-
-#include <iostream>
+#include "json.hpp"
 
 namespace rge
 {
-//    bool Transform::m_Registered = ComponentTypeRegistry::RegisterComponent("Transform", []() -> Component* { return new Transform(); });
-
     Transform::Transform() : Component(),
         m_Position(glm::vec3(0.0f)), m_Rotation(glm::identity<glm::quat>()), m_Scale(glm::vec3(1.0f))
     {
@@ -20,6 +18,18 @@ namespace rge
         m_Position(position), m_Rotation(rotation), m_Scale(scale)
     {
 
+    }
+
+    void Transform::OnStart()
+    {
+        m_UpdateCallbackID = EventManager.Subscribe<backend::TransformUpdateEvent>(
+        [this](const backend::TransformUpdateEvent&) { this->Update(); }
+        );
+    }
+
+    void Transform::OnDestroy()
+    {
+        EventManager.Unsubscribe<backend::TransformUpdateEvent>(m_UpdateCallbackID);
     }
 
     void Transform::SetPosition(const glm::vec3& position)
@@ -42,7 +52,11 @@ namespace rge
 
     void Transform::Update()
     {
+        if (!m_UpdateRequiredFlag) return;
 
+        // Perform matrix and other necessary transform calculations here!
+
+        m_UpdateRequiredFlag = false;
     }
 
     nlohmann::json Transform::Serialize() const
