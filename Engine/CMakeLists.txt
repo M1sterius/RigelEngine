@@ -34,6 +34,8 @@ add_library(RigelEngine STATIC
         Source/Backend/Renderer/RenderingBackend.hpp
         Source/Backend/Renderer/Vulkan/VK_Swapchain.cpp
         Source/Backend/Renderer/Vulkan/VK_Swapchain.hpp
+        Source/Backend/Renderer/Vulkan/VK_Fence.cpp
+        Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

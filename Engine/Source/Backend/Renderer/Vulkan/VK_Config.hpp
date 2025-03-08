@@ -19,7 +19,7 @@ namespace rge::backend
         static constexpr bool EnableValidationLayers = false;
     #endif
 
-        static constexpr auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_3;
+        static constexpr auto MinimalRequiredVulkanVersion = VK_API_VERSION_1_4;
 
         inline static const std::vector<const char*> ValidationLayers = {
             "VK_LAYER_KHRONOS_validation"
@@ -36,7 +36,7 @@ namespace rge::backend
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
         };
 
-        inline static VkPresentModeKHR PriorityPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+        inline static VkPresentModeKHR PrioritySwapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
         inline static VkFormat PrioritySwapchainSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
         inline static VkColorSpaceKHR PrioritySwapchainSurfaceColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     };

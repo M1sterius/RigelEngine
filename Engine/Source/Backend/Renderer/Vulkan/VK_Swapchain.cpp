@@ -62,7 +62,7 @@ namespace rge::backend
         }
 
         createInfo.preTransform = supportDetails.Capabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // specifies how the window will blend with other windows
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
@@ -131,7 +131,7 @@ namespace rge::backend
         if (vsyncEnabled) return VK_PRESENT_MODE_FIFO_KHR;
 
         for (const auto& mode : availablePresentModes)
-            if (mode == VK_Config::PriorityPresentMode) return mode;
+            if (mode == VK_Config::PrioritySwapchainPresentMode) return mode;
 
         return VK_PRESENT_MODE_FIFO_KHR;
     }
@@ -155,7 +155,7 @@ namespace rge::backend
     {
         ASSERT(!availableFormats.empty(), "No Vulkan swapchain surface formats available!");
 
-        // If the device supports only one format with `VK_FORMAT_UNDEFINED`, we can the preferred format.
+        // If the device supports only one format with `VK_FORMAT_UNDEFINED`, we can use the preferred format.
         if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)
             return {VK_Config::PrioritySwapchainSurfaceFormat, VK_Config::PrioritySwapchainSurfaceColorSpace};
 
