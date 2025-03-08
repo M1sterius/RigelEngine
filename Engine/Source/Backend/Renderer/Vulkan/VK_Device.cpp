@@ -34,6 +34,8 @@ namespace rge::backend
     {
         vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
         vkDestroyDevice(m_Device, nullptr);
+
+        RGE_TRACE("Vulkan device destroyed.");
     }
 
     void VK_Device::CreateLogicalDevice()

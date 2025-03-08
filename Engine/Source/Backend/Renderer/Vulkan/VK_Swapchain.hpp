@@ -7,6 +7,9 @@
 
 namespace rge::backend
 {
+    class VK_Device;
+    class VK_Semaphore;
+
     class VK_Swapchain
     {
     public:
@@ -19,6 +22,7 @@ namespace rge::backend
         NODISCARD uint32_t GetFramesInFlightCount() const { return m_FramesInFlight; }
 
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
+        NODISCARD uint32_t AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout = std::numeric_limits<uint64_t>::max());
     private:
         NODISCARD std::vector<VkImage> GetSwapchainImages();
 
@@ -32,6 +36,7 @@ namespace rge::backend
         SwapchainSupportDetails m_SwapchainSupportDetails;
         std::vector<VkImage> m_Images {};
         std::vector<VkImageView> m_ImageViews {};
+        std::vector<std::unique_ptr<VK_Semaphore>> m_ImageAvailableSemaphores;
 
         NODISCARD static VkPresentModeKHR ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, const bool vsyncEnabled);
         NODISCARD static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& capabilities, const glm::uvec2 extent);

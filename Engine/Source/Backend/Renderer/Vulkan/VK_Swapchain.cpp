@@ -1,4 +1,5 @@
 #include "VK_Swapchain.hpp"
+#include "VK_Semaphore.hpp"
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
@@ -14,6 +15,9 @@ namespace rge::backend
         m_SwapchainSupportDetails = m_Device.GetSwapchainSupportDetails();
         m_FramesInFlight = m_SwapchainSupportDetails.Capabilities.minImageCount + 1;
 
+        for (uint32_t i = 0; i < m_FramesInFlight; i++)
+            m_ImageAvailableSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
+
         SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
     }
 
@@ -22,6 +26,24 @@ namespace rge::backend
         for (const auto& view : m_ImageViews)
             vkDestroyImageView(m_Device.Get(), view, nullptr);
         vkDestroySwapchainKHR(m_Device.Get(), m_Swapchain, nullptr);
+
+        RGE_TRACE("Vulkan swapchain destroyed.");
+    }
+
+    uint32_t VK_Swapchain::AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout)
+    {
+        uint32_t imageIndex;
+        if (const auto result = vkAcquireNextImageKHR(m_Device.Get(), m_Swapchain, timeout,
+                                      m_ImageAvailableSemaphores[frameIndex]->Get(), VK_NULL_HANDLE,&imageIndex);
+        result != VK_SUCCESS)
+        {
+            if (result == VK_SUBOPTIMAL_KHR)
+                SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
+            else
+                throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
+        }
+
+        return imageIndex;
     }
 
     void VK_Swapchain::SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled)

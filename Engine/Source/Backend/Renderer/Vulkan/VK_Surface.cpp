@@ -24,5 +24,7 @@ namespace rge::backend
     VK_Surface::~VK_Surface()
     {
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+
+        RGE_TRACE("Window surface destroyed.");
     }
 }

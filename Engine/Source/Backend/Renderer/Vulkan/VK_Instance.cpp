@@ -102,6 +102,8 @@ namespace rge::backend
         if (VK_Config::EnableValidationLayers)
             DestroyDebugMessenger();
         vkDestroyInstance(m_Instance, nullptr);
+
+        RGE_TRACE("Vulkan instance destroyed.");
     }
 
     bool VK_Instance::CheckVulkanVersionSupport(const uint32_t version)

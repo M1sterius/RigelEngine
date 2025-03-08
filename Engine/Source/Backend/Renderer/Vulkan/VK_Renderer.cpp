@@ -5,6 +5,7 @@
 #include "VK_Device.hpp"
 #include "VK_Swapchain.hpp"
 #include "Debug.hpp"
+#include "Time.hpp"
 
 #include "Engine.hpp"
 #include "WindowManager.hpp"
@@ -30,19 +31,19 @@ namespace rge::backend
         m_Initialized = true;
     }
 
-    void VK_Renderer::InitImGUI()
+    void VK_Renderer::Shutdown()
     {
-
+        RGE_TRACE("Shutting down Vulkan renderer.");
     }
 
-    void VK_Renderer::Shutdown()
+    void VK_Renderer::InitImGUI()
     {
 
     }
 
     void VK_Renderer::PrepareFrame()
     {
-
+        m_FrameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
     }
 
     void VK_Renderer::RenderScene()

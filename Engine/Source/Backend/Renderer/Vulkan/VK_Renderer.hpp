@@ -29,6 +29,8 @@ namespace rge::backend
         void Startup() override;
         void Shutdown() override;
 
+        uint32_t m_FrameIndex = 0;
+
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
