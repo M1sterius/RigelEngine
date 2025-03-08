@@ -99,6 +99,19 @@ namespace rge::backend
             throw VulkanException("Failed to create Vulkan command pool!", result);
     }
 
+    uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const
+    {
+        const auto memProperties = m_SelectedPhysicalDevice.MemoryProperties;
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+        {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+                return i;
+        }
+
+        throw VulkanException("Failed to find suitable memory type supported by a Vulkan physical device!", VK_ERROR_UNKNOWN);
+    }
+
     std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices(VkInstance instance)
     {
         auto devices = std::vector<VkPhysicalDevice>();
@@ -121,6 +134,7 @@ namespace rge::backend
             devicesInfo[i].PhysicalDevice = device;
 
             vkGetPhysicalDeviceProperties(device, &devicesInfo[i].Properties);
+            vkGetPhysicalDeviceMemoryProperties(device, &devicesInfo[i].MemoryProperties);
         }
 
         return devicesInfo;

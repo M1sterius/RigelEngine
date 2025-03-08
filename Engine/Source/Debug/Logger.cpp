@@ -18,7 +18,7 @@ namespace rge
         if (!std::filesystem::exists(logsDir))
             std::filesystem::create_directory(logsDir);
 
-        const auto logsFile = std::filesystem::path(logsDir).concat("/Logs.txt");
+        const auto logsFile = std::filesystem::path(logsDir).concat("/Logs.log");
 
         // If an old logs file exists, delete it so that the old logs won't be mixed with new logs
         if (std::filesystem::exists(logsFile))

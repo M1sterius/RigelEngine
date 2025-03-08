@@ -11,6 +11,7 @@ namespace rge::backend
     {
         VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
         VkPhysicalDeviceProperties Properties = {};
+        VkPhysicalDeviceMemoryProperties MemoryProperties {};
 
         NODISCARD bool IsNull() const
         {
@@ -61,6 +62,8 @@ namespace rge::backend
 
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
+
+        NODISCARD uint32_t FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;
