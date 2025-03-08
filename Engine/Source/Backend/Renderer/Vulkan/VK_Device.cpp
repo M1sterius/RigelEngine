@@ -89,6 +89,8 @@ namespace rge::backend
 
     void VK_Device::CreateCommandPool()
     {
+        // TODO: Implement creating command pool for each thread or for each queue family
+
         auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
         poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();

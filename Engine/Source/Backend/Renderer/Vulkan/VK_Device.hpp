@@ -52,10 +52,15 @@ namespace rge::backend
         VK_Device(const VK_Device&) = delete;
         VK_Device operator = (const VK_Device) = delete;
 
-        NODISCARD VkDevice Get() const { return m_Device; }
+        NODISCARD inline VkDevice Get() const { return m_Device; }
 
-        NODISCARD SwapchainSupportDetails GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
-        NODISCARD QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
+        NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+
+        NODISCARD inline VkCommandPool GetCommandPool() const { return m_CommandPool; }
+
+        NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+        NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;

@@ -46,6 +46,22 @@ namespace rge::backend
         return imageIndex;
     }
 
+    void VK_Swapchain::Present(const uint32_t imageIndex)
+    {
+        auto presentInfo = MakeInfo<VkPresentInfoKHR>();
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &m_Swapchain;
+        presentInfo.pImageIndices = &imageIndex;
+
+        if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
+        {
+            if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR)
+                SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
+            else
+                throw VulkanException("Failed to present Vulkan image!", result);
+        }
+    }
+
     void VK_Swapchain::SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled)
     {
         const auto& supportDetails = m_SwapchainSupportDetails;

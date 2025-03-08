@@ -14,7 +14,7 @@ namespace rge::backend
         VK_Surface(const VK_Surface&) = delete;
         VK_Surface operator = (const VK_Surface) = delete;
 
-        NODISCARD VkSurfaceKHR Get() const { return m_Surface; }
+        NODISCARD inline VkSurfaceKHR Get() const { return m_Surface; }
     private:
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkInstance m_Instance;

@@ -44,6 +44,7 @@ namespace rge::backend
     void VK_Renderer::PrepareFrame()
     {
         m_FrameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
+//        m_SwapchainImageIndex = m_Swapchain->AcquireNextImage(m_FrameIndex);
     }
 
     void VK_Renderer::RenderScene()
@@ -63,6 +64,6 @@ namespace rge::backend
 
     void VK_Renderer::FinalizeFrame()
     {
-
+//        m_Swapchain->Present(m_FrameIndex);
     }
 }
