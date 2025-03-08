@@ -12,6 +12,7 @@ namespace rge::backend
     {
         RGE_TRACE("Creating Vulkan swapchain.");
         m_SwapchainSupportDetails = m_Device.GetSwapchainSupportDetails();
+        m_FramesInFlight = m_SwapchainSupportDetails.Capabilities.minImageCount + 1;
 
         SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
     }

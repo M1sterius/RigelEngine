@@ -7,7 +7,6 @@
 
 namespace rge::backend
 {
-
     class VK_Swapchain
     {
     public:
@@ -17,6 +16,8 @@ namespace rge::backend
         VK_Swapchain(const VK_Swapchain&) = delete;
         VK_Swapchain operator = (const VK_Swapchain) = delete;
 
+        NODISCARD uint32_t GetFramesInFlightCount() const { return m_FramesInFlight; }
+
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
     private:
         NODISCARD std::vector<VkImage> GetSwapchainImages();
@@ -24,6 +25,7 @@ namespace rge::backend
         VK_Device& m_Device;
         VkSurfaceKHR m_Surface;
         glm::uvec2 m_Extent;
+        uint32_t m_FramesInFlight;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
 

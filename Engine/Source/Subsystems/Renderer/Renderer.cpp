@@ -23,6 +23,8 @@ namespace rge
             m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
         }
 
+        m_BackendRenderer->InitImGUI();
+
         m_Initialized = true;
     }
 
@@ -53,13 +55,12 @@ namespace rge
         }
     }
 
-    void Renderer::PrepareRender()
+    void Renderer::Render()
     {
-
-    }
-
-    void Renderer::RenderFrame()
-    {
-
+        m_BackendRenderer->PrepareFrame();
+        m_BackendRenderer->RenderScene();
+        m_BackendRenderer->RenderGizmo();
+        m_BackendRenderer->RenderGUI();
+        m_BackendRenderer->FinalizeFrame();
     }
 }

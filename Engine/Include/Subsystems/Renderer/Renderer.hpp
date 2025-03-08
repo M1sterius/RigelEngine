@@ -30,8 +30,7 @@ namespace rge
 
         NODISCARD backend::RenderingBackend& GetBackend() const;
 
-        void PrepareRender();
-        void RenderFrame();
+        void Render();
     private:
         void Startup() override;
         void Shutdown() override;

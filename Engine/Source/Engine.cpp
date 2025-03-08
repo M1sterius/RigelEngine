@@ -124,8 +124,7 @@ namespace rge
         PhysicsTick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
         m_EventManager->Dispatch(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
-        m_Renderer->PrepareRender();
-        m_Renderer->RenderFrame();
+        m_Renderer->Render();
 
         // for now the only condition for the engine to keep running is the window not being closed.
         m_Running = !m_WindowManager->WindowShouldClose();
