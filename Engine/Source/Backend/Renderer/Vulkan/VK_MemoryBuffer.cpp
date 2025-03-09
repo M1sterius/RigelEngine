@@ -39,4 +39,18 @@ namespace rge::backend
         vkDestroyBuffer(m_Device.Get(), m_Buffer, nullptr);
         vkFreeMemory(m_Device.Get(), m_BufferMemory, nullptr);
     }
+
+    void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data)
+    {
+        ASSERT(size > 0, "Attempted to upload data of zero size!")
+        ASSERT(size <= m_Size, "Attempted to upload more data than the buffer is capable of storing!")
+
+        void* map;
+
+        if (const auto result = vkMapMemory(m_Device.Get(), m_BufferMemory, offset, m_Size, flags, &map); result != VK_SUCCESS)
+            throw VulkanException("Failed to map Vulkan GPU buffer memory to host memory!", result);
+
+        memcpy(map, data, static_cast<size_t>(m_Size));
+        vkUnmapMemory(m_Device.Get(), m_BufferMemory);
+    }
 }

@@ -16,6 +16,12 @@ namespace rge::backend
 
         VK_MemoryBuffer(const VK_MemoryBuffer&) = delete;
         VK_MemoryBuffer operator = (const VK_MemoryBuffer) = delete;
+
+        NODISCARD inline VkBuffer Get() const { return m_Buffer; }
+        NODISCARD inline VkDeviceMemory GetMemory() const { return m_BufferMemory; }
+        NODISCARD inline VkDeviceSize GetSize() const { return m_Size; }
+
+        void UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data);
     private:
         VK_Device& m_Device;
         VkDeviceSize m_Size = 0;
