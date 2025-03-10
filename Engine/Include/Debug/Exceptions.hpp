@@ -14,7 +14,7 @@ namespace rge
     {
     public:
         explicit RigelException(std::string what);
-        NODISCARD const char* what() const noexcept override;
+        [[nodiscard]] const char* what() const noexcept override;
     private:
         const std::string m_Description;
     };

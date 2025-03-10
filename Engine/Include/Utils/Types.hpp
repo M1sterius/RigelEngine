@@ -4,7 +4,7 @@
 #include <cstdint>
 
 // Unique ID type
-#ifdef USE_64_BIT_ID_TYPE
+#ifdef RGE_USE_64_BIT_ID_TYPE
     typedef uint64_t uid_t;
 #else
     typedef uint32_t uid_t;

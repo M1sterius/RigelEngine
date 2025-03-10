@@ -34,8 +34,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_Fence.cpp
     Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/VK_CmdBuffer.cpp
-        Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.cpp
-        Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.hpp
+    Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
@@ -82,6 +81,7 @@ set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 target_include_directories(RigelEngine PRIVATE
     Source/Utils/Internal
     Source/Backend
+    Source/Backend/Renderer/Vulkan
 
     ${Vulkan_INCLUDE_DIRS}
     ${VULKAN_SDK_PATH}/Include/vulkan

@@ -3,6 +3,7 @@
 #include "Types.hpp"
 #include "Internal.hpp"
 #include "Assert.hpp"
+#include "Exceptions.hpp"
 
 #define RIGEL_ENGINE_NAME "RigelEngine"
 

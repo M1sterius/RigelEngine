@@ -25,7 +25,7 @@ namespace rge
             return m_Ptr;
         }
 
-        NODISCARD uid_t GetID() const { return m_ID; }
+        NODISCARD inline uid_t GetID() const { return m_ID; }
 
         virtual ~RigelHandle() = default;
     protected:
@@ -50,8 +50,13 @@ namespace rge
     private:
         inline void CheckHandle() const
         {
-            const auto res = !IsNull() && IsValid();
-            if (!res) throw std::runtime_error("Attempted to use an invalid RigelHandle instance!");
+            if (IsNull())
+                throw RigelException("Attempted to dereference a null Rigel handle!");
+
+            #ifdef RGE_ENABLE_HANDLE_VALIDATION
+            if (!IsValid())
+                throw RigelException("Attempted to dereference an invalid Rigel handle!");
+            #endif
         }
     };
 }

@@ -15,7 +15,7 @@ namespace rge
 
         NODISCARD bool IsValid() const override
         {
-            return true;
+            return true; // TODO: Implement proper validation
         }
 
         ComponentHandle(T* ptr, const uid_t id, const uid_t objectID, const uid_t sceneID)

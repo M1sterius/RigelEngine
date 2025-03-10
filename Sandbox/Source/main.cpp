@@ -1,4 +1,6 @@
+#define RGE_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
+
 #include "TestComponent.hpp"
 
 class Game
@@ -13,6 +15,8 @@ public:
         rge::Time::SetTargetFPS(30);
         auto& sceneManager = m_Engine->GetSceneManager();
         auto scene = sceneManager.CreateScene();
+
+//        AssetHandle<Shader> shader = AssetManager.LoadAsset<Shader>("shader.vert", "shader.frag");
 
         try
         {

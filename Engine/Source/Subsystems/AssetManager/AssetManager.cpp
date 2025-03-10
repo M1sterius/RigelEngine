@@ -2,6 +2,7 @@
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "Directory.hpp"
+#include "json.hpp"
 
 #include <stdexcept>
 
@@ -11,7 +12,6 @@ namespace rge
 {
 
     AssetManager::AssetManager() { Startup(); }
-
     AssetManager::~AssetManager() { Shutdown(); }
 
     void AssetManager::Startup()
