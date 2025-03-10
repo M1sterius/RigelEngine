@@ -28,8 +28,6 @@ namespace rge
             go->OnStart();
         }
 
-        SceneSearchFunc f = [](const GOHandle& go) { return true; };
-
         return { go, go->GetID(), this->GetID() };
     }
 

@@ -50,7 +50,7 @@
 #include "KeysAndButtons.hpp"
 #include "Math.hpp"
 #include "json.hpp"
-#include "Asset.hpp"
+#include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 
 #endif

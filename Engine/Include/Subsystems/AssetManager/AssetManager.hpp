@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "ISerializable.hpp"
-#include "Asset.hpp"
+#include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 
 #include <filesystem>
@@ -22,7 +22,7 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        std::unordered_map<uid_t, std::unique_ptr<Asset>> m_AssetsRegistry;
+        std::unordered_map<uid_t, std::unique_ptr<RigelAsset>> m_AssetsRegistry; // The asset manager owns all assets
 
         std::filesystem::path m_WorkingDirectory;
         std::filesystem::path m_AssetsDirectory;

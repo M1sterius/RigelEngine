@@ -2,6 +2,7 @@
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "Directory.hpp"
+#include "Shader.hpp"
 #include "json.hpp"
 
 #include <stdexcept>
@@ -10,7 +11,6 @@ namespace fs = std::filesystem;
 
 namespace rge
 {
-
     AssetManager::AssetManager() { Startup(); }
     AssetManager::~AssetManager() { Shutdown(); }
 
