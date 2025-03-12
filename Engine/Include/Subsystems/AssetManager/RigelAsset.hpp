@@ -7,9 +7,10 @@ namespace rge
 {
     class RigelAsset : public RigelObject
     {
+    public:
+        ~RigelAsset() override = default;
     protected:
         explicit RigelAsset(const uid_t id) : RigelObject(id) { }
-        ~RigelAsset() override = default;
 
         friend class AssetManager;
     };

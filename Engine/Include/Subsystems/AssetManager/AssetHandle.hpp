@@ -6,7 +6,7 @@
 namespace rge
 {
     template<typename T>
-    class AssetHandle : public RigelHandle<T>
+    class AssetHandle final : public RigelHandle<T>
     {
     public:
         NODISCARD bool IsNull() const override

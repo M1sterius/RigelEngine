@@ -3,6 +3,7 @@
 #include "Debug.hpp"
 #include "Directory.hpp"
 #include "Shader.hpp"
+#include "Hash.hpp"
 #include "json.hpp"
 
 #include <stdexcept>

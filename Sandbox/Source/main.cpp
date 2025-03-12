@@ -14,7 +14,11 @@ public:
         m_Engine = rge::Engine::CreateInstance();
         rge::Time::SetTargetFPS(30);
         auto& sceneManager = m_Engine->GetSceneManager();
+        auto& assetManager = m_Engine->GetAssetManager();
+
         auto scene = sceneManager.CreateScene();
+
+        auto h = assetManager.Find<rge::Shader>("bruh.spv");
 
 //        AssetHandle<Shader> shader = AssetManager.LoadAsset<Shader>("shader.vert", "shader.frag");
 
