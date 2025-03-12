@@ -25,6 +25,7 @@
 #include "InputManager.hpp"
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
+#include "PhysicsEngine.hpp"
 
 // ECS
 #include "RigelHandle.hpp"

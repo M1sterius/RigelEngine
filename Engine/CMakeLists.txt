@@ -17,6 +17,7 @@ add_library(RigelEngine STATIC
     Source/ECS/SceneHandle.cpp
     Source/ECS/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
+    Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
     Source/ECS/ComponentTypeRegistry.cpp
     Source/Utils/Filesystem/File.cpp
     Source/Subsystems/AssetManager/AssetManager.cpp
@@ -35,9 +36,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.cpp
-        Source/Backend/Renderer/Vulkan/VK_Shader.cpp
-        Source/Backend/Renderer/Vulkan/VK_Shader.hpp
-        Source/Subsystems/Renderer/Shader.cpp
+    Source/Backend/Renderer/Vulkan/VK_Shader.cpp
+    Source/Subsystems/Renderer/Shader.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
@@ -107,6 +107,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Subsystems/AssetManager
     Include/Subsystems/Renderer
     Include/Subsystems/EventSystem
+    Include/Subsystems/PhysicsEngine
     Include/Utils/HeaderUtils
     Include/Utils/Serialization
     Include/EngineTools

@@ -7,6 +7,7 @@
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
 #include "Renderer.hpp"
+#include "PhysicsEngine.hpp"
 
 #include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
@@ -55,6 +56,7 @@ namespace rge
         m_WindowManager = std::make_unique<WindowManager>();
         m_InputManager = std::make_unique<InputManager>();
         m_Renderer = std::make_unique<Renderer>();
+        m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
@@ -67,6 +69,7 @@ namespace rge
         RGE_TRACE("Shutting down Rigel engine.");
 
         // Shut down all subsystems and global tools
+        m_PhysicsEngine.reset();
         m_Renderer.reset();
         m_InputManager.reset();
         m_WindowManager.reset();
@@ -84,6 +87,7 @@ namespace rge
     DEFINE_SUBSYSTEM_GETTER(WindowManager)
     DEFINE_SUBSYSTEM_GETTER(InputManager)
     DEFINE_SUBSYSTEM_GETTER(Renderer)
+    DEFINE_SUBSYSTEM_GETTER(PhysicsEngine);
 #pragma endregion
 
     void Engine::Run()
@@ -121,28 +125,12 @@ namespace rge
         m_InputManager->PreProcessInput();
 
         m_WindowManager->PollGLFWEvents();
-        PhysicsTick();
+        m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
         m_EventManager->Dispatch(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
         m_Renderer->Render();
 
         // for now the only condition for the engine to keep running is the window not being closed.
         m_Running = !m_WindowManager->WindowShouldClose();
-    }
-
-    void Engine::PhysicsTick()
-    {
-        static float64_t accumulator = 0.0;
-        accumulator += Time::GetDeltaTime();
-        while (accumulator >= m_PhysicsTickTime)
-        {
-            /*
-             * Handles dispatching physics update event at the exact tickrate.
-             * For more info see: https://gafferongames.com/post/fix_your_timestep/
-             */
-
-            m_EventManager->Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_PhysicsTickTime));
-            accumulator -= m_PhysicsTickTime;
-        }
     }
 }

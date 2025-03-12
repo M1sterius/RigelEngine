@@ -30,24 +30,14 @@ namespace rge
         template<typename T, typename... Args>
         NODISCARD AssetHandle<T> Load(Args&&... args)
         {
-            RigelAsset* asset;
-
-            try
-            {
-                asset = static_cast<RigelAsset*>(new T(std::forward<Args>(args)...));
-            }
-            catch(const std::exception& e)
-            {
-
-            }
-
+            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
             return AssetHandle<T>(nullptr, NULL_ID);
         }
 
         template<typename T>
         NODISCARD AssetHandle<T> Find(const std::filesystem::path& path)
         {
-            static_assert(std::is_base_of<RigelAsset, T>::value, "T must inherit from rge::RigelAsset!");
+            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
 
             for (const auto& [id, record] : m_AssetsRegistry)
             {
@@ -55,7 +45,7 @@ namespace rge
                     return AssetHandle<T>(cast, id);
             }
 
-            Debug::Error("Failed to find an asset of type {} at path: {}!", static_cast<std::string>(typeid(T).name()), path.string());
+            // Debug::Error("Failed to find an asset of type {} at path: {}!", static_cast<std::string>(typeid(T).name()), path.string());
             return AssetHandle<T>(nullptr, NULL_ID);
         }
     INTERNAL:

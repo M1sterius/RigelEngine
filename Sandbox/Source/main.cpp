@@ -18,7 +18,8 @@ public:
 
         auto scene = sceneManager.CreateScene();
 
-        auto h = assetManager.Find<rge::Shader>("bruh.spv");
+        const auto h = assetManager.Find<rge::Shader>("bruh.spv");
+        rge::Debug::Message("{}", h.IsNull());
 
 //        AssetHandle<Shader> shader = AssetManager.LoadAsset<Shader>("shader.vert", "shader.frag");
 

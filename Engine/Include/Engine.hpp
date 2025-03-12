@@ -14,14 +14,7 @@ namespace rge
     class AssetManager;
     class WindowManager;
     class InputManager;
-
-    struct EngineConfigInfo
-    {
-        uint64_t TargetFPS = 240;
-        uint64_t TargetTickrate = 50;
-
-        uint64_t MaxThreads = 0;
-    };
+    class PhysicsEngine;
 
     class Engine final
     {
@@ -47,6 +40,7 @@ namespace rge
         NODISCARD EventManager& GetEventManager() const;
         NODISCARD WindowManager& GetWindowManager() const;
         NODISCARD InputManager& GetInputManager() const;
+        NODISCARD PhysicsEngine& GetPhysicsEngine() const;
 
         void Run();
     private:
@@ -56,7 +50,6 @@ namespace rge
         void Shutdown();
 
         void EngineUpdate();
-        void PhysicsTick();
 
         bool m_Running = false;
         Stopwatch m_GlobalTimeStopwatch;
@@ -73,6 +66,7 @@ namespace rge
         std::unique_ptr<WindowManager> m_WindowManager;
         std::unique_ptr<InputManager> m_InputManager;
         std::unique_ptr<Renderer> m_Renderer;
+        std::unique_ptr<PhysicsEngine> m_PhysicsEngine;
 
         static Engine* m_GlobalInstance;
 
