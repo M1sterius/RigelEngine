@@ -16,9 +16,12 @@ namespace rge
     class Shader final : public RigelAsset
     {
     public:
-        Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
         ~Shader() override;
     private:
+        explicit Shader(const std::filesystem::path& path);
+
         std::unique_ptr<backend::BackendShader> m_Backend;
+
+        friend class AssetManager;
     };
 }

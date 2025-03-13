@@ -3,14 +3,14 @@
 
 namespace rge
 {
-    Shader::Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
-        : RigelAsset(NULL_ID)
+    Shader::Shader(const std::filesystem::path& path)
+        : RigelAsset(path)
     {
-        this->m_Path = vertPath;
+        Debug::Message("Loading a shader at path: {}", path.string());
     }
 
     Shader::~Shader()
     {
-
+        Debug::Message("Destroying shader!");
     }
 }

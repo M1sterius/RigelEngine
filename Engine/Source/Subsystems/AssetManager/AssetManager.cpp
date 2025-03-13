@@ -32,4 +32,11 @@ namespace rge
     {
         RGE_TRACE("Shutting down asset manager.");
     }
+
+    uid_t AssetManager::AssignID(RigelAsset* ptr)
+    {
+        const auto ID = GetNextAssetID();
+        ptr->OverrideID(ID);
+        return ID;
+    }
 }

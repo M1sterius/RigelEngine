@@ -3,6 +3,9 @@
 #include "Core.hpp"
 #include "RigelHandle.hpp"
 
+#include "Engine.hpp"
+#include "AssetManager.hpp"
+
 namespace rge
 {
     template<typename T>
@@ -16,7 +19,7 @@ namespace rge
 
         NODISCARD bool IsValid() const override
         {
-            return true; // TODO: Implement proper validation
+            return true;
         }
 
         AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id) { }
