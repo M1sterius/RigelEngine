@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <unordered_map>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 
 namespace rge
 {
@@ -24,39 +26,11 @@ namespace rge
     {
     public:
         template<typename T>
-        NODISCARD AssetHandle<T> Load(const std::filesystem::path& path)
+        NODISCARD AssetHandle<T> Find(const std::filesystem::path& path) const
         {
             static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
 
-            if (const auto found = Find<T>(path); !found.IsNull())
-                return found;
-
-            RigelAsset* assetPtr = nullptr;
-
-            try {
-                assetPtr = static_cast<RigelAsset*>(new T(path));
-            }
-            catch (const std::exception& e)
-            {
-                Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
-                return AssetHandle<T>(nullptr, NULL_ID);
-            }
-
-            const auto ID = AssignID(assetPtr);
-
-            m_AssetsRegistry[ID] = {
-                .PathHash = Hash(path.string()),
-                .Path = path,
-                .Asset = std::unique_ptr<RigelAsset>(assetPtr)
-            };
-
-            return AssetHandle<T>(static_cast<T*>(assetPtr), ID);
-        }
-
-        template<typename T>
-        NODISCARD AssetHandle<T> Find(const std::filesystem::path& path)
-        {
-            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
+            std::shared_lock lock(m_RegistryMutex);
 
             for (const auto& [id, record] : m_AssetsRegistry)
             {
@@ -65,6 +39,40 @@ namespace rge
             }
 
             return AssetHandle<T>(nullptr, NULL_ID);
+        }
+
+        template<typename T>
+        NODISCARD AssetHandle<T> Load(const std::filesystem::path& path)
+        {
+            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
+
+            if (const auto found = Find<T>(path); !found.IsNull())
+                return found;
+
+            std::unique_ptr<RigelAsset> assetPtr;
+
+            try
+            {
+                assetPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
+            }
+            catch (const std::exception& e)
+            {
+                Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
+                return AssetHandle<T>(nullptr, NULL_ID);
+            }
+
+            const auto ID = AssignID(assetPtr.get());
+
+            {
+                std::unique_lock lock(m_RegistryMutex);
+                m_AssetsRegistry[ID] = {
+                    .PathHash = Hash(path.string()),
+                    .Path = path,
+                    .Asset = std::move(assetPtr)
+                };
+            }
+
+            return AssetHandle<T>(static_cast<T*>(assetPtr.get()), ID);
         }
 
         template<typename T>
@@ -80,6 +88,8 @@ namespace rge
                 return;
             }
 
+            // TODO: Improve unloading to work on multiple threads
+            std::unique_lock lock(m_RegistryMutex);
             m_AssetsRegistry.erase(found.GetID());
         }
 
@@ -94,11 +104,14 @@ namespace rge
                 return;
             }
 
+            // TODO: Improve unloading to work on multiple threads
+            std::unique_lock lock(m_RegistryMutex);
             m_AssetsRegistry.erase(handle.GetID());
         }
 
         NODISCARD inline bool Validate(const uid_t assetID) const
         {
+            std::shared_lock lock(m_RegistryMutex);
             return m_AssetsRegistry.contains(assetID);
         }
 
@@ -114,11 +127,15 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
+        void LoadEngineAssets();
+
         uid_t AssignID(RigelAsset* ptr);
 
-        NODISCARD inline uid_t GetNextAssetID() { return m_NextAssetID++; }
-        static constexpr uid_t EngineAssetsReservedSize = 1024;
-        uid_t m_NextAssetID = EngineAssetsReservedSize;
+        NODISCARD uid_t GetNextAssetID();
+        uid_t m_NextAssetID = 1;
+
+        mutable std::shared_mutex m_RegistryMutex;
+        std::mutex m_IDMutex;
 
         std::unordered_map<uid_t, AssetRegistryRecord> m_AssetsRegistry;
 

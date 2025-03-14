@@ -13,6 +13,7 @@ public:
     {
         m_Engine = rge::Engine::CreateInstance();
         rge::Time::SetTargetFPS(30);
+
         auto& sceneManager = m_Engine->GetSceneManager();
         auto& assetManager = m_Engine->GetAssetManager();
 

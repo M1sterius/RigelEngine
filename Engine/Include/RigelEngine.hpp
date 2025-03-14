@@ -53,5 +53,6 @@
 #include "json.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
+#include "Shader.hpp"
 
 #endif

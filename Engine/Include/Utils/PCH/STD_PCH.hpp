@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <functional>
 #include <thread>
+#include <mutex>
+#include <shared_mutex>
 #include <fstream>
 #include <ostream>
 #include <sstream>
