@@ -20,7 +20,7 @@ namespace rge
     private:
         explicit Shader(const std::filesystem::path& path);
 
-        std::unique_ptr<backend::BackendShader> m_Backend;
+        std::unique_ptr<backend::BackendShader> m_BackendShader;
 
         friend class AssetManager;
     };

@@ -14,7 +14,7 @@ namespace rge::backend
 
     class VK_Renderer final : public RenderingBackend
     {
-    INTERNAL:
+    public:
         VK_Renderer();
         ~VK_Renderer() override;
 
@@ -25,6 +25,8 @@ namespace rge::backend
         void RenderGizmo() override;
         void RenderGUI() override;
         void FinalizeFrame() override;
+
+        NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
     private:
         void Startup() override;
         void Shutdown() override;

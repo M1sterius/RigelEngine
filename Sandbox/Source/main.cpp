@@ -19,10 +19,6 @@ public:
 
         auto scene = sceneManager.CreateScene();
 
-        const auto handle = assetManager.Load<rge::Shader>("Shader.spv");
-        assetManager.Unload<rge::Shader>(handle);
-        rge::Debug::Message("{}", assetManager.Validate(handle));
-
         try
         {
             const auto json = rge::File::ReadJSON("Assets/Scenes/SampleScene.rigelscene");
