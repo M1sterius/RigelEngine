@@ -1,5 +1,7 @@
 #include "Engine.hpp"
 
+#include "ThreadPool.hpp"
+
 #include "InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
@@ -105,6 +107,7 @@ namespace rge
 
             m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
             m_FrameCounter++;
+            Debug::Message("Frametime: {}", Time::GetDeltaTime());
         }
     }
 
@@ -119,8 +122,6 @@ namespace rge
         // Scene render
         // Gizmo render
         // GUI render
-
-        Debug::Message("Frametime: {}", Time::GetDeltaTime());
 
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();

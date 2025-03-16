@@ -39,6 +39,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.cpp
     Source/Backend/Renderer/Vulkan/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
+    Source/Utils/Threading/ThreadPool.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

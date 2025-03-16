@@ -13,12 +13,11 @@
 
 #ifdef RIGEL_ENGINE
 
+// Core headers
 #include "Core.hpp"
 #include "Engine.hpp"
 
 // Subsystems
-#include "Event.hpp"
-#include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "SceneManager.hpp"
 #include "Renderer.hpp"
@@ -26,6 +25,22 @@
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
 #include "PhysicsEngine.hpp"
+
+// Subsystem-related classes
+#include "Event.hpp"
+#include "EngineEvents.hpp"
+#include "RigelAsset.hpp"
+#include "AssetHandle.hpp"
+#include "Shader.hpp"
+#include "KeysAndButtons.hpp"
+
+// Debug
+#include "Debug.hpp"
+#include "Exceptions.hpp"
+
+// Tools
+#include "Input.hpp"
+#include "Time.hpp"
 
 // ECS
 #include "RigelHandle.hpp"
@@ -39,20 +54,14 @@
 // Components
 #include "Transform.hpp"
 
-// Misc
-#include "Time.hpp"
-#include "Debug.hpp"
-#include "Input.hpp"
-#include "Exceptions.hpp"
+// Utility
+#include "ThreadPool.hpp"
+#include "SleepUtility.hpp"
 #include "ISerializable.hpp"
 #include "GLM_Serializer.hpp"
 #include "File.hpp"
 #include "Directory.hpp"
-#include "KeysAndButtons.hpp"
 #include "Math.hpp"
 #include "json.hpp"
-#include "RigelAsset.hpp"
-#include "AssetHandle.hpp"
-#include "Shader.hpp"
 
 #endif
