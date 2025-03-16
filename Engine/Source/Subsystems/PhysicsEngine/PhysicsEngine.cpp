@@ -12,12 +12,12 @@ namespace rge
 
     void PhysicsEngine::Startup()
     {
-        RGE_TRACE("Starting up physics engine.");
+        Debug::Trace("Starting up physics engine.");
     }
 
     void PhysicsEngine::Shutdown()
     {
-        RGE_TRACE("Shutting down physics engine.");
+        Debug::Trace("Shutting down physics engine.");
     }
 
     void PhysicsEngine::Tick()

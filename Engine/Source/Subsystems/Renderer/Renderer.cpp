@@ -10,7 +10,7 @@ namespace rge
 
     void Renderer::Startup()
     {
-        RGE_TRACE("Starting up renderer.");
+        Debug::Trace("Starting up renderer.");
 
         m_SelectedGraphicsAPI = SelectGraphicsAPI();
 
@@ -19,7 +19,7 @@ namespace rge
 
         if (m_SelectedGraphicsAPI == GraphicsApi::Vulkan)
         {
-            RGE_TRACE("Selected Vulkan graphics API.");
+            Debug::Trace("Selected Vulkan graphics API.");
             m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
         }
 
@@ -30,7 +30,7 @@ namespace rge
 
     void Renderer::Shutdown()
     {
-        RGE_TRACE("Shutting down renderer.");
+        Debug::Trace("Shutting down renderer.");
     }
 
     GraphicsApi Renderer::SelectGraphicsAPI()

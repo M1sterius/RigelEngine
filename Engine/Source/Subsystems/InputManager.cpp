@@ -82,7 +82,7 @@ namespace rge
 
     void InputManager::Startup()
     {
-        RGE_TRACE("Starting up input manager.");
+        Debug::Trace("Starting up input manager.");
 
         const auto& engine = Engine::Get();
 
@@ -118,6 +118,6 @@ namespace rge
 
     void InputManager::Shutdown()
     {
-        RGE_TRACE("Shutting down input manager");
+        Debug::Trace("Shutting down input manager");
     }
 }

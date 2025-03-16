@@ -17,7 +17,7 @@ namespace rge
 
     void AssetManager::Startup()
     {
-        RGE_TRACE("Starting up asset manager.");
+        Debug::Trace("Starting up asset manager.");
 
         m_WorkingDirectory = rge::Directory::WorkingDirectory();
         m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
@@ -30,7 +30,7 @@ namespace rge
 
     void AssetManager::Shutdown()
     {
-        RGE_TRACE("Shutting down asset manager.");
+        Debug::Trace("Shutting down asset manager.");
     }
 
     uid_t AssetManager::GetNextAssetID()

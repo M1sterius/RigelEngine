@@ -11,11 +11,11 @@ namespace rge::backend
     VK_Device::VK_Device(VkInstance instance, VkSurfaceKHR surface)
         : m_Instance(instance), m_Surface(surface)
     {
-        RGE_TRACE("Searching for GPUs with Vulkan support.");
+        Debug::Trace("Searching for GPUs with Vulkan support.");
         auto availableDevices = FindPhysicalDevices(m_Instance);
-        RGE_TRACE("Detected GPUs:");
+        Debug::Trace("Detected GPUs:");
         for (const auto& device : availableDevices)
-            RGE_TRACE(std::format("    {}", device.Properties.deviceName));
+            Debug::Trace(std::format("    {}", device.Properties.deviceName));
 
         m_SelectedPhysicalDevice = PickBestPhysicalDevice(availableDevices, m_Surface);
         if (m_SelectedPhysicalDevice.IsNull())
@@ -24,7 +24,7 @@ namespace rge::backend
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
         m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 
-        RGE_TRACE(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
+        Debug::Trace(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
 
         CreateLogicalDevice();
         CreateCommandPool();
@@ -35,12 +35,12 @@ namespace rge::backend
         vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
         vkDestroyDevice(m_Device, nullptr);
 
-        RGE_TRACE("Vulkan device destroyed.");
+        Debug::Trace("Vulkan device destroyed.");
     }
 
     void VK_Device::CreateLogicalDevice()
     {
-        RGE_TRACE("Creating logical Vulkan device.");
+        Debug::Trace("Creating logical Vulkan device.");
 
         const auto indices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 

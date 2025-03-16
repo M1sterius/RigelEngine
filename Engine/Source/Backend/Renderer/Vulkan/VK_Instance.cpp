@@ -51,7 +51,7 @@ namespace rge::backend
 
     VK_Instance::VK_Instance()
     {
-        RGE_TRACE("Creating Vulkan instance.");
+        Debug::Trace("Creating Vulkan instance.");
 
         if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredVulkanVersion))
             throw RigelException("Minimal required vulkan version is not supported on this device!");
@@ -103,7 +103,7 @@ namespace rge::backend
             DestroyDebugMessenger();
         vkDestroyInstance(m_Instance, nullptr);
 
-        RGE_TRACE("Vulkan instance destroyed.");
+        Debug::Trace("Vulkan instance destroyed.");
     }
 
     bool VK_Instance::CheckVulkanVersionSupport(const uint32_t version)

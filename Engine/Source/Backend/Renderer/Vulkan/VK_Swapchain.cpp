@@ -11,7 +11,7 @@ namespace rge::backend
     VK_Swapchain::VK_Swapchain(VK_Device& device, VkSurfaceKHR surface, const glm::uvec2 size)
         : m_Device(device), m_Surface(surface), m_Extent(size)
     {
-        RGE_TRACE("Creating Vulkan swapchain.");
+        Debug::Trace("Creating Vulkan swapchain.");
         m_SwapchainSupportDetails = m_Device.GetSwapchainSupportDetails();
         m_FramesInFlight = m_SwapchainSupportDetails.Capabilities.minImageCount + 1;
 
@@ -27,7 +27,7 @@ namespace rge::backend
             vkDestroyImageView(m_Device.Get(), view, nullptr);
         vkDestroySwapchainKHR(m_Device.Get(), m_Swapchain, nullptr);
 
-        RGE_TRACE("Vulkan swapchain destroyed.");
+        Debug::Trace("Vulkan swapchain destroyed.");
     }
 
     uint32_t VK_Swapchain::AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout)

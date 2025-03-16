@@ -15,10 +15,10 @@ namespace rge
     {
     public:
         template <typename... Args>
-        static void VerboseMessage(std::format_string<Args...> fmt, Args&&... args)
+        static void Trace(std::format_string<Args...> fmt, Args&&... args)
         {
             const std::string fmtString = std::format(fmt, std::forward<Args>(args)...);
-            VerboseMessage(fmtString);
+            Trace(fmtString);
         }
 
         template <typename... Args>
@@ -42,7 +42,7 @@ namespace rge
             Error(fmtString);
         }
 
-        static void VerboseMessage(const std::string& message);
+        static void Trace(const std::string& message);
         static void Message(const std::string& message);
         static void Warning(const std::string& warning);
         static void Error(const std::string& error);

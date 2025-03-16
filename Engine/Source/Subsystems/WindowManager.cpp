@@ -37,7 +37,7 @@ namespace rge
 
     void WindowManager::Startup()
     {
-        RGE_TRACE("Staring up window manager.");
+        Debug::Trace("Staring up window manager.");
 
         if (!glfwInit())
             throw RigelException("Window manager initialization failed! glfw initialization failed.");
@@ -56,7 +56,7 @@ namespace rge
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
         m_WindowPosition = glm::ivec2(winPosX, winPosY);
 
-        RGE_TRACE("GLFW window instance successfully created.");
+        Debug::Trace("GLFW window instance successfully created.");
 
         auto& eventManager = Engine::Get().GetEventManager();
 
@@ -70,7 +70,7 @@ namespace rge
 
     void WindowManager::Shutdown()
     {
-        RGE_TRACE("Shutting down window manager.");
+        Debug::Trace("Shutting down window manager.");
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
@@ -143,13 +143,13 @@ namespace rge
         if (m_PrimaryMonitorIndex == -1)
             throw RigelException("Failed to detect primary monitor!");
 
-        RGE_TRACE(std::format("Detected {} available monitors:", m_Monitors.size()));
+        Debug::Trace(std::format("Detected {} available monitors:", m_Monitors.size()));
         for (const auto& monitor : m_Monitors)
         {
             auto text = std::format("    {}. {}x{} @{}Hz ", monitor.Name, monitor.CurrentMod.Resolution.x,
                             monitor.CurrentMod.Resolution.y, monitor.CurrentMod.RefreshRate);
             if (monitor.Primary) text += "[PRIMARY]";
-            RGE_TRACE(text);
+            Debug::Trace(text);
         }
     }
 

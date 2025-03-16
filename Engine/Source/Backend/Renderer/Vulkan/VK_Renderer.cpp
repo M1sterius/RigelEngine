@@ -19,7 +19,7 @@ namespace rge::backend
 
     void VK_Renderer::Startup()
     {
-        RGE_TRACE("Starting up Vulkan renderer.");
+        Debug::Trace("Starting up Vulkan renderer.");
 
         const auto& windowManager = Engine::Get().GetWindowManager();
 
@@ -33,7 +33,7 @@ namespace rge::backend
 
     void VK_Renderer::Shutdown()
     {
-        RGE_TRACE("Shutting down Vulkan renderer.");
+        Debug::Trace("Shutting down Vulkan renderer.");
     }
 
     void VK_Renderer::InitImGUI()

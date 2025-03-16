@@ -13,7 +13,7 @@ namespace rge::backend
     VK_Surface::VK_Surface(VkInstance instance)
         : m_Instance(instance)
     {
-        RGE_TRACE("Creating window surface.");
+        Debug::Trace("Creating window surface.");
 
         const auto glfwWindow = Engine::Get().GetWindowManager().GetGLFWWindowPtr();
 
@@ -25,6 +25,6 @@ namespace rge::backend
     {
         vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 
-        RGE_TRACE("Window surface destroyed.");
+        Debug::Trace("Window surface destroyed.");
     }
 }

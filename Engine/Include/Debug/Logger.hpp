@@ -55,11 +55,4 @@ namespace rge
         inline static const char* CONSOLE_COLOR_YELLOW = "\033[33m";
         inline static const char* CONSOLE_COLOR_RED = "\033[31m";
     };
-
-#ifdef DEBUG_BUILD
-    #define RGE_TRACE(message) rge::Logger::Get().Log(message, rge::LogType::VerboseMessage)
-#else
-    #define RGE_TRACE(message)
-#endif
-
 }

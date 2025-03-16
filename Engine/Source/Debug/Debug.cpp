@@ -3,7 +3,7 @@
 
 namespace rge
 {
-    void Debug::VerboseMessage(const std::string& message)
+    void Debug::Trace(const std::string& message)
     {
         const auto& logger = Logger::Get();
         logger.Log(message, LogType::VerboseMessage);

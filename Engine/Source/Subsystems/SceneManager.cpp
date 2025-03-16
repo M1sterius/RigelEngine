@@ -14,14 +14,14 @@ namespace rge
 
     void SceneManager::Startup()
     {
-        RGE_TRACE("Starting up scene manager.");
+        Debug::Trace("Starting up scene manager.");
 
         m_Initialized = true;
     }
 
     void SceneManager::Shutdown()
     {
-        RGE_TRACE("Shutting down scene manager.");
+        Debug::Trace("Shutting down scene manager.");
     }
 
     SceneHandle SceneManager::CreateScene(std::string name)
@@ -60,7 +60,7 @@ namespace rge
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();
 
-        Debug::VerboseMessage("Loading scene: " + scene->GetName());
+        Debug::Trace("Loading scene: " + scene->GetName());
 
         scene->OnLoad();
         m_LoadedScene = scene;

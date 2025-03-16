@@ -38,7 +38,7 @@ namespace rge
     std::unique_ptr<Engine> Engine::CreateInstance()
     {
         ASSERT(m_GlobalInstance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
-        RGE_TRACE("Creating Rigel engine instance.");
+        Debug::Trace("Creating Rigel engine instance.");
         const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
         m_GlobalInstance = instance;
@@ -48,9 +48,9 @@ namespace rge
 
     void Engine::Startup()
     {
-        RGE_TRACE("Starting up Rigel engine.");
-        RGE_TRACE("Engine working directory: " + rge::Directory::WorkingDirectory().string());
-        RGE_TRACE("Starting up subsystems:");
+        Debug::Trace("Starting up Rigel engine.");
+        Debug::Trace("Engine working directory: " + rge::Directory::WorkingDirectory().string());
+        Debug::Trace("Starting up subsystems:");
 
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
@@ -63,12 +63,12 @@ namespace rge
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
 
-        RGE_TRACE("Rigel engine initialization complete.");
+        Debug::Trace("Rigel engine initialization complete.");
     }
 
     void Engine::Shutdown()
     {
-        RGE_TRACE("Shutting down Rigel engine.");
+        Debug::Trace("Shutting down Rigel engine.");
 
         // Shut down all subsystems and global tools
         m_PhysicsEngine.reset();
@@ -97,7 +97,7 @@ namespace rge
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
 
-        RGE_TRACE("Entering game loop. Target FPS: " + std::to_string(Time::GetTargetFPS()));
+        Debug::Trace("Entering game loop. Target FPS: {}", Time::GetTargetFPS());
 
         while (IsRunning())
         {
@@ -107,22 +107,11 @@ namespace rge
 
             m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
             m_FrameCounter++;
-            Debug::Message("Frametime: {}", Time::GetDeltaTime());
         }
     }
 
     void Engine::EngineUpdate()
     {
-        // Update input state
-        // Poll and process glfw events
-        // Physics update
-        // Game update
-        // Transform update
-        // Pre-render update
-        // Scene render
-        // Gizmo render
-        // GUI render
-
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));

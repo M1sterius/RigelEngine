@@ -4,6 +4,8 @@
 #include "RigelSubsystem.hpp"
 #include "KeysAndButtons.hpp"
 
+#include "Math.hpp"
+
 #include <unordered_set>
 
 struct GLFWwindow;
