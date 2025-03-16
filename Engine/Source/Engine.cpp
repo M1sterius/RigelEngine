@@ -100,10 +100,8 @@ namespace rge
         while (IsRunning())
         {
             fpsLimitStopwatch.Start();
-
             EngineUpdate();
-
-            LimitFPS(fpsLimitStopwatch.Stop().AsSeconds(), Time::GetTargetFPS());
+            SleepUtility::LimitFPS(fpsLimitStopwatch.Stop(), Time::GetTargetFPS());
 
             m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
             m_FrameCounter++;
@@ -122,13 +120,15 @@ namespace rge
         // Gizmo render
         // GUI render
 
-        m_InputManager->PreProcessInput();
+        Debug::Message("Frametime: {}", Time::GetDeltaTime());
 
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
         m_EventManager->Dispatch(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
         m_Renderer->Render();
+
+        m_InputManager->ResetInputState();
 
         // for now the only condition for the engine to keep running is the window not being closed.
         m_Running = !m_WindowManager->WindowShouldClose();

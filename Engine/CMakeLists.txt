@@ -15,6 +15,7 @@ add_library(RigelEngine STATIC
     Source/ECS/Component.cpp
     Source/Components/Transform.cpp
     Source/ECS/SceneHandle.cpp
+    Source/Utils/Threading/SleepUtility.cpp
     Source/ECS/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
@@ -82,7 +83,6 @@ set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
 # Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
-    Source/Utils/Internal
     Source/Backend
     Source/Backend/Renderer/Vulkan
 
@@ -103,6 +103,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Utils
     Include/Utils/Filesystem
     Include/Utils/Math
+    Include/Utils/Threading
     Include/Subsystems
     Include/Subsystems/AssetManager
     Include/Subsystems/Renderer
