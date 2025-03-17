@@ -49,7 +49,7 @@ namespace rge
     void Engine::Startup()
     {
         Debug::Trace("Starting up Rigel engine.");
-        Debug::Trace("Engine working directory: " + rge::Directory::WorkingDirectory().string());
+        Debug::Trace("Engine working directory: {}", rge::Directory::WorkingDirectory().string());
         Debug::Trace("Starting up subsystems:");
 
         m_AssetManager = std::make_unique<AssetManager>();

@@ -18,9 +18,9 @@ namespace rge::backend
 
         NODISCARD inline VkCommandBuffer Get() const { return m_CmdBuffer; }
 
-        void BeginRecording(VkCommandBufferUsageFlags flags);
-        void EndRecording();
-        void Reset(VkCommandBufferResetFlags flags);
+        void BeginRecording(VkCommandBufferUsageFlags flags) const;
+        void EndRecording() const;
+        void Reset(VkCommandBufferResetFlags flags) const;
     private:
         VK_Device& m_Device;
         VkCommandBuffer m_CmdBuffer = VK_NULL_HANDLE;

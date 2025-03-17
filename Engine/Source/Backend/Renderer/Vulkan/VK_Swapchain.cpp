@@ -46,12 +46,16 @@ namespace rge::backend
         return imageIndex;
     }
 
-    void VK_Swapchain::Present(const uint32_t imageIndex)
+    void VK_Swapchain::Present(const uint32_t imageIndex, const uint32_t frameIndex)
     {
+        const VkSemaphore signalSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
+
         auto presentInfo = MakeInfo<VkPresentInfoKHR>();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &imageIndex;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
 
         if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
         {
@@ -70,6 +74,8 @@ namespace rge::backend
         const auto presentMode = ChooseSwapchainPresentMode(supportDetails.PresentModes, vsyncEnabled);
         const auto extent = ChooseSwapchainExtent(supportDetails.Capabilities, requestedExtent);
 
+        m_SwapchainImageFormat = format.format;
+
         auto imageCount = supportDetails.Capabilities.minImageCount + 1;
         if (supportDetails.Capabilities.maxImageCount > 0 && imageCount > supportDetails.Capabilities.maxImageCount)
             imageCount = supportDetails.Capabilities.maxImageCount;
@@ -84,7 +90,7 @@ namespace rge::backend
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         const auto indices = m_Device.GetQueueFamilyIndices();
-        uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+        const uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
 
         if (indices.GraphicsFamily != indices.PresentFamily)
         {

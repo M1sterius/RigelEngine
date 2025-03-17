@@ -24,7 +24,7 @@ namespace rge::backend
         vkFreeCommandBuffers(m_Device.Get(), m_Device.GetCommandPool(), 1, &m_CmdBuffer);
     }
 
-    void VK_CmdBuffer::BeginRecording(VkCommandBufferUsageFlags flags)
+    void VK_CmdBuffer::BeginRecording(VkCommandBufferUsageFlags flags) const
     {
         auto beginInfo = MakeInfo<VkCommandBufferBeginInfo>();
         beginInfo.flags = flags;
@@ -33,13 +33,13 @@ namespace rge::backend
             throw VulkanException("Failed to begin recording Vulkan command buffer!", result);
     }
 
-    void VK_CmdBuffer::EndRecording()
+    void VK_CmdBuffer::EndRecording() const
     {
         if (const auto result = vkEndCommandBuffer(m_CmdBuffer); result != VK_SUCCESS)
             throw VulkanException("Failed to end recording Vulkan command buffer!", result);
     }
 
-    void VK_CmdBuffer::Reset(VkCommandBufferResetFlags flags)
+    void VK_CmdBuffer::Reset(VkCommandBufferResetFlags flags) const
     {
         if (const auto result = vkResetCommandBuffer(m_CmdBuffer, flags); result != VK_SUCCESS)
             throw VulkanException("Failed to reset Vulkan command buffer!", result);

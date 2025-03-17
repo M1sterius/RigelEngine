@@ -20,10 +20,14 @@ namespace rge::backend
         VK_Swapchain operator = (const VK_Swapchain) = delete;
 
         NODISCARD uint32_t GetFramesInFlightCount() const { return m_FramesInFlight; }
+        NODISCARD std::vector<VkImage>& GetImages() { return m_Images; }
+        NODISCARD std::vector<VkImageView>& GetImageViews() { return m_ImageViews; }
+        NODISCARD VkFormat GetSwapchainImageFormat() const { return m_SwapchainImageFormat; }
 
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
+
         NODISCARD uint32_t AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout = std::numeric_limits<uint64_t>::max());
-        void Present(const uint32_t imageIndex);
+        void Present(const uint32_t imageIndex, const uint32_t frameIndex);
     private:
         NODISCARD std::vector<VkImage> GetSwapchainImages();
 
@@ -31,6 +35,8 @@ namespace rge::backend
         VkSurfaceKHR m_Surface;
         glm::uvec2 m_Extent;
         uint32_t m_FramesInFlight;
+
+        VkFormat m_SwapchainImageFormat;
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
 
