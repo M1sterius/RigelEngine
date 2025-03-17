@@ -48,9 +48,11 @@ namespace rge
         ~WindowManager() override;
 
         void PollGLFWEvents() const;
+        void WaitForFocus() const;
 
         NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
         NODISCARD bool WindowShouldClose() const;
+        NODISCARD bool IsVsyncEnabled() const { return m_VsyncEnabled; }
 
         NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
         inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
@@ -62,6 +64,7 @@ namespace rge
 
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
         glm::ivec2 m_WindowPosition = {};
+        bool m_VsyncEnabled = false;
         std::string m_WindowTitle = "Rigel engine app.";
         bool m_WindowResizeFlag = false;
 

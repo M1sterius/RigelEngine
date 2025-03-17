@@ -5,6 +5,11 @@
 
 #include <memory>
 
+namespace rge
+{
+    class WindowManager;
+}
+
 namespace rge::backend
 {
     class VK_Instance;
@@ -31,6 +36,8 @@ namespace rge::backend
         void Startup() override;
         void Shutdown() override;
 
+        void RecreateSwapchain() const;
+
         uint32_t m_FrameIndex = 0;
         uint32_t m_SwapchainImageIndex = 0;
 
@@ -38,6 +45,8 @@ namespace rge::backend
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
+
+        WindowManager& m_WindowManager;
     };
 }
 

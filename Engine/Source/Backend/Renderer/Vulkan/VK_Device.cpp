@@ -112,6 +112,11 @@ namespace rge::backend
         throw VulkanException("Failed to find suitable memory type supported by a Vulkan physical device!", VK_ERROR_UNKNOWN);
     }
 
+    void VK_Device::WaitIdle() const
+    {
+        vkDeviceWaitIdle(m_Device);
+    }
+
     std::vector<PhysicalDeviceInfo> VK_Device::FindPhysicalDevices(VkInstance instance)
     {
         auto devices = std::vector<VkPhysicalDevice>();

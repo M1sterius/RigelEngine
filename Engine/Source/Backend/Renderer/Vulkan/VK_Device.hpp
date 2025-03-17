@@ -64,6 +64,8 @@ namespace rge::backend
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
 
         NODISCARD uint32_t FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
+        void WaitIdle() const;
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;

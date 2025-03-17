@@ -4,7 +4,20 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
-#include <numeric>
+#include "Engine.hpp"
+#include "WindowManager.hpp"
+
+NODISCARD static glm::uvec2 GetCurrentExtent()
+{
+    const auto& windowManager = rge::Engine::Get().GetWindowManager();
+    return windowManager.GetSize();
+}
+
+NODISCARD static bool GetCurrentVsyncSetting()
+{
+    const auto& windowManager = rge::Engine::Get().GetWindowManager();
+    return windowManager.IsVsyncEnabled();
+}
 
 namespace rge::backend
 {
@@ -18,7 +31,7 @@ namespace rge::backend
         for (uint32_t i = 0; i < m_FramesInFlight; i++)
             m_ImageAvailableSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
 
-        SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
+        SetupSwapchain(m_Extent, GetCurrentVsyncSetting());
     }
 
     VK_Swapchain::~VK_Swapchain()
@@ -34,12 +47,12 @@ namespace rge::backend
     {
         uint32_t imageIndex;
         if (const auto result = vkAcquireNextImageKHR(m_Device.Get(), m_Swapchain, timeout,
-                                      m_ImageAvailableSemaphores[frameIndex]->Get(), VK_NULL_HANDLE,&imageIndex);
+                                      m_ImageAvailableSemaphores[frameIndex]->Get(), VK_NULL_HANDLE, &imageIndex);
         result != VK_SUCCESS)
         {
-            if (result == VK_SUBOPTIMAL_KHR)
-                SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
-            else
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+                SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
+            else if (result == VK_SUBOPTIMAL_KHR)
                 throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
         }
 
@@ -48,6 +61,10 @@ namespace rge::backend
 
     void VK_Swapchain::Present(const uint32_t imageIndex, const uint32_t frameIndex)
     {
+
+        // TODO: This semaphore should be waited on before rendering starts
+        // But for now it's wait before presenting because otherwise validation layers are unhappy
+
         const VkSemaphore signalSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
 
         auto presentInfo = MakeInfo<VkPresentInfoKHR>();
@@ -59,8 +76,8 @@ namespace rge::backend
 
         if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
         {
-            if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR)
-                SetupSwapchain(m_Extent, false); // TODO: Change disabled vsync to use window manager setting
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+                SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
             else
                 throw VulkanException("Failed to present Vulkan image!", result);
         }
