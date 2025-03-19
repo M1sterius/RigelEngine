@@ -52,7 +52,7 @@ namespace rge::backend
         {
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
-            else if (result == VK_SUBOPTIMAL_KHR)
+            else if (result != VK_SUBOPTIMAL_KHR)
                 throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
         }
 
@@ -61,7 +61,6 @@ namespace rge::backend
 
     void VK_Swapchain::Present(const uint32_t imageIndex, const uint32_t frameIndex)
     {
-
         // TODO: This semaphore should be waited on before rendering starts
         // But for now it's wait before presenting because otherwise validation layers are unhappy
 
@@ -78,7 +77,7 @@ namespace rge::backend
         {
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
-            else
+            else if (result != VK_SUBOPTIMAL_KHR)
                 throw VulkanException("Failed to present Vulkan image!", result);
         }
     }
