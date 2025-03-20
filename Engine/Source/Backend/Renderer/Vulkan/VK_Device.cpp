@@ -22,7 +22,6 @@ namespace rge::backend
             throw RigelException("Failed to find any GPUs with adequate support of required features!");
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
-        m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 
         Debug::Trace(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
 

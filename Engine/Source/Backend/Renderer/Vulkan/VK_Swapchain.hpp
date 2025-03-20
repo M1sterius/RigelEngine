@@ -10,6 +10,13 @@ namespace rge::backend
     class VK_Device;
     class VK_Semaphore;
 
+    struct AcquireImageInfo
+    {
+        uint32_t imageIndex;
+        VkImage image;
+        VkImageView imageView;
+    };
+
     class VK_Swapchain
     {
     public:
@@ -26,17 +33,17 @@ namespace rge::backend
 
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 
-        NODISCARD uint32_t AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout = std::numeric_limits<uint64_t>::max());
-        void Present(const uint32_t imageIndex, const uint32_t frameIndex);
+        NODISCARD AcquireImageInfo AcquireNextImage();
+        void Present(const uint32_t imageIndex);
     private:
-        NODISCARD std::vector<VkImage> GetSwapchainImages();
+        NODISCARD std::vector<VkImage> GetSwapchainImages() const;
 
         VK_Device& m_Device;
         VkSurfaceKHR m_Surface;
         glm::uvec2 m_Extent;
         uint32_t m_FramesInFlight;
 
-        VkFormat m_SwapchainImageFormat;
+        VkFormat m_SwapchainImageFormat {};
 
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
 

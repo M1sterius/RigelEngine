@@ -4,6 +4,7 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
+#include "Time.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 
@@ -43,10 +44,12 @@ namespace rge::backend
         Debug::Trace("Vulkan swapchain destroyed.");
     }
 
-    uint32_t VK_Swapchain::AcquireNextImage(const uint32_t frameIndex, const uint64_t timeout)
+    AcquireImageInfo VK_Swapchain::AcquireNextImage()
     {
+        const auto frameIndex = Time::GetFrameCount() % GetFramesInFlightCount();
+
         uint32_t imageIndex;
-        if (const auto result = vkAcquireNextImageKHR(m_Device.Get(), m_Swapchain, timeout,
+        if (const auto result = vkAcquireNextImageKHR(m_Device.Get(), m_Swapchain, std::numeric_limits<uint64_t>::max(),
                                       m_ImageAvailableSemaphores[frameIndex]->Get(), VK_NULL_HANDLE, &imageIndex);
         result != VK_SUCCESS)
         {
@@ -56,13 +59,15 @@ namespace rge::backend
                 throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
         }
 
-        return imageIndex;
+        return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex]};
     }
 
-    void VK_Swapchain::Present(const uint32_t imageIndex, const uint32_t frameIndex)
+    void VK_Swapchain::Present(const uint32_t imageIndex)
     {
+        const auto frameIndex = Time::GetFrameCount() % GetFramesInFlightCount();
+
         // TODO: This semaphore should be waited on before rendering starts
-        // But for now it's wait before presenting because otherwise validation layers are unhappy
+        // But for now it's waited on before presenting because otherwise validation layers are unhappy
 
         const VkSemaphore signalSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
 
@@ -75,16 +80,20 @@ namespace rge::backend
 
         if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
         {
-            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+            Debug::Message("Present!");
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
-            else if (result != VK_SUBOPTIMAL_KHR)
+            else
                 throw VulkanException("Failed to present Vulkan image!", result);
         }
     }
 
     void VK_Swapchain::SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled)
     {
-        const auto& supportDetails = m_SwapchainSupportDetails;
+        m_Device.WaitIdle();
+
+        // NEVER!! cache the swapchain support details because they can change after a window resize
+        const auto& supportDetails = m_Device.GetSwapchainSupportDetails();
 
         const auto format = ChooseSwapchainSurfaceFormat(supportDetails.Formats);
         const auto presentMode = ChooseSwapchainPresentMode(supportDetails.PresentModes, vsyncEnabled);
@@ -120,6 +129,8 @@ namespace rge::backend
         else
         {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr;
         }
 
         createInfo.preTransform = supportDetails.Capabilities.currentTransform;
@@ -129,7 +140,7 @@ namespace rge::backend
 
         m_Extent = {extent.width, extent.height};
         const auto oldSwapchain = m_Swapchain;
-        createInfo.oldSwapchain = oldSwapchain; // Maybe that will cause problems? I'm not sure right now
+        createInfo.oldSwapchain = oldSwapchain;
 
         if (const auto result = vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_Swapchain); result != VK_SUCCESS)
             throw VulkanException("Failed to create Vulkan swapchain!", result);
@@ -171,7 +182,7 @@ namespace rge::backend
         }
     }
 
-    std::vector<VkImage> VK_Swapchain::GetSwapchainImages()
+    std::vector<VkImage> VK_Swapchain::GetSwapchainImages() const
     {
         uint32_t imageCount = 0;
         vkGetSwapchainImagesKHR(m_Device.Get(), m_Swapchain, &imageCount, nullptr);

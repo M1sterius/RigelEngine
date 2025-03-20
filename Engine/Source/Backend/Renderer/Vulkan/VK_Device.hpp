@@ -55,7 +55,7 @@ namespace rge::backend
 
         NODISCARD inline VkDevice Get() const { return m_Device; }
 
-        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
+        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
         NODISCARD inline VkCommandPool GetCommandPool() const { return m_CommandPool; }
@@ -72,7 +72,6 @@ namespace rge::backend
         VkDevice m_Device = VK_NULL_HANDLE;
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         QueueFamilyIndices m_QueueFamilyIndices = {};
-        SwapchainSupportDetails m_SwapchainSupportDetails;
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;

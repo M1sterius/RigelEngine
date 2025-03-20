@@ -79,15 +79,13 @@ namespace rge::backend
             return;
         }
 
-        m_FrameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-        m_SwapchainImageIndex = m_Swapchain->AcquireNextImage(m_FrameIndex);
-        const auto image = m_Swapchain->GetImages()[m_SwapchainImageIndex];
+        const auto image = m_Swapchain->AcquireNextImage();
 
-        VK_Image::TransitionLayout(*m_Device, image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        VK_Image::TransitionLayout(*m_Device, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
         // Render here!
-        VK_Image::TransitionLayout(*m_Device, image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        VK_Image::TransitionLayout(*m_Device, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-        m_Swapchain->Present(m_SwapchainImageIndex, m_FrameIndex);
+        m_Swapchain->Present(image.imageIndex);
     }
 
     void VK_Renderer::RenderGizmo()

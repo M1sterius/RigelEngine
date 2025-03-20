@@ -38,9 +38,6 @@ namespace rge::backend
 
         void RecreateSwapchain() const;
 
-        uint32_t m_FrameIndex = 0;
-        uint32_t m_SwapchainImageIndex = 0;
-
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
