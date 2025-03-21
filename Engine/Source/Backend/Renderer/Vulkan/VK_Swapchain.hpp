@@ -15,6 +15,7 @@ namespace rge::backend
         uint32_t imageIndex;
         VkImage image;
         VkImageView imageView;
+        VkSemaphore availableSemaphore;
     };
 
     class VK_Swapchain
@@ -30,6 +31,7 @@ namespace rge::backend
         NODISCARD std::vector<VkImage>& GetImages() { return m_Images; }
         NODISCARD std::vector<VkImageView>& GetImageViews() { return m_ImageViews; }
         NODISCARD VkFormat GetSwapchainImageFormat() const { return m_SwapchainImageFormat; }
+        NODISCARD VkExtent2D GetExtent() const { return {m_Extent.x, m_Extent.y}; }
 
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 

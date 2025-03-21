@@ -16,6 +16,8 @@ namespace rge::backend
     class VK_Device;
     class VK_Surface;
     class VK_Swapchain;
+    class VK_Fence;
+    class VK_Semaphore;
 
     class VK_Renderer final : public RenderingBackend
     {
@@ -42,6 +44,9 @@ namespace rge::backend
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
+
+        std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
 
         WindowManager& m_WindowManager;
     };

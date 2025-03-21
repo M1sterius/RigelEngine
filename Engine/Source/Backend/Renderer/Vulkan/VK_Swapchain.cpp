@@ -59,7 +59,7 @@ namespace rge::backend
                 throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
         }
 
-        return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex]};
+        return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex], m_ImageAvailableSemaphores[frameIndex]->Get()};
     }
 
     void VK_Swapchain::Present(const uint32_t imageIndex)
@@ -69,18 +69,17 @@ namespace rge::backend
         // TODO: This semaphore should be waited on before rendering starts
         // But for now it's waited on before presenting because otherwise validation layers are unhappy
 
-        const VkSemaphore signalSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
+        const VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
 
         auto presentInfo = MakeInfo<VkPresentInfoKHR>();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.pWaitSemaphores = waitSemaphores;
 
         if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
         {
-            Debug::Message("Present!");
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
             else
@@ -114,10 +113,10 @@ namespace rge::backend
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        const auto indices = m_Device.GetQueueFamilyIndices();
-        const uint32_t queueFamilyIndices[] = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+        const auto [graphicsFamily, presentFamily] = m_Device.GetQueueFamilyIndices();
+        const uint32_t queueFamilyIndices[] = {graphicsFamily.value(), presentFamily.value()};
 
-        if (indices.GraphicsFamily != indices.PresentFamily)
+        if (graphicsFamily != presentFamily)
         {
             // If graphics and present queues are not in the same family, we want
             // resources to be freely shared between them, so VK_SHARING_MODE_CONCURRENT is chosen oin that case
@@ -188,7 +187,7 @@ namespace rge::backend
         vkGetSwapchainImagesKHR(m_Device.Get(), m_Swapchain, &imageCount, nullptr);
 
         if (imageCount == 0)
-            throw VulkanException("Swapchain image count is 0.", UNKNOWN_VK_RESULT);
+            throw VulkanException("Swapchain image count is 0!", UNKNOWN_VK_RESULT);
 
         auto images = std::vector<VkImage>(imageCount);
         vkGetSwapchainImagesKHR(m_Device.Get(), m_Swapchain, &imageCount, images.data());
