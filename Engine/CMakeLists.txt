@@ -28,20 +28,20 @@ add_library(RigelEngine STATIC
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
     Source/Debug/Exceptions.cpp
-    Source/Backend/Renderer/Vulkan/VK_Instance.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
-    Source/Backend/Renderer/Vulkan/VK_Device.cpp
-    Source/Backend/Renderer/Vulkan/VK_Surface.cpp
-    Source/Backend/Renderer/Vulkan/VK_Swapchain.cpp
-    Source/Backend/Renderer/Vulkan/VK_Fence.cpp
-    Source/Backend/Renderer/Vulkan/VK_Semaphore.cpp
-    Source/Backend/Renderer/Vulkan/VK_CmdBuffer.cpp
-    Source/Backend/Renderer/Vulkan/VK_MemoryBuffer.cpp
-    Source/Backend/Renderer/Vulkan/VK_Shader.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Swapchain.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Fence.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
-        Source/Backend/Renderer/Vulkan/VK_Image.cpp
-        Source/Backend/Renderer/Vulkan/VK_Image.hpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
@@ -88,6 +88,7 @@ set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 target_include_directories(RigelEngine PRIVATE
     Source/Backend
     Source/Backend/Renderer/Vulkan
+    Source/Backend/Renderer/Vulkan/Wrapper
 
     ${Vulkan_INCLUDE_DIRS}
     ${VULKAN_SDK_PATH}/Include/vulkan

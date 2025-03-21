@@ -36,7 +36,7 @@ namespace rge::backend
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 
         NODISCARD AcquireImageInfo AcquireNextImage();
-        void Present(const uint32_t imageIndex);
+        void Present(const uint32_t imageIndex, VkSemaphore waitSemaphore);
     private:
         NODISCARD std::vector<VkImage> GetSwapchainImages() const;
 

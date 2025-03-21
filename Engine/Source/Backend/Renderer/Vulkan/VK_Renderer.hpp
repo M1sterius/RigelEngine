@@ -18,6 +18,7 @@ namespace rge::backend
     class VK_Swapchain;
     class VK_Fence;
     class VK_Semaphore;
+    class VK_CmdBuffer;
 
     class VK_Renderer final : public RenderingBackend
     {
@@ -26,12 +27,8 @@ namespace rge::backend
         ~VK_Renderer() override;
 
         void InitImGUI() override;
-
-        void PrepareFrame() override;
-        void RenderScene() override;
-        void RenderGizmo() override;
-        void RenderGUI() override;
-        void FinalizeFrame() override;
+        
+        void Render() override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
     private:
@@ -47,6 +44,7 @@ namespace rge::backend
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
+        std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
         WindowManager& m_WindowManager;
     };

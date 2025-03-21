@@ -57,10 +57,6 @@ namespace rge
 
     void Renderer::Render()
     {
-        m_BackendRenderer->PrepareFrame();
-        m_BackendRenderer->RenderScene();
-        m_BackendRenderer->RenderGizmo();
-        m_BackendRenderer->RenderGUI();
-        m_BackendRenderer->FinalizeFrame();
+        m_BackendRenderer->Render();
     }
 }

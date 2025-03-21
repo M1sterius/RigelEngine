@@ -6,12 +6,9 @@
 
 namespace rge::backend
 {
-    void VK_Image::TransitionLayout(VK_Device& device, VkImage image, VkFormat format, VkImageLayout oldLayout,
+    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout,
         VkImageLayout newLayout)
     {
-        const auto commandBuffer = VK_CmdBuffer(device);
-        commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
         barrier.oldLayout = oldLayout;
         barrier.newLayout = newLayout;
@@ -71,13 +68,22 @@ namespace rge::backend
             throw VulkanException("Unsupported Vulkan image layout transition!", VK_ERROR_UNKNOWN);
 
         vkCmdPipelineBarrier(
-        commandBuffer.Get(),
+        commandBuffer,
         sourceStage, destinationStage,
         0,
         0, nullptr,
         0, nullptr,
         1, &barrier
         );
+    }
+
+    void VK_Image::TransitionLayout(VK_Device& device, VkImage image, VkFormat format, VkImageLayout oldLayout,
+                                    VkImageLayout newLayout)
+    {
+        const auto commandBuffer = VK_CmdBuffer(device);
+        commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+        CmdTransitionLayout(commandBuffer.Get(), image, format, oldLayout, newLayout);
 
         commandBuffer.EndRecording();
         auto submitInfo = MakeInfo<VkSubmitInfo>();

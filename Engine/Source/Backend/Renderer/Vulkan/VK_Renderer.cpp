@@ -8,7 +8,8 @@
 #include "VK_Surface.hpp"
 #include "VK_Device.hpp"
 #include "VK_Swapchain.hpp"
-#include"VK_Image.hpp"
+#include "VK_Image.hpp"
+#include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
 
@@ -40,6 +41,9 @@ namespace rge::backend
         for (uint32_t i = 0; i < frameInFlight; i++)
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
 
+        for (uint32_t i = 0; i < frameInFlight; i++)
+            m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
+
         m_Initialized = true;
     }
 
@@ -65,12 +69,7 @@ namespace rge::backend
 
     }
 
-    void VK_Renderer::PrepareFrame()
-    {
-
-    }
-
-    void VK_Renderer::RenderScene()
+    void VK_Renderer::Render()
     {
         /*
          *  1) Acquire an image
@@ -92,12 +91,15 @@ namespace rge::backend
         }
 
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
+        m_InFlightFences[frameIndex]->Wait();
+
         const auto image = m_Swapchain->AcquireNextImage();
 
-        VK_Image::TransitionLayout(*m_Device, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        const auto& commandBuffer = m_CommandBuffers[frameIndex];
+        commandBuffer->Reset(0);
+        commandBuffer->BeginRecording(0);
 
-        const auto commandBuffer = VK_CmdBuffer(*m_Device);
-        commandBuffer.BeginRecording(0);
+        VK_Image::CmdTransitionLayout(commandBuffer->Get(), image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
         VkRenderingAttachmentInfo colorAttachment {};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -114,28 +116,33 @@ namespace rge::backend
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
 
-        vkCmdBeginRendering(commandBuffer.Get(), &renderingInfo);
-        vkCmdEndRendering(commandBuffer.Get());
+        vkCmdBeginRendering(commandBuffer->Get(), &renderingInfo);
+        vkCmdEndRendering(commandBuffer->Get());
 
-        commandBuffer.EndRecording();
+        VK_Image::CmdTransitionLayout(commandBuffer->Get(), image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-        VK_Image::TransitionLayout(*m_Device, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        commandBuffer->EndRecording();
 
-        m_Swapchain->Present(image.imageIndex);
-    }
+        const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
+        const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
+        const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore[frameIndex]->Get() };
 
-    void VK_Renderer::RenderGizmo()
-    {
+        const VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-    }
+        auto submitInfo = MakeInfo<VkSubmitInfo>();
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = submitBuffers;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
 
-    void VK_Renderer::RenderGUI()
-    {
+        const auto& fence = m_InFlightFences[frameIndex];
+        fence->Reset();
 
-    }
+        vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, fence->Get());
 
-    void VK_Renderer::FinalizeFrame()
-    {
-
+        m_Swapchain->Present(image.imageIndex, signalSemaphores[0]);
     }
 }

@@ -14,12 +14,7 @@ namespace rge::backend
         ~RenderingBackend() override = default;
 
         virtual void InitImGUI() = 0;
-
-        virtual void PrepareFrame() = 0;
-        virtual void RenderScene() = 0;
-        virtual void RenderGizmo() = 0;
-        virtual void RenderGUI() = 0;
-        virtual void FinalizeFrame() = 0;
+        virtual void Render() = 0;
     protected:
         RenderingBackend() = default;
         void Startup() override = 0;

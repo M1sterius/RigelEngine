@@ -62,21 +62,14 @@ namespace rge::backend
         return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex], m_ImageAvailableSemaphores[frameIndex]->Get()};
     }
 
-    void VK_Swapchain::Present(const uint32_t imageIndex)
+    void VK_Swapchain::Present(const uint32_t imageIndex, VkSemaphore waitSemaphore)
     {
-        const auto frameIndex = Time::GetFrameCount() % GetFramesInFlightCount();
-
-        // TODO: This semaphore should be waited on before rendering starts
-        // But for now it's waited on before presenting because otherwise validation layers are unhappy
-
-        const VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
-
         auto presentInfo = MakeInfo<VkPresentInfoKHR>();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = waitSemaphores;
+        presentInfo.pWaitSemaphores = &waitSemaphore;
 
         if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
         {
