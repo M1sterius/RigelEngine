@@ -62,12 +62,18 @@ namespace rge::backend
         VkPhysicalDeviceFeatures deviceFeatures {};
         deviceFeatures.samplerAnisotropy = true;
 
+        // Explicitly enable dynamic rendering
+        VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature {};
+        dynamicRenderingFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+        dynamicRenderingFeature.dynamicRendering = VK_TRUE;
+
         auto createInfo = MakeInfo<VkDeviceCreateInfo>();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.pEnabledFeatures = &deviceFeatures;
         createInfo.enabledExtensionCount = static_cast<uint32_t>(VK_Config::RequiredPhysicalDeviceExtensions.size());
         createInfo.ppEnabledExtensionNames = VK_Config::RequiredPhysicalDeviceExtensions.data();
+        createInfo.pNext = &dynamicRenderingFeature;
 
         if (VK_Config::EnableValidationLayers)
         {
