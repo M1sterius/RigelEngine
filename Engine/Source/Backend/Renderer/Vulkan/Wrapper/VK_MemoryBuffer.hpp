@@ -10,6 +10,8 @@ namespace rge::backend
     class VK_MemoryBuffer
     {
     public:
+        static void Copy(VK_Device& device, VK_MemoryBuffer& src, VK_MemoryBuffer& dst, const VkDeviceSize size);
+
         VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags usage,
                         VkMemoryPropertyFlags properties);
         ~VK_MemoryBuffer();
@@ -21,7 +23,7 @@ namespace rge::backend
         NODISCARD inline VkDeviceMemory GetMemory() const { return m_BufferMemory; }
         NODISCARD inline VkDeviceSize GetSize() const { return m_Size; }
 
-        void UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data);
+        void UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data) const;
     private:
         VK_Device& m_Device;
         VkDeviceSize m_Size = 0;

@@ -64,6 +64,14 @@ namespace rge::backend
         m_Swapchain->SetupSwapchain(windowSize, vsync);
     }
 
+    std::pair<VkPipeline, VkPipelineLayout> VK_Renderer::CreateGraphicsPipeline() const
+    {
+        // Temporary method that creates graphics pipeline for dynamic rendering
+        // TODO: Later should be properly abstracted into a class
+
+        return {};
+    }
+
     void VK_Renderer::InitImGUI()
     {
 

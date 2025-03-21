@@ -1,10 +1,18 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_Device.hpp"
+#include "VK_CmdBuffer.hpp"
 #include "VulkanException.hpp"
 #include "MakeInfo.hpp"
 
 namespace rge::backend
 {
+    void VK_MemoryBuffer::Copy(VK_Device& device, VK_MemoryBuffer& src, VK_MemoryBuffer& dst, const VkDeviceSize size)
+    {
+        ASSERT(size <= src.GetSize(), "Copy region cannot be bigger than source buffer size");
+        ASSERT(size <= dst.GetSize(), "Copy region cannot be bigger than destination buffer size");
+
+        const auto commandBuffer = std::make_unique<VK_CmdBuffer>(device);
+    }
 
     VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags usage,
                                      VkMemoryPropertyFlags properties)
@@ -40,7 +48,7 @@ namespace rge::backend
         vkFreeMemory(m_Device.Get(), m_BufferMemory, nullptr);
     }
 
-    void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data)
+    void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data) const
     {
         ASSERT(size > 0, "Attempted to upload data of zero size!")
         ASSERT(size <= m_Size, "Attempted to upload more data than the buffer is capable of storing!")
@@ -50,7 +58,7 @@ namespace rge::backend
         if (const auto result = vkMapMemory(m_Device.Get(), m_BufferMemory, offset, m_Size, flags, &map); result != VK_SUCCESS)
             throw VulkanException("Failed to map Vulkan GPU buffer memory to host memory!", result);
 
-        memcpy(map, data, static_cast<size_t>(m_Size));
+        memcpy(map, data, m_Size);
         vkUnmapMemory(m_Device.Get(), m_BufferMemory);
     }
 }

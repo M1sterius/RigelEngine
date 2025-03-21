@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "../RenderingBackend.hpp"
+#include "vulkan.h"
 
 #include <memory>
 
@@ -27,7 +28,7 @@ namespace rge::backend
         ~VK_Renderer() override;
 
         void InitImGUI() override;
-        
+
         void Render() override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
@@ -36,6 +37,7 @@ namespace rge::backend
         void Shutdown() override;
 
         void RecreateSwapchain() const;
+        NODISCARD std::pair<VkPipeline, VkPipelineLayout> CreateGraphicsPipeline() const;
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;

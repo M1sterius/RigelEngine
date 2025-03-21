@@ -5,6 +5,25 @@
 
 namespace rge::backend
 {
+    std::unique_ptr<VK_CmdBuffer> VK_CmdBuffer::BeginSingleTime(VK_Device& device)
+    {
+        auto cmdBuffer = std::make_unique<VK_CmdBuffer>(device);
+        cmdBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        return cmdBuffer;
+    }
+
+    void VK_CmdBuffer::EndSingleTime(const VK_Device& device, const VK_CmdBuffer& commandBuffer)
+    {
+        commandBuffer.EndRecording();
+
+        auto submitInfo = MakeInfo<VkSubmitInfo>();
+        submitInfo.commandBufferCount = 1;
+        const auto buff = commandBuffer.Get();
+        submitInfo.pCommandBuffers = &buff;
+
+        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+    }
+
     VK_CmdBuffer::VK_CmdBuffer(VK_Device& device)
         : m_Device(device)
     {

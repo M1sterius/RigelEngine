@@ -10,6 +10,9 @@ namespace rge::backend
     class VK_CmdBuffer
     {
     public:
+        NODISCARD static std::unique_ptr<VK_CmdBuffer> BeginSingleTime(VK_Device& device);
+        static void EndSingleTime(const VK_Device& device, const VK_CmdBuffer& commandBuffer);
+
         explicit VK_CmdBuffer(VK_Device& device);
         ~VK_CmdBuffer();
 
