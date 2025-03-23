@@ -49,9 +49,10 @@ namespace rge
     void Engine::Startup()
     {
         Debug::Trace("Starting up Rigel engine.");
-        Debug::Trace("Engine working directory: {}", rge::Directory::WorkingDirectory().string());
+        Debug::Trace("Engine working directory: {}", Directory::WorkingDirectory().string());
         Debug::Trace("Starting up subsystems:");
 
+        // Create subsystem instances, startup methods called in constructors
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -59,6 +60,10 @@ namespace rge
         m_InputManager = std::make_unique<InputManager>();
         m_Renderer = std::make_unique<Renderer>();
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
+
+        // Additional subsystem initialization methods
+        m_AssetManager->LoadEngineAssets();
+        m_Renderer->LateInit();
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
@@ -70,7 +75,10 @@ namespace rge
     {
         Debug::Trace("Shutting down Rigel engine.");
 
-        // Shut down all subsystems and global tools
+        // Additional logic needed to shut down subsystems
+        m_AssetManager->UnloadEngineAssets();
+
+        // Delete subsystem instances, shutdown methods called in destructors
         m_PhysicsEngine.reset();
         m_Renderer.reset();
         m_InputManager.reset();
@@ -116,6 +124,7 @@ namespace rge
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
         m_EventManager->Dispatch(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
+        m_Renderer->Prepare();
         m_Renderer->Render();
 
         m_InputManager->ResetInputState();

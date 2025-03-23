@@ -42,7 +42,7 @@ namespace rge
         }
 
         template<typename T>
-        NODISCARD AssetHandle<T> Load(const std::filesystem::path& path)
+        AssetHandle<T> Load(const std::filesystem::path& path)
         {
             static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
 
@@ -62,6 +62,7 @@ namespace rge
             }
 
             const auto ID = AssignID(assetPtr.get());
+            const auto rawPtr = static_cast<T*>(assetPtr.get());
 
             {
                 std::unique_lock lock(m_RegistryMutex);
@@ -72,7 +73,7 @@ namespace rge
                 };
             }
 
-            return AssetHandle<T>(static_cast<T*>(assetPtr.get()), ID);
+            return AssetHandle<T>(rawPtr, ID);
         }
 
         template<typename T>
@@ -123,11 +124,12 @@ namespace rge
     INTERNAL:
         AssetManager();
         ~AssetManager() override;
+
+        void LoadEngineAssets();
+        void UnloadEngineAssets();
     private:
         void Startup() override;
         void Shutdown() override;
-
-        void LoadEngineAssets();
 
         uid_t AssignID(RigelAsset* ptr);
 

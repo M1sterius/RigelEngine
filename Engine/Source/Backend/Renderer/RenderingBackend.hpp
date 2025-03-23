@@ -13,6 +13,7 @@ namespace rge::backend
     public:
         ~RenderingBackend() override = default;
 
+        virtual void LateInit() = 0;
         virtual void InitImGUI() = 0;
         virtual void Render() = 0;
     protected:

@@ -1,5 +1,8 @@
 #include "VK_Renderer.hpp"
 
+#include "AssetManager.hpp"
+#include "Shader.hpp"
+
 #include "VulkanException.hpp"
 #include "VK_Shader.hpp"
 #include "VK_CmdBuffer.hpp"
@@ -49,9 +52,23 @@ namespace rge::backend
         m_Initialized = true;
     }
 
+    void VK_Renderer::InitImGUI()
+    {
+
+    }
+
+    void VK_Renderer::LateInit()
+    {
+        CreateGraphicsPipeline();
+    }
+
     void VK_Renderer::Shutdown()
     {
         m_Device->WaitIdle();
+
+        vkDestroyPipelineLayout(m_Device->Get(), m_PipelineLayout, nullptr);
+        vkDestroyPipeline(m_Device->Get(), m_GraphicsPipeline, nullptr);
+
         Debug::Trace("Shutting down Vulkan renderer.");
     }
 
@@ -66,16 +83,15 @@ namespace rge::backend
         m_Swapchain->SetupSwapchain(windowSize, vsync);
     }
 
-    std::pair<VkPipeline, VkPipelineLayout> VK_Renderer::CreateGraphicsPipeline() const
+    void VK_Renderer::CreateGraphicsPipeline()
     {
         // Temporary method that creates graphics pipeline for dynamic rendering
         // TODO: Later should be properly abstracted into a class
 
-        VkPipeline graphicsPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+        const auto hShader = Engine::Get().GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/Test.spv");
+        const auto& shader = hShader->GetBackendShader<VK_Shader>();
 
-        const auto shader = std::make_unique<VK_Shader>("Assets/EngineAssets/Shaders/Test.vert.spv", "Assets/EngineAssets/Shaders/Test.frag.spv");
-        const auto shaderStagesInfo = shader->GetShaderStagesInfo();
+        const auto shaderStagesInfo = shader.GetShaderStagesInfo();
 
         const auto swapchainColorFormat = m_Swapchain->GetSwapchainImageFormat();
 
@@ -144,7 +160,7 @@ namespace rge::backend
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 
-        if (const auto result = vkCreatePipelineLayout(m_Device->Get(), &pipelineLayoutInfo, nullptr, &pipelineLayout); result != VK_SUCCESS)
+        if (const auto result = vkCreatePipelineLayout(m_Device->Get(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout); result != VK_SUCCESS)
             throw VulkanException("Failed to create graphics pipeline layout!", result);
 
         // 12. Final Graphics Pipeline Create Info
@@ -159,31 +175,60 @@ namespace rge::backend
         pipelineInfo.pMultisampleState = &multisampling;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = pipelineLayout;
+        pipelineInfo.layout = m_PipelineLayout;
         pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass
         pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
 
-        if (const auto result = vkCreateGraphicsPipelines(m_Device->Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline); result != VK_SUCCESS)
+        if (const auto result = vkCreateGraphicsPipelines(m_Device->Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline); result != VK_SUCCESS)
             throw VulkanException("Failed to create graphics pipeline!", result);
-
-        return {graphicsPipeline, pipelineLayout};
     }
 
-    void VK_Renderer::InitImGUI()
+    void VK_Renderer::RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
     {
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+        VkRenderingAttachmentInfo colorAttachment {};
+        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colorAttachment.imageView = image.imageView;
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.clearValue.color = {{0.2f, 0.3f, 0.4f, 1.0f}};
+
+        VkRenderingInfo renderingInfo {};
+        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+
+        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+
+        VkViewport viewport {};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(m_Swapchain->GetExtent().width);
+        viewport.height = static_cast<float>(m_Swapchain->GetExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+        VkRect2D scissor {};
+        scissor.offset = {0, 0};
+        scissor.extent = m_Swapchain->GetExtent();
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+        vkCmdEndRendering(commandBuffer);
+
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
     void VK_Renderer::Render()
     {
-        static int _tm = 1;
-        if (_tm == 1) // TODO: Rework this fucking abomination ASAP!!!
-        {
-            auto pipeline = CreateGraphicsPipeline();
-            m_GraphicsPipeline = pipeline.first;
-            _tm++;
-        }
-
         if (m_WindowManager.GetWindowResizeFlag())
         {
             m_WindowManager.ResetWindowResizeFlag();
@@ -198,49 +243,9 @@ namespace rge::backend
 
         const auto& commandBuffer = m_CommandBuffers[frameIndex];
         commandBuffer->Reset(0);
+
         commandBuffer->BeginRecording(0);
-
-        VK_Image::CmdTransitionLayout(commandBuffer->Get(), image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-        VkRenderingAttachmentInfo colorAttachment {};
-        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = image.imageView;
-        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue.color = {{0.0f, 0.5f, 1.0f, 1.0f}};
-
-        VkRenderingInfo renderingInfo {};
-        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        renderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-
-        vkCmdBeginRendering(commandBuffer->Get(), &renderingInfo);
-
-        vkCmdBindPipeline(commandBuffer->Get(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
-
-        VkViewport viewport {};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(m_Swapchain->GetExtent().width);
-        viewport.height = static_cast<float>(m_Swapchain->GetExtent().height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer->Get(), 0, 1, &viewport);
-
-        VkRect2D scissor {};
-        scissor.offset = {0, 0};
-        scissor.extent = m_Swapchain->GetExtent();
-        vkCmdSetScissor(commandBuffer->Get(), 0, 1, &scissor);
-
-        vkCmdDraw(commandBuffer->Get(), 3, 1, 0, 0);
-
-        vkCmdEndRendering(commandBuffer->Get());
-
-        VK_Image::CmdTransitionLayout(commandBuffer->Get(), image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
+        RecordCommandBuffer(commandBuffer->Get(), image);
         commandBuffer->EndRecording();
 
         const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };

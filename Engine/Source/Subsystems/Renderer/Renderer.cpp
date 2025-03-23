@@ -14,15 +14,8 @@ namespace rge
 
         m_SelectedGraphicsAPI = SelectGraphicsAPI();
 
-        if (m_SelectedGraphicsAPI == GraphicsApi::None)
-            throw RigelException("This device does not support any of the available graphics APIs!");
-
-        if (m_SelectedGraphicsAPI == GraphicsApi::Vulkan)
-        {
-            Debug::Trace("Selected Vulkan graphics API.");
-            m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
-        }
-
+        // For now only Vulkan is supported
+        m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
         m_BackendRenderer->InitImGUI();
 
         m_Initialized = true;
@@ -55,7 +48,18 @@ namespace rge
         }
     }
 
-    void Renderer::Render()
+    void Renderer::LateInit() const
+    {
+        m_BackendRenderer->LateInit();
+    }
+
+    void Renderer::Prepare()
+    {
+        // Find main camera
+        // Cull models
+    }
+
+    void Renderer::Render() const
     {
         m_BackendRenderer->Render();
     }

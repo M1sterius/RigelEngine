@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core.hpp"
-#include "../RenderingBackend.hpp"
+#include "RenderingBackend.hpp"
+
 #include "vulkan.h"
 
 #include <memory>
@@ -21,12 +22,15 @@ namespace rge::backend
     class VK_Semaphore;
     class VK_CmdBuffer;
 
+    struct AcquireImageInfo;
+
     class VK_Renderer final : public RenderingBackend
     {
     public:
         VK_Renderer();
         ~VK_Renderer() override;
 
+        void LateInit() override;
         void InitImGUI() override;
         void Render() override;
 
@@ -35,10 +39,12 @@ namespace rge::backend
         void Startup() override;
         void Shutdown() override;
 
+        void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain() const;
-        NODISCARD std::pair<VkPipeline, VkPipelineLayout> CreateGraphicsPipeline() const;
+        void CreateGraphicsPipeline();
 
         VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;

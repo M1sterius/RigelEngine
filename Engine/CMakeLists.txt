@@ -86,6 +86,7 @@ set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 # Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
     Source/Backend
+    Source/Backend/Renderer
     Source/Backend/Renderer/Vulkan
     Source/Backend/Renderer/Vulkan/Wrapper
 

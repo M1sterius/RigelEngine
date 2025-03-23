@@ -19,13 +19,11 @@ namespace rge
     {
         Debug::Trace("Starting up asset manager.");
 
-        m_WorkingDirectory = rge::Directory::WorkingDirectory();
+        m_WorkingDirectory = Directory::WorkingDirectory();
         m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
 
         if (!fs::exists(m_AssetsDirectory))
             throw RigelException("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
-
-        LoadEngineAssets();
 
         m_Initialized = true;
     }
@@ -51,6 +49,11 @@ namespace rge
 
     void AssetManager::LoadEngineAssets()
     {
+        Load<Shader>("Assets/EngineAssets/Shaders/Test.spv");
+    }
 
+    void AssetManager::UnloadEngineAssets()
+    {
+        Unload<Shader>("Assets/EngineAssets/Shaders/Test.spv");
     }
 }

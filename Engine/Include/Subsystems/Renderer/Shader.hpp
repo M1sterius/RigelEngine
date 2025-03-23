@@ -17,6 +17,12 @@ namespace rge
     {
     public:
         ~Shader() override;
+    INTERNAL:
+        template<typename T>
+        NODISCARD T& GetBackendShader() const
+        {
+            return static_cast<T&>(*m_BackendShader);
+        }
     private:
         explicit Shader(const std::filesystem::path& path);
 
