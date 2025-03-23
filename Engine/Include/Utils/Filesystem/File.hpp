@@ -14,6 +14,7 @@ namespace rge
     public:
         NODISCARD static std::string ReadText(const std::filesystem::path& path);
         NODISCARD static nlohmann::json ReadJSON(const std::filesystem::path& path);
+        NODISCARD static std::vector<char> ReadBinary(const std::filesystem::path& path);
 
         static void WriteText(const std::filesystem::path& path, const std::string& text);
         static void WriteBinary(const std::filesystem::path& path, const std::vector<char>& data);

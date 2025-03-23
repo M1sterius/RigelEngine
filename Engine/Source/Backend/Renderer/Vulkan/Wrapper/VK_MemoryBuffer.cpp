@@ -6,12 +6,18 @@
 
 namespace rge::backend
 {
-    void VK_MemoryBuffer::Copy(VK_Device& device, VK_MemoryBuffer& src, VK_MemoryBuffer& dst, const VkDeviceSize size)
+    void VK_MemoryBuffer::Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size)
     {
         ASSERT(size <= src.GetSize(), "Copy region cannot be bigger than source buffer size");
         ASSERT(size <= dst.GetSize(), "Copy region cannot be bigger than destination buffer size");
 
-        const auto commandBuffer = std::make_unique<VK_CmdBuffer>(device);
+        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device);
+
+        VkBufferCopy copyRegion {};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer->Get(), src.Get(), dst.Get(), 1, &copyRegion);
+
+        VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
     }
 
     VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags usage,

@@ -79,6 +79,24 @@ namespace rge
         }
     }
 
+    std::vector<char> File::ReadBinary(const std::filesystem::path& path)
+    {
+        auto file = std::ifstream(path, std::ios::ate | std::ios::binary);
+
+        if (!file.is_open())
+            throw std::runtime_error("Failed to open file: " + path.string());
+
+        const auto fileSize = static_cast<size_t>(file.tellg());
+        auto buffer = std::vector<char>(fileSize);
+
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+
+        file.close();
+
+        return buffer;
+    }
+
     File::File(std::filesystem::path path, const std::ios::openmode mode)
         :   m_Path(std::move(path)), m_CurrentOpenMode(mode)
     {

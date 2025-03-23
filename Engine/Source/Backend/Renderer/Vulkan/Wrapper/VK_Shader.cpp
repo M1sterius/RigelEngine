@@ -13,8 +13,8 @@ namespace rge::backend
     VK_Shader::VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
         : BackendShader(vertPath, fragPath)
     {
-        const auto vertBytes = File(vertPath).ReadBinary();
-        const auto fragBytes = File(fragPath).ReadBinary();
+        const auto vertBytes = File::ReadBinary(vertPath);
+        const auto fragBytes = File::ReadBinary(fragPath);
 
         auto vertInfo = MakeInfo<VkShaderModuleCreateInfo>();
         vertInfo.codeSize = vertBytes.size();

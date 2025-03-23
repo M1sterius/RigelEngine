@@ -28,27 +28,27 @@ add_library(RigelEngine STATIC
     Source/Subsystems/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
     Source/Debug/Exceptions.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Swapchain.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Fence.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Shader.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Swapchain.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Fence.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.hpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
 )
 
+set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 set_target_properties(RigelEngine PROPERTIES
     PREFIX ""
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD 20
-    CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}
+    ARCHIVE_OUTPUT_DIRECTORY ${ENGINE_OUTPUT_PATH}
 )
 
 set(PUBLIC_COMPILE_DEFINITIONS "RIGEL_ENGINE")
@@ -80,7 +80,6 @@ target_precompile_headers(RigelEngine PRIVATE
 )
 
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
-
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
@@ -128,11 +127,5 @@ target_link_libraries(RigelEngine PUBLIC
     ${LINK_LIBRARIES} glfw Vulkan::Vulkan OpenGL::GL
 )
 
-## copy .dll file
-#set(DLL_DIR ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/RigelEngine.dll)
-#set(DLL_COPY_OUT_DIR ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD_TYPE})
-#add_custom_command(TARGET RigelEngine POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#    ${DLL_DIR}
-#    ${DLL_COPY_OUT_DIR}
-#)
+# all engine assets preparation is handled in the cmake file in that directory
+add_subdirectory(Assets)

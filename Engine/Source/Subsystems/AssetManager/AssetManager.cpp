@@ -25,6 +25,8 @@ namespace rge
         if (!fs::exists(m_AssetsDirectory))
             throw RigelException("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
 
+        LoadEngineAssets();
+
         m_Initialized = true;
     }
 

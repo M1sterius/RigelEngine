@@ -17,11 +17,12 @@ namespace rge::backend
         commandBuffer.EndRecording();
 
         auto submitInfo = MakeInfo<VkSubmitInfo>();
-        submitInfo.commandBufferCount = 1;
         const auto buff = commandBuffer.Get();
+        submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &buff;
 
         vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(device.GetGraphicsQueue());
     }
 
     VK_CmdBuffer::VK_CmdBuffer(VK_Device& device)

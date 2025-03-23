@@ -10,7 +10,7 @@ namespace rge::backend
     class VK_MemoryBuffer
     {
     public:
-        static void Copy(VK_Device& device, VK_MemoryBuffer& src, VK_MemoryBuffer& dst, const VkDeviceSize size);
+        static void Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size);
 
         VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags usage,
                         VkMemoryPropertyFlags properties);

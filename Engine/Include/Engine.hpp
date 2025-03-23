@@ -32,7 +32,7 @@ namespace rge
 
         NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
-        NODISCARD bool IsRunning() const { return m_Running; }
+        NODISCARD bool Running() const { return m_Running; }
 
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;

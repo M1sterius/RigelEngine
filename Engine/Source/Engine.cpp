@@ -99,7 +99,7 @@ namespace rge
 
         Debug::Trace("Entering game loop. Target FPS: {}", Time::GetTargetFPS());
 
-        while (IsRunning())
+        while (Running())
         {
             fpsLimitStopwatch.Start();
             EngineUpdate();

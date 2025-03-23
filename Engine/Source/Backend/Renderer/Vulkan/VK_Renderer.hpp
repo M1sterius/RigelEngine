@@ -28,7 +28,6 @@ namespace rge::backend
         ~VK_Renderer() override;
 
         void InitImGUI() override;
-
         void Render() override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
@@ -38,6 +37,8 @@ namespace rge::backend
 
         void RecreateSwapchain() const;
         NODISCARD std::pair<VkPipeline, VkPipelineLayout> CreateGraphicsPipeline() const;
+
+        VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
