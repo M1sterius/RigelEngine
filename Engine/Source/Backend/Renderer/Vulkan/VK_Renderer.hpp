@@ -10,6 +10,7 @@
 namespace rge
 {
     class WindowManager;
+    class AssetManager;
 }
 
 namespace rge::backend
@@ -21,6 +22,7 @@ namespace rge::backend
     class VK_Fence;
     class VK_Semaphore;
     class VK_CmdBuffer;
+    class VK_GraphicsPipeline;
 
     struct AcquireImageInfo;
 
@@ -41,21 +43,19 @@ namespace rge::backend
 
         void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain() const;
-        void CreateGraphicsPipeline();
-
-        VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
+        std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
         WindowManager& m_WindowManager;
+        AssetManager& m_AssetManager;
     };
 }
 

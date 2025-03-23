@@ -243,4 +243,17 @@ namespace rge::backend
         return info;
     }
 
+    template <>
+    VkPipelineRenderingCreateInfo MakeInfo(VkPipelineRenderingCreateInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+        return info;
+    }
+
+    template <>
+    VkPipelineDynamicStateCreateInfo MakeInfo(VkPipelineDynamicStateCreateInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        return info;
+    }
 }

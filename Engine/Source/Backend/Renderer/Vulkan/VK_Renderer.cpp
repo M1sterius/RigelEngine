@@ -5,6 +5,7 @@
 
 #include "VulkanException.hpp"
 #include "VK_Shader.hpp"
+#include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdBuffer.hpp"
 #include "VK_Fence.hpp"
 #include "VK_Semaphore.hpp"
@@ -20,12 +21,15 @@
 
 #include "Engine.hpp"
 #include "WindowManager.hpp"
+#include "AssetManager.hpp"
 
 #include "vulkan.h"
 
 namespace rge::backend
 {
-    VK_Renderer::VK_Renderer() : m_WindowManager(Engine::Get().GetWindowManager())
+    VK_Renderer::VK_Renderer() :
+    m_WindowManager(Engine::Get().GetWindowManager()),
+    m_AssetManager(Engine::Get().GetAssetManager())
     { Startup(); }
     VK_Renderer::~VK_Renderer() { Shutdown(); }
 
@@ -59,15 +63,13 @@ namespace rge::backend
 
     void VK_Renderer::LateInit()
     {
-        CreateGraphicsPipeline();
+        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/Test.spv")->GetBackendShader<VK_Shader>();
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader);
     }
 
     void VK_Renderer::Shutdown()
     {
         m_Device->WaitIdle();
-
-        vkDestroyPipelineLayout(m_Device->Get(), m_PipelineLayout, nullptr);
-        vkDestroyPipeline(m_Device->Get(), m_GraphicsPipeline, nullptr);
 
         Debug::Trace("Shutting down Vulkan renderer.");
     }
@@ -81,106 +83,6 @@ namespace rge::backend
         const auto vsync = m_WindowManager.IsVsyncEnabled();
 
         m_Swapchain->SetupSwapchain(windowSize, vsync);
-    }
-
-    void VK_Renderer::CreateGraphicsPipeline()
-    {
-        // Temporary method that creates graphics pipeline for dynamic rendering
-        // TODO: Later should be properly abstracted into a class
-
-        const auto hShader = Engine::Get().GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/Test.spv");
-        const auto& shader = hShader->GetBackendShader<VK_Shader>();
-
-        const auto shaderStagesInfo = shader.GetShaderStagesInfo();
-
-        const auto swapchainColorFormat = m_Swapchain->GetSwapchainImageFormat();
-
-        VkPipelineRenderingCreateInfo renderingCreateInfo {};
-        renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-        renderingCreateInfo.colorAttachmentCount = 1;
-        renderingCreateInfo.pColorAttachmentFormats = &swapchainColorFormat;
-        renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
-        renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
-
-        // 4. Define pipeline vertex input (assuming no vertex buffer)
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-
-        // 5. Input Assembly (triangle list)
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        // 6. Viewport & Scissor (Dynamic states)
-        VkPipelineViewportStateCreateInfo viewportState {};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-
-        // 7. Rasterizer
-        VkPipelineRasterizationStateCreateInfo rasterizer {};
-        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-
-        // 8. Multisampling (No MSAA)
-        VkPipelineMultisampleStateCreateInfo multisampling {};
-        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        // 9. Color Blend State
-        VkPipelineColorBlendAttachmentState colorBlendAttachment {};
-        colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                              VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT |
-                                              VK_COLOR_COMPONENT_A_BIT;
-
-        VkPipelineColorBlendStateCreateInfo colorBlending {};
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlending.attachmentCount = 1;
-        colorBlending.pAttachments = &colorBlendAttachment;
-
-        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
-        dynamicState.pDynamicStates = dynamicStates;
-
-        // 11. Pipeline Layout (No descriptors here, but you can add them)
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-
-        if (const auto result = vkCreatePipelineLayout(m_Device->Get(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout); result != VK_SUCCESS)
-            throw VulkanException("Failed to create graphics pipeline layout!", result);
-
-        // 12. Final Graphics Pipeline Create Info
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStagesInfo.data();
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = m_PipelineLayout;
-        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass
-        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
-
-        if (const auto result = vkCreateGraphicsPipelines(m_Device->Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline); result != VK_SUCCESS)
-            throw VulkanException("Failed to create graphics pipeline!", result);
     }
 
     void VK_Renderer::RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
@@ -204,7 +106,7 @@ namespace rge::backend
 
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
 
         VkViewport viewport {};
         viewport.x = 0.0f;

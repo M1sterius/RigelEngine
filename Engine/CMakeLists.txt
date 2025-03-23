@@ -41,6 +41,8 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
