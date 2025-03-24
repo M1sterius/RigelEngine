@@ -47,6 +47,8 @@ add_library(RigelEngine STATIC
         Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.hpp
         Source/Backend/Renderer/Vulkan/Wrapper/IndexBuffer.cpp
         Source/Backend/Renderer/Vulkan/Wrapper/IndexBuffer.hpp
+        Source/Components/Camera.cpp
+        Include/Components/Camera.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

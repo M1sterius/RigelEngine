@@ -29,12 +29,25 @@ public:
             rge::Debug::Error("Failed to find the file to load the sample scene from!");
         }
 
-        sceneManager.LoadScene(scene);
+        auto dS = MakeDefaultScene();
+        sceneManager.LoadScene(dS);
     }
 
     void Run()
     {
         m_Engine->Run();
+    }
+
+    NODISCARD rge::SceneHandle MakeDefaultScene() const
+    {
+        auto& sceneManager = m_Engine->GetSceneManager();
+        auto scene = sceneManager.CreateScene("Default scene");
+
+        auto go0 = scene->InstantiateGO();
+        go0->AddComponent<rge::Transform>();
+        go0->AddComponent<rge::Camera>(1, 1, 1);
+
+        return scene;
     }
 private:
     std::unique_ptr<rge::Engine> m_Engine;

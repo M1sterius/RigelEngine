@@ -53,6 +53,7 @@
 
 // Components
 #include "Transform.hpp"
+#include "Camera.hpp"
 
 // Utility
 #include "ThreadPool.hpp"
