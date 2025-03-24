@@ -2,6 +2,7 @@
 #include "VK_Device.hpp"
 #include "VK_Shader.hpp"
 #include "VulkanException.hpp"
+#include "VK_VertexBuffer.hpp"
 #include "MakeInfo.hpp"
 
 namespace rge::backend
@@ -37,9 +38,14 @@ namespace rge::backend
         renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 
         // Pipeline vertex input
+        const auto bindingDescription = Vertex::GetBindingDescription();
+        const auto attributeDescription = Vertex::GetAttributeDescriptions();
+
         auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputInfo.vertexBindingDescriptionCount = 1;
+        vertexInputInfo.vertexAttributeDescriptionCount = attributeDescription.size();
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
 
         // Input Assembly
         auto inputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();

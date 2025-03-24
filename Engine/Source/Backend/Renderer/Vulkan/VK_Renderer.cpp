@@ -1,5 +1,7 @@
 #include "VK_Renderer.hpp"
 
+#include <VK_MemoryBuffer.hpp>
+
 #include "AssetManager.hpp"
 #include "Shader.hpp"
 
@@ -65,21 +67,23 @@ namespace rge::backend
 
     void VK_Renderer::LateInit()
     {
-        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/Test.spv")->GetBackendShader<VK_Shader>();
+        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackendShader<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader);
 
         const std::vector<Vertex> vertices = {
-            {{0.0f, -0.5f, 1.0}, {1.0f, 0.0f}},
-            {{0.5f, 0.5f, 1.0}, {0.0f, 1.0f}},
+            {{-0.5f, -0.5f, 1.0}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f, 1.0}, {0.0f, 1.0f}},
+            {{0.5f, 0.5f, 1.0}, {0.0f, 0.0f}},
             {{-0.5f, 0.5f, 1.0}, {0.0f, 0.0f}}
         };
 
         const std::vector<uint32_t> indices = {
-            0, 1, 2
+            0, 1, 2,
+            2, 3, 0
         };
 
-        const auto vb = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
-        const auto ib = std::make_unique<VK_IndexBuffer>(*m_Device, indices);
+        m_VertexBuffer = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
+        m_IndexBuffer = std::make_unique<VK_IndexBuffer>(*m_Device, indices);
     }
 
     void VK_Renderer::Shutdown()
@@ -100,7 +104,7 @@ namespace rge::backend
         m_Swapchain->SetupSwapchain(windowSize, vsync);
     }
 
-    void VK_Renderer::RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
+    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
     {
         VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
@@ -137,7 +141,13 @@ namespace rge::backend
         scissor.extent = m_Swapchain->GetExtent();
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        const VkBuffer vertexBuffers[] = {m_VertexBuffer->GetMemoryBuffer().Get()};
+        constexpr VkDeviceSize offsets[] = {0};
+
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+
+        vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetIndexCount(), 1, 0, 0, 0);
 
         vkCmdEndRendering(commandBuffer);
 

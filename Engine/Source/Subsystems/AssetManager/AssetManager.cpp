@@ -49,11 +49,11 @@ namespace rge
 
     void AssetManager::LoadEngineAssets()
     {
-        Load<Shader>("Assets/EngineAssets/Shaders/Test.spv");
+        Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
     }
 
     void AssetManager::UnloadEngineAssets()
     {
-        Unload<Shader>("Assets/EngineAssets/Shaders/Test.spv");
+        Unload<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
     }
 }

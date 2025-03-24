@@ -23,6 +23,8 @@ namespace rge::backend
     class VK_Semaphore;
     class VK_CmdBuffer;
     class VK_GraphicsPipeline;
+    class VK_VertexBuffer;
+    class VK_IndexBuffer;
 
     struct AcquireImageInfo;
 
@@ -41,7 +43,7 @@ namespace rge::backend
         void Startup() override;
         void Shutdown() override;
 
-        void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
+        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain() const;
 
         std::unique_ptr<VK_Instance> m_Instance;
@@ -49,6 +51,9 @@ namespace rge::backend
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
+
+        std::unique_ptr<VK_VertexBuffer> m_VertexBuffer;
+        std::unique_ptr<VK_IndexBuffer> m_IndexBuffer;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
