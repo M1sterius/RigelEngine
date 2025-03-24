@@ -256,4 +256,11 @@ namespace rge::backend
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         return info;
     }
+
+    template <>
+    VkMemoryAllocateInfo MakeInfo(VkMemoryAllocateInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        return info;
+    }
 }

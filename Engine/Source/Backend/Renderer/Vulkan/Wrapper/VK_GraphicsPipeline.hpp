@@ -17,6 +17,9 @@ namespace rge::backend
         VK_GraphicsPipeline(VK_Device& device, const VkPipelineLayoutCreateInfo& layoutInfo, VkGraphicsPipelineCreateInfo& pipelineInfo);
         ~VK_GraphicsPipeline();
 
+        VK_GraphicsPipeline(const VK_GraphicsPipeline&) = delete;
+        VK_GraphicsPipeline operator = (const VK_GraphicsPipeline&) = delete;
+
         NODISCARD inline VkPipeline Get() const { return m_GraphicsPipeline; }
         NODISCARD inline VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
 

@@ -4,6 +4,7 @@
 #include "Shader.hpp"
 
 #include "VulkanException.hpp"
+#include "VK_VertexBuffer.hpp"
 #include "VK_Shader.hpp"
 #include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdBuffer.hpp"
@@ -65,6 +66,14 @@ namespace rge::backend
     {
         const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/Test.spv")->GetBackendShader<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader);
+
+        const std::vector<Vertex> vertices = {
+            {{0.0f, -0.5f, 1.0}, {1.0f, 0.0f}},
+            {{0.5f, 0.5f, 1.0}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f, 1.0}, {0.0f, 0.0f}}
+        };
+
+        const auto vb = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
     }
 
     void VK_Renderer::Shutdown()
