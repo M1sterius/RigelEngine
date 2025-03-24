@@ -5,6 +5,7 @@
 
 #include "VulkanException.hpp"
 #include "VK_VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 #include "VK_Shader.hpp"
 #include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdBuffer.hpp"
@@ -73,7 +74,12 @@ namespace rge::backend
             {{-0.5f, 0.5f, 1.0}, {0.0f, 0.0f}}
         };
 
+        const std::vector<uint32_t> indices = {
+            0, 1, 2
+        };
+
         const auto vb = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
+        const auto ib = std::make_unique<VK_IndexBuffer>(*m_Device, indices);
     }
 
     void VK_Renderer::Shutdown()
