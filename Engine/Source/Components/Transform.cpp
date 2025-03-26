@@ -54,7 +54,11 @@ namespace rge
     {
         if (!m_UpdateRequiredFlag) return;
 
-        // Perform matrix and other necessary transform calculations here!
+        m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
+        m_ModelMatrix *= glm::mat4_cast(m_Rotation);
+        m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
+
+        m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_ModelMatrix)));
 
         m_UpdateRequiredFlag = false;
     }

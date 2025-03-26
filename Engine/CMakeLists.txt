@@ -49,6 +49,8 @@ add_library(RigelEngine STATIC
         Source/Backend/Renderer/Vulkan/Wrapper/IndexBuffer.hpp
         Source/Components/Camera.cpp
         Include/Components/Camera.hpp
+        Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -101,6 +103,7 @@ target_include_directories(RigelEngine PRIVATE
     ${Vulkan_INCLUDE_DIRS}
     ${VULKAN_SDK_PATH}/Include/vulkan
     ${DEPENDENCIES_DIR}/glfw/include/GLFW
+    ${DEPENDENCIES_DIR}/imgui
 )
 
 # Include paths that should be available outside to the projects linking the engine
