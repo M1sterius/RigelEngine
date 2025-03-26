@@ -51,6 +51,8 @@ add_library(RigelEngine STATIC
         Include/Components/Camera.hpp
         Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.cpp
         Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.hpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

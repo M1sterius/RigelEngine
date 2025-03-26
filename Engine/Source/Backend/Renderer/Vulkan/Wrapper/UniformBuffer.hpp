@@ -20,6 +20,8 @@ namespace rge::backend
         NODISCARD VK_MemoryBuffer& GetMemoryBuffer() const { return *m_MemoryBuffer; }
 
         void UploadData(const size_t offset, const size_t size, const void* data) const;
+
+        // Assumes that the size of the data occupies the whole buffer
         void UploadData(const void* data) const;
     private:
         VK_Device& m_Device;
