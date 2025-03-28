@@ -63,6 +63,7 @@
 #include "File.hpp"
 #include "Directory.hpp"
 #include "Math.hpp"
+#include "Random.hpp"
 #include "json.hpp"
 
 #endif

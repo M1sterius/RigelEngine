@@ -10,7 +10,6 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <stdexcept>
 #include <atomic>
 
 namespace rge
@@ -20,6 +19,9 @@ namespace rge
     public:
         explicit ThreadPool(const size_t numThreads = 0);
         ~ThreadPool();
+
+        ThreadPool(const ThreadPool& other) = delete;
+        ThreadPool& operator = (const ThreadPool&) = delete;
 
         NODISCARD inline size_t GetSize() const { return m_WorkerThreads.size(); }
         NODISCARD inline size_t GetQueueSize() const

@@ -3,6 +3,8 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "Event.hpp"
+#include "Engine.hpp"
+#include "ThreadPool.hpp"
 
 #include <functional>
 #include <unordered_map>
@@ -54,6 +56,26 @@ namespace rge
             {
                 for (const auto& [_, callback] : it->second)
                     callback(event);
+            }
+        }
+
+        template<typename EventType>
+        void DispatchThreaded(const EventType& event)
+        {
+            auto it = m_Subscribers.find(typeid(EventType));
+            if (it != m_Subscribers.end())
+            {
+                auto& pool = Engine::Get().GetThreadPool();
+
+                for (const auto& [_, callback] : it->second)
+                {
+                    pool.Enqueue([callback, event]()
+                    {
+                        callback(event);
+                    });
+                }
+
+                pool.WaitForAll();
             }
         }
     INTERNAL:

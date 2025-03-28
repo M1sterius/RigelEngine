@@ -52,13 +52,21 @@ namespace rge
 
     void Transform::Update()
     {
-        if (!m_UpdateRequiredFlag) return;
+        // if (!m_UpdateRequiredFlag) return;
 
         m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
         m_ModelMatrix *= glm::mat4_cast(m_Rotation);
         m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
 
         m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_ModelMatrix)));
+
+        constexpr glm::vec4 UP = {0.0, 1.0, 0.0, 0.0};
+        constexpr glm::vec4 FORWARD = {0.0, 0.0, -1.0, 0.0};
+        constexpr glm::vec4 RIGHT = {1.0, 0.0, 0.0, 0.0};
+
+        m_UpVector = glm::vec3(UP * m_NormalMatrix);
+        m_ForwardVector = glm::vec3(FORWARD * m_NormalMatrix);
+        m_RightVector = glm::vec3(RIGHT * m_NormalMatrix);
 
         m_UpdateRequiredFlag = false;
     }

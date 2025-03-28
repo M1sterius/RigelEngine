@@ -26,8 +26,8 @@ namespace rge
         NODISCARD inline std::string GetName() const { return m_Name; }
         inline void SetName(std::string name) { m_Name = std::move(name); }
 
-        // Returns the number of the game objects in the scene
-        NODISCARD inline uint32_t GetSize() const { return m_GameObjects.size(); }
+        // Returns the number of game objects in the scene
+        NODISCARD inline size_t GetSize() const { return m_GameObjects.size(); }
 
         NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
         NODISCARD bool IsGOHandleValid(const GOHandle& handle) const;
@@ -35,7 +35,7 @@ namespace rge
         GOHandle InstantiateGO(std::string name = "GameObject");
         void DestroyGO(const GOHandle& handle);
 
-        std::vector<GOHandle> Search(const SceneSearchFunc condition, const size_t countLimit = 32) const;
+        std::vector<GOHandle> Search(const SceneSearchFunc condition, const size_t countLimit = 512) const;
     INTERNAL:
         ~Scene() override = default;
 

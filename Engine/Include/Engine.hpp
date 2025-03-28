@@ -16,6 +16,8 @@ namespace rge
     class InputManager;
     class PhysicsEngine;
 
+    class ThreadPool;
+
     class Engine final
     {
     public:
@@ -43,6 +45,8 @@ namespace rge
         NODISCARD PhysicsEngine& GetPhysicsEngine() const;
 
         void Run();
+    INTERNAL:
+        NODISCARD inline ThreadPool& GetThreadPool() const { return *m_ThreadPool; }
     private:
         Engine();
 
@@ -58,6 +62,8 @@ namespace rge
         float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
         float64_t m_PhysicsTickTime = 0.05;
         uint64_t m_FrameCounter = 0;
+
+        std::unique_ptr<ThreadPool> m_ThreadPool;
 
         // Subsystem instances
         std::unique_ptr<EventManager> m_EventManager;

@@ -37,11 +37,11 @@ namespace rge
         glm::quat m_Rotation;
         glm::vec3 m_Scale;
 
-        glm::mat4 m_ModelMatrix;
-        glm::mat4 m_NormalMatrix;
-        glm::vec3 m_ForwardVector;
-        glm::vec3 m_RightVector;
-        glm::vec3 m_UpVector;
+        glm::mat4 m_ModelMatrix{};
+        glm::mat4 m_NormalMatrix{};
+        glm::vec3 m_ForwardVector{};
+        glm::vec3 m_RightVector{};
+        glm::vec3 m_UpVector{};
 
         // No serialization intended
         bool m_UpdateRequiredFlag = true;

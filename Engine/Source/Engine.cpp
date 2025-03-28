@@ -1,7 +1,5 @@
 #include "Engine.hpp"
 
-#include "ThreadPool.hpp"
-
 #include "InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
@@ -11,6 +9,7 @@
 #include "Renderer.hpp"
 #include "PhysicsEngine.hpp"
 
+#include "ThreadPool.hpp"
 #include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
 #include "Debug.hpp"
@@ -68,6 +67,9 @@ namespace rge
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
 
+        m_ThreadPool = std::make_unique<ThreadPool>();
+        Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
+
         Debug::Trace("Rigel engine initialization complete.");
     }
 
@@ -123,7 +125,12 @@ namespace rge
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-        m_EventManager->Dispatch(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
+
+        static auto sw = Stopwatch();
+        sw.Restart();
+        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
+        Debug::Message("{}", sw.Stop().AsMilliseconds());
+
         m_Renderer->Prepare();
         m_Renderer->Render();
 

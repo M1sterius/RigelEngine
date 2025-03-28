@@ -47,6 +47,12 @@ public:
         go0->AddComponent<rge::Transform>();
         go0->AddComponent<rge::Camera>(1, 1, 1);
 
+        for (int i = 0; i < 10000; ++i)
+        {
+            auto go = scene->InstantiateGO();
+            go->AddComponent<rge::Transform>();
+        }
+
         return scene;
     }
 private:
