@@ -32,13 +32,15 @@ namespace rge
         GOHandle InstantiateGO(std::string name = "GameObject");
         void DestroyGO(const GOHandle& handle);
 
+        /**
+         * Searches objects on the scene by given conditional function
+         * @param condition Custom function that determines what objects are selected
+         * @param countLimit Maximum number of objects that will be returned
+         * @return A vector of handles to selected objects
+         */
         std::vector<GOHandle> Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit = 512) const;
     INTERNAL:
         ~Scene() override = default;
-
-        // Called from engine core class only
-        void UpdateGameObjects();
-        void UpdateTransforms();
 
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:

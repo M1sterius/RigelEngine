@@ -130,10 +130,9 @@ namespace rge
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-        m_EventManager->Dispatch(backend::TransformUpdateEvent());
+        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent(), m_ThreadPool->GetSize() - 2);
         m_Renderer->Prepare();
         m_Renderer->Render();
-
         m_InputManager->ResetInputState();
 
         // for now the only condition for the engine to keep running is the window not being closed.

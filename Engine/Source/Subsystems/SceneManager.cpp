@@ -26,10 +26,10 @@ namespace rge
 
     SceneHandle SceneManager::CreateScene(std::string name)
     {
-        auto scene = std::make_unique<Scene>(GetNextSceneID(), std::move(name));
-        m_Scenes[scene->GetID()] = std::move(scene);
+        const auto scene = new Scene(GetNextSceneID(), std::move(name));
+        m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
 
-        return {scene.get(), scene->GetID()};
+        return {scene, scene->GetID()};
     }
 
     void SceneManager::DestroyScene(const SceneHandle& scene)
@@ -84,7 +84,7 @@ namespace rge
         return m_LoadedScene;
     }
 
-    bool SceneManager::IsSceneHandleValid(const SceneHandle& handle) const
+    bool SceneManager::ValidateSceneHandle(const SceneHandle& handle) const
     {
         if (const auto it = m_Scenes.find(handle.GetID()); it != m_Scenes.end())
             return true;

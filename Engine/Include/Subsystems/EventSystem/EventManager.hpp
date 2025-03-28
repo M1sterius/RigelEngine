@@ -59,23 +59,43 @@ namespace rge
             }
         }
 
+        /**
+         * Executes an event of 'EventType' on a thread pool. All subscriber functions are grouped to avoid Enqueue overhead.
+         * Assumes that all subscriber functions are atomic.
+         * Uses the global thread pool instantiated by the Engine class. Blocks the calling thread
+         * until all event subscribers have been dispatched.
+         * @tparam EventType The type of the event that will be dispatched
+         * @param event An event that will be dispatched on a thread pool
+         * @param groups How many groups all the event subscribers will be divided to. Each group
+         * guaranteed to be executed a separate thread.
+         */
         template<typename EventType>
-        void DispatchThreaded(const EventType& event)
+        void DispatchThreaded(const EventType& event, const size_t groups)
         {
+            auto& pool = Engine::Get().GetThreadPool();
+            ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must less than the number of threads is the pool");
+
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
             {
-                auto& pool = Engine::Get().GetThreadPool();
+                const auto totalEvents = it->second.size();
+                const auto eventsPerThread = (totalEvents + groups - 1) / groups;
 
-                for (const auto& [_, callback] : it->second)
+                for (size_t workerIdx = 0; workerIdx < groups; workerIdx++)
                 {
-                    pool.Enqueue([callback, event]
+                    const auto startIdx = workerIdx * eventsPerThread;
+                    if (startIdx >= totalEvents) break;
+
+                    const auto endIdx = std::min(startIdx + eventsPerThread, totalEvents);
+
+                    pool.Enqueue([startIdx, endIdx, it, event]
                     {
-                        callback(event);
+                        for (size_t i = startIdx; i < endIdx; ++i) {
+                             it->second[i].second(event);
+                        }
                     });
                 }
 
-                Debug::Message("{}", pool.GetActiveTasksCount());
                 pool.WaitForAll();
             }
         }

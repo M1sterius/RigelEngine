@@ -52,7 +52,7 @@ namespace rge
 
     void Transform::Update()
     {
-        // if (!m_UpdateRequiredFlag) return;
+        if (!m_UpdateRequiredFlag) return;
 
         m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
         m_ModelMatrix *= glm::mat4_cast(m_Rotation);

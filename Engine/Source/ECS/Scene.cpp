@@ -145,15 +145,4 @@ namespace rge
 
         return objects;
     }
-
-    void Scene::UpdateGameObjects()
-    {
-
-    }
-
-    void Scene::UpdateTransforms()
-    {
-
-    }
-
 }
