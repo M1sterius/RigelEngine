@@ -7,7 +7,7 @@
 
 #include "VulkanException.hpp"
 #include "VK_VertexBuffer.hpp"
-#include "IndexBuffer.hpp"
+#include "VK_IndexBuffer.hpp"
 #include "VK_Shader.hpp"
 #include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdBuffer.hpp"

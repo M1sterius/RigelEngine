@@ -128,7 +128,7 @@ namespace rge
 
         static auto sw = Stopwatch();
         sw.Restart();
-        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent()); // TODO: Implement multithreaded dispatch
+        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent());
         Debug::Message("{}", sw.Stop().AsMilliseconds());
 
         m_Renderer->Prepare();

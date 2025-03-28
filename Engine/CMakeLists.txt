@@ -41,18 +41,12 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.hpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.hpp
-        Source/Backend/Renderer/Vulkan/Wrapper/IndexBuffer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/IndexBuffer.hpp
-        Source/Components/Camera.cpp
-        Include/Components/Camera.hpp
-        Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/UniformBuffer.hpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.hpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
+    Source/Components/Camera.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_UniformBuffer.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

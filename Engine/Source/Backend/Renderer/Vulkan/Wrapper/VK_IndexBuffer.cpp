@@ -1,4 +1,4 @@
-#include "IndexBuffer.hpp"
+#include "VK_IndexBuffer.hpp"
 #include "VK_Device.hpp"
 #include "VK_MemoryBuffer.hpp"
 

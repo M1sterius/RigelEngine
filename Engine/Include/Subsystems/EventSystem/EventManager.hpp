@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Debug.hpp"
 #include "RigelSubsystem.hpp"
 #include "Event.hpp"
 #include "Engine.hpp"
@@ -47,7 +48,6 @@ namespace rge
             }
         }
 
-        // TODO: Implement multithreaded dispatch
         template<typename EventType>
         void Dispatch(const EventType& event)
         {
@@ -69,12 +69,13 @@ namespace rge
 
                 for (const auto& [_, callback] : it->second)
                 {
-                    pool.Enqueue([callback, event]()
+                    pool.Enqueue([callback, event]
                     {
                         callback(event);
                     });
                 }
 
+                Debug::Message("{}", pool.GetActiveTasksCount());
                 pool.WaitForAll();
             }
         }

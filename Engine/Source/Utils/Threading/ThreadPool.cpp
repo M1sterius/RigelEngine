@@ -1,5 +1,6 @@
 #include "ThreadPool.hpp"
 #include "Debug.hpp"
+#include "SleepUtility.hpp"
 
 namespace rge
 {
@@ -14,11 +15,7 @@ namespace rge
 
     ThreadPool::~ThreadPool()
     {
-        {
-            std::unique_lock lock(m_QueueMutex);
-            m_ShouldStop = true;
-        }
-
+        m_ShouldStop = true;
         m_QueueCondition.notify_all();
 
         for (auto& thread : m_WorkerThreads)
@@ -28,9 +25,16 @@ namespace rge
         }
     }
 
+    size_t ThreadPool::GetQueueSize() const
+    {
+        std::unique_lock lock(m_QueueMutex);
+        return m_Tasks.size();
+    }
+
     void ThreadPool::WaitForAll()
     {
         std::unique_lock lock(m_QueueMutex);
+
         m_CompletionCondition.wait(lock, [this]
         {
            return m_Tasks.empty() && m_ActiveTasks == 0;
@@ -70,6 +74,14 @@ namespace rge
             }
 
             --m_ActiveTasks;
+
+            {
+                std::unique_lock lock(m_QueueMutex);
+                if (m_Tasks.empty() && m_ActiveTasks == 0)
+                {
+                    m_CompletionCondition.notify_one();
+                }
+            }
         }
     }
 }

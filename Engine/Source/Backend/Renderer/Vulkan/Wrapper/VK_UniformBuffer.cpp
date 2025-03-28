@@ -1,4 +1,4 @@
-#include "UniformBuffer.hpp"
+#include "VK_UniformBuffer.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VK_Device.hpp"
 
@@ -21,7 +21,8 @@ namespace rge::backend
         ASSERT(size <= m_Size, "Attempted to upload too much data into a uniform buffer");
         ASSERT(offset < m_Size, "UBO data upload offset cannot be greater or equal to the buffer size");
 
-        memcpy(m_MapPtr + offset, data, size);
+        const auto cpyAddr = static_cast<uint8_t*>(m_MapPtr) + offset;
+        memcpy(cpyAddr, data, size);
     }
 
     void VK_UniformBuffer::UploadData(const void* data) const
