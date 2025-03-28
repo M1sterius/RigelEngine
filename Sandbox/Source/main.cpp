@@ -6,16 +6,17 @@
 class Game
 {
 public:
-    Game() = default;
+    explicit Game(rge::Engine& engine)
+        : m_Engine(engine)
+    {
+
+    }
     ~Game() = default;
 
-    void Init()
+    void Init() const
     {
-        m_Engine = rge::Engine::CreateInstance();
-        rge::Time::SetTargetFPS(30);
-
-        auto& sceneManager = m_Engine->GetSceneManager();
-        auto& assetManager = m_Engine->GetAssetManager();
+        auto& sceneManager = m_Engine.GetSceneManager();
+        auto& assetManager = m_Engine.GetAssetManager();
 
         auto scene = sceneManager.CreateScene();
 
@@ -33,14 +34,14 @@ public:
         sceneManager.LoadScene(dS);
     }
 
-    void Run()
+    void Run() const
     {
-        m_Engine->Run();
+        m_Engine.Run();
     }
 
     NODISCARD rge::SceneHandle MakeDefaultScene() const
     {
-        auto& sceneManager = m_Engine->GetSceneManager();
+        auto& sceneManager = m_Engine.GetSceneManager();
         auto scene = sceneManager.CreateScene("Default scene");
 
         auto go0 = scene->InstantiateGO();
@@ -56,12 +57,15 @@ public:
         return scene;
     }
 private:
-    std::unique_ptr<rge::Engine> m_Engine;
+    rge::Engine& m_Engine;
 };
 
-int32_t main(int32_t argc, char** argv)
+int32_t main(const int32_t argc, char** argv)
 {
-    Game game;
+    const auto engine = rge::Engine::CreateInstance(argc, argv);
+    rge::Time::SetTargetFPS(30);
+
+    const auto game = Game(*engine);
     game.Init();
     game.Run();
 }

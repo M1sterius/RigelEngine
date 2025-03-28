@@ -34,18 +34,20 @@ namespace rge
     Engine::Engine() = default;
     Engine::~Engine() { Shutdown(); }
 
-    std::unique_ptr<Engine> Engine::CreateInstance()
+    std::unique_ptr<Engine> Engine::CreateInstance(const int32_t argc, char** argv)
     {
         ASSERT(m_GlobalInstance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
         Debug::Trace("Creating Rigel engine instance.");
+
         const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
         m_GlobalInstance = instance;
-        instance->Startup();
+        instance->Startup(argc, argv);
+
         return std::unique_ptr<Engine>(instance);
     }
 
-    void Engine::Startup()
+    void Engine::Startup(const int32_t argc, char** argv)
     {
         Debug::Trace("Starting up Rigel engine.");
         Debug::Trace("Engine working directory: {}", Directory::WorkingDirectory().string());
@@ -107,7 +109,10 @@ namespace rge
         auto fpsLimitStopwatch = Stopwatch();
         m_DeltaTimeStopwatch.Start();
 
-        Debug::Trace("Entering game loop. Target FPS: {}", Time::GetTargetFPS());
+        if (!m_SceneManager->IsSceneLoaded())
+            Debug::Warning("No scene is loaded before the engine enters the game loop!");
+
+        Debug::Trace("Entering the game loop. Target FPS: {}", Time::GetTargetFPS());
 
         while (Running())
         {
@@ -125,12 +130,7 @@ namespace rge
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-
-        static auto sw = Stopwatch();
-        sw.Restart();
-        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent());
-        Debug::Message("{}", sw.Stop().AsMilliseconds());
-
+        m_EventManager->Dispatch(backend::TransformUpdateEvent());
         m_Renderer->Prepare();
         m_Renderer->Render();
 

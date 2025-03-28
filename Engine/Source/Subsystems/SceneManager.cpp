@@ -26,15 +26,15 @@ namespace rge
 
     SceneHandle SceneManager::CreateScene(std::string name)
     {
-        const auto scene = new Scene(GetNextSceneID(), std::move(name));
-        m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
+        auto scene = std::make_unique<Scene>(GetNextSceneID(), std::move(name));
+        m_Scenes[scene->GetID()] = std::move(scene);
 
-        return {scene, scene->GetID()};
+        return {scene.get(), scene->GetID()};
     }
 
     void SceneManager::DestroyScene(const SceneHandle& scene)
     {
-        if (!IsSceneHandleValid(scene))
+        if (!ValidateSceneHandle(scene))
         {
             Debug::Error("An invalid handle was passed to SceneManager::DestroyScene!");
             return;
@@ -52,7 +52,7 @@ namespace rge
 
     void SceneManager::LoadScene(SceneHandle& scene)
     {
-        if (scene.IsNull() || !IsSceneHandleValid(scene))
+        if (scene.IsNull() || !ValidateSceneHandle(scene))
             throw std::runtime_error("Attempted to load an invalid scene.");
 
         ASSERT(m_LoadedScene.GetID() != scene.GetID(), "Attempted to load the scene that's already been loaded.");

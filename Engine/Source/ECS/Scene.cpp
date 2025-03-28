@@ -47,9 +47,8 @@ namespace rge
             }
         }
 
-        Debug::Error("Failed to destroy game object with ID: " +
-                std::to_string(handle.GetID()) + ". " +
-                "Game object isn't present on the scene with ID: " + std::to_string(this->GetID()));
+        Debug::Error("Failed to destroy game object with ID {}. "
+                     "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
     }
 
     void Scene::OnLoad()
@@ -71,7 +70,7 @@ namespace rge
         m_IsLoaded = false;
     }
 
-    bool Scene::IsGOHandleValid(const GOHandle& handle) const
+    bool Scene::ValidateGOHandle(const GOHandle& handle) const
     {
         for (const auto& obj : m_GameObjects)
             if (obj->GetID() == handle.GetID()) return true;
@@ -116,7 +115,6 @@ namespace rge
         }
 
         m_Name = json["Name"].get<std::string>();
-        // TODO: Handle IDs for different scene.
 
         for (const auto& goJson : json["GameObjects"])
         {
@@ -127,7 +125,7 @@ namespace rge
         return true;
     }
 
-    std::vector<GOHandle> Scene::Search(const SceneSearchFunc condition, const size_t countLimit) const
+    std::vector<GOHandle> Scene::Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit) const
     {
         std::vector<GOHandle> objects;
         objects.reserve(std::min(countLimit, m_GameObjects.size()));
@@ -147,4 +145,15 @@ namespace rge
 
         return objects;
     }
+
+    void Scene::UpdateGameObjects()
+    {
+
+    }
+
+    void Scene::UpdateTransforms()
+    {
+
+    }
+
 }

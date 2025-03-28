@@ -16,6 +16,6 @@ namespace rge
     {
         const auto& sceneManager = Engine::Get().GetSceneManager();
         const auto scene = sceneManager.GetSceneByID(m_SceneID);
-        return scene->IsGOHandleValid(*this);
+        return scene->ValidateGOHandle(*this);
     }
 }

@@ -24,25 +24,25 @@ namespace rge
         /**
          * Creates a new instance of an empty scene.
          * @param name Optional name for the scene, does not uniquely identify it.
-         * @return Handle to the scene that will be created.
+         * @return Handle to the scene that has been created.
          */
         NODISCARD SceneHandle CreateScene(std::string name = "New Scene");
 
         /**
-         * Deletes a scene and all objects on it. On an unloaded scene can be deleted.
+         * Deletes a scene and all objects on it.
          * @param scene Handle to the scene that will be deleted.
          */
         void DestroyScene(const SceneHandle& scene);
 
         /**
          * Find a scene by its unique ID.
-         * @param id
+         * @param id Scene ID
          * @return Handle to the scene that was found. Will return a null handle if the scene cannot be found.
          */
         NODISCARD SceneHandle GetSceneByID(const uid_t id) const;
 
         NODISCARD bool IsSceneLoaded() const { return !m_LoadedScene.IsNull(); }
-        NODISCARD bool IsSceneHandleValid(const SceneHandle& handle) const;
+        NODISCARD bool ValidateSceneHandle(const SceneHandle& handle) const;
         NODISCARD SceneHandle GetLoadedScene() const;
 
         void LoadScene(SceneHandle& scene);

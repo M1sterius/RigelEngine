@@ -30,7 +30,7 @@ namespace rge
         * Creates a single global instance of rigel engine.
         * Must be the first call before any other engine api contents are accessed
         */
-        static std::unique_ptr<Engine> CreateInstance();
+        static std::unique_ptr<Engine> CreateInstance(const int32_t argc, char** argv);
 
         NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
 
@@ -50,7 +50,7 @@ namespace rge
     private:
         Engine();
 
-        void Startup();
+        void Startup(const int32_t argc, char** argv);
         void Shutdown();
 
         void EngineUpdate();

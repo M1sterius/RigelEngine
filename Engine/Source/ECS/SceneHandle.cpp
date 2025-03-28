@@ -14,6 +14,6 @@ namespace rge
     bool SceneHandle::IsValid() const
     {
         const auto& manager = Engine::Get().GetSceneManager();
-        return manager.IsSceneHandleValid(*this);
+        return manager.ValidateSceneHandle(*this);
     }
 }
