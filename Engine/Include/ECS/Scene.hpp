@@ -49,9 +49,12 @@ namespace rge
         void OnLoad(); // Used for initialization logic.
         void OnUnload(); // Used for cleanup logic.
 
+        void OnEndOfFrame();
+
         std::string m_Name;
         bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
+        uid_t m_EndOfFrameCallbackID = NULL_ID;
 
         // TODO: Change to a more optimal data structure (e.g std::hive or plf::colony)
         std::vector<std::unique_ptr<GameObject>> m_GameObjects;

@@ -1,4 +1,8 @@
 #include "Scene.hpp"
+
+#include "Engine.hpp"
+#include "EventManager.hpp"
+#include "InternalEvents.hpp"
 #include "GameObject.hpp"
 #include "GOHandle.hpp"
 #include "json.hpp"
@@ -53,6 +57,12 @@ namespace rge
 
     void Scene::OnLoad()
     {
+        auto& eventManager = Engine::Get().GetEventManager();
+        m_EndOfFrameCallbackID = eventManager.Subscribe<backend::EndOfFrameEvent>([this](const backend::EndOfFrameEvent& e)
+        {
+            OnEndOfFrame();
+        });
+
         m_IsLoaded = true;
 
         for (const auto& go : m_GameObjects)
@@ -68,6 +78,14 @@ namespace rge
             go->OnDestroy();
 
         m_IsLoaded = false;
+
+        auto& eventManager = Engine::Get().GetEventManager();
+        eventManager.Unsubscribe<backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
+    }
+
+    void Scene::OnEndOfFrame()
+    {
+
     }
 
     bool Scene::ValidateGOHandle(const GOHandle& handle) const

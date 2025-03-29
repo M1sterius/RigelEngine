@@ -4,7 +4,7 @@
 #include "Event.hpp"
 
 /**
- * Contains events that should be inaccessible outside of the engine library
+ * Contains events that should be inaccessible outside the engine library
  */
 
 namespace rge::backend
@@ -13,5 +13,11 @@ namespace rge::backend
     {
         explicit TransformUpdateEvent() = default;
         ~TransformUpdateEvent() override = default;
+    };
+
+    struct EndOfFrameEvent final : public Event
+    {
+        explicit EndOfFrameEvent() = default;
+        ~EndOfFrameEvent() override = default;
     };
 }

@@ -133,7 +133,9 @@ namespace rge
         m_EventManager->DispatchThreaded(backend::TransformUpdateEvent(), m_ThreadPool->GetSize() - 2);
         m_Renderer->Prepare();
         m_Renderer->Render();
+
         m_InputManager->ResetInputState();
+        m_EventManager->Dispatch(backend::EndOfFrameEvent());
 
         // for now the only condition for the engine to keep running is the window not being closed.
         m_Running = !m_WindowManager->WindowShouldClose();
