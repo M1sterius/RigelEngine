@@ -130,7 +130,7 @@ namespace rge
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent(), m_ThreadPool->GetSize() - 2);
+        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent(), m_ThreadPool->GetSize());
         m_Renderer->Prepare();
         m_Renderer->Render();
 

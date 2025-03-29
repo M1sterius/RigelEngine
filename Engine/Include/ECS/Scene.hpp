@@ -5,10 +5,12 @@
 #include "RigelObject.hpp"
 #include "GameObject.hpp"
 #include "ISerializable.hpp"
+#include "plf_colony.h"
 
 #include <memory>
 #include <string>
 #include <vector>
+#include <queue>
 
 namespace rge
 {
@@ -29,8 +31,16 @@ namespace rge
         NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
         NODISCARD bool ValidateGOHandle(const GOHandle& handle) const;
 
-        GOHandle InstantiateGO(std::string name = "GameObject");
-        void DestroyGO(const GOHandle& handle);
+        GOHandle Instantiate(std::string name = "GameObject");
+        void Destroy(const GOHandle& handle);
+
+        /**
+         * Destroys the game objects immediately upon invocation of this method.
+         * Using this method may come with serious performance penalty. DO NOT
+         * use it unless absolutely necessary. Always prefer regular 'Destroy'!
+         * @param handle The GameObject to be destroyed
+         */
+        inline void DestroyImmediately(const GOHandle& handle) { DestroyGOImpl(handle); }
 
         /**
          * Searches objects on the scene by given conditional function
@@ -48,16 +58,17 @@ namespace rge
 
         void OnLoad(); // Used for initialization logic.
         void OnUnload(); // Used for cleanup logic.
+        void OnEndOfFrame(); // Used to process GO deletion queue
 
-        void OnEndOfFrame();
+        void DestroyGOImpl(const GOHandle& handle);
 
         std::string m_Name;
         bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
         uid_t m_EndOfFrameCallbackID = NULL_ID;
 
-        // TODO: Change to a more optimal data structure (e.g std::hive or plf::colony)
-        std::vector<std::unique_ptr<GameObject>> m_GameObjects;
+        plf::colony<std::unique_ptr<GameObject>> m_GameObjects;
+        std::queue<GOHandle> m_DestroyQueue;
 
         friend class SceneManager;
     };

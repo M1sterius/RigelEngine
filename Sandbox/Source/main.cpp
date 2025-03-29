@@ -1,8 +1,6 @@
 #define RGE_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
 
-#include "TestComponent.hpp"
-
 class Game
 {
 public:
@@ -31,6 +29,7 @@ public:
         }
 
         auto dS = MakeDefaultScene();
+
         sceneManager.LoadScene(dS);
     }
 
@@ -44,14 +43,19 @@ public:
         auto& sceneManager = m_Engine.GetSceneManager();
         auto scene = sceneManager.CreateScene("Default scene");
 
-        auto go0 = scene->InstantiateGO();
+        auto go0 = scene->Instantiate();
         go0->AddComponent<rge::Transform>();
         go0->AddComponent<rge::Camera>(1, 1, 1);
 
         for (int i = 0; i < 10000; ++i)
         {
-            auto go = scene->InstantiateGO();
+            auto go = scene->Instantiate();
             go->AddComponent<rge::Transform>();
+
+            if (i == 69)
+            {
+                scene->Destroy(go);
+            }
         }
 
         return scene;

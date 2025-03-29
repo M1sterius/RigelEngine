@@ -106,6 +106,7 @@ target_include_directories(RigelEngine PRIVATE
 target_include_directories(RigelEngine PUBLIC
     ${DEPENDENCIES_DIR}/nlohmann_json
     ${DEPENDENCIES_DIR}/glm
+    ${DEPENDENCIES_DIR}/plf
 
     Include
     Include/Debug

@@ -1,5 +1,4 @@
 #include "Scene.hpp"
-
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "InternalEvents.hpp"
@@ -14,11 +13,11 @@ namespace rge
         m_Name = std::move(name);
     }
 
-    GOHandle Scene::InstantiateGO(std::string name)
+    GOHandle Scene::Instantiate(std::string name)
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
-        m_GameObjects.emplace_back(std::unique_ptr<GameObject>(go));
+        m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
 
         /*
          * If the scene is loaded, appropriate event functions must be invoked
@@ -35,31 +34,18 @@ namespace rge
         return { go, go->GetID(), this->GetID() };
     }
 
-    void Scene::DestroyGO(const GOHandle& handle)
+    void Scene::Destroy(const GOHandle& handle)
     {
-        for (size_t i = 0; i < m_GameObjects.size(); i++)
-        {
-            if (auto& go = m_GameObjects[i]; go->GetID() == handle.GetID())
-            {
-                if (IsLoaded())
-                    go->OnDestroy();
-
-                go.reset();
-                m_GameObjects.erase(m_GameObjects.begin() + i);
-
-                return;
-            }
-        }
-
-        Debug::Error("Failed to destroy game object with ID {}. "
-                     "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
+        if (!m_IsLoaded)
+            DestroyGOImpl(handle);
+        else
+            m_DestroyQueue.push(handle);
     }
 
     void Scene::OnLoad()
     {
-        auto& eventManager = Engine::Get().GetEventManager();
-        m_EndOfFrameCallbackID = eventManager.Subscribe<backend::EndOfFrameEvent>([this](const backend::EndOfFrameEvent& e)
-        {
+        m_EndOfFrameCallbackID = Engine::Get().GetEventManager().Subscribe<backend::EndOfFrameEvent>(
+            [this](const backend::EndOfFrameEvent&){
             OnEndOfFrame();
         });
 
@@ -79,13 +65,40 @@ namespace rge
 
         m_IsLoaded = false;
 
-        auto& eventManager = Engine::Get().GetEventManager();
-        eventManager.Unsubscribe<backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
+        Engine::Get().GetEventManager().Unsubscribe<backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
     }
 
     void Scene::OnEndOfFrame()
     {
+        // GameObject destruction is deferred until the end of frame to optimize
+        // resource and memory management
 
+        while (!m_DestroyQueue.empty())
+        {
+            const auto currentHandle = m_DestroyQueue.front();
+            DestroyGOImpl(currentHandle);
+            m_DestroyQueue.pop();
+        }
+    }
+
+    void Scene::DestroyGOImpl(const GOHandle& handle)
+    {
+        for (auto it = m_GameObjects.begin(); it != m_GameObjects.end();)
+        {
+            if ((*it)->GetID() == handle.GetID())
+            {
+                if (IsLoaded())
+                    (*it)->OnDestroy();
+
+                m_GameObjects.erase(it);
+                return;
+            }
+
+            ++it; // move to the next element
+        }
+
+        Debug::Error("Failed to destroy game object with ID {}. "
+                     "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
     }
 
     bool Scene::ValidateGOHandle(const GOHandle& handle) const
@@ -93,6 +106,27 @@ namespace rge
         for (const auto& obj : m_GameObjects)
             if (obj->GetID() == handle.GetID()) return true;
         return false;
+    }
+
+    std::vector<GOHandle> Scene::Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit) const
+    {
+        std::vector<GOHandle> objects;
+        objects.reserve(std::min(countLimit, m_GameObjects.size()));
+
+        for (const auto& go : m_GameObjects)
+        {
+            const auto handle = GOHandle(go.get(), go->GetID(), GetID());
+
+            if (condition(handle))
+            {
+                objects.push_back(handle);
+
+                if (objects.size() >= countLimit)
+                    break;
+            }
+        }
+
+        return objects;
     }
 
     nlohmann::json Scene::Serialize() const
@@ -136,31 +170,10 @@ namespace rge
 
         for (const auto& goJson : json["GameObjects"])
         {
-            if (auto go = InstantiateGO(); !go->Deserialize(goJson))
-                DestroyGO(go);
+            if (auto go = Instantiate(); !go->Deserialize(goJson))
+                Destroy(go);
         }
 
         return true;
-    }
-
-    std::vector<GOHandle> Scene::Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit) const
-    {
-        std::vector<GOHandle> objects;
-        objects.reserve(std::min(countLimit, m_GameObjects.size()));
-
-        for (const auto& go : m_GameObjects)
-        {
-            const auto handle = GOHandle(go.get(), go->GetID(), GetID());
-
-            if (condition(handle))
-            {
-                objects.push_back(handle);
-
-                if (objects.size() >= countLimit)
-                    break;
-            }
-        }
-
-        return objects;
     }
 }
