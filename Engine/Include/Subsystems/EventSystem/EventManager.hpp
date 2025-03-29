@@ -73,7 +73,7 @@ namespace rge
         void DispatchThreaded(const EventType& event, const size_t groups)
         {
             auto& pool = Engine::Get().GetThreadPool();
-            ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must less than the number of threads is the pool");
+            ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must be less than the number of threads in the pool");
 
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())

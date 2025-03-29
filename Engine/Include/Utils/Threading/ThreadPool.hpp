@@ -17,6 +17,10 @@ namespace rge
     class ThreadPool
     {
     public:
+        /**
+         * 
+         * @param numThreads How many threads the pool will have. Pass 0 to use std::thread::hardware_concurrency()
+         */
         explicit ThreadPool(const size_t numThreads = 0);
         ~ThreadPool();
 

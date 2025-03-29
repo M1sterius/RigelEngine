@@ -53,7 +53,8 @@ namespace rge
         bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
 
-        std::vector<std::unique_ptr<GameObject>> m_GameObjects; // Scene owns game objects
+        // TODO: Change to a more optimal data structure (e.g std::hive or plf::colony)
+        std::vector<std::unique_ptr<GameObject>> m_GameObjects;
 
         friend class SceneManager;
     };

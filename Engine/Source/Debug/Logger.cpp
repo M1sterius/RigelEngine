@@ -24,6 +24,7 @@ namespace rge
         if (std::filesystem::exists(logsFile))
             std::filesystem::remove(logsFile);
 
+        // TODO: Rework the way writing logs is handled
         m_LogsFile = std::make_unique<File>(logsFile, std::ios::out | std::ios::app);
     }
 
@@ -31,7 +32,7 @@ namespace rge
     {
         if (!(m_VisibilityMask & static_cast<uint8_t>(type))) return;
 
-        std::string logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
+        const auto logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
 
         std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
         m_LogsFile->WriteText(logTxt + '\n');

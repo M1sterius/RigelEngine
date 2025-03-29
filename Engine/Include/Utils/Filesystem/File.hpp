@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <future>
 
 namespace rge
 {
@@ -15,6 +16,9 @@ namespace rge
         NODISCARD static std::string ReadText(const std::filesystem::path& path);
         NODISCARD static nlohmann::json ReadJSON(const std::filesystem::path& path);
         NODISCARD static std::vector<char> ReadBinary(const std::filesystem::path& path);
+
+        NODISCARD static std::future<std::string> ReadTextAsync(const std::filesystem::path& path);
+        NODISCARD static std::future<std::vector<char>> ReadBinaryAsync(const std::filesystem::path& path);
 
         static void WriteText(const std::filesystem::path& path, const std::string& text);
         static void WriteBinary(const std::filesystem::path& path, const std::vector<char>& data);

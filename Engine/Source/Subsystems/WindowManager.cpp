@@ -43,7 +43,7 @@ namespace rge
             throw RigelException("Window manager initialization failed! glfw initialization failed.");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api for vulkan.
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // TODO: Implement proper swapchain recreation on resize
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         EnumerateMonitorInfo();
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_WindowSize.x), static_cast<int>(m_WindowSize.y),

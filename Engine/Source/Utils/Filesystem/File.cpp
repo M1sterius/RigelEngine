@@ -1,10 +1,11 @@
 #include "File.hpp"
 #include "json.hpp"
+#include "Exceptions.hpp"
 
 #include <stdexcept>
 #include <ostream>
 #include <utility>
-#include <iostream>
+#include <format>
 
 namespace rge
 {
@@ -12,9 +13,7 @@ namespace rge
     {
         auto file = std::ifstream(path);
         if (!file.is_open())
-        {
-            throw std::runtime_error("Failed to load file at path: " + path.string());
-        }
+            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
 
         const auto content = std::string(std::istreambuf_iterator<char>(file),  std::istreambuf_iterator<char>());
         file.close();
@@ -24,11 +23,9 @@ namespace rge
 
     void File::WriteText(const std::filesystem::path& path, const std::string& text)
     {
-        auto file = std::ofstream(path, std::ios::out);
+        auto file = std::ofstream(path);
         if (!file.is_open())
-        {
-            throw std::runtime_error("Failed to open file at path: " + path.string());
-        }
+            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
 
         file << text;
         file.close();
@@ -38,9 +35,7 @@ namespace rge
     {
         auto file = std::ofstream(path, std::ios::out | std::ios::binary);
         if (!file.is_open())
-        {
-            throw std::runtime_error("Failed to open file at path: " + path.string());
-        }
+            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
 
         file.write(data.data(), data.size());
         file.close();
@@ -50,7 +45,7 @@ namespace rge
     {
         auto file = std::ifstream(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
-            throw std::runtime_error("Failed to open file for reading: " + path.string());
+            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
 
         try
         {
@@ -59,9 +54,9 @@ namespace rge
             file.read(bom.data(), 3);
 
             // Check for UTF-8 BOM (EF BB BF)
-            bool hasBom = (unsigned char)bom[0] == 0xEF &&
-                          (unsigned char)bom[1] == 0xBB &&
-                          (unsigned char)bom[2] == 0xBF;
+            const auto hasBom = static_cast<unsigned char>(bom[0]) == 0xEF &&
+                          static_cast<unsigned char>(bom[1]) == 0xBB &&
+                          static_cast<unsigned char>(bom[2]) == 0xBF;
 
             // If no BOM was found, reset file pointer to beginning
             if (!hasBom) file.seekg(0);
@@ -84,7 +79,7 @@ namespace rge
         auto file = std::ifstream(path, std::ios::ate | std::ios::binary);
 
         if (!file.is_open())
-            throw std::runtime_error("Failed to open file: " + path.string());
+            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
 
         const auto fileSize = static_cast<size_t>(file.tellg());
         auto buffer = std::vector<char>(fileSize);
@@ -97,6 +92,23 @@ namespace rge
         return buffer;
     }
 
+    std::future<std::string> File::ReadTextAsync(const std::filesystem::path& path)
+    {
+        // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
+        // So it confuses static and non-static function with the same name
+        const auto asyncFuncCast = static_cast<std::string(*)(const std::filesystem::path&)>(&File::ReadText);
+        return std::async(std::launch::async, asyncFuncCast, path);
+    }
+
+    std::future<std::vector<char>> File::ReadBinaryAsync(const std::filesystem::path& path)
+    {
+        // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
+        // So it confuses static and non-static function with the same name
+        const auto asyncFuncCast = static_cast<std::vector<char>(*)(const std::filesystem::path&)>(&File::ReadBinary);
+        return std::async(std::launch::async, asyncFuncCast, path);
+    }
+
+#pragma region FileNonStaticImpl
     File::File(std::filesystem::path path, const std::ios::openmode mode)
         :   m_Path(std::move(path)), m_CurrentOpenMode(mode)
     {
@@ -121,7 +133,7 @@ namespace rge
         m_File.open(m_Path, mode);
 
         if (!m_File.is_open())
-            throw std::runtime_error("Failed to open file at path: " + m_Path.string());
+            throw RigelException(std::format("Cannot open file at path: {}", m_Path.string()));
 
         m_CurrentOpenMode = mode;
     }
@@ -169,4 +181,5 @@ namespace rge
     {
         m_File.flush();
     }
+#pragma endregion
 }
