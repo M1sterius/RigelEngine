@@ -9,7 +9,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 #include <queue>
 
 namespace rge
@@ -35,7 +34,7 @@ namespace rge
         void Destroy(const GOHandle& handle);
 
         /**
-         * Destroys the game objects immediately upon invocation of this method.
+         * Destroys the game object immediately upon invocation of this method.
          * Using this method may come with serious performance penalty. DO NOT
          * use it unless absolutely necessary. Always prefer regular 'Destroy'!
          * @param handle The GameObject to be destroyed
@@ -45,10 +44,10 @@ namespace rge
         /**
          * Searches objects on the scene by given conditional function
          * @param condition Custom function that determines what objects are selected
-         * @param countLimit Maximum number of objects that will be returned
-         * @return A vector of handles to selected objects
+         * @param depthLimit Limits how many iteration the search loop will go through. Unlimited by default.
+         * @return A plf::colony of handles to selected objects
          */
-        std::vector<GOHandle> Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit = 512) const;
+        NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max());
     INTERNAL:
         ~Scene() override = default;
 

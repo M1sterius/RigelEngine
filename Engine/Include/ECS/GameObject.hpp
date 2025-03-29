@@ -48,7 +48,7 @@ namespace rge
          */
         template<typename T> ComponentHandle<T> GetComponent()
         {
-            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
+            static_assert(std::is_base_of_v<Component, T>, "T must inherit from rge::Component");
 
             for (const auto& [id, component] : m_Components)
             {
@@ -63,11 +63,11 @@ namespace rge
 
         template<typename T> NODISCARD bool HasComponent()
         {
-            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
+            static_assert(std::is_base_of_v<Component, T>, "T must inherit from rge::Component");
 
             for (const auto& [id, component] : m_Components)
             {
-                if (const auto cast = dynamic_cast<T*>(component))
+                if (const auto cast = dynamic_cast<T*>(component.get()))
                     return true;
             }
 

@@ -108,22 +108,40 @@ namespace rge
         return false;
     }
 
-    std::vector<GOHandle> Scene::Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit) const
+    // std::vector<GOHandle> Scene::Search(const std::function<bool(const GOHandle&)>& condition, const size_t countLimit) const
+    // {
+    //     std::vector<GOHandle> objects;
+    //     objects.reserve(std::min(countLimit, m_GameObjects.size()));
+    //
+    //     for (const auto& go : m_GameObjects)
+    //     {
+    //         const auto handle = GOHandle(go.get(), go->GetID(), GetID());
+    //
+    //         if (condition(handle))
+    //         {
+    //             objects.push_back(handle);
+    //
+    //             if (objects.size() >= countLimit)
+    //                 break;
+    //         }
+    //     }
+    //
+    //     return objects;
+    // }
+
+    plf::colony<GOHandle> Scene::Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit)
     {
-        std::vector<GOHandle> objects;
-        objects.reserve(std::min(countLimit, m_GameObjects.size()));
+        auto objects = plf::colony<GOHandle>();
+        size_t depth = 0;
 
         for (const auto& go : m_GameObjects)
         {
-            const auto handle = GOHandle(go.get(), go->GetID(), GetID());
+            if (++depth > depthLimit)
+                return objects;
 
-            if (condition(handle))
-            {
-                objects.push_back(handle);
-
-                if (objects.size() >= countLimit)
-                    break;
-            }
+            auto curHandle = GOHandle(go.get(), go->GetID(), this->GetID());
+            if (condition(curHandle))
+                objects.insert(curHandle);
         }
 
         return objects;

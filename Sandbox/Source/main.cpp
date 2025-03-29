@@ -29,7 +29,6 @@ public:
         }
 
         auto dS = MakeDefaultScene();
-
         sceneManager.LoadScene(dS);
     }
 
