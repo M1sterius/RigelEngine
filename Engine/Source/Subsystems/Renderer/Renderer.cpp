@@ -1,10 +1,26 @@
 #include "Renderer.hpp"
-#include "Debug.hpp"
 
+#include "Camera.hpp"
+#include "ComponentHandle.hpp"
+
+#include "Debug.hpp"
+#include "Engine.hpp"
+#include "Scene.hpp"
+#include "SceneManager.hpp"
+#include "ModelRenderer.hpp"
 #include "Renderer/Vulkan/VK_Renderer.hpp"
 
 namespace rge
 {
+    namespace backend
+    {
+        struct RenderingBackendRenderInfo
+        {
+            ComponentHandle<Camera> MainCamera;
+
+        };
+    }
+
     Renderer::Renderer() { Startup(); }
     Renderer::~Renderer() { Shutdown(); }
 
@@ -56,7 +72,26 @@ namespace rge
     void Renderer::Prepare()
     {
         // Find main camera
-        // Cull models
+        // Find all renderable objects
+        // Find all light sources
+
+        // Cull models, dispatch OnBecomeVisible/OnBecomeInvisible
+
+        auto scene = Engine::Get().GetSceneManager().GetLoadedScene();
+        if (scene.IsNull())
+        {
+            Debug::Warning("No scene is currently loaded. Rendering skipped!");
+            return;
+        }
+
+        // const auto models = scene->Search([](GOHandle& go) -> bool
+        // {
+        //     if (go->HasComponent<rge::ModelRenderer>())
+        //         return true;
+        //     return false;
+        // });
+        //
+        // Debug::Message("{}", models.size());
     }
 
     void Renderer::Render() const

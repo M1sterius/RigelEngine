@@ -35,7 +35,7 @@ namespace rge
             return false;
         }
 
-        OverrideID(json["ID"].get<uid_t>());
+        this->OverrideID(json["ID"].get<uid_t>());
 
         return true;
     }

@@ -80,7 +80,6 @@ namespace rge
 
     SceneHandle SceneManager::GetLoadedScene() const
     {
-        ASSERT(IsSceneLoaded(), "No scene is currently loaded.");
         return m_LoadedScene;
     }
 

@@ -8,6 +8,7 @@
 namespace rge::backend
 {
     class RenderingBackend;
+    struct RenderingBackendRenderInfo;
 }
 
 namespace rge
@@ -39,7 +40,6 @@ namespace rge
         void Shutdown() override;
 
         NODISCARD GraphicsApi SelectGraphicsAPI();
-
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
         std::unique_ptr<backend::RenderingBackend> m_BackendRenderer;
     };

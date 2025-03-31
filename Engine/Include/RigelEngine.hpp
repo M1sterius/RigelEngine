@@ -54,6 +54,7 @@
 // Components
 #include "Transform.hpp"
 #include "Camera.hpp"
+#include "ModelRenderer.hpp"
 
 // Utility
 #include "ThreadPool.hpp"

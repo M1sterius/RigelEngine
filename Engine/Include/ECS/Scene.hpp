@@ -47,7 +47,7 @@ namespace rge
          * @param depthLimit Limits how many iteration the search loop will go through. Unlimited by default.
          * @return A plf::colony of handles to selected objects
          */
-        NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max());
+        NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max()) const;
     INTERNAL:
         ~Scene() override = default;
 

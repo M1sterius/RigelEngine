@@ -101,7 +101,20 @@ namespace rge
     DEFINE_SUBSYSTEM_GETTER(WindowManager)
     DEFINE_SUBSYSTEM_GETTER(InputManager)
     DEFINE_SUBSYSTEM_GETTER(Renderer)
-    DEFINE_SUBSYSTEM_GETTER(PhysicsEngine);
+    DEFINE_SUBSYSTEM_GETTER(PhysicsEngine)
+
+    SubsystemsCollection Engine::GetAllSubsystems() const
+    {
+        return SubsystemsCollection {
+            .SceneManager = GetSceneManager(),
+            .Renderer= GetRenderer(),
+            .EventManager = GetEventManager(),
+            .AssetManager = GetAssetManager(),
+            .WindowManager = GetWindowManager(),
+            .InputManager = GetInputManager(),
+            .PhysicsEngine = GetPhysicsEngine()
+        };
+    }
 #pragma endregion
 
     void Engine::Run()

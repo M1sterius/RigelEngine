@@ -9,14 +9,20 @@ public:
     {
 
     }
+
     ~Game() = default;
 
     void Init() const
     {
-        auto& sceneManager = m_Engine.GetSceneManager();
-        auto& assetManager = m_Engine.GetAssetManager();
+        auto [SceneManager,
+            Renderer,
+            EventManager,
+            AssetManager,
+            WindowManager,
+            InputManager,
+            PhysicsEngine] = m_Engine.GetAllSubsystems();
 
-        auto scene = sceneManager.CreateScene();
+        auto scene = SceneManager.CreateScene();
 
         try
         {
@@ -29,7 +35,7 @@ public:
         }
 
         auto dS = MakeDefaultScene();
-        sceneManager.LoadScene(dS);
+        SceneManager.LoadScene(dS);
     }
 
     void Run() const
@@ -46,15 +52,11 @@ public:
         go0->AddComponent<rge::Transform>();
         go0->AddComponent<rge::Camera>(1, 1, 1);
 
-        for (int i = 0; i < 10000; ++i)
+        for (size_t j = 0; j < 1000; ++j)
         {
             auto go = scene->Instantiate();
             go->AddComponent<rge::Transform>();
-
-            if (i == 69)
-            {
-                scene->Destroy(go);
-            }
+            go->AddComponent<rge::ModelRenderer>();
         }
 
         return scene;
