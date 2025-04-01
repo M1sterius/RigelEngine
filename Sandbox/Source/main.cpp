@@ -52,7 +52,7 @@ public:
         go0->AddComponent<rge::Transform>();
         go0->AddComponent<rge::Camera>(1, 1, 1);
 
-        for (size_t j = 0; j < 1000; ++j)
+        for (size_t i = 0; i < 1000; i++)
         {
             auto go = scene->Instantiate();
             go->AddComponent<rge::Transform>();

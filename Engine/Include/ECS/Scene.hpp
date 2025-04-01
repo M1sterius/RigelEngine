@@ -30,6 +30,8 @@ namespace rge
         NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
         NODISCARD bool ValidateGOHandle(const GOHandle& handle) const;
 
+        NODISCARD GOHandle GetGameObjectByID(const uid_t id) const;
+
         GOHandle Instantiate(std::string name = "GameObject");
         void Destroy(const GOHandle& handle);
 

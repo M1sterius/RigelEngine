@@ -61,6 +61,17 @@ namespace rge
             return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
         }
 
+        ComponentHandle<Component> GetComponentByID(const uid_t ID) const
+        {
+            for (const auto& [currentID, component] : m_Components)
+            {
+                if (ID == currentID)
+                    return { component.get(), currentID, this->GetID(), m_Scene.GetID() };
+            }
+
+            return {nullptr, NULL_ID, NULL_ID, NULL_ID};
+        }
+
         template<typename T> NODISCARD bool HasComponent()
         {
             static_assert(std::is_base_of_v<Component, T>, "T must inherit from rge::Component");
