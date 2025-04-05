@@ -1,10 +1,12 @@
 #include "VK_Renderer.hpp"
 
-#include <VK_MemoryBuffer.hpp>
-
 #include "AssetManager.hpp"
 #include "Shader.hpp"
 
+#include "VK_MemoryBuffer.hpp"
+#include "VK_UniformBuffer.hpp"
+#include "VK_DescriptorSet.hpp"
+#include "VK_DescriptorPool.hpp"
 #include "VulkanException.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
@@ -48,6 +50,12 @@ namespace rge::backend
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
+        std::vector<VkDescriptorPoolSize> poolSizes(1);
+        poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        poolSizes[0].descriptorCount = framesInFlight;
+
+        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(*m_Device, poolSizes, framesInFlight);
+
         for (uint32_t i = 0; i < framesInFlight; i++)
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
 
@@ -56,6 +64,16 @@ namespace rge::backend
 
         for (uint32_t i = 0; i < framesInFlight; i++)
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
+
+        for (uint32_t i = 0; i < framesInFlight; i++)
+        {
+            m_UniformBuffers.emplace_back(std::make_unique<VK_UniformBuffer>(*m_Device, sizeof(DefaultUBO)));
+
+            auto setBuilder = VK_DescriptorSetBuilder(*m_Device);
+            setBuilder.AddUniformBuffer(*m_UniformBuffers[i], 0);
+
+            m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
+        }
 
         m_Initialized = true;
     }
@@ -67,8 +85,12 @@ namespace rge::backend
 
     void VK_Renderer::LateInit()
     {
+        VkDescriptorSetLayout layout;
+        auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
+        layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
+
         const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackendShader<VK_Shader>();
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader);
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layoutBuilder.BuildLayout());
 
         const std::vector<Vertex> vertices = {
             {{-0.5f, -0.5f, 1.0}, {1.0f, 0.0f}},
@@ -104,8 +126,28 @@ namespace rge::backend
         m_Swapchain->SetupSwapchain(windowSize, vsync);
     }
 
+    void VK_Renderer::UpdateUniformBuffer(VK_UniformBuffer& buffer)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        DefaultUBO ubo {};
+        auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        auto view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        auto proj = glm::perspective(glm::radians(45.0f), (float)m_Swapchain->GetExtent().width / (float)m_Swapchain->GetExtent().height, 0.1f, 10.0f);
+        proj[1][1] *= -1;
+
+        ubo.MVP = proj * view * model;
+
+        buffer.UploadData(0, sizeof(ubo), &ubo);
+    }
+
     void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
     {
+        const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
+
         VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
         VkRenderingAttachmentInfo colorAttachment {};
@@ -147,10 +189,12 @@ namespace rge::backend
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
 
+        const auto currentDescriptor = m_DescriptorSets[frameIndex]->Get();
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, &currentDescriptor, 0, nullptr);
+
         vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetIndexCount(), 1, 0, 0, 0);
 
         vkCmdEndRendering(commandBuffer);
-
         VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
@@ -170,6 +214,9 @@ namespace rge::backend
 
         const auto& commandBuffer = m_CommandBuffers[frameIndex];
         commandBuffer->Reset(0);
+
+        const auto& uniformBuffer = m_UniformBuffers[frameIndex];
+        UpdateUniformBuffer(*uniformBuffer);
 
         commandBuffer->BeginRecording(0);
         RecordCommandBuffer(commandBuffer->Get(), image);

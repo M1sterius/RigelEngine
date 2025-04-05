@@ -15,6 +15,7 @@ namespace rge::backend
         createInfo.poolSizeCount = poolSizes.size();
         createInfo.pPoolSizes = poolSizes.data();
         createInfo.maxSets = maxSets;
+        createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; // This allows individual sets to be freed
 
         if (const auto result = vkCreateDescriptorPool(m_Device.Get(), &createInfo, nullptr, &m_DescriptorPool); result != VK_SUCCESS)
             throw VulkanException("Failed to create Vulkan descriptor pool!", result);

@@ -69,7 +69,7 @@ private:
 int32_t main(const int32_t argc, char** argv)
 {
     const auto engine = rge::Engine::CreateInstance(argc, argv);
-    rge::Time::SetTargetFPS(30);
+    rge::Time::SetTargetFPS(165);
 
     const auto game = Game(*engine);
     game.Init();

@@ -25,6 +25,9 @@ namespace rge::backend
     class VK_GraphicsPipeline;
     class VK_VertexBuffer;
     class VK_IndexBuffer;
+    class VK_UniformBuffer;
+    class VK_DescriptorSet;
+    class VK_DescriptorPool;
 
     struct AcquireImageInfo;
 
@@ -46,14 +49,20 @@ namespace rge::backend
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain() const;
 
+        void UpdateUniformBuffer(VK_UniformBuffer& buffer);
+
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
+        std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
         std::unique_ptr<VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<VK_IndexBuffer> m_IndexBuffer;
+
+        std::vector<std::unique_ptr<VK_UniformBuffer>> m_UniformBuffers;
+        std::vector<std::unique_ptr<VK_DescriptorSet>> m_DescriptorSets;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;

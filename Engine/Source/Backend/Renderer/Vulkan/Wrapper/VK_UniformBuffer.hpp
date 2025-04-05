@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Math.hpp"
 
 #include "vulkan.h"
 
@@ -10,6 +11,11 @@ namespace rge::backend
 {
     class VK_Device;
     class VK_MemoryBuffer;
+
+    struct DefaultUBO
+    {
+        glm::mat4 MVP;
+    };
 
     class VK_UniformBuffer
     {

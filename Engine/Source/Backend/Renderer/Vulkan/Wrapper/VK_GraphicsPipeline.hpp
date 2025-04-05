@@ -23,7 +23,8 @@ namespace rge::backend
         NODISCARD inline VkPipeline Get() const { return m_GraphicsPipeline; }
         NODISCARD inline VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
 
-        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat swapchainImageFormat, const VK_Shader& shader);
+        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat swapchainImageFormat,
+            const VK_Shader& shader, VkDescriptorSetLayout descriptorSetLayout);
     private:
         VK_Device& m_Device;
 

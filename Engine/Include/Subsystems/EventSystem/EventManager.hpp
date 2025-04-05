@@ -14,7 +14,10 @@
 
 namespace rge
 {
-    template<typename EventType>
+    template<typename T>
+    concept EventTypeConcept = std::is_base_of_v<Event, T>;
+
+    template<EventTypeConcept EventType>
     const EventType& CastEvent(const Event& event)
     {
         return static_cast<const EventType&>(event);
@@ -25,7 +28,7 @@ namespace rge
     public:
         using CallbackID = uid_t;
 
-        template<typename EventType>
+        template<EventTypeConcept EventType>
         CallbackID Subscribe(const std::function<void(const EventType&)>& callback)
         {
             CallbackID id = m_NextCallbackID++;
@@ -36,7 +39,7 @@ namespace rge
             return id;
         }
 
-        template<typename EventType>
+        template<EventTypeConcept EventType>
         void Unsubscribe(CallbackID id)
         {
             auto it = m_Subscribers.find(typeid(EventType));
@@ -48,7 +51,7 @@ namespace rge
             }
         }
 
-        template<typename EventType>
+        template<EventTypeConcept EventType>
         void Dispatch(const EventType& event)
         {
             auto it = m_Subscribers.find(typeid(EventType));
@@ -69,12 +72,13 @@ namespace rge
          * @param groups How many groups all the event subscribers will be divided to. Each group
          * guaranteed to be executed a separate thread.
          */
-        template<typename EventType>
+        template<EventTypeConcept EventType>
         void DispatchThreaded(const EventType& event, const size_t groups)
         {
             auto& pool = Engine::Get().GetThreadPool();
             ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must be less than the number of threads in the pool");
 
+            // TODO: Rework to use std::views::chunk
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
             {

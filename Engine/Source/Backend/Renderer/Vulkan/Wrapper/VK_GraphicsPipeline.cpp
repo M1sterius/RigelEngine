@@ -3,6 +3,7 @@
 #include "VK_Shader.hpp"
 #include "VulkanException.hpp"
 #include "VK_VertexBuffer.hpp"
+#include "VK_DescriptorSet.hpp"
 #include "MakeInfo.hpp"
 
 namespace rge::backend
@@ -26,7 +27,7 @@ namespace rge::backend
     }
 
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat swapchainImageFormat, const VK_Shader& shader)
+        const VkFormat swapchainImageFormat, const VK_Shader& shader, VkDescriptorSetLayout descriptorSetLayout)
     {
         const auto shaderStagesInfo = shader.GetShaderStagesInfo();
 
@@ -63,8 +64,8 @@ namespace rge::backend
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
+        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;
 
         // Multisampling
@@ -89,6 +90,8 @@ namespace rge::backend
 
         // Pipeline Layout (Add descriptors here)
         auto pipelineLayoutInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
         auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
         pipelineInfo.stageCount = 2;
