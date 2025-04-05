@@ -28,6 +28,7 @@ namespace rge::backend
     class VK_UniformBuffer;
     class VK_DescriptorSet;
     class VK_DescriptorPool;
+    class VK_Image;
 
     struct AcquireImageInfo;
 

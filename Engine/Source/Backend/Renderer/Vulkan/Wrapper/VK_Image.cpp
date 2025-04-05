@@ -94,4 +94,60 @@ namespace rge::backend
         vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(device.GetGraphicsQueue());
     }
+
+    VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
+        VkImageUsageFlags usage, VkImageAspectFlags aspectFlags)
+        : m_Device(device), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags)
+    {
+        ASSERT(m_Size.x > 0 && m_Size.y > 0, "Cannot create an image of zero size");
+
+        auto imageInfo = MakeInfo<VkImageCreateInfo>();
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = size.x;
+        imageInfo.extent.height = size.y;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1; // TODO: Implement support for mipmap levels
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = m_Format;
+        imageInfo.tiling = tiling;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = usage;
+        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        if (const auto result = vkCreateImage(m_Device.Get(), &imageInfo, nullptr, &m_Image); result != VK_SUCCESS)
+            throw VulkanException("Failed to create Vulkan image!", result);
+
+        VkMemoryRequirements memoryRequirements;
+        vkGetImageMemoryRequirements(m_Device.Get(), m_Image, &memoryRequirements);
+
+        auto allocateInfo = MakeInfo<VkMemoryAllocateInfo>();
+        allocateInfo.allocationSize = memoryRequirements.size;
+        allocateInfo.memoryTypeIndex = m_Device.FindMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        if (const auto result = vkAllocateMemory(m_Device.Get(), &allocateInfo, nullptr, &m_ImageMemory); result != VK_SUCCESS)
+            throw VulkanException("Failed to allocate memory for a Vulkan image!", result);
+
+        vkBindImageMemory(m_Device.Get(), m_Image, m_ImageMemory, 0);
+
+        auto viewInfo = MakeInfo<VkImageViewCreateInfo>();
+        viewInfo.image = m_Image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = m_Format;
+        viewInfo.subresourceRange.aspectMask = m_AspectFlags;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        if (const auto result = vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_ImageView); result != VK_SUCCESS)
+            throw VulkanException("Failed to create a Vulkan image view!", result);
+    }
+
+    VK_Image::~VK_Image()
+    {
+        vkDestroyImageView(m_Device.Get(), m_ImageView, nullptr);
+        vkDestroyImage(m_Device.Get(), m_Image, nullptr);
+        vkFreeMemory(m_Device.Get(), m_ImageMemory, nullptr);
+    }
 }
