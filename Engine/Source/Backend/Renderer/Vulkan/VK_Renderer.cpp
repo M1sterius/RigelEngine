@@ -1,33 +1,13 @@
 #include "VK_Renderer.hpp"
-
-#include "AssetManager.hpp"
-#include "Shader.hpp"
-
-#include "VK_MemoryBuffer.hpp"
-#include "VK_UniformBuffer.hpp"
-#include "VK_DescriptorSet.hpp"
-#include "VK_DescriptorPool.hpp"
-#include "VulkanException.hpp"
-#include "VK_VertexBuffer.hpp"
-#include "VK_IndexBuffer.hpp"
-#include "VK_Shader.hpp"
-#include "VK_GraphicsPipeline.hpp"
-#include "VK_CmdBuffer.hpp"
-#include "VK_Fence.hpp"
-#include "VK_Semaphore.hpp"
+#include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
-#include "VK_Instance.hpp"
-#include "VK_Surface.hpp"
-#include "VK_Device.hpp"
-#include "VK_Swapchain.hpp"
-#include "VK_Image.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
-
+#include "AssetManager.hpp"
+#include "Shader.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
-#include "AssetManager.hpp"
 
 #include "vulkan.h"
 
@@ -57,16 +37,11 @@ namespace rge::backend
         m_DescriptorPool = std::make_unique<VK_DescriptorPool>(*m_Device, poolSizes, framesInFlight);
 
         for (uint32_t i = 0; i < framesInFlight; i++)
+        {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
-
-        for (uint32_t i = 0; i < framesInFlight; i++)
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-
-        for (uint32_t i = 0; i < framesInFlight; i++)
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
 
-        for (uint32_t i = 0; i < framesInFlight; i++)
-        {
             m_UniformBuffers.emplace_back(std::make_unique<VK_UniformBuffer>(*m_Device, sizeof(DefaultUBO)));
 
             auto setBuilder = VK_DescriptorSetBuilder(*m_Device);
@@ -85,12 +60,14 @@ namespace rge::backend
 
     void VK_Renderer::LateInit()
     {
-        VkDescriptorSetLayout layout;
         auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
         layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
+        const auto layout = layoutBuilder.BuildLayout();
 
         const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackendShader<VK_Shader>();
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layoutBuilder.BuildLayout());
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
+
+        vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
 
         const std::vector<Vertex> vertices = {
             {{-0.5f, -0.5f, 1.0}, {1.0f, 0.0f}},
