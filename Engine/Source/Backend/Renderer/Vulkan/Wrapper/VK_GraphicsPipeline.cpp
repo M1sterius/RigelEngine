@@ -35,7 +35,7 @@ namespace rge::backend
         auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
         renderingCreateInfo.colorAttachmentCount = 1;
         renderingCreateInfo.pColorAttachmentFormats = &swapchainImageFormat;
-        renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+        renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
         renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 
         // Pipeline vertex input
@@ -83,6 +83,14 @@ namespace rge::backend
         colorBlending.attachmentCount = 1;
         colorBlending.pAttachments = &colorBlendAttachment;
 
+        // Depth and stencil
+        auto depthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
+        depthStencil.depthTestEnable = VK_TRUE;
+        depthStencil.depthWriteEnable = VK_TRUE;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.stencilTestEnable = VK_FALSE;
+
         constexpr VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
         auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
         dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
@@ -102,6 +110,7 @@ namespace rge::backend
         pipelineInfo.pRasterizationState = &rasterizer;
         pipelineInfo.pMultisampleState = &multisampling;
         pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
         pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass

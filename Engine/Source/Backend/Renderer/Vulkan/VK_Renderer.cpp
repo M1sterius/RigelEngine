@@ -61,6 +61,7 @@ namespace rge::backend
 
     void VK_Renderer::LateInit()
     {
+        // We do this to give info about descriptor layout to the rendering pipeline
         auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
         layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
         const auto layout = layoutBuilder.BuildLayout();
@@ -149,12 +150,21 @@ namespace rge::backend
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.clearValue.color = {{0.2f, 0.3f, 0.4f, 1.0f}};
 
+        VkRenderingAttachmentInfo depthAttachment {};
+        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachment.imageView = m_DepthBufferImage->GetView();
+        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.clearValue.depthStencil = {1.0f, 0};
+
         VkRenderingInfo renderingInfo {};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         renderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
+        renderingInfo.pDepthAttachment = &depthAttachment;
 
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
