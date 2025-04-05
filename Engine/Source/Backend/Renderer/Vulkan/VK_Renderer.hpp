@@ -48,7 +48,8 @@ namespace rge::backend
         void Shutdown() override;
 
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
-        void RecreateSwapchain() const;
+        void RecreateSwapchain();
+        void CreateDepthBufferImage();
 
         void UpdateUniformBuffer(VK_UniformBuffer& buffer);
 
@@ -58,6 +59,7 @@ namespace rge::backend
         std::unique_ptr<VK_Swapchain> m_Swapchain;
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
+        std::unique_ptr<VK_Image> m_DepthBufferImage;
 
         std::unique_ptr<VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<VK_IndexBuffer> m_IndexBuffer;

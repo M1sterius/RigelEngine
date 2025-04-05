@@ -6,8 +6,8 @@
 
 namespace rge::backend
 {
-    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format, VkImageLayout oldLayout,
-        VkImageLayout newLayout)
+    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format,
+        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
     {
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
         barrier.oldLayout = oldLayout;
@@ -15,7 +15,7 @@ namespace rge::backend
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
-        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.aspectMask = aspectFlags;
         barrier.subresourceRange.baseMipLevel = 0;
         barrier.subresourceRange.levelCount = 1;
         barrier.subresourceRange.baseArrayLayer = 0;
@@ -64,8 +64,18 @@ namespace rge::backend
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
         }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
+        {
+            barrier.srcAccessMask = 0;
+            barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        }
         else
+        {
             throw VulkanException("Unsupported Vulkan image layout transition!", VK_ERROR_UNKNOWN);
+        }
 
         vkCmdPipelineBarrier(
         commandBuffer,
@@ -77,13 +87,13 @@ namespace rge::backend
         );
     }
 
-    void VK_Image::TransitionLayout(VK_Device& device, VkImage image, VkFormat format, VkImageLayout oldLayout,
-                                    VkImageLayout newLayout)
+    void VK_Image::TransitionLayout(VK_Device& device, const VK_Image& image, VkFormat format, VkImageLayout oldLayout,
+            VkImageLayout newLayout)
     {
         const auto commandBuffer = VK_CmdBuffer(device);
         commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-        CmdTransitionLayout(commandBuffer.Get(), image, format, oldLayout, newLayout);
+        CmdTransitionLayout(commandBuffer.Get(), image.Get(), format, image.GetAspectFlags(), oldLayout, newLayout);
 
         commandBuffer.EndRecording();
         auto submitInfo = MakeInfo<VkSubmitInfo>();

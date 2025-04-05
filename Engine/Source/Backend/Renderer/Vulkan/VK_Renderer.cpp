@@ -27,6 +27,7 @@ namespace rge::backend
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), m_WindowManager.GetSize());
+        CreateDepthBufferImage();
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
@@ -92,7 +93,7 @@ namespace rge::backend
         Debug::Trace("Shutting down Vulkan renderer.");
     }
 
-    void VK_Renderer::RecreateSwapchain() const
+    void VK_Renderer::RecreateSwapchain()
     {
         m_WindowManager.WaitForFocus();
         m_Device->WaitIdle();
@@ -100,7 +101,20 @@ namespace rge::backend
         const auto windowSize = m_WindowManager.GetSize();
         const auto vsync = m_WindowManager.IsVsyncEnabled();
 
+        CreateDepthBufferImage();
         m_Swapchain->SetupSwapchain(windowSize, vsync);
+    }
+
+    void VK_Renderer::CreateDepthBufferImage()
+    {
+        if (m_DepthBufferImage) m_DepthBufferImage.reset();
+
+        const auto size = m_WindowManager.GetSize();
+        m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
+            VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+        VK_Image::TransitionLayout(*m_Device, *m_DepthBufferImage, m_DepthBufferImage->GetFormat(),
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
     void VK_Renderer::UpdateUniformBuffer(VK_UniformBuffer& buffer)
@@ -125,7 +139,7 @@ namespace rge::backend
     {
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
 
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
         VkRenderingAttachmentInfo colorAttachment {};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -172,7 +186,7 @@ namespace rge::backend
         vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetIndexCount(), 1, 0, 0, 0);
 
         vkCmdEndRendering(commandBuffer);
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
     void VK_Renderer::Render()
