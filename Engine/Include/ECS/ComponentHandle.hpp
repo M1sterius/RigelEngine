@@ -9,12 +9,19 @@ namespace rge
         NODISCARD bool ValidateComponentHandleImpl(const uid_t cmpID, const uid_t goID, const uid_t sceneID);
     }
 
-    template<typename T>
+    class Component;
+
+    template<typename T> requires std::is_base_of_v<Component, T>
     class ComponentHandle final : public RigelHandle<T>
     {
     public:
         ComponentHandle(T* ptr, const uid_t id, const uid_t objectID, const uid_t sceneID)
                 :   RigelHandle<T>(ptr, id), m_GameObjectID(objectID), m_SceneID(sceneID) { }
+
+        NODISCARD static ComponentHandle Null()
+        {
+            return {nullptr, NULL_ID, NULL_ID, NULL_ID};
+        }
 
         NODISCARD bool IsNull() const override
         {

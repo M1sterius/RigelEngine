@@ -9,11 +9,13 @@
 #include "SceneHandle.hpp"
 
 #include <string>
-#include <vector>
 #include <unordered_map>
 
 namespace rge
 {
+    template<typename T>
+    concept ComponentConcept = std::is_base_of_v<Component, T>;
+
     /**
     *   The class for all objects that can exist in a scene
     */
@@ -29,10 +31,9 @@ namespace rge
         // Returns handle to the scene this object is attached to
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
-        template<typename T, typename... Args> ComponentHandle<T> AddComponent(Args&&... args)
+        template<ComponentConcept T, typename... Args>
+        ComponentHandle<T> AddComponent(Args&&... args)
         {
-            static_assert(std::is_base_of<Component, T>::value, "T must inherit from rge::Component");
-
             const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
 
             // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
@@ -46,19 +47,18 @@ namespace rge
         /**
          * Returns handle to the first component of type T attached to this GameObject
          */
-        template<typename T> ComponentHandle<T> GetComponent()
+        template<ComponentConcept T>
+        ComponentHandle<T> GetComponent()
         {
-            static_assert(std::is_base_of_v<Component, T>, "T must inherit from rge::Component");
-
             for (const auto& [id, component] : m_Components)
             {
-                if (const auto cast = dynamic_cast<T*>(component))
+                if (const auto cast = dynamic_cast<T*>(component.get()))
                     return ComponentHandle<T>(cast, id, this->GetID(), m_Scene.GetID());
             }
 
             Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
 
-            return ComponentHandle<T>(nullptr, NULL_ID, NULL_ID, NULL_ID);
+            return ComponentHandle<T>::Null();
         }
 
         ComponentHandle<Component> GetComponentByID(const uid_t ID) const
@@ -69,13 +69,12 @@ namespace rge
                     return { component.get(), currentID, this->GetID(), m_Scene.GetID() };
             }
 
-            return {nullptr, NULL_ID, NULL_ID, NULL_ID};
+            return ComponentHandle<Component>::Null();
         }
 
-        template<typename T> NODISCARD bool HasComponent()
+        template<ComponentConcept T>
+        NODISCARD bool HasComponent()
         {
-            static_assert(std::is_base_of_v<Component, T>, "T must inherit from rge::Component");
-
             for (const auto& [id, component] : m_Components)
             {
                 if (const auto cast = dynamic_cast<T*>(component.get()))

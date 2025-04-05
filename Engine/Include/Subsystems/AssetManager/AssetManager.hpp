@@ -15,6 +15,9 @@
 
 namespace rge
 {
+    template<typename T>
+    concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;
+
     struct AssetRegistryRecord final
     {
         size_t PathHash;
@@ -25,11 +28,9 @@ namespace rge
     class AssetManager final : public RigelSubsystem
     {
     public:
-        template<typename T>
+        template<RigelAssetConcept T>
         NODISCARD AssetHandle<T> Find(const std::filesystem::path& path) const
         {
-            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
-
             std::shared_lock lock(m_RegistryMutex);
 
             for (const auto& [id, record] : m_AssetsRegistry)
@@ -38,14 +39,12 @@ namespace rge
                     return AssetHandle<T>(cast, id);
             }
 
-            return AssetHandle<T>(nullptr, NULL_ID);
+            return AssetHandle<T>::Null();
         }
 
-        template<typename T>
+        template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path)
         {
-            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
-
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
@@ -76,11 +75,9 @@ namespace rge
             return AssetHandle<T>(rawPtr, ID);
         }
 
-        template<typename T>
+        template<RigelAssetConcept T>
         void Unload(const std::filesystem::path& path)
         {
-            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
-
             const auto found = Find<T>(path);
 
             if (found.IsNull())
@@ -94,11 +91,9 @@ namespace rge
             m_AssetsRegistry.erase(found.GetID());
         }
 
-        template<typename T>
+        template<RigelAssetConcept T>
         void Unload(const AssetHandle<T>& handle)
         {
-            static_assert(std::is_base_of_v<RigelAsset, T>, "T must inherit from rge::RigelAsset!");
-
             if (!Validate<T>(handle))
             {
                 Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
@@ -116,7 +111,7 @@ namespace rge
             return m_AssetsRegistry.contains(assetID);
         }
 
-        template<typename T>
+        template<RigelAssetConcept T>
         NODISCARD inline bool Validate(const AssetHandle<T>& handle)
         {
             return Validate(handle.GetID());

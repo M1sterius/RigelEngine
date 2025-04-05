@@ -5,7 +5,7 @@
 class TestComponent final : public rge::Component
 {
 public:
-    REGISTER_COMPONENT(TestComponent);
+    RGE_REGISTER_COMPONENT(TestComponent);
 
     NODISCARD nlohmann::json Serialize() const override;
     bool Deserialize(const nlohmann::json& json) override;

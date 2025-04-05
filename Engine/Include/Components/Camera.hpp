@@ -11,7 +11,7 @@ namespace rge
     class Camera final : public Component
     {
     public:
-        REGISTER_COMPONENT(Camera);
+        RGE_REGISTER_COMPONENT(Camera);
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;

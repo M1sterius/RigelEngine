@@ -38,7 +38,7 @@ namespace rge
         }
     };
 
-#define REGISTER_COMPONENT(ClassName) \
+#define RGE_REGISTER_COMPONENT(ClassName) \
     NODISCARD const char* GetTypeName() const override { return #ClassName; } \
     friend struct rge::ComponentTypeRegistry::Registrar<ClassName>; \
     inline static rge::ComponentTypeRegistry::Registrar<ClassName> ClassName##_registrar = rge::ComponentTypeRegistry::Registrar<ClassName>(#ClassName);

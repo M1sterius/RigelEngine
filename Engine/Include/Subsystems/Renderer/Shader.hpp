@@ -18,7 +18,7 @@ namespace rge
     public:
         ~Shader() override;
     INTERNAL:
-        template<typename T>
+        template<typename T> requires std::is_base_of_v<backend::BackendShader, T>
         NODISCARD T& GetBackendShader() const
         {
             return static_cast<T&>(*m_BackendShader);

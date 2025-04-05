@@ -9,15 +9,18 @@ namespace rge
     class GOHandle final : public RigelHandle<GameObject>
     {
     public:
-        NODISCARD bool IsNull() const override;
+        GOHandle(GameObject* ptr, const uid_t id, const uid_t sceneID);
 
-        // Checks if the object is still instantiated on the scene that owns it
+        NODISCARD inline static GOHandle Null()
+        {
+            return {nullptr, NULL_ID, NULL_ID};
+        }
+
+        NODISCARD bool IsNull() const override;
         NODISCARD bool IsValid() const override;
 
         // Returns the ID of the scene this object belongs to
         NODISCARD inline uid_t GetSceneID() const { return m_SceneID; }
-    INTERNAL:
-        GOHandle(GameObject* ptr, const uid_t id, const uid_t sceneID);
     private:
         uid_t m_SceneID = NULL_ID;
     };

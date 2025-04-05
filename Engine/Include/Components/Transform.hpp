@@ -12,7 +12,7 @@ namespace rge
     class Transform final : public Component
     {
     public:
-        REGISTER_COMPONENT(Transform);
+        RGE_REGISTER_COMPONENT(Transform);
 
         NODISCARD glm::vec3 GetPosition() const { return m_Position; }
         NODISCARD glm::quat GetRotation() const { return m_Rotation; }

@@ -32,7 +32,13 @@ namespace rge
     Engine* Engine::m_GlobalInstance = nullptr;
 
     Engine::Engine() = default;
-    Engine::~Engine() { Shutdown(); }
+    Engine::~Engine()
+    {
+        Shutdown();
+
+        // Reset the global instance so that a new one could be properly created
+        m_GlobalInstance = nullptr;
+    }
 
     std::unique_ptr<Engine> Engine::CreateInstance(const int32_t argc, char** argv)
     {
@@ -53,7 +59,7 @@ namespace rge
         Debug::Trace("Engine working directory: {}", Directory::WorkingDirectory().string());
         Debug::Trace("Starting up subsystems:");
 
-        // Create subsystem instances, startup methods called in constructors
+        // Create subsystem instances, startup methods are called in constructors
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -66,11 +72,11 @@ namespace rge
         m_AssetManager->LoadEngineAssets();
         m_Renderer->LateInit();
 
-        m_Running = true;
-        m_GlobalTimeStopwatch.Start();
-
         m_ThreadPool = std::make_unique<ThreadPool>();
         Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
+
+        m_Running = true;
+        m_GlobalTimeStopwatch.Start();
 
         Debug::Trace("Rigel engine initialization complete.");
     }
@@ -82,7 +88,7 @@ namespace rge
         // Additional logic needed to shut down subsystems
         m_AssetManager->UnloadEngineAssets();
 
-        // Delete subsystem instances, shutdown methods called in destructors
+        // Delete subsystem instances, shutdown methods are called in destructors
         m_PhysicsEngine.reset();
         m_Renderer.reset();
         m_InputManager.reset();

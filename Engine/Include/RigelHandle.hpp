@@ -2,30 +2,29 @@
 
 #include "Core.hpp"
 
-#include <stdexcept>
-
 namespace rge
 {
     /**
      * Base class for handles to objects managed by Rigel engine and it's subsystems
      * @tparam T The types of the underlying object pointer
      */
-    template<typename T> class RigelHandle
+    template<typename T>
+    class RigelHandle
     {
     public:
-        inline T* operator -> ()
+        T* operator -> ()
         {
             CheckHandle();
             return m_Ptr;
         }
 
-        inline const T* operator -> () const
+        const T* operator -> () const
         {
             CheckHandle();
             return m_Ptr;
         }
 
-        NODISCARD inline uid_t GetID() const { return m_ID; }
+        NODISCARD uid_t GetID() const { return m_ID; }
 
         virtual ~RigelHandle() = default;
     protected:
@@ -48,7 +47,7 @@ namespace rge
         T* m_Ptr = nullptr;
         uid_t m_ID = NULL_ID;
     private:
-        inline void CheckHandle() const
+        void CheckHandle() const
         {
             if (IsNull())
                 throw RigelException("Attempted to dereference a null Rigel handle!");
