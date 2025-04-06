@@ -3,3 +3,4 @@ CMakeBuild/
 .vscode/
 .vs/
 .idea/
+.venv/

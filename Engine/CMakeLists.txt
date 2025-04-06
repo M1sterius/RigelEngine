@@ -37,7 +37,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
+    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
@@ -49,13 +49,10 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/ECS/ComponentHandle.cpp
-        Source/Subsystems/AssetManager/AssetHandle.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.hpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.hpp
-        Source/Backend/Renderer/BackendModel.hpp
-        Source/Subsystems/Renderer/Model.cpp
+    Source/Subsystems/AssetManager/AssetHandle.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
+    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
+    Source/Subsystems/Renderer/Model.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -141,10 +138,15 @@ add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
 find_package(Vulkan REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Python3 REQUIRED)
 
 target_link_libraries(RigelEngine PUBLIC
     ${LINK_LIBRARIES} glfw Vulkan::Vulkan OpenGL::GL
 )
 
-# all engine assets preparation is handled in the cmake file in that directory
-add_subdirectory(Assets)
+# run a python script that builds all engine assets
+add_custom_target(run_my_script ALL
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Engine/Assets/BuildAssets.py ${CMAKE_BUILD_TYPE} ${ENGINE_OUTPUT_PATH}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running build assets python script!"
+)
