@@ -120,8 +120,7 @@ namespace rge
         AssetManager();
         ~AssetManager() override;
 
-        void LoadEngineAssets();
-        void UnloadEngineAssets();
+        void UnloadAllAssets();
     private:
         void Startup() override;
         void Shutdown() override;

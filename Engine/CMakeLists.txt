@@ -107,6 +107,8 @@ target_include_directories(RigelEngine PRIVATE
     ${VULKAN_SDK_PATH}/Include/vulkan
     ${DEPENDENCIES_DIR}/glfw/include/GLFW
     ${DEPENDENCIES_DIR}/imgui
+    ${DEPENDENCIES_DIR}/obj_loader
+    ${DEPENDENCIES_DIR}/stb_image
 )
 
 # Include paths that should be available outside to the projects linking the engine

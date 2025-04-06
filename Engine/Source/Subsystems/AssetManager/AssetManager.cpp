@@ -46,14 +46,8 @@ namespace rge
         return ID;
     }
 
-
-    void AssetManager::LoadEngineAssets()
+    void AssetManager::UnloadAllAssets()
     {
-        Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
-    }
-
-    void AssetManager::UnloadEngineAssets()
-    {
-        Unload<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
+        m_AssetsRegistry.clear();
     }
 }

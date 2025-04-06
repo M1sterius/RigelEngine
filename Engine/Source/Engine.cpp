@@ -69,7 +69,6 @@ namespace rge
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
         // Additional subsystem initialization methods
-        m_AssetManager->LoadEngineAssets();
         m_Renderer->LateInit();
 
         m_ThreadPool = std::make_unique<ThreadPool>();
@@ -86,7 +85,7 @@ namespace rge
         Debug::Trace("Shutting down Rigel engine.");
 
         // Additional logic needed to shut down subsystems
-        m_AssetManager->UnloadEngineAssets();
+        m_AssetManager->UnloadAllAssets();
 
         // Delete subsystem instances, shutdown methods are called in destructors
         m_PhysicsEngine.reset();
