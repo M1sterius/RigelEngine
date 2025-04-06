@@ -16,6 +16,7 @@ namespace rge
     class AssetHandle final : public RigelHandle<T>
     {
     public:
+        AssetHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
         AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id) { }
 
         NODISCARD static AssetHandle Null()

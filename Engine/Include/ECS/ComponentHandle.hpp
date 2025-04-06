@@ -15,6 +15,7 @@ namespace rge
     class ComponentHandle final : public RigelHandle<T>
     {
     public:
+        ComponentHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
         ComponentHandle(T* ptr, const uid_t id, const uid_t objectID, const uid_t sceneID)
                 :   RigelHandle<T>(ptr, id), m_GameObjectID(objectID), m_SceneID(sceneID) { }
 

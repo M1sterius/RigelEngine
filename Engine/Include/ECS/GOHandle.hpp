@@ -9,6 +9,7 @@ namespace rge
     class GOHandle final : public RigelHandle<GameObject>
     {
     public:
+        GOHandle() : RigelHandle(nullptr, NULL_ID) { }
         GOHandle(GameObject* ptr, const uid_t id, const uid_t sceneID);
 
         NODISCARD inline static GOHandle Null()

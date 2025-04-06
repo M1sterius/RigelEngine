@@ -37,8 +37,8 @@ public:
 
         auto m = AssetManager.Load<rge::Model>("Assets/EngineAssets/Models/cube.obj");
 
-        auto dS = MakeDefaultScene();
-        SceneManager.LoadScene(dS);
+        auto sh = MakeDefaultScene();
+        SceneManager.LoadScene(sh);
     }
 
     void Run() const

@@ -16,6 +16,8 @@ namespace rge::backend
         if (!IsFormatSupported(m_Path.extension().string()))
             throw RigelException("Attempted to a load a model in an unsupported format!");
 
+        // TODO: Rework to use assimp. Add support for multimesh models with materials
+
         auto loader = objl::Loader();
 
         if (!loader.LoadFile(m_Path.string()))
