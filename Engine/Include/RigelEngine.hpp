@@ -32,6 +32,7 @@
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "Shader.hpp"
+#include "Model.hpp"
 #include "KeysAndButtons.hpp"
 
 // Debug

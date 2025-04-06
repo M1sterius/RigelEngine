@@ -37,7 +37,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_Shader.cpp
+        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
@@ -52,6 +52,10 @@ add_library(RigelEngine STATIC
         Source/Subsystems/AssetManager/AssetHandle.cpp
         Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
         Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.hpp
+        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
+        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.hpp
+        Source/Backend/Renderer/BackendModel.hpp
+        Source/Subsystems/Renderer/Model.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -100,6 +104,7 @@ target_include_directories(RigelEngine PRIVATE
     Source/Backend/Renderer
     Source/Backend/Renderer/Vulkan
     Source/Backend/Renderer/Vulkan/Wrapper
+    Source/Backend/Renderer/Vulkan/AssetBackends
 
     ${Vulkan_INCLUDE_DIRS}
     ${VULKAN_SDK_PATH}/Include/vulkan

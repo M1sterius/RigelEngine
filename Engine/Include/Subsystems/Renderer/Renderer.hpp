@@ -8,7 +8,6 @@
 namespace rge::backend
 {
     class RenderingBackend;
-    struct RenderingBackendRenderInfo;
 }
 
 namespace rge

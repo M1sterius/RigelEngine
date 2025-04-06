@@ -35,6 +35,8 @@ public:
             rge::Debug::Error("Failed to find the file to load the sample scene from!");
         }
 
+        auto m = AssetManager.Load<rge::Model>("Debug/Model.obj");
+
         auto dS = MakeDefaultScene();
         SceneManager.LoadScene(dS);
     }

@@ -263,4 +263,18 @@ namespace rge::backend
         info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         return info;
     }
+
+    template<>
+    VkRenderingAttachmentInfo MakeInfo(VkRenderingAttachmentInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        return info;
+    }
+
+    template<>
+    VkRenderingInfo MakeInfo(VkRenderingInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        return info;
+    }
 }

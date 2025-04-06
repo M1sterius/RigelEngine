@@ -113,7 +113,7 @@ namespace rge::backend
         pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
-        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass
+        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
         pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
 
         return std::make_unique<VK_GraphicsPipeline>(device, pipelineLayoutInfo, pipelineInfo);

@@ -27,7 +27,7 @@ namespace rge::backend
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), m_WindowManager.GetSize());
-        CreateDepthBufferImage();
+        CreateDepthBufferImage(m_WindowManager.GetSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
@@ -69,18 +69,28 @@ namespace rge::backend
         const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackendShader<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
+        // After the pipeline is created, the descriptor layout is no longer needed
         vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
 
         const std::vector<Vertex> vertices = {
-            {{-0.5f, -0.5f, 1.0}, {1.0f, 0.0f}},
-            {{0.5f, -0.5f, 1.0}, {0.0f, 1.0f}},
-            {{0.5f, 0.5f, 1.0}, {0.0f, 0.0f}},
-            {{-0.5f, 0.5f, 1.0}, {0.0f, 0.0f}}
+            {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
+            {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
+            {{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
+            {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
+            {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
+            {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
+            {{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
         };
 
         const std::vector<uint32_t> indices = {
-            0, 1, 2,
-            2, 3, 0
+            0, 1, 2,  2, 3, 0,
+            1, 5, 6,  6, 2, 1,
+            5, 4, 7,  7, 6, 5,
+            4, 0, 3,  3, 7, 4,
+            3, 2, 6,  6, 7, 3,
+            4, 5, 1,  1, 0, 4
         };
 
         m_VertexBuffer = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
@@ -102,15 +112,14 @@ namespace rge::backend
         const auto windowSize = m_WindowManager.GetSize();
         const auto vsync = m_WindowManager.IsVsyncEnabled();
 
-        CreateDepthBufferImage();
+        CreateDepthBufferImage(windowSize);
         m_Swapchain->SetupSwapchain(windowSize, vsync);
     }
 
-    void VK_Renderer::CreateDepthBufferImage()
+    void VK_Renderer::CreateDepthBufferImage(const glm::uvec2 size)
     {
         if (m_DepthBufferImage) m_DepthBufferImage.reset();
 
-        const auto size = m_WindowManager.GetSize();
         m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
             VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
 
@@ -136,30 +145,28 @@ namespace rge::backend
         buffer.UploadData(0, sizeof(ubo), &ubo);
     }
 
-    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
+    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image)
     {
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
 
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-        VkRenderingAttachmentInfo colorAttachment {};
-        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         colorAttachment.imageView = image.imageView;
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.clearValue.color = {{0.2f, 0.3f, 0.4f, 1.0f}};
 
-        VkRenderingAttachmentInfo depthAttachment {};
-        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        auto depthAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         depthAttachment.imageView = m_DepthBufferImage->GetView();
         depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depthAttachment.clearValue.depthStencil = {1.0f, 0};
 
-        VkRenderingInfo renderingInfo {};
-        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        auto renderingInfo = MakeInfo<VkRenderingInfo>();
         renderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
@@ -190,13 +197,18 @@ namespace rge::backend
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
 
+        const auto& uniformBuffer = m_UniformBuffers[frameIndex];
+        UpdateUniformBuffer(*uniformBuffer); // buffer must be updated per mesh
+
         const auto currentDescriptor = m_DescriptorSets[frameIndex]->Get();
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, &currentDescriptor, 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetIndexCount(), 1, 0, 0, 0);
 
         vkCmdEndRendering(commandBuffer);
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
     void VK_Renderer::Render()
@@ -215,9 +227,6 @@ namespace rge::backend
 
         const auto& commandBuffer = m_CommandBuffers[frameIndex];
         commandBuffer->Reset(0);
-
-        const auto& uniformBuffer = m_UniformBuffers[frameIndex];
-        UpdateUniformBuffer(*uniformBuffer);
 
         commandBuffer->BeginRecording(0);
         RecordCommandBuffer(commandBuffer->Get(), image);

@@ -47,9 +47,9 @@ namespace rge::backend
         void Startup() override;
         void Shutdown() override;
 
-        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
+        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image);
         void RecreateSwapchain();
-        void CreateDepthBufferImage();
+        void CreateDepthBufferImage(const glm::uvec2 size);
 
         void UpdateUniformBuffer(VK_UniformBuffer& buffer);
 
