@@ -75,15 +75,3 @@ namespace rge::backend
         AssetManager& m_AssetManager;
     };
 }
-
-
-/*
-  Command Buffers & Sync Objects
-  Render Pass & Framebuffers
-  Graphics Pipeline & Shaders
-  Vertex Buffers & Index Buffers
-  Descriptor Sets for MVP Matrices
-  Render Loop Implementation
-  Depth Buffering
-  Load & Render a 3D Model
-*/

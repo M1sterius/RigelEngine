@@ -77,6 +77,8 @@ namespace rge
 
         // Cull models, dispatch OnBecomeVisible/OnBecomeInvisible
 
+        m_CurrentRenderInfo.Reset();
+
         auto scene = Engine::Get().GetSceneManager().GetLoadedScene();
         if (scene.IsNull())
         {
@@ -84,14 +86,24 @@ namespace rge
             return;
         }
 
-        // const auto models = scene->Search([](GOHandle& go) -> bool
-        // {
-        //     if (go->HasComponent<rge::ModelRenderer>())
-        //         return true;
-        //     return false;
-        // });
-        //
-        // Debug::Message("{}", models.size());
+        auto cameras = scene->Search([](GOHandle& go) -> bool
+        {
+            if (go->HasComponent<Camera>())
+                return true;
+            return false;
+        });
+
+        if (cameras.empty())
+        {
+            Debug::Error("No cameras found on the active scene. Rendering skipped!");
+            return;
+        }
+
+        auto cameraGO = *cameras.begin();
+        m_CurrentRenderInfo.MainCamera = cameraGO->GetComponent<Camera>();
+        m_CurrentRenderInfo.Models = scene->FindComponentsOfType<ModelRenderer>();
+
+        Debug::Message("{}", m_CurrentRenderInfo.Models.size());
     }
 
     void Renderer::Render() const

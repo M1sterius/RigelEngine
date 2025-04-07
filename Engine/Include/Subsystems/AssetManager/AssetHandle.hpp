@@ -11,7 +11,8 @@ namespace rge
     }
 
     class RigelAsset;
-    
+
+    // TODO: Implement reference counting logic
     template<typename T> requires std::is_base_of_v<RigelAsset, T>
     class AssetHandle final : public RigelHandle<T>
     {

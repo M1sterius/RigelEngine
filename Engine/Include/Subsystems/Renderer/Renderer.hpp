@@ -2,16 +2,32 @@
 
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
+#include "ComponentHandle.hpp"
+#include "Camera.hpp"
+#include "ModelRenderer.hpp"
 
 #include <memory>
-
-namespace rge::backend
-{
-    class RenderingBackend;
-}
+#include <vector>
 
 namespace rge
 {
+    namespace backend
+    {
+        class RenderingBackend;
+
+        struct SceneRenderInfo
+        {
+            ComponentHandle<Camera> MainCamera;
+            std::vector<ComponentHandle<ModelRenderer>> Models;
+
+            inline void Reset()
+            {
+                MainCamera = ComponentHandle<Camera>::Null();
+                Models.clear();
+            }
+        };
+    }
+
     enum class GraphicsApi : uint8_t
     {
         None,
@@ -37,6 +53,8 @@ namespace rge
     private:
         void Startup() override;
         void Shutdown() override;
+
+        backend::SceneRenderInfo m_CurrentRenderInfo;
 
         NODISCARD GraphicsApi SelectGraphicsAPI();
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;

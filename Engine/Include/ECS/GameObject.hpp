@@ -48,7 +48,7 @@ namespace rge
          * Returns handle to the first component of type T attached to this GameObject
          */
         template<ComponentConcept T>
-        ComponentHandle<T> GetComponent()
+        NODISCARD ComponentHandle<T> GetComponent()
         {
             for (const auto& [id, component] : m_Components)
             {
@@ -59,6 +59,20 @@ namespace rge
             Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
 
             return ComponentHandle<T>::Null();
+        }
+
+        template<ComponentConcept T>
+        NODISCARD std::vector<ComponentHandle<T>> GetComponents()
+        {
+            auto components = std::vector<ComponentHandle<T>>();
+
+            for (const auto& [id, component] : m_Components)
+            {
+                if (const auto cast = dynamic_cast<T*>(component.get()))
+                    components.emplace_back(cast, id, this->GetID(), m_Scene.GetID());
+            }
+
+            return components;
         }
 
         ComponentHandle<Component> GetComponentByID(const uid_t ID) const

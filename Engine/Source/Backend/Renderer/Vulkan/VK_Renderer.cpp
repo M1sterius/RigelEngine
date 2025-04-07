@@ -129,13 +129,8 @@ namespace rge::backend
 
     void VK_Renderer::UpdateUniformBuffer(VK_UniformBuffer& buffer)
     {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
         DefaultUBO ubo {};
-        auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        auto model = glm::rotate(glm::mat4(1.0f), Time::GetGlobalTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         auto view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         auto proj = glm::perspective(glm::radians(45.0f), (float)m_Swapchain->GetExtent().width / (float)m_Swapchain->GetExtent().height, 0.1f, 10.0f);
         proj[1][1] *= -1;

@@ -50,6 +50,23 @@ namespace rge
          * @return A plf::colony of handles to selected objects
          */
         NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max()) const;
+
+        template<typename T> requires std::is_base_of_v<Component, T>
+        NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max())
+        {
+            auto components = std::vector<ComponentHandle<T>>();
+
+            for (const auto& go : m_GameObjects)
+            {
+                const auto currentComponents = go->GetComponents<T>();
+                components.insert(components.end(), currentComponents.begin(), currentComponents.end());
+
+                if (components.size() > maxComponents)
+                    return components;
+            }
+
+            return components;
+        }
     INTERNAL:
         ~Scene() override = default;
 

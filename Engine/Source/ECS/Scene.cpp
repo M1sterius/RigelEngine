@@ -113,10 +113,10 @@ namespace rge
         for (const auto& go : m_GameObjects)
         {
             if (go->GetID() == id)
-                return GOHandle(go.get(), id, this->GetID());
+                return {go.get(), id, this->GetID()};
         }
 
-        return GOHandle(nullptr, NULL_ID, NULL_ID);
+        return GOHandle::Null();
     }
 
     plf::colony<GOHandle> Scene::Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit) const
