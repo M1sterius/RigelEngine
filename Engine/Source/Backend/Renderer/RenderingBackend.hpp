@@ -1,10 +1,14 @@
 #pragma once
 
+#include <Renderer.hpp>
+
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 
 namespace rge::backend
 {
+    struct SceneRenderInfo;
+
     /**
      * Base class for specific graphics API rendering implementations (such as Vulkan or OpenGL)
      */
@@ -15,7 +19,7 @@ namespace rge::backend
 
         virtual void LateInit() = 0;
         virtual void InitImGUI() = 0;
-        virtual void Render() = 0;
+        virtual void Render(const SceneRenderInfo& sceneRenderInfo) = 0;
     protected:
         RenderingBackend() = default;
         void Startup() override = 0;

@@ -206,12 +206,18 @@ namespace rge::backend
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
-    void VK_Renderer::Render()
+    void VK_Renderer::Render(const SceneRenderInfo& sceneRenderInfo)
     {
         if (m_WindowManager.GetWindowResizeFlag())
         {
             m_WindowManager.ResetWindowResizeFlag();
             RecreateSwapchain();
+            return;
+        }
+
+        if (sceneRenderInfo.MainCamera.IsNull())
+        {
+            Debug::Error("No camera on the active scene. Scene rendering aborted!");
             return;
         }
 

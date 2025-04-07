@@ -70,6 +70,7 @@ namespace rge
     INTERNAL:
         ~Scene() override = default;
 
+        // used to assign unique IDs to game object and components
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
@@ -79,6 +80,8 @@ namespace rge
         void OnEndOfFrame(); // Used to process GO deletion queue
 
         void DestroyGOImpl(const GOHandle& handle);
+
+        NODISCARD GOHandle InstantiateForDeserialization();
 
         std::string m_Name;
         bool m_IsLoaded = false;

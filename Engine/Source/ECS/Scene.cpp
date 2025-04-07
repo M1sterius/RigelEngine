@@ -3,6 +3,7 @@
 #include "EventManager.hpp"
 #include "InternalEvents.hpp"
 #include "GameObject.hpp"
+#include "Transform.hpp"
 #include "GOHandle.hpp"
 #include "json.hpp"
 
@@ -17,6 +18,7 @@ namespace rge
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
+        go->AddComponent<Transform>();
         m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
 
         /*
@@ -101,6 +103,18 @@ namespace rge
                      "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
     }
 
+    GOHandle Scene::InstantiateForDeserialization()
+    {
+        const auto go = new GameObject(GetNextObjectID(), "GameObject");
+        go->m_Scene = SceneHandle(this, this->GetID());
+        m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+
+        // The scene is never loaded during deserialization, so we
+        // don't have to worry about OnLoad and OnStart
+
+        return { go, go->GetID(), this->GetID() };
+    }
+
     bool Scene::ValidateGOHandle(const GOHandle& handle) const
     {
         for (const auto& obj : m_GameObjects)
@@ -158,7 +172,7 @@ namespace rge
             return false;
         }
 
-        if (!json.contains("GameObjects") || !json.contains("ID") || !json.contains("Name"))
+        if (!json.contains("ID") || !json.contains("Name") || !json.contains("GameObjects"))
         {
             Debug::Error("Failed to deserialize rge::Scene! Some of the required data is not present in the json object.");
             return false;
@@ -167,10 +181,6 @@ namespace rge
         if (!m_GameObjects.empty())
         {
             Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be deleted!");
-
-            for (auto& go : m_GameObjects)
-                go.reset();
-
             m_GameObjects.clear();
         }
 
@@ -178,7 +188,7 @@ namespace rge
 
         for (const auto& goJson : json["GameObjects"])
         {
-            if (auto go = Instantiate(); !go->Deserialize(goJson))
+            if (auto go = InstantiateForDeserialization(); !go->Deserialize(goJson))
                 Destroy(go);
         }
 

@@ -40,7 +40,7 @@ namespace rge::backend
 
         void LateInit() override;
         void InitImGUI() override;
-        void Render() override;
+        void Render(const SceneRenderInfo& sceneRenderInfo) override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
     private:

@@ -28,7 +28,7 @@ namespace rge
         json["ID"] = GetID();
         json["Name"] = GetName();
 
-        for (const auto& [_, component] : m_Components)
+        for (const auto& component : m_Components | std::views::values)
             json["Components"].push_back(component->Serialize());
 
         return json;
@@ -55,7 +55,7 @@ namespace rge
                 m_Components[cmpPtr->GetID()] = std::unique_ptr<Component>(cmpPtr);
             }
             else
-                Debug::Error("Failed to serialize component of type: " + type);
+                Debug::Error("Failed to serialize component of type: {}!", type);
         }
 
         return true;
@@ -63,19 +63,19 @@ namespace rge
 
     void GameObject::OnLoad()
     {
-        for (const auto& [_, component] : m_Components)
+        for (const auto& component : m_Components | std::views::values)
             component->OnLoad();
     }
 
     void GameObject::OnStart()
     {
-        for (const auto& [_, component] : m_Components)
+        for (const auto& component : m_Components | std::views::values)
             component->OnStart();
     }
 
     void GameObject::OnDestroy()
     {
-        for (const auto& [_, component] : m_Components)
+        for (const auto& component : m_Components | std::views::values)
             component->OnDestroy();
     }
 }

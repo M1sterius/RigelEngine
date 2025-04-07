@@ -80,11 +80,7 @@ namespace rge
         m_CurrentRenderInfo.Reset();
 
         auto scene = Engine::Get().GetSceneManager().GetLoadedScene();
-        if (scene.IsNull())
-        {
-            Debug::Warning("No scene is currently loaded. Rendering skipped!");
-            return;
-        }
+        if (scene.IsNull()) return;
 
         auto cameras = scene->Search([](GOHandle& go) -> bool
         {
@@ -93,21 +89,15 @@ namespace rge
             return false;
         });
 
-        if (cameras.empty())
-        {
-            Debug::Error("No cameras found on the active scene. Rendering skipped!");
-            return;
-        }
+        if (cameras.empty()) return;
 
         auto cameraGO = *cameras.begin();
         m_CurrentRenderInfo.MainCamera = cameraGO->GetComponent<Camera>();
         m_CurrentRenderInfo.Models = scene->FindComponentsOfType<ModelRenderer>();
-
-        Debug::Message("{}", m_CurrentRenderInfo.Models.size());
     }
 
     void Renderer::Render() const
     {
-        m_BackendRenderer->Render();
+        m_BackendRenderer->Render(m_CurrentRenderInfo);
     }
 }
