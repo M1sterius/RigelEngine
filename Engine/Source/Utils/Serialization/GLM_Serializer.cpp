@@ -1,7 +1,7 @@
 #include "GLM_Serializer.hpp"
 #include "json.hpp"
 
-namespace rge
+namespace Rigel
 {
 
     nlohmann::json GLM_Serializer::Serialize(const glm::vec1 vec)

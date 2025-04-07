@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 
-namespace rge
+namespace Rigel
 {
     /**
      * Base class for handles to objects managed by Rigel engine and it's subsystems
@@ -40,7 +40,7 @@ namespace rge
         * Will be false if a handle is left in an invalid state that cannot be detected by nullity.
         *
         * The exact conditions that can put a handle in an invalid state may vary drastically
-        * depending on its type. Validating may be costly for some types (especially so for rge::Component and rge::GameObject)
+        * depending on its type. Validating may be costly for some types (especially so for Rigel::Component and Rigel::GameObject)
         */
         NODISCARD virtual bool IsValid() const = 0;
 

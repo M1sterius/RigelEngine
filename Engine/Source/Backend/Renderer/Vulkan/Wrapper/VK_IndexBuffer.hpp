@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Device;
     class VK_MemoryBuffer;

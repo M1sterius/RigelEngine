@@ -23,11 +23,11 @@
 #define DEFINE_SUBSYSTEM_GETTER(Subsystem) \
     Subsystem& Engine::Get##Subsystem() const \
     { \
-        ASSERT(m_##Subsystem, "Attempted to retrieve a rge::"#Subsystem" instance before it has been initialized"); \
+        ASSERT(m_##Subsystem, "Attempted to retrieve a Rigel::"#Subsystem" instance before it has been initialized"); \
         return *m_##Subsystem; \
     }
 
-namespace rge
+namespace Rigel
 {
     Engine* Engine::m_GlobalInstance = nullptr;
 
@@ -148,12 +148,12 @@ namespace rge
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-        m_EventManager->DispatchThreaded(backend::TransformUpdateEvent(), m_ThreadPool->GetSize());
+        m_EventManager->DispatchThreaded(Backend::TransformUpdateEvent(), m_ThreadPool->GetSize());
         m_Renderer->Prepare();
         m_Renderer->Render();
 
         m_InputManager->ResetInputState();
-        m_EventManager->Dispatch(backend::EndOfFrameEvent());
+        m_EventManager->Dispatch(Backend::EndOfFrameEvent());
 
         // for now the only condition for the engine to keep running is the window not being closed.
         m_Running = !m_WindowManager->WindowShouldClose();

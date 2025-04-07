@@ -2,7 +2,7 @@
 #include "SceneManager.hpp"
 #include "Engine.hpp"
 
-namespace rge
+namespace Rigel
 {
     SceneHandle::SceneHandle(Scene* ptr, const uid_t id) : RigelHandle(ptr, id) { }
 

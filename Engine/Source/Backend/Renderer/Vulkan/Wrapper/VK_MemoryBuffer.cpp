@@ -4,7 +4,7 @@
 #include "VulkanException.hpp"
 #include "MakeInfo.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     void VK_MemoryBuffer::Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size)
     {

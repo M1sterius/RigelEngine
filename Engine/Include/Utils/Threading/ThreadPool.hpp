@@ -12,7 +12,7 @@
 #include <memory>
 #include <atomic>
 
-namespace rge
+namespace Rigel
 {
     class ThreadPool
     {

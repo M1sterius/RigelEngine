@@ -7,7 +7,7 @@
  * Contains events that should be inaccessible outside the engine library
  */
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     struct TransformUpdateEvent final : public Event
     {

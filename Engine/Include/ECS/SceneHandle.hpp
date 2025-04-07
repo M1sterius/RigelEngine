@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelHandle.hpp"
 
-namespace rge
+namespace Rigel
 {
     class Scene;
 

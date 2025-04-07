@@ -12,7 +12,7 @@
 #include <typeindex>
 #include <vector>
 
-namespace rge
+namespace Rigel
 {
     template<typename T>
     concept EventTypeConcept = std::is_base_of_v<Event, T>;

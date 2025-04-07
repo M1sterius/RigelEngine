@@ -7,7 +7,7 @@
 #include "GameObject.hpp"
 #include "Component.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend::HandleValidation
 {
     bool ValidateComponentHandleImpl(const uid_t cmpID, const uid_t goID, const uid_t sceneID)
     {

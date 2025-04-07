@@ -6,19 +6,19 @@
 #include <filesystem>
 #include <memory>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class BackendShader;
 }
 
-namespace rge
+namespace Rigel
 {
     class Shader final : public RigelAsset
     {
     public:
         ~Shader() override;
     INTERNAL:
-        template<typename T> requires std::is_base_of_v<backend::BackendShader, T>
+        template<typename T> requires std::is_base_of_v<Backend::BackendShader, T>
         NODISCARD T& GetBackendShader() const
         {
             return static_cast<T&>(*m_BackendShader);
@@ -26,7 +26,7 @@ namespace rge
     private:
         explicit Shader(const std::filesystem::path& path);
 
-        std::unique_ptr<backend::BackendShader> m_BackendShader;
+        std::unique_ptr<Backend::BackendShader> m_BackendShader;
 
         friend class AssetManager;
     };

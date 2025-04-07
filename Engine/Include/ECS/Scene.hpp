@@ -11,7 +11,7 @@
 #include <string>
 #include <queue>
 
-namespace rge
+namespace Rigel
 {
     class GOHandle;
     class GameObject;

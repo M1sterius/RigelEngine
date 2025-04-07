@@ -5,7 +5,7 @@
 
 #include <utility>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     struct PhysicalDeviceInfo
     {

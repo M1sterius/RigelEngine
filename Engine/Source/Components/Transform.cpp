@@ -6,7 +6,7 @@
 #include "Debug.hpp"
 #include "json.hpp"
 
-namespace rge
+namespace Rigel
 {
     Transform::Transform() : Component(),
         m_Position(glm::vec3(0.0f)), m_Rotation(glm::identity<glm::quat>()), m_Scale(glm::vec3(1.0f))
@@ -22,14 +22,14 @@ namespace rge
 
     void Transform::OnStart()
     {
-        m_UpdateCallbackID = EventManager.Subscribe<backend::TransformUpdateEvent>(
-        [this](const backend::TransformUpdateEvent&) { this->Update(); }
+        m_UpdateCallbackID = EventManager.Subscribe<Backend::TransformUpdateEvent>(
+        [this](const Backend::TransformUpdateEvent&) { this->Update(); }
         );
     }
 
     void Transform::OnDestroy()
     {
-        EventManager.Unsubscribe<backend::TransformUpdateEvent>(m_UpdateCallbackID);
+        EventManager.Unsubscribe<Backend::TransformUpdateEvent>(m_UpdateCallbackID);
     }
 
     void Transform::SetPosition(const glm::vec3& position)
@@ -86,7 +86,7 @@ namespace rge
 
         if (json["Type"] != GetTypeName())
         {
-            Debug::Error("Failed to deserialize rge::Transform component!");
+            Debug::Error("Failed to deserialize Rigel::Transform component!");
             return false;
         }
 

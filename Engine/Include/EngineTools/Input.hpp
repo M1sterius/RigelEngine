@@ -4,7 +4,7 @@
 #include "Math.hpp"
 #include "KeysAndButtons.hpp"
 
-namespace rge
+namespace Rigel
 {
     class Input
     {

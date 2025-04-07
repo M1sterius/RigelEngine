@@ -1,6 +1,6 @@
 #pragma once
 
-namespace rge
+namespace Rigel
 {
     struct Event
     {

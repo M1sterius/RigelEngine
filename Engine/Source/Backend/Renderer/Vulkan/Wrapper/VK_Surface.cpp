@@ -7,7 +7,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
 
     VK_Surface::VK_Surface(VkInstance instance)

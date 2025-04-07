@@ -4,7 +4,7 @@
 #include "Debug.hpp"
 #include "Exceptions.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
 #define UNKNOWN_VK_RESULT static_cast<VkResult>(-69420)
 

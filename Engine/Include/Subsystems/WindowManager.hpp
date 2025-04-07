@@ -12,7 +12,7 @@
 struct GLFWwindow;
 struct GLFWmonitor;
 
-namespace rge
+namespace Rigel
 {
     struct MonitorVideoModInfo
     {

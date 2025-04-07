@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include "AssetManager.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend::HandleValidation
 {
     bool ValidateAssetHandleImpl(const uid_t id)
     {

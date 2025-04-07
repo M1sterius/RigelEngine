@@ -8,7 +8,7 @@
 #include <string>
 #include <future>
 
-namespace rge
+namespace Rigel
 {
     class File
     {

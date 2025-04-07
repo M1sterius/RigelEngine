@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-namespace rge
+namespace Rigel
 {
     class Transform final : public Component
     {

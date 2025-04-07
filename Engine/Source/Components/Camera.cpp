@@ -4,7 +4,7 @@
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 
-namespace rge
+namespace Rigel
 {
     Camera::Camera()
     {

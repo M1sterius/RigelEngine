@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Stopwatch.hpp"
 
-namespace rge
+namespace Rigel
 {
     class SleepUtility
     {

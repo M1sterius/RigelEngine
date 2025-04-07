@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "vulkan.h"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Surface
     {

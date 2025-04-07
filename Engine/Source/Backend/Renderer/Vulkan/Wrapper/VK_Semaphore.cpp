@@ -3,7 +3,7 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_Semaphore::VK_Semaphore(VK_Device& device)
             :   m_Device(device)

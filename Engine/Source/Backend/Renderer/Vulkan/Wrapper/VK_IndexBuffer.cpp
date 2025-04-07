@@ -2,7 +2,7 @@
 #include "VK_Device.hpp"
 #include "VK_MemoryBuffer.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_IndexBuffer::VK_IndexBuffer(VK_Device& device, const std::vector<uint32_t>& indices)
     : m_IndexCount(indices.size())

@@ -6,7 +6,7 @@
 #include "Component.hpp"
 #include "ComponentTypeRegistry.hpp"
 
-namespace rge
+namespace Rigel
 {
     class Camera final : public Component
     {

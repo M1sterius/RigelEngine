@@ -1,7 +1,7 @@
 #include "Debug.hpp"
 #include "Engine.hpp"
 
-namespace rge
+namespace Rigel
 {
     void Debug::Trace(const std::string& message)
     {

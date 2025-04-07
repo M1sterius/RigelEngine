@@ -3,7 +3,7 @@
 #include "json_fwd.hpp"
 #include "Core.hpp"
 
-namespace rge
+namespace Rigel
 {
     class ISerializable
     {

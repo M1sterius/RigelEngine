@@ -1,7 +1,7 @@
 #include "MakeInfo.hpp"
 #include "vulkan.h"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     template <>
     VkApplicationInfo MakeInfo(VkApplicationInfo info) {

@@ -9,9 +9,9 @@
 #include <memory>
 #include <vector>
 
-namespace rge
+namespace Rigel
 {
-    namespace backend
+    namespace Backend
     {
         class RenderingBackend;
 
@@ -44,7 +44,7 @@ namespace rge
         Renderer();
         ~Renderer() override;
 
-        NODISCARD backend::RenderingBackend& GetBackend() const;
+        NODISCARD Backend::RenderingBackend& GetBackend() const;
 
         void LateInit() const;
 
@@ -54,10 +54,10 @@ namespace rge
         void Startup() override;
         void Shutdown() override;
 
-        backend::SceneRenderInfo m_CurrentRenderInfo;
+        Backend::SceneRenderInfo m_CurrentRenderInfo;
 
         NODISCARD GraphicsApi SelectGraphicsAPI();
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
-        std::unique_ptr<backend::RenderingBackend> m_BackendRenderer;
+        std::unique_ptr<Backend::RenderingBackend> m_BackendRenderer;
     };
 }

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Device;
 

@@ -3,7 +3,7 @@
 
 namespace fs = std::filesystem;
 
-namespace rge
+namespace Rigel
 {
     std::filesystem::path Directory::WorkingDirectory()
     {

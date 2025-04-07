@@ -7,7 +7,7 @@
 #include <utility>
 #include <format>
 
-namespace rge
+namespace Rigel
 {
     std::string File::ReadText(const std::filesystem::path& path)
     {

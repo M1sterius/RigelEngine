@@ -5,9 +5,9 @@
 #include "json.hpp"
 #include "ComponentTypeRegistry.hpp"
 
-namespace rge
+namespace Rigel
 {
-    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id), m_Scene({nullptr, NULL_ID})
+    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id)
     {
         m_Name = std::move(name);
     }
@@ -19,6 +19,24 @@ namespace rge
         const auto id = m_Scene->GetNextObjectID();
         ptr->OverrideID(id);
         return id;
+    }
+
+    void GameObject::OnLoad()
+    {
+        for (const auto& component : m_Components | std::views::values)
+            component->OnLoad();
+    }
+
+    void GameObject::OnStart()
+    {
+        for (const auto& component : m_Components | std::views::values)
+            component->OnStart();
+    }
+
+    void GameObject::OnDestroy()
+    {
+        for (const auto& component : m_Components | std::views::values)
+            component->OnDestroy();
     }
 
     nlohmann::json GameObject::Serialize() const
@@ -38,7 +56,7 @@ namespace rge
     {
         if (!json.contains("Components") || !json.contains("ID") || !json.contains("Name"))
         {
-            Debug::Error("Failed to serialize rge::GameObject! Some of the required data is not present in the json object.");
+            Debug::Error("Failed to serialize Rigel::GameObject! Some of the required data is not present in the json object.");
             return false;
         }
 
@@ -59,23 +77,5 @@ namespace rge
         }
 
         return true;
-    }
-
-    void GameObject::OnLoad()
-    {
-        for (const auto& component : m_Components | std::views::values)
-            component->OnLoad();
-    }
-
-    void GameObject::OnStart()
-    {
-        for (const auto& component : m_Components | std::views::values)
-            component->OnStart();
-    }
-
-    void GameObject::OnDestroy()
-    {
-        for (const auto& component : m_Components | std::views::values)
-            component->OnDestroy();
     }
 }

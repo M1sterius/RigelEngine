@@ -4,7 +4,7 @@
 #include "json.hpp"
 #include "Core.hpp"
 
-namespace rge
+namespace Rigel
 {
     class GLM_Serializer
     {

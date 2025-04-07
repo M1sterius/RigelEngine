@@ -7,7 +7,7 @@
 #include "GOHandle.hpp"
 #include "json.hpp"
 
-namespace rge
+namespace Rigel
 {
     Scene::Scene(const uid_t id, std::string name) : RigelObject(id)
     {
@@ -33,7 +33,19 @@ namespace rge
             go->OnStart();
         }
 
-        return { go, go->GetID(), this->GetID() };
+        return {go, go->GetID(), this->GetID()};
+    }
+
+    GOHandle Scene::InstantiateForDeserialization()
+    {
+        const auto go = new GameObject(GetNextObjectID(), "GameObject");
+        go->m_Scene = SceneHandle(this, this->GetID());
+        m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+
+        // The scene is never loaded during deserialization, so we
+        // don't have to worry about OnLoad and OnStart
+
+        return {go, go->GetID(), this->GetID()};
     }
 
     void Scene::Destroy(const GOHandle& handle)
@@ -42,45 +54,6 @@ namespace rge
             DestroyGOImpl(handle);
         else
             m_DestroyQueue.push(handle);
-    }
-
-    void Scene::OnLoad()
-    {
-        m_EndOfFrameCallbackID = Engine::Get().GetEventManager().Subscribe<backend::EndOfFrameEvent>(
-            [this](const backend::EndOfFrameEvent&){
-            OnEndOfFrame();
-        });
-
-        m_IsLoaded = true;
-
-        for (const auto& go : m_GameObjects)
-        {
-            go->OnLoad();
-            go->OnStart();
-        }
-    }
-
-    void Scene::OnUnload()
-    {
-        for (const auto& go : m_GameObjects)
-            go->OnDestroy();
-
-        m_IsLoaded = false;
-
-        Engine::Get().GetEventManager().Unsubscribe<backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
-    }
-
-    void Scene::OnEndOfFrame()
-    {
-        // GameObject destruction is deferred until the end of frame to optimize
-        // resource and memory management
-
-        while (!m_DestroyQueue.empty())
-        {
-            const auto currentHandle = m_DestroyQueue.front();
-            DestroyGOImpl(currentHandle);
-            m_DestroyQueue.pop();
-        }
     }
 
     void Scene::DestroyGOImpl(const GOHandle& handle)
@@ -103,16 +76,43 @@ namespace rge
                      "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
     }
 
-    GOHandle Scene::InstantiateForDeserialization()
+    void Scene::OnLoad()
     {
-        const auto go = new GameObject(GetNextObjectID(), "GameObject");
-        go->m_Scene = SceneHandle(this, this->GetID());
-        m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+        m_EndOfFrameCallbackID = Engine::Get().GetEventManager().Subscribe<Backend::EndOfFrameEvent>(
+            [this](const Backend::EndOfFrameEvent&){
+            OnEndOfFrame();
+        });
 
-        // The scene is never loaded during deserialization, so we
-        // don't have to worry about OnLoad and OnStart
+        m_IsLoaded = true;
 
-        return { go, go->GetID(), this->GetID() };
+        for (const auto& go : m_GameObjects)
+        {
+            go->OnLoad();
+            go->OnStart();
+        }
+    }
+
+    void Scene::OnUnload()
+    {
+        for (const auto& go : m_GameObjects)
+            go->OnDestroy();
+
+        m_IsLoaded = false;
+
+        Engine::Get().GetEventManager().Unsubscribe<Backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
+    }
+
+    void Scene::OnEndOfFrame()
+    {
+        // GameObject destruction is deferred until the end of frame to optimize
+        // resource and memory management
+
+        while (!m_DestroyQueue.empty())
+        {
+            const auto currentHandle = m_DestroyQueue.front();
+            DestroyGOImpl(currentHandle);
+            m_DestroyQueue.pop();
+        }
     }
 
     bool Scene::ValidateGOHandle(const GOHandle& handle) const
@@ -174,7 +174,7 @@ namespace rge
 
         if (!json.contains("ID") || !json.contains("Name") || !json.contains("GameObjects"))
         {
-            Debug::Error("Failed to deserialize rge::Scene! Some of the required data is not present in the json object.");
+            Debug::Error("Failed to deserialize Rigel::Scene! Some of the required data is not present in the json object.");
             return false;
         }
 

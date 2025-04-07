@@ -2,7 +2,7 @@
 
 #include "RigelEngine.hpp"
 
-class TestComponent final : public rge::Component
+class TestComponent final : public Rigel::Component
 {
 public:
     RGE_REGISTER_COMPONENT(TestComponent);
@@ -17,8 +17,8 @@ private:
     void OnStart() override;
     void OnDestroy() override;
 
-    void OnGameUpdate(const rge::GameUpdateEvent& event);
+    void OnGameUpdate(const Rigel::GameUpdateEvent& event);
 
-    friend class rge::GameObject;
+    friend class Rigel::GameObject;
 };
 

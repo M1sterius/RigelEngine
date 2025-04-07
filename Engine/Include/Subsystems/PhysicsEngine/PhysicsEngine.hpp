@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 
-namespace rge
+namespace Rigel
 {
     class PhysicsEngine final : public RigelSubsystem
     {

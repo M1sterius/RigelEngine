@@ -5,7 +5,7 @@
 #include "Engine.hpp"
 #include "Time.hpp"
 
-namespace rge
+namespace Rigel
 {
     PhysicsEngine::PhysicsEngine() { Startup(); }
     PhysicsEngine::~PhysicsEngine() { Shutdown(); }

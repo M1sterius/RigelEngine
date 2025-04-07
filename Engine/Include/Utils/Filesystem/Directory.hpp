@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace rge
+namespace Rigel
 {
     enum SearchArgs : uint32_t
     {

@@ -11,7 +11,7 @@
 
 #include "vulkan.h"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_Renderer::VK_Renderer() :
     m_WindowManager(Engine::Get().GetWindowManager()),

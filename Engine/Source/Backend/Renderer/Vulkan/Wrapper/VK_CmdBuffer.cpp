@@ -3,7 +3,7 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     std::unique_ptr<VK_CmdBuffer> VK_CmdBuffer::BeginSingleTime(VK_Device& device)
     {

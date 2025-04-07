@@ -7,13 +7,13 @@
 
 #include <memory>
 
-namespace rge
+namespace Rigel
 {
     class WindowManager;
     class AssetManager;
 }
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Instance;
     class VK_Device;

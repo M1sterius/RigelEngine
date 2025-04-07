@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rge
+namespace Rigel
 {
     SceneManager::SceneManager() : m_LoadedScene(SceneHandle(nullptr, NULL_ID)) { Startup(); }
     SceneManager::~SceneManager() { Shutdown(); }

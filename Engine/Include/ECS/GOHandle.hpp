@@ -2,7 +2,7 @@
 
 #include "RigelHandle.hpp"
 
-namespace rge
+namespace Rigel
 {
     class GameObject;
 

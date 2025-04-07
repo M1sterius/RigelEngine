@@ -6,6 +6,7 @@
 #include <functional>
 #include <format>
 #include <memory>
+#include <ranges>
 
 // Numbers and math
 #include <cstdint>

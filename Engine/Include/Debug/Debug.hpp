@@ -9,7 +9,7 @@
 #include <string>
 #include <format>
 
-namespace rge
+namespace Rigel
 {
     class Debug
     {

@@ -10,7 +10,7 @@
 
 struct GLFWwindow;
 
-namespace rge
+namespace Rigel
 {
     class InputManager final : public RigelSubsystem
     {

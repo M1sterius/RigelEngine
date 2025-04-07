@@ -9,7 +9,7 @@
 
 #include <format>
 
-namespace rge
+namespace Rigel
 {
 #pragma region GLFW_Callbacks
     void framebuffer_resize_callback(GLFWwindow* window, int width, int height)

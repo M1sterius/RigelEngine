@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 
-namespace rge
+namespace Rigel
 {
     class Time
     {

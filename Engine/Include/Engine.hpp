@@ -6,7 +6,7 @@
 #include <memory>
 #include <filesystem>
 
-namespace rge
+namespace Rigel
 {
     class SceneManager;
     class Renderer;

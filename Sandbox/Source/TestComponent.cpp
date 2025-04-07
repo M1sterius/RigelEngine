@@ -17,8 +17,8 @@ void TestComponent::OnLoad()
 
 void TestComponent::OnStart()
 {
-    EventManager.Subscribe<rge::GameUpdateEvent>(
-    [this](const rge::GameUpdateEvent& e) { this->OnGameUpdate(e); }
+    EventManager.Subscribe<Rigel::GameUpdateEvent>(
+    [this](const Rigel::GameUpdateEvent& e) { this->OnGameUpdate(e); }
     );
 }
 
@@ -27,10 +27,10 @@ void TestComponent::OnDestroy()
 
 }
 
-void TestComponent::OnGameUpdate(const rge::GameUpdateEvent& event)
+void TestComponent::OnGameUpdate(const Rigel::GameUpdateEvent& event)
 {
-    if (rge::Input::GetKeyDown(rge::KeyCode::SPACE))
-        rge::Debug::Message("Space is pressed!");
-    if (rge::Input::GetKeyUp(rge::KeyCode::SPACE))
-        rge::Debug::Message("Space is released!");
+    if (Rigel::Input::GetKeyDown(Rigel::KeyCode::SPACE))
+        Rigel::Debug::Message("Space is pressed!");
+    if (Rigel::Input::GetKeyUp(Rigel::KeyCode::SPACE))
+        Rigel::Debug::Message("Space is released!");
 }

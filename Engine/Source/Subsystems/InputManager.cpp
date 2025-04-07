@@ -7,7 +7,7 @@
 
 #include "glfw3.h"
 
-namespace rge
+namespace Rigel
 {
 #pragma region GLFW_Callbacks
     void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

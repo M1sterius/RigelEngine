@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 
-namespace rge
+namespace Rigel
 {
     /**
      * Base class for objects managed by the engine and it's subsystems.

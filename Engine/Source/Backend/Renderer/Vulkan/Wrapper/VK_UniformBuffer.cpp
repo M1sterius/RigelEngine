@@ -2,7 +2,7 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_Device.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_UniformBuffer::VK_UniformBuffer(VK_Device& device, const size_t size)
         : m_Device(device), m_Size(size)

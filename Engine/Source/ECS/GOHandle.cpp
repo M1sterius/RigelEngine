@@ -3,7 +3,7 @@
 #include "Scene.hpp"
 #include "SceneManager.hpp"
 
-namespace rge
+namespace Rigel
 {
     GOHandle::GOHandle(GameObject* ptr, const uid_t id, const uid_t sceneID) : RigelHandle(ptr, id), m_SceneID(sceneID) { }
 

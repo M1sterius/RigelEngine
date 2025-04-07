@@ -5,7 +5,7 @@
 #include "VK_Device.hpp"
 #include "vulkan.h"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Device;
     class VK_Semaphore;

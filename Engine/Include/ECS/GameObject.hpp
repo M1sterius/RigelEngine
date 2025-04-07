@@ -9,9 +9,10 @@
 #include "SceneHandle.hpp"
 
 #include <string>
+#include <ranges>
 #include <unordered_map>
 
-namespace rge
+namespace Rigel
 {
     template<typename T>
     concept ComponentConcept = std::is_base_of_v<Component, T>;
@@ -89,7 +90,7 @@ namespace rge
         template<ComponentConcept T>
         NODISCARD bool HasComponent()
         {
-            for (const auto& [id, component] : m_Components)
+            for (const auto& component : m_Components | std::views::values)
             {
                 if (const auto cast = dynamic_cast<T*>(component.get()))
                     return true;

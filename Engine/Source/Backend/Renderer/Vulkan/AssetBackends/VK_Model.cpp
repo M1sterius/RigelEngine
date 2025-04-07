@@ -9,7 +9,7 @@
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_Model::VK_Model(const std::filesystem::path& path) : BackendModel(path)
     {

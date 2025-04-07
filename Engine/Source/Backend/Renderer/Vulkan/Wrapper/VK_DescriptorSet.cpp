@@ -6,7 +6,7 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
 
     VK_DescriptorSetBuilder::VK_DescriptorSetBuilder(VK_Device& device)

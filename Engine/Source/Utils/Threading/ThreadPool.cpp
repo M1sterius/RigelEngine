@@ -2,7 +2,7 @@
 #include "Debug.hpp"
 #include "SleepUtility.hpp"
 
-namespace rge
+namespace Rigel
 {
     ThreadPool::ThreadPool(const size_t numThreads)
     {

@@ -6,7 +6,7 @@
 #include <memory>
 #include <string_view>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_VertexBuffer;
     class VK_IndexBuffer;

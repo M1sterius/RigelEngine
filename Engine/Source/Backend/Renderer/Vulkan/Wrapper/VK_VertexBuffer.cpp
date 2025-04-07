@@ -2,7 +2,7 @@
 #include "VK_Device.hpp"
 #include "VK_MemoryBuffer.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_VertexBuffer::VK_VertexBuffer(VK_Device& device, const std::vector<Vertex>& vertices)
         : m_VertexCount(vertices.size())

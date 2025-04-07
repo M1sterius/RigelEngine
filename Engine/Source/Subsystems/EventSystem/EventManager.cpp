@@ -1,7 +1,7 @@
 #include "EventManager.hpp"
 #include "Debug.hpp"
 
-namespace rge
+namespace Rigel
 {
     EventManager::EventManager() { Startup(); }
     EventManager::~EventManager() { Shutdown(); }

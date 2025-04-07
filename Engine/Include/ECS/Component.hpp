@@ -4,7 +4,7 @@
 #include "RigelObject.hpp"
 #include "ISerializable.hpp"
 
-namespace rge
+namespace Rigel
 {
     class Engine;
     class SceneManager;

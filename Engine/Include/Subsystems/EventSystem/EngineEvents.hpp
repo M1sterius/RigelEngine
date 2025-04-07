@@ -5,7 +5,7 @@
 #include "KeysAndButtons.hpp"
 #include "Math.hpp"
 
-namespace rge
+namespace Rigel
 {
     /**
     * Represents a game update event.

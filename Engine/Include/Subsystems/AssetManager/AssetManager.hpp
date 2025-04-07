@@ -13,7 +13,7 @@
 #include <mutex>
 #include <shared_mutex>
 
-namespace rge
+namespace Rigel
 {
     template<typename T>
     concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;

@@ -10,9 +10,9 @@
 #include "ModelRenderer.hpp"
 #include "Renderer/Vulkan/VK_Renderer.hpp"
 
-namespace rge
+namespace Rigel
 {
-    namespace backend
+    namespace Backend
     {
         struct RenderingBackendRenderInfo
         {
@@ -31,7 +31,7 @@ namespace rge
         m_SelectedGraphicsAPI = SelectGraphicsAPI();
 
         // For now only Vulkan is supported
-        m_BackendRenderer = std::make_unique<backend::VK_Renderer>();
+        m_BackendRenderer = std::make_unique<Backend::VK_Renderer>();
         m_BackendRenderer->InitImGUI();
 
         m_Initialized = true;
@@ -48,7 +48,7 @@ namespace rge
         return GraphicsApi::Vulkan;
     }
 
-    backend::RenderingBackend& Renderer::GetBackend() const
+    Backend::RenderingBackend& Renderer::GetBackend() const
     {
         ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
         return *m_BackendRenderer;

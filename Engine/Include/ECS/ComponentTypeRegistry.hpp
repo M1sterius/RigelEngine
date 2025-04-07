@@ -6,14 +6,14 @@
 #include <functional>
 #include <unordered_map>
 
-namespace rge
+namespace Rigel
 {
     class Component;
 
     /**
      * Helper class for deducing types of components from strings
      *
-     * Every component based on rge::Component must be registered in declaration by using REGISTER_COMPONENT macro
+     * Every component based on Rigel::Component must be registered in declaration by using REGISTER_COMPONENT macro
      */
     class ComponentTypeRegistry final
     {
@@ -40,6 +40,6 @@ namespace rge
 
 #define RGE_REGISTER_COMPONENT(ClassName) \
     NODISCARD const char* GetTypeName() const override { return #ClassName; } \
-    friend struct rge::ComponentTypeRegistry::Registrar<ClassName>; \
-    inline static rge::ComponentTypeRegistry::Registrar<ClassName> ClassName##_registrar = rge::ComponentTypeRegistry::Registrar<ClassName>(#ClassName);
+    friend struct Rigel::ComponentTypeRegistry::Registrar<ClassName>; \
+    inline static Rigel::ComponentTypeRegistry::Registrar<ClassName> ClassName##_registrar = Rigel::ComponentTypeRegistry::Registrar<ClassName>(#ClassName);
 }

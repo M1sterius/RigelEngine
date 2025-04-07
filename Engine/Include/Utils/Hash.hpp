@@ -5,7 +5,7 @@
 #include <functional>
 #include <string>
 
-namespace rge
+namespace Rigel
 {
     NODISCARD inline uint64_t Hash(const std::string& string)
     {

@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-namespace rge
+namespace Rigel
 {
     class RigelAsset : public RigelObject
     {

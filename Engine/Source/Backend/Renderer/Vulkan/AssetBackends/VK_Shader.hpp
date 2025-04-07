@@ -7,7 +7,7 @@
 
 #include <array>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class VK_Shader final : public BackendShader
     {

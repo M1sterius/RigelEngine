@@ -8,7 +8,7 @@
     #undef DELETE
 #endif
 
-namespace rge
+namespace Rigel
 {
     enum class KeyCode : int32_t
     {

@@ -3,7 +3,7 @@
 #include "Engine.hpp"
 #include "AssetManager.hpp"
 
-namespace rge
+namespace Rigel
 {
     ModelRenderer::ModelRenderer()
         : m_Model(AssetHandle<Model>::Null()) { }

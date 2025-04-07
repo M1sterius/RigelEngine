@@ -2,7 +2,7 @@
 #include "InputManager.hpp"
 #include "Engine.hpp"
 
-namespace rge
+namespace Rigel
 {
     bool Input::GetKeyDown(const KeyCode key)
     {

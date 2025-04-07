@@ -7,7 +7,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace rge
+namespace Rigel
 {
     enum class LogType : uint8_t
     {

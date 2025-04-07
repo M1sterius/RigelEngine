@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace rge
+namespace Rigel
 {
     /**
      * Base class for all exceptions thrown by Rigel engine

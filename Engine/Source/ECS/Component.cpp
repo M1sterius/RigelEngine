@@ -8,7 +8,7 @@
 #include "AssetManager.hpp"
 #include "Subsystems/Renderer/Renderer.hpp"
 
-namespace rge
+namespace Rigel
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
     Component::Component() : RigelObject(NULL_ID),
@@ -31,7 +31,7 @@ namespace rge
     {
         if (!json.contains("ID"))
         {
-            Debug::Error("Failed to serialize rge::Component! Some of the required data is not present in the json object.");
+            Debug::Error("Failed to serialize Rigel::Component! Some of the required data is not present in the json object.");
             return false;
         }
 

@@ -10,17 +10,17 @@
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {
-    const auto& windowManager = rge::Engine::Get().GetWindowManager();
+    const auto& windowManager = Rigel::Engine::Get().GetWindowManager();
     return windowManager.GetSize();
 }
 
 NODISCARD static bool GetCurrentVsyncSetting()
 {
-    const auto& windowManager = rge::Engine::Get().GetWindowManager();
+    const auto& windowManager = Rigel::Engine::Get().GetWindowManager();
     return windowManager.IsVsyncEnabled();
 }
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_Swapchain::VK_Swapchain(VK_Device& device, VkSurfaceKHR surface, const glm::uvec2 size)
         : m_Device(device), m_Surface(surface), m_Extent(size)

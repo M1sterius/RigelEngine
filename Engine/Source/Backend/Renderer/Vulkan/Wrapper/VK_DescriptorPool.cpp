@@ -3,7 +3,7 @@
 #include "VulkanException.hpp"
 #include "MakeInfo.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     VK_DescriptorPool::VK_DescriptorPool(VK_Device& device, const std::vector<VkDescriptorPoolSize> poolSizes,
         const size_t maxSets) : m_Device(device)

@@ -6,7 +6,7 @@
 #include <ctime>
 #include <iostream>
 
-namespace rge
+namespace Rigel
 {
     Logger::Logger()
     {

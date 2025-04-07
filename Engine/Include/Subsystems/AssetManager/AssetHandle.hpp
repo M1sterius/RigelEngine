@@ -3,9 +3,9 @@
 #include "Core.hpp"
 #include "RigelHandle.hpp"
 
-namespace rge
+namespace Rigel
 {
-    namespace backend
+    namespace Backend::HandleValidation
     {
         NODISCARD bool ValidateAssetHandleImpl(const uid_t id);
     }
@@ -32,7 +32,7 @@ namespace rge
 
         NODISCARD bool IsValid() const override
         {
-            return backend::ValidateAssetHandleImpl(this->GetID());
+            return Backend::HandleValidation::ValidateAssetHandleImpl(this->GetID());
         }
     };
 }

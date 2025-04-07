@@ -1,6 +1,6 @@
 #include "ComponentTypeRegistry.hpp"
 
-namespace rge
+namespace Rigel
 {
     Component* ComponentTypeRegistry::FindType(const std::string& type)
     {

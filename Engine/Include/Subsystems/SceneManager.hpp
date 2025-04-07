@@ -10,7 +10,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace rge
+namespace Rigel
 {
     /**
     * Core subsystem for managing scenes, their creation, usage and lifetime

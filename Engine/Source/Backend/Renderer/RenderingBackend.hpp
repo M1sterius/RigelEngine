@@ -5,7 +5,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     struct SceneRenderInfo;
 

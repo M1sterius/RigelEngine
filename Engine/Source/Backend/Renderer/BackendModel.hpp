@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <utility>
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     class BackendModel
     {

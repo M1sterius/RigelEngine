@@ -7,7 +7,7 @@
 #include <thread>
 #endif
 
-namespace rge
+namespace Rigel
 {
     void SleepUtility::PreciseSleep(const ElapsedTime& time)
     {

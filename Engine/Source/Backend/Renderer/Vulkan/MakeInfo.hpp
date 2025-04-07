@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 
-namespace rge::backend
+namespace Rigel::Backend
 {
     /// @brief A small helper function that return vulkan create infos with sType already set
     /// @code{.cpp}

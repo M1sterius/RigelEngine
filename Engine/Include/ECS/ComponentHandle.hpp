@@ -2,9 +2,9 @@
 
 #include "RigelHandle.hpp"
 
-namespace rge
+namespace Rigel
 {
-    namespace backend
+    namespace Backend::HandleValidation
     {
         NODISCARD bool ValidateComponentHandleImpl(const uid_t cmpID, const uid_t goID, const uid_t sceneID);
     }
@@ -33,7 +33,7 @@ namespace rge
         // It is recommended to enable handle validation only in debug builds
         NODISCARD bool IsValid() const override
         {
-            return backend::ValidateComponentHandleImpl(this->GetID(), m_GameObjectID, m_SceneID);
+            return Backend::HandleValidation::ValidateComponentHandleImpl(this->GetID(), m_GameObjectID, m_SceneID);
         }
     private:
         uid_t m_GameObjectID = NULL_ID;

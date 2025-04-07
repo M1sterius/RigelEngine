@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-namespace rge
+namespace Rigel
 {
     AssetManager::AssetManager() { Startup(); }
     AssetManager::~AssetManager() { Shutdown(); }

@@ -4,7 +4,7 @@
 #include "Renderer.hpp"
 #include "VK_Shader.hpp"
 
-namespace rge
+namespace Rigel
 {
     Shader::Shader(const std::filesystem::path& path)
         : RigelAsset(path)
@@ -20,7 +20,7 @@ namespace rge
         const auto& renderer = Engine::Get().GetRenderer();
 
         if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::Vulkan)
-            m_BackendShader = std::make_unique<backend::VK_Shader>(vertPath, fragPath);
+            m_BackendShader = std::make_unique<Backend::VK_Shader>(vertPath, fragPath);
         else if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::OpenGL) { }
     }
 

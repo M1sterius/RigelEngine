@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace rge
+namespace Rigel
 {
     RigelException::RigelException(std::string what)
         : m_Description(std::move(what))

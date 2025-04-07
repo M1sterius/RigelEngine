@@ -5,7 +5,7 @@
 #include <chrono>
 #include <cstdint>
 
-namespace rge
+namespace Rigel
 {
     struct ElapsedTime
     {

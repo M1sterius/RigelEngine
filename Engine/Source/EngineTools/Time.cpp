@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace rge
+namespace Rigel
 {
     float64_t Time::GetDeltaTime()
     {
