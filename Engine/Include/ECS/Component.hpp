@@ -3,6 +3,9 @@
 #include "Core.hpp"
 #include "RigelObject.hpp"
 #include "ISerializable.hpp"
+#include "ComponentHandle.hpp"
+#include "GOHandle.hpp"
+#include "SceneHandle.hpp"
 
 namespace Rigel
 {
@@ -20,6 +23,9 @@ namespace Rigel
 
         // Returns the type of derived component represented as a string
         NODISCARD virtual const char* GetTypeName() const = 0;
+
+        NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
+        NODISCARD inline GOHandle GetGameObject() const { return m_GameObject; }
     protected:
         Component();
 
@@ -30,13 +36,15 @@ namespace Rigel
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
-        // Utility methods and fields
         Engine& Engine;
         AssetManager& AssetManager;
         EventManager& EventManager;
         SceneManager& SceneManager;
         WindowManager& WindowManager;
     private:
+        SceneHandle m_Scene;
+        GOHandle m_GameObject;
+
         friend class GameObject;
     };
 }

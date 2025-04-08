@@ -7,6 +7,7 @@
 #include "ISerializable.hpp"
 #include "RigelObject.hpp"
 #include "SceneHandle.hpp"
+#include "Transform.hpp"
 
 #include <string>
 #include <ranges>
@@ -32,10 +33,29 @@ namespace Rigel
         // Returns handle to the scene this object is attached to
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
+        NODISCARD inline ComponentHandle<Transform> GetTransform() const
+        {
+            if (!HasComponent<Transform>())
+            {
+                Debug::Error("A Transform component is not present on a Game Object with ID {}!", this->GetID());
+                return ComponentHandle<Transform>::Null();
+            }
+
+            return GetComponent<Transform>();
+        }
+
         template<ComponentConcept T, typename... Args>
         ComponentHandle<T> AddComponent(Args&&... args)
         {
+            if (typeid(T) == typeid(Transform) && HasComponent<Transform>())
+            {
+                Debug::Error("Only one instance of Transform component is allowed to be attached to a Game Object!");
+                return ComponentHandle<T>::Null();
+            }
+
             const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
+            component->m_Scene = m_Scene;
+            component->m_GameObject = GOHandle(this, this->GetID(), m_Scene.GetID());
 
             // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
             const auto id = AssignIDToComponent(component);
@@ -49,7 +69,7 @@ namespace Rigel
          * Returns handle to the first component of type T attached to this GameObject
          */
         template<ComponentConcept T>
-        NODISCARD ComponentHandle<T> GetComponent()
+        NODISCARD ComponentHandle<T> GetComponent() const
         {
             for (const auto& [id, component] : m_Components)
             {
@@ -63,7 +83,7 @@ namespace Rigel
         }
 
         template<ComponentConcept T>
-        NODISCARD std::vector<ComponentHandle<T>> GetComponents()
+        NODISCARD std::vector<ComponentHandle<T>> GetComponents() const
         {
             auto components = std::vector<ComponentHandle<T>>();
 
@@ -76,7 +96,7 @@ namespace Rigel
             return components;
         }
 
-        ComponentHandle<Component> GetComponentByID(const uid_t ID) const
+        NODISCARD ComponentHandle<Component> GetComponentByID(const uid_t ID) const
         {
             for (const auto& [currentID, component] : m_Components)
             {
@@ -88,7 +108,7 @@ namespace Rigel
         }
 
         template<ComponentConcept T>
-        NODISCARD bool HasComponent()
+        NODISCARD bool HasComponent() const
         {
             for (const auto& component : m_Components | std::views::values)
             {
