@@ -98,6 +98,6 @@ namespace Rigel
 
     void Renderer::Render() const
     {
-        m_BackendRenderer->Render(m_CurrentRenderInfo);
+        m_BackendRenderer->Render(const_cast<Backend::SceneRenderInfo&>(m_CurrentRenderInfo));
     }
 }

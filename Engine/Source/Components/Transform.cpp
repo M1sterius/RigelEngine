@@ -32,6 +32,24 @@ namespace Rigel
         EventManager.Unsubscribe<Backend::TransformUpdateEvent>(m_UpdateCallbackID);
     }
 
+    glm::vec3 Transform::GetPosition()
+    {
+        Update();
+        return m_Position;
+    }
+
+    glm::quat Transform::GetRotation()
+    {
+        Update();
+        return m_Rotation;
+    }
+
+    glm::vec3 Transform::GetScale()
+    {
+        Update();
+        return m_Scale;
+    }
+
     void Transform::SetPosition(const glm::vec3& position)
     {
         m_Position = position;
@@ -74,9 +92,9 @@ namespace Rigel
     nlohmann::json Transform::Serialize() const
     {
         auto json = Component::Serialize(); // Base class method must be explicitly called
-        json["position"] = GLM_Serializer::Serialize(m_Position);
-        json["rotation"] = GLM_Serializer::Serialize(m_Rotation);
-        json["scale"] = GLM_Serializer::Serialize(m_Scale);
+        json["Position"] = GLM_Serializer::Serialize(m_Position);
+        json["Rotation"] = GLM_Serializer::Serialize(m_Rotation);
+        json["Scale"] = GLM_Serializer::Serialize(m_Scale);
         return json;
     }
 
@@ -86,13 +104,13 @@ namespace Rigel
 
         if (json["Type"] != GetTypeName())
         {
-            Debug::Error("Failed to deserialize Rigel::Transform component!");
+            Debug::Error("Failed to deserialize Rigel::Transform component. Type mismatch!");
             return false;
         }
 
-        SetPosition(GLM_Serializer::DeserializeVec3(json["position"]));
-        SetRotation(GLM_Serializer::DeserializeQuaternion(json["rotation"]));
-        SetScale(GLM_Serializer::DeserializeVec3(json["scale"]));
+        SetPosition(GLM_Serializer::DeserializeVec3(json["Position"]));
+        SetRotation(GLM_Serializer::DeserializeQuaternion(json["Rotation"]));
+        SetScale(GLM_Serializer::DeserializeVec3(json["Scale"]));
 
         return true;
     }

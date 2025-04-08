@@ -206,7 +206,7 @@ namespace Rigel::Backend
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
-    void VK_Renderer::Render(const SceneRenderInfo& sceneRenderInfo)
+    void VK_Renderer::Render(SceneRenderInfo& sceneRenderInfo)
     {
         if (m_WindowManager.GetWindowResizeFlag())
         {

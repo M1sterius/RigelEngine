@@ -33,7 +33,7 @@ namespace Rigel
         {
             CallbackID id = m_NextCallbackID++;
             auto wrapper = [callback](const Event& event) {
-                callback(static_cast<const EventType&>(event)); // Safe cast
+                callback(static_cast<const EventType&>(event));
             };
             m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
             return id;
@@ -78,7 +78,6 @@ namespace Rigel
             auto& pool = Engine::Get().GetThreadPool();
             ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must be less than the number of threads in the pool");
 
-            // TODO: Rework to use std::views::chunk
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
             {

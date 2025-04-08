@@ -14,9 +14,9 @@ namespace Rigel
     public:
         RGE_REGISTER_COMPONENT(Transform);
 
-        NODISCARD glm::vec3 GetPosition() const { return m_Position; }
-        NODISCARD glm::quat GetRotation() const { return m_Rotation; }
-        NODISCARD glm::vec3 GetScale() const { return m_Scale; }
+        NODISCARD glm::vec3 GetPosition();
+        NODISCARD glm::quat GetRotation();
+        NODISCARD glm::vec3 GetScale();
 
         void SetPosition(const glm::vec3& position);
         void SetRotation(const glm::quat& rotation);
