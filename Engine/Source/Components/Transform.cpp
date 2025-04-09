@@ -68,11 +68,17 @@ namespace Rigel
         m_UpdateRequiredFlag = true;
     }
 
+    glm::mat4 Transform::GetModel()
+    {
+        Update();
+        return m_ModelMatrix;
+    }
+
     void Transform::Update()
     {
         if (!m_UpdateRequiredFlag) return;
 
-        m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
+        m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Position);
         m_ModelMatrix *= glm::mat4_cast(m_Rotation);
         m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
 
@@ -82,9 +88,9 @@ namespace Rigel
         constexpr glm::vec4 FORWARD = {0.0, 0.0, -1.0, 0.0};
         constexpr glm::vec4 RIGHT = {1.0, 0.0, 0.0, 0.0};
 
-        m_UpVector = glm::vec3(UP * m_NormalMatrix);
-        m_ForwardVector = glm::vec3(FORWARD * m_NormalMatrix);
-        m_RightVector = glm::vec3(RIGHT * m_NormalMatrix);
+        m_UpVector = glm::vec3(m_NormalMatrix * UP);
+        m_ForwardVector = glm::vec3(m_NormalMatrix * FORWARD);
+        m_RightVector = glm::vec3(m_NormalMatrix * RIGHT);
 
         m_UpdateRequiredFlag = false;
     }

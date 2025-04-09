@@ -47,11 +47,9 @@ namespace Rigel::Backend
         void Startup() override;
         void Shutdown() override;
 
-        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image);
+        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image, SceneRenderInfo& sceneRenderInfo) const;
         void RecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
-
-        void UpdateUniformBuffer(VK_UniformBuffer& buffer);
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;

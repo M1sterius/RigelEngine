@@ -22,6 +22,8 @@ namespace Rigel
         void SetRotation(const glm::quat& rotation);
         void SetScale(const glm::vec3& scale);
 
+        NODISCARD glm::mat4 GetModel();
+
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
     private:
@@ -43,7 +45,6 @@ namespace Rigel
         glm::vec3 m_RightVector{};
         glm::vec3 m_UpVector{};
 
-        // No serialization intended
         bool m_UpdateRequiredFlag = true;
         uid_t m_UpdateCallbackID = NULL_ID;
 

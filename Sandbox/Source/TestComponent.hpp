@@ -17,6 +17,8 @@ private:
     void OnStart() override;
     void OnDestroy() override;
 
+    Rigel::ComponentHandle<Rigel::ModelRenderer> m_ModelRenderer;
+
     void OnGameUpdate(const Rigel::GameUpdateEvent& event);
 
     friend class Rigel::GameObject;

@@ -20,6 +20,8 @@ void TestComponent::OnStart()
     EventManager.Subscribe<Rigel::GameUpdateEvent>(
     [this](const Rigel::GameUpdateEvent& e) { this->OnGameUpdate(e); }
     );
+
+    m_ModelRenderer = this->GetScene()->FindComponentsOfType<Rigel::ModelRenderer>()[0];
 }
 
 void TestComponent::OnDestroy()
@@ -33,4 +35,8 @@ void TestComponent::OnGameUpdate(const Rigel::GameUpdateEvent& event)
         Rigel::Debug::Message("Space is pressed!");
     if (Rigel::Input::GetKeyUp(Rigel::KeyCode::SPACE))
         Rigel::Debug::Message("Space is released!");
+
+    constexpr glm::vec3 angle = {0, 1, 1};
+    const auto rot = glm::quat(angle * Rigel::Time::GetGlobalTimeF());
+    m_ModelRenderer->GetGameObject()->GetTransform()->SetRotation(rot);
 }

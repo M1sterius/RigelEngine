@@ -3,10 +3,6 @@
 #include "Core.hpp"
 #include "Event.hpp"
 
-/**
- * Contains events that should be inaccessible outside the engine library
- */
-
 namespace Rigel::Backend
 {
     struct TransformUpdateEvent final : public Event

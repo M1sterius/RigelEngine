@@ -1,6 +1,7 @@
 #include "VK_Renderer.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
+#include "VK_Model.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
@@ -8,6 +9,9 @@
 #include "Shader.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
+#include "GameObject.hpp"
+#include "Model.hpp"
+#include "Transform.hpp"
 
 #include "vulkan.h"
 
@@ -127,20 +131,7 @@ namespace Rigel::Backend
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
-    void VK_Renderer::UpdateUniformBuffer(VK_UniformBuffer& buffer)
-    {
-        DefaultUBO ubo {};
-        auto model = glm::rotate(glm::mat4(1.0f), Time::GetGlobalTimeF() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        auto view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        auto proj = glm::perspective(glm::radians(45.0f), (float)m_Swapchain->GetExtent().width / (float)m_Swapchain->GetExtent().height, 0.1f, 10.0f);
-        proj[1][1] *= -1;
-
-        ubo.MVP = proj * view * model;
-
-        buffer.UploadData(0, sizeof(ubo), &ubo);
-    }
-
-    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image)
+    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image, SceneRenderInfo& sceneRenderInfo) const
     {
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
 
@@ -186,19 +177,30 @@ namespace Rigel::Backend
         scissor.extent = m_Swapchain->GetExtent();
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        const VkBuffer vertexBuffers[] = {m_VertexBuffer->GetMemoryBuffer().Get()};
-        constexpr VkDeviceSize offsets[] = {0};
-
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
-
         const auto& uniformBuffer = m_UniformBuffers[frameIndex];
-        UpdateUniformBuffer(*uniformBuffer); // buffer must be updated per mesh
+        const auto descriptorSet = m_DescriptorSets[frameIndex]->Get();
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, &descriptorSet, 0, nullptr);
 
-        const auto currentDescriptor = m_DescriptorSets[frameIndex]->Get();
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, &currentDescriptor, 0, nullptr);
+        auto& camera = sceneRenderInfo.MainCamera;
+        const auto projView = camera->GetProjection() * camera->GetView();
 
-        vkCmdDrawIndexed(commandBuffer, m_IndexBuffer->GetIndexCount(), 1, 0, 0, 0);
+        auto ubo = DefaultUBO();
+
+        for (const auto& model : sceneRenderInfo.Models)
+        {
+            ubo.MVP = projView * model->GetGameObject()->GetTransform()->GetModel();
+            uniformBuffer->UploadData(0, sizeof(ubo), &ubo);
+
+            const auto& vkModel = model->GetModel()->GetBackendModel<VK_Model>();
+
+            const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
+            constexpr VkDeviceSize offsets[] = {0};
+
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(commandBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdDrawIndexed(commandBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
+        }
 
         vkCmdEndRendering(commandBuffer);
 
@@ -230,7 +232,7 @@ namespace Rigel::Backend
         commandBuffer->Reset(0);
 
         commandBuffer->BeginRecording(0);
-        RecordCommandBuffer(commandBuffer->Get(), image);
+        RecordCommandBuffer(commandBuffer->Get(), image, sceneRenderInfo);
         commandBuffer->EndRecording();
 
         const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
