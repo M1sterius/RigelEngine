@@ -20,6 +20,7 @@ namespace Rigel::Backend
         virtual void LateInit() = 0;
         virtual void InitImGUI() = 0;
         virtual void Render(SceneRenderInfo& sceneRenderInfo) = 0;
+        virtual void WaitForFinish() const = 0;
     protected:
         RenderingBackend() = default;
         void Startup() override = 0;

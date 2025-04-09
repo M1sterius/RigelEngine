@@ -50,6 +50,9 @@ namespace Rigel
 
         void Prepare();
         void Render() const;
+
+        // Blocks the calling thread until all rendering operation are done
+        void WaitForFinish() const;
     private:
         void Startup() override;
         void Shutdown() override;

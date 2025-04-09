@@ -100,4 +100,9 @@ namespace Rigel
     {
         m_BackendRenderer->Render(const_cast<Backend::SceneRenderInfo&>(m_CurrentRenderInfo));
     }
+
+    void Renderer::WaitForFinish() const
+    {
+        m_BackendRenderer->WaitForFinish();
+    }
 }

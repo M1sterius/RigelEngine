@@ -75,30 +75,6 @@ namespace Rigel::Backend
 
         // After the pipeline is created, the descriptor layout is no longer needed
         vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
-
-        const std::vector<Vertex> vertices = {
-            {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}},
-            {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}},
-            {{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}},
-            {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}},
-
-            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}},
-            {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}},
-            {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}},
-            {{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}},
-        };
-
-        const std::vector<uint32_t> indices = {
-            0, 1, 2,  2, 3, 0,
-            1, 5, 6,  6, 2, 1,
-            5, 4, 7,  7, 6, 5,
-            4, 0, 3,  3, 7, 4,
-            3, 2, 6,  6, 7, 3,
-            4, 5, 1,  1, 0, 4
-        };
-
-        m_VertexBuffer = std::make_unique<VK_VertexBuffer>(*m_Device, vertices);
-        m_IndexBuffer = std::make_unique<VK_IndexBuffer>(*m_Device, indices);
     }
 
     void VK_Renderer::Shutdown()
@@ -183,7 +159,6 @@ namespace Rigel::Backend
         for (const auto& model : sceneRenderInfo.Models)
         {
             const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
-            // uniformBuffer->UploadData(0, sizeof(ubo), &ubo);
 
             vkCmdPushConstants(
                 commandBuffer,
@@ -260,4 +235,10 @@ namespace Rigel::Backend
 
         m_Swapchain->Present(image.imageIndex, signalSemaphores[0]);
     }
+
+    void VK_Renderer::WaitForFinish() const
+    {
+        m_Device->WaitIdle();
+    }
+
 }

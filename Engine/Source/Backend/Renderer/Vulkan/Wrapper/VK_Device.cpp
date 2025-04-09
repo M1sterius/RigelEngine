@@ -21,6 +21,10 @@ namespace Rigel::Backend
         if (m_SelectedPhysicalDevice.IsNull())
             throw RigelException("Failed to find any GPUs with adequate support of required features!");
 
+        // Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
+        // Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
+        // Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
+
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
         Debug::Trace(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));

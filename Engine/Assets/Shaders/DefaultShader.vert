@@ -3,6 +3,8 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoords;
 
+layout(location = 0) out vec2 v_TexCoords;
+
 layout (push_constant) uniform PushConstants
 {
     mat4 mvp;
@@ -11,4 +13,5 @@ layout (push_constant) uniform PushConstants
 void main()
 {
     gl_Position = modelData.mvp * vec4(a_Position, 1.0);
+    v_TexCoords = a_TexCoords;
 }

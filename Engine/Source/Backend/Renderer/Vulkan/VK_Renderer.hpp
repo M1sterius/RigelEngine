@@ -41,6 +41,7 @@ namespace Rigel::Backend
         void LateInit() override;
         void InitImGUI() override;
         void Render(SceneRenderInfo& sceneRenderInfo) override;
+        void WaitForFinish() const override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
     private:
@@ -58,9 +59,6 @@ namespace Rigel::Backend
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
         std::unique_ptr<VK_Image> m_DepthBufferImage;
-
-        std::unique_ptr<VK_VertexBuffer> m_VertexBuffer;
-        std::unique_ptr<VK_IndexBuffer> m_IndexBuffer;
 
         std::vector<std::unique_ptr<VK_UniformBuffer>> m_UniformBuffers;
         std::vector<std::unique_ptr<VK_DescriptorSet>> m_DescriptorSets;
