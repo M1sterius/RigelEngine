@@ -96,10 +96,17 @@ namespace Rigel::Backend
         dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
         dynamicState.pDynamicStates = dynamicStates;
 
-        // Pipeline Layout (Add descriptors here)
+        VkPushConstantRange pushConstantRange = {};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(glm::mat4);
+
+        // Pipeline Layout (Add descriptors and push constants here)
         auto pipelineLayoutInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = & pushConstantRange;
+        // pipelineLayoutInfo.setLayoutCount = 1;
+        // pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
         auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
         pipelineInfo.stageCount = 2;

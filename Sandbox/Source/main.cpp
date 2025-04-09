@@ -27,6 +27,10 @@ int32_t main(const int32_t argc, char** argv)
     model->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
     model->AddComponent<TestComponent>();
 
+    auto model1 = scene->Instantiate();
+    model1->GetTransform()->SetPosition({-2, 0, -2.0});
+    model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
+
     SceneManager.LoadScene(scene);
 
     engine->Run();

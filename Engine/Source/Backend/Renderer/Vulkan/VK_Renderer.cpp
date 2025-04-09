@@ -177,19 +177,22 @@ namespace Rigel::Backend
         scissor.extent = m_Swapchain->GetExtent();
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        const auto& uniformBuffer = m_UniformBuffers[frameIndex];
-        const auto descriptorSet = m_DescriptorSets[frameIndex]->Get();
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, &descriptorSet, 0, nullptr);
-
         auto& camera = sceneRenderInfo.MainCamera;
         const auto projView = camera->GetProjection() * camera->GetView();
 
-        auto ubo = DefaultUBO();
-
         for (const auto& model : sceneRenderInfo.Models)
         {
-            ubo.MVP = projView * model->GetGameObject()->GetTransform()->GetModel();
-            uniformBuffer->UploadData(0, sizeof(ubo), &ubo);
+            const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
+            // uniformBuffer->UploadData(0, sizeof(ubo), &ubo);
+
+            vkCmdPushConstants(
+                commandBuffer,
+                m_GraphicsPipeline->GetLayout(),
+                VK_SHADER_STAGE_VERTEX_BIT,
+                0,
+                sizeof(glm::mat4),
+                &mvp
+            );
 
             const auto& vkModel = model->GetModel()->GetBackendModel<VK_Model>();
 

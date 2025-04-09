@@ -21,7 +21,7 @@ void TestComponent::OnStart()
     [this](const Rigel::GameUpdateEvent& e) { this->OnGameUpdate(e); }
     );
 
-    m_ModelRenderer = this->GetScene()->FindComponentsOfType<Rigel::ModelRenderer>()[0];
+    m_ModelRenderer = this->GetGameObject()->GetComponent<Rigel::ModelRenderer>();
 }
 
 void TestComponent::OnDestroy()
