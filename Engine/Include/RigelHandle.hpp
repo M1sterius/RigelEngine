@@ -6,7 +6,7 @@ namespace Rigel
 {
     /**
      * Base class for handles to objects managed by Rigel engine and it's subsystems
-     * @tparam T The types of the underlying object pointer
+     * @tparam T The type of underlying object pointer
      */
     template<typename T>
     class RigelHandle

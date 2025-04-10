@@ -33,6 +33,7 @@ namespace Rigel
         const auto rot = transform->GetRotation();
         const auto transformation = glm::translate(glm::mat4(1.0f), pos) * glm::mat4_cast(rot);
         m_View = glm::inverse(transformation);
+        m_View[0][0] *= -1.0; // this has to be done ONLY in vulkan!
 
         return m_View;
     }
@@ -88,6 +89,12 @@ namespace Rigel
         if (json["Type"] != GetTypeName())
         {
             Debug::Error("Failed to deserialize Rigel::Camera component. Type mismatch!");
+            return false;
+        }
+
+        if (!json.contains("FOV") || !json.contains("Near") || !json.contains("Far"))
+        {
+            Debug::Error("Failed to deserialize Rigel::Camera. Some of the required data is missing!");
             return false;
         }
 

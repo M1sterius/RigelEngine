@@ -14,7 +14,7 @@ namespace Rigel
     class ModelRenderer final : public Component
     {
     public:
-        RGE_REGISTER_COMPONENT(ModelRenderer);
+        RIGEL_REGISTER_COMPONENT(ModelRenderer);
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
@@ -29,7 +29,5 @@ namespace Rigel
 
         AssetHandle<Model> m_Model;
         std::optional<std::filesystem::path> m_ModelPath;
-
-        friend class GameObject;
     };
 }

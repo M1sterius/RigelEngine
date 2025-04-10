@@ -5,7 +5,7 @@
 class TestComponent final : public Rigel::Component
 {
 public:
-    RGE_REGISTER_COMPONENT(TestComponent);
+    RIGEL_REGISTER_COMPONENT(TestComponent);
 
     NODISCARD nlohmann::json Serialize() const override;
     bool Deserialize(const nlohmann::json& json) override;
@@ -20,7 +20,5 @@ private:
     Rigel::ComponentHandle<Rigel::ModelRenderer> m_ModelRenderer;
 
     void OnGameUpdate(const Rigel::GameUpdateEvent& event);
-
-    friend class Rigel::GameObject;
 };
 

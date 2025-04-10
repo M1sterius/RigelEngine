@@ -11,7 +11,7 @@ namespace Rigel
     class Camera final : public Component
     {
     public:
-        RGE_REGISTER_COMPONENT(Camera);
+        RIGEL_REGISTER_COMPONENT(Camera);
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
@@ -39,7 +39,5 @@ namespace Rigel
 
         glm::mat4 m_Projection{};
         glm::mat4 m_View{};
-
-        friend class GameObject;
     };
 }

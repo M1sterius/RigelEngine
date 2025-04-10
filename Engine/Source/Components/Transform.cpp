@@ -97,10 +97,12 @@ namespace Rigel
 
     nlohmann::json Transform::Serialize() const
     {
-        auto json = Component::Serialize(); // Base class method must be explicitly called
+        auto json = Component::Serialize();
+
         json["Position"] = GLM_Serializer::Serialize(m_Position);
         json["Rotation"] = GLM_Serializer::Serialize(m_Rotation);
         json["Scale"] = GLM_Serializer::Serialize(m_Scale);
+
         return json;
     }
 
@@ -114,9 +116,15 @@ namespace Rigel
             return false;
         }
 
-        SetPosition(GLM_Serializer::DeserializeVec3(json["Position"]));
-        SetRotation(GLM_Serializer::DeserializeQuaternion(json["Rotation"]));
-        SetScale(GLM_Serializer::DeserializeVec3(json["Scale"]));
+        if (!json.contains("Position") || ! json.contains("Rotation") || !json.contains("Scale"))
+        {
+            Debug::Error("Failed to deserialize Rigel::Transform. Some of the required data is missing!");
+            return false;
+        }
+
+        m_Position = GLM_Serializer::DeserializeVec3(json["Position"]);
+        m_Rotation = GLM_Serializer::DeserializeQuaternion(json["Rotation"]);
+        m_Scale = GLM_Serializer::DeserializeVec3(json["Scale"]);
 
         return true;
     }

@@ -38,8 +38,10 @@ namespace Rigel
         }
     };
 
-#define RGE_REGISTER_COMPONENT(ClassName) \
+// TODO: Make it work with namespaces
+#define RIGEL_REGISTER_COMPONENT(ClassName) \
+    friend class Rigel::GameObject; \
     NODISCARD const char* GetTypeName() const override { return #ClassName; } \
     friend struct Rigel::ComponentTypeRegistry::Registrar<ClassName>; \
-    inline static Rigel::ComponentTypeRegistry::Registrar<ClassName> ClassName##_registrar = Rigel::ComponentTypeRegistry::Registrar<ClassName>(#ClassName);
+    inline static Rigel::ComponentTypeRegistry::Registrar<ClassName> ClassName##_registrar = Rigel::ComponentTypeRegistry::Registrar<ClassName>(#ClassName)
 }

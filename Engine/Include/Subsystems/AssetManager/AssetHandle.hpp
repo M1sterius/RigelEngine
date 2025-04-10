@@ -12,7 +12,7 @@ namespace Rigel
 
     class RigelAsset;
 
-    // TODO: Implement reference counting logic
+    // TODO: Implement reference counting logic, add asset path a field
     template<typename T> requires std::is_base_of_v<RigelAsset, T>
     class AssetHandle final : public RigelHandle<T>
     {

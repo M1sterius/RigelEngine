@@ -12,7 +12,7 @@ namespace Rigel
     class Transform final : public Component
     {
     public:
-        RGE_REGISTER_COMPONENT(Transform);
+        RIGEL_REGISTER_COMPONENT(Transform);
 
         NODISCARD glm::vec3 GetPosition();
         NODISCARD glm::quat GetRotation();
@@ -47,7 +47,5 @@ namespace Rigel
 
         bool m_UpdateRequiredFlag = true;
         uid_t m_UpdateCallbackID = NULL_ID;
-
-        friend class GameObject;
     };
 }

@@ -188,8 +188,19 @@ namespace Rigel
 
         for (const auto& goJson : json["GameObjects"])
         {
-            if (auto go = InstantiateForDeserialization(); !go->Deserialize(goJson))
-                Destroy(go);
+            const auto go = new GameObject(GetNextObjectID(), "GameObject");
+            go->m_Scene = SceneHandle(this, this->GetID());
+
+            if (!go->Deserialize(goJson))
+            {
+                delete go;
+                continue;
+            }
+
+            m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+
+            // if (auto go = InstantiateForDeserialization(); !go->Deserialize(goJson))
+            //     Destroy(go);
         }
 
         return true;

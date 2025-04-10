@@ -8,6 +8,7 @@ int32_t main(const int32_t argc, char** argv)
     Rigel::Time::SetTargetFPS(120);
 
     auto& sceneManager = engine->GetSceneManager();
+    auto& assetManager = engine->GetAssetManager();
 
     auto scene = sceneManager.CreateScene();
 
@@ -24,7 +25,11 @@ int32_t main(const int32_t argc, char** argv)
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     model1->AddComponent<TestComponent>();
 
-    sceneManager.LoadScene(scene);
+    const auto json = scene->Serialize();
+    auto nScene = sceneManager.CreateScene();
+    nScene->Deserialize(json);
+
+    sceneManager.LoadScene(nScene);
 
     engine->Run();
 }

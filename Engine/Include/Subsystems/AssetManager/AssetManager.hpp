@@ -20,7 +20,7 @@ namespace Rigel
 
     struct AssetRegistryRecord final
     {
-        size_t PathHash;
+        uint64_t PathHash;
         std::filesystem::path Path;
         std::unique_ptr<RigelAsset> Asset;
     };
@@ -103,6 +103,12 @@ namespace Rigel
             // TODO: Improve unloading to work on multiple threads
             std::unique_lock lock(m_RegistryMutex);
             m_AssetsRegistry.erase(handle.GetID());
+        }
+
+        template<RigelAssetConcept T>
+        NODISCARD std::filesystem::path GetAssetPath(const AssetHandle<T>& handle) const
+        {
+            return m_AssetsRegistry.at(handle.GetID()).Path;
         }
 
         NODISCARD inline bool Validate(const uid_t assetID) const
