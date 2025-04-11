@@ -9,11 +9,12 @@ int32_t main(const int32_t argc, char** argv)
 
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
+    auto& windowManager = engine->GetWindowManager();
 
     auto scene = sceneManager.CreateScene();
 
     auto camera = scene->Instantiate();
-    camera->AddComponent<Rigel::Camera>(3.141592 / 3, 0.1, 100.0);
+    camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
     auto model = scene->Instantiate();
     model->GetTransform()->SetPosition({0, 0, -2.5});

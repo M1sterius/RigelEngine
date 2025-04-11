@@ -12,15 +12,6 @@
 
 namespace Rigel
 {
-    namespace Backend
-    {
-        struct RenderingBackendRenderInfo
-        {
-            ComponentHandle<Camera> MainCamera;
-
-        };
-    }
-
     Renderer::Renderer() { Startup(); }
     Renderer::~Renderer() { Shutdown(); }
 
@@ -31,7 +22,7 @@ namespace Rigel
         m_SelectedGraphicsAPI = SelectGraphicsAPI();
 
         // For now only Vulkan is supported
-        m_BackendRenderer = std::make_unique<Backend::VK_Renderer>();
+        m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
         m_BackendRenderer->InitImGUI();
 
         m_Initialized = true;
@@ -40,12 +31,6 @@ namespace Rigel
     void Renderer::Shutdown()
     {
         Debug::Trace("Shutting down renderer.");
-    }
-
-    GraphicsApi Renderer::SelectGraphicsAPI()
-    {
-        // For now only vulkan is supported
-        return GraphicsApi::Vulkan;
     }
 
     Backend::RenderingBackend& Renderer::GetBackend() const
@@ -104,5 +89,11 @@ namespace Rigel
     void Renderer::WaitForFinish() const
     {
         m_BackendRenderer->WaitForFinish();
+    }
+
+    GraphicsApi Renderer::SelectGraphicsAPI()
+    {
+        // For now only vulkan is supported
+        return GraphicsApi::Vulkan;
     }
 }

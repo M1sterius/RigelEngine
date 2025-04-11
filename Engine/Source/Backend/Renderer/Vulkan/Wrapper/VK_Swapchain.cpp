@@ -20,7 +20,7 @@ NODISCARD static bool GetCurrentVsyncSetting()
     return windowManager.IsVsyncEnabled();
 }
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     VK_Swapchain::VK_Swapchain(VK_Device& device, VkSurfaceKHR surface, const glm::uvec2 size)
         : m_Device(device), m_Surface(surface), m_Extent(size)

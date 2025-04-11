@@ -3,7 +3,7 @@
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     VK_Fence::VK_Fence(VK_Device& device, const bool signalBit)
             :   m_Device(device)

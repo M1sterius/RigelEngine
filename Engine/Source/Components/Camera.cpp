@@ -67,6 +67,8 @@ namespace Rigel
 
     void Camera::CalcProjection()
     {
+        if (m_ViewportSize.x == 0 || m_ViewportSize.y == 0) return;
+
         const auto aspect = static_cast<float32_t>(m_ViewportSize.x) / static_cast<float32_t>(m_ViewportSize.y);
         m_Projection = glm::perspective(m_FOV * aspect, aspect, m_Near, m_Far);
     }

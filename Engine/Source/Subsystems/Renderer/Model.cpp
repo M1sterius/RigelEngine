@@ -10,7 +10,7 @@ namespace Rigel
         const auto& renderer = Engine::Get().GetRenderer();
 
         if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::Vulkan)
-            m_BackendModel = std::make_unique<Backend::VK_Model>(path);
+            m_BackendModel = std::make_unique<Backend::Vulkan::VK_Model>(path);
         else if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::OpenGL) { }
     }
 

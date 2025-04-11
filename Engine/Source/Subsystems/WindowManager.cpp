@@ -58,8 +58,6 @@ namespace Rigel
 
         Debug::Trace("GLFW window instance successfully created.");
 
-        auto& eventManager = Engine::Get().GetEventManager();
-
         glfwSetWindowUserPointer(m_GLFWWindow, this);
 
         glfwSetFramebufferSizeCallback(m_GLFWWindow, framebuffer_resize_callback);

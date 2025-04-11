@@ -59,7 +59,7 @@ namespace Rigel
 
         Backend::SceneRenderInfo m_CurrentRenderInfo;
 
-        NODISCARD GraphicsApi SelectGraphicsAPI();
+        NODISCARD static GraphicsApi SelectGraphicsAPI();
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
         std::unique_ptr<Backend::RenderingBackend> m_BackendRenderer;
     };

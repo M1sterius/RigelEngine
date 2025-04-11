@@ -10,7 +10,7 @@
 #include <format>
 #include <cstring>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
 #pragma region VulkanDebugMessanger
 

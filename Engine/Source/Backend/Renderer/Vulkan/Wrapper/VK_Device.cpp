@@ -6,7 +6,7 @@
 #include <format>
 #include <set>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     VK_Device::VK_Device(VkInstance instance, VkSurfaceKHR surface)
         : m_Instance(instance), m_Surface(surface)

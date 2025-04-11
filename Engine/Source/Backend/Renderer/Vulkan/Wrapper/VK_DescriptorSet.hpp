@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
     class VK_UniformBuffer;

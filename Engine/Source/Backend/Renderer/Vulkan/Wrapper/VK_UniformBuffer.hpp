@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
     class VK_MemoryBuffer;

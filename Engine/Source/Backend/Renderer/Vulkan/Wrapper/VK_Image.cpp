@@ -4,7 +4,7 @@
 #include "VK_Device.hpp"
 #include "MakeInfo.hpp"
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format,
         VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)

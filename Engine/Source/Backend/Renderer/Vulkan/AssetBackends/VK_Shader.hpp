@@ -7,7 +7,7 @@
 
 #include <array>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Shader final : public BackendShader
     {

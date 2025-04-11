@@ -8,7 +8,7 @@
 #include <vector>
 #include <array>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Config
     {

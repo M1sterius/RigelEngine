@@ -13,7 +13,7 @@ namespace Rigel
     class AssetManager;
 }
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Instance;
     class VK_Device;

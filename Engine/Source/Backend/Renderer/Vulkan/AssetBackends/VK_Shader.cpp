@@ -8,7 +8,7 @@
 #include "VK_Device.hpp"
 #include "VK_Renderer.hpp"
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     VK_Shader::VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
         : BackendShader(vertPath, fragPath)

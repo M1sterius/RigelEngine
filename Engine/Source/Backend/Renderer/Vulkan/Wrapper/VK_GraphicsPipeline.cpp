@@ -6,7 +6,7 @@
 #include "VK_DescriptorSet.hpp"
 #include "MakeInfo.hpp"
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     VK_GraphicsPipeline::VK_GraphicsPipeline(VK_Device& device, const VkPipelineLayoutCreateInfo& layoutInfo, VkGraphicsPipelineCreateInfo& pipelineInfo)
         : m_Device(device)

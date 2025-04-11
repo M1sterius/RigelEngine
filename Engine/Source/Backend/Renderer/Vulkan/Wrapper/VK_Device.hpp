@@ -5,7 +5,7 @@
 
 #include <utility>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     struct PhysicalDeviceInfo
     {

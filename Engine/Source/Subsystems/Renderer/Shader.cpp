@@ -20,7 +20,7 @@ namespace Rigel
         const auto& renderer = Engine::Get().GetRenderer();
 
         if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::Vulkan)
-            m_BackendShader = std::make_unique<Backend::VK_Shader>(vertPath, fragPath);
+            m_BackendShader = std::make_unique<Backend::Vulkan::VK_Shader>(vertPath, fragPath);
         else if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::OpenGL) { }
     }
 

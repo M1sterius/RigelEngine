@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace Rigel::Backend
+namespace Rigel::Backend::Vulkan
 {
     class VK_Instance
     {
