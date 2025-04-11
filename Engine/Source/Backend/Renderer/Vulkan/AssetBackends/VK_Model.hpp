@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "../BackendModel.hpp"
+#include "IModelBackend.hpp"
 
 #include <memory>
 #include <string_view>
@@ -11,7 +11,7 @@ namespace Rigel::Backend::Vulkan
     class VK_VertexBuffer;
     class VK_IndexBuffer;
 
-    class VK_Model final : public BackendModel
+    class VK_Model final : public IModelBackend
     {
     public:
         explicit VK_Model(const std::filesystem::path& path);

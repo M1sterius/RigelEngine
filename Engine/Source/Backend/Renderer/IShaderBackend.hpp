@@ -5,15 +5,15 @@
 
 namespace Rigel::Backend
 {
-    class BackendShader
+    class IShaderBackend
     {
     public:
-        BackendShader(std::filesystem::path vertPath, std::filesystem::path fragPath)
+        IShaderBackend(std::filesystem::path vertPath, std::filesystem::path fragPath)
             : m_VertPath(std::move(vertPath)), m_FragPath(std::move(fragPath)) { }
-        virtual ~BackendShader() = default;
+        virtual ~IShaderBackend() = default;
 
-        BackendShader(const BackendShader& other) = delete;
-        BackendShader& operator = (const BackendShader&) = delete;
+        IShaderBackend(const IShaderBackend& other) = delete;
+        IShaderBackend& operator = (const IShaderBackend&) = delete;
     protected:
         const std::filesystem::path m_VertPath;
         const std::filesystem::path m_FragPath;

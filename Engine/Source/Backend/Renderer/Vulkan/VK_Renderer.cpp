@@ -1,4 +1,6 @@
 #include "VK_Renderer.hpp"
+
+#include "Shader.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
 #include "VK_Model.hpp"
@@ -6,7 +8,7 @@
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "AssetManager.hpp"
-#include "Shader.hpp"
+#include "VK_Shader.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 #include "GameObject.hpp"
@@ -70,7 +72,7 @@ namespace Rigel::Backend::Vulkan
         layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
         const auto layout = layoutBuilder.BuildLayout();
 
-        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackendShader<VK_Shader>();
+        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackend<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
         // After the pipeline is created, the descriptor layout is no longer needed
@@ -169,7 +171,7 @@ namespace Rigel::Backend::Vulkan
                 &mvp
             );
 
-            const auto& vkModel = model->GetModel()->GetBackendModel<VK_Model>();
+            const auto& vkModel = model->GetModel()->GetBackend<VK_Model>();
 
             const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
             constexpr VkDeviceSize offsets[] = {0};
@@ -186,7 +188,7 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
-    void VK_Renderer::Render(SceneRenderInfo& sceneRenderInfo)
+    void VK_Renderer::Render()
     {
         if (m_WindowManager.GetWindowResizeFlag())
         {
@@ -194,6 +196,8 @@ namespace Rigel::Backend::Vulkan
             RecreateSwapchain();
             return;
         }
+
+        auto& sceneRenderInfo = Engine::Get().GetRenderer().GetSceneRenderInfo();
 
         if (sceneRenderInfo.MainCamera.IsNull())
         {

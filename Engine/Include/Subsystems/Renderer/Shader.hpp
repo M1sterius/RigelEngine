@@ -8,7 +8,7 @@
 
 namespace Rigel::Backend
 {
-    class BackendShader;
+    class IShaderBackend;
 }
 
 namespace Rigel
@@ -18,15 +18,15 @@ namespace Rigel
     public:
         ~Shader() override;
     INTERNAL:
-        template<typename T> requires std::is_base_of_v<Backend::BackendShader, T>
-        NODISCARD T& GetBackendShader() const
+        template<typename T> requires std::is_base_of_v<Backend::IShaderBackend, T>
+        NODISCARD T& GetBackend() const
         {
             return static_cast<T&>(*m_BackendShader);
         }
     private:
         explicit Shader(const std::filesystem::path& path);
 
-        std::unique_ptr<Backend::BackendShader> m_BackendShader;
+        std::unique_ptr<Backend::IShaderBackend> m_BackendShader;
 
         friend class AssetManager;
     };

@@ -1,6 +1,5 @@
 #include "Shader.hpp"
 
-#include "Engine.hpp"
 #include "Renderer.hpp"
 #include "VK_Shader.hpp"
 
@@ -17,11 +16,7 @@ namespace Rigel
         const auto vertPath = std::filesystem::path(shaderName).concat(".vert.spv");
         const auto fragPath = std::filesystem::path(shaderName).concat(".frag.spv");
 
-        const auto& renderer = Engine::Get().GetRenderer();
-
-        if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::Vulkan)
-            m_BackendShader = std::make_unique<Backend::Vulkan::VK_Shader>(vertPath, fragPath);
-        else if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::OpenGL) { }
+        m_BackendShader = std::make_unique<Backend::Vulkan::VK_Shader>(vertPath, fragPath);
     }
 
     Shader::~Shader() = default;

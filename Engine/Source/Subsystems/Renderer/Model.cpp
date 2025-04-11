@@ -7,11 +7,7 @@ namespace Rigel
 {
     Model::Model(const std::filesystem::path& path) : RigelAsset(path)
     {
-        const auto& renderer = Engine::Get().GetRenderer();
-
-        if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::Vulkan)
-            m_BackendModel = std::make_unique<Backend::Vulkan::VK_Model>(path);
-        else if (renderer.GetSelectedGraphicsAPI() == GraphicsApi::OpenGL) { }
+        m_BackendModel = std::make_unique<Backend::Vulkan::VK_Model>(path);
     }
 
     Model::~Model() = default;

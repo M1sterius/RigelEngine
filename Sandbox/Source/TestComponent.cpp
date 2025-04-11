@@ -17,7 +17,7 @@ void TestComponent::OnLoad()
 
 void TestComponent::OnStart()
 {
-    EventManager.Subscribe<Rigel::GameUpdateEvent>(
+    GetEventManager().Subscribe<Rigel::GameUpdateEvent>(
     [this](const Rigel::GameUpdateEvent& e) { this->OnGameUpdate(e); }
     );
 

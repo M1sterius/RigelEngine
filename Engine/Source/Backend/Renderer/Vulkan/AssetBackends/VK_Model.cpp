@@ -11,7 +11,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Model::VK_Model(const std::filesystem::path& path) : BackendModel(path)
+    VK_Model::VK_Model(const std::filesystem::path& path) : IModelBackend(path)
     {
         if (!IsFormatSupported(m_Path.extension().string()))
             throw RigelException("Attempted to a load a model in an unsupported format!");

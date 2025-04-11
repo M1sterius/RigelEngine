@@ -33,21 +33,13 @@ namespace Rigel
         Debug::Trace("Shutting down renderer.");
     }
 
-    Backend::RenderingBackend& Renderer::GetBackend() const
+    Backend::IRendererBackend& Renderer::GetBackend() const
     {
         ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
         return *m_BackendRenderer;
     }
 
-    std::string Renderer::GetGraphicsAPIString(const GraphicsApi api)
-    {
-        switch (api)
-        {
-            case GraphicsApi::Vulkan: return "Vulkan";
-            case GraphicsApi::OpenGL: return "OpenGL";
-            default: return "None";
-        }
-    }
+
 
     void Renderer::LateInit() const
     {
@@ -83,7 +75,7 @@ namespace Rigel
 
     void Renderer::Render() const
     {
-        m_BackendRenderer->Render(const_cast<Backend::SceneRenderInfo&>(m_CurrentRenderInfo));
+        m_BackendRenderer->Render();
     }
 
     void Renderer::WaitForFinish() const
@@ -95,5 +87,15 @@ namespace Rigel
     {
         // For now only vulkan is supported
         return GraphicsApi::Vulkan;
+    }
+
+    std::string Renderer::GetGraphicsAPIString(const GraphicsApi api)
+    {
+        switch (api)
+        {
+            case GraphicsApi::Vulkan: return "Vulkan";
+            case GraphicsApi::OpenGL: return "OpenGL";
+            default: return "None";
+        }
     }
 }

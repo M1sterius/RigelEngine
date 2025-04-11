@@ -20,14 +20,14 @@ namespace Rigel
 
     void Transform::OnStart()
     {
-        m_UpdateCallbackID = EventManager.Subscribe<Backend::TransformUpdateEvent>(
+        m_UpdateCallbackID = GetEventManager().Subscribe<Backend::TransformUpdateEvent>(
         [this](const Backend::TransformUpdateEvent&) { this->Update(); }
         );
     }
 
     void Transform::OnDestroy()
     {
-        EventManager.Unsubscribe<Backend::TransformUpdateEvent>(m_UpdateCallbackID);
+        GetEventManager().Unsubscribe<Backend::TransformUpdateEvent>(m_UpdateCallbackID);
     }
 
     glm::vec3 Transform::GetPosition()

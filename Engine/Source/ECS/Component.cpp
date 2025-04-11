@@ -3,21 +3,11 @@
 #include "json.hpp"
 
 #include "Engine.hpp"
-#include "SceneManager.hpp"
-#include "EventManager.hpp"
-#include "AssetManager.hpp"
-#include "Subsystems/Renderer/Renderer.hpp"
 
 namespace Rigel
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
-    Component::Component() : RigelObject(NULL_ID),
-    Engine(Engine::Get()), AssetManager(Engine.GetAssetManager()),
-    EventManager(Engine.GetEventManager()), SceneManager(Engine.GetSceneManager()),
-    WindowManager(Engine.GetWindowManager())
-    {
-
-    }
+    Component::Component() : RigelObject(NULL_ID) { }
 
     nlohmann::json Component::Serialize() const
     {
@@ -39,4 +29,46 @@ namespace Rigel
 
         return true;
     }
+
+#pragma region SubsystemGetter
+    Engine& Component::GetEngine() const
+    {
+        return Engine::Get();
+    }
+
+    AssetManager& Component::GetAssetManager() const
+    {
+        return Engine::Get().GetAssetManager();
+    }
+
+    EventManager& Component::GetEventManager() const
+    {
+        return Engine::Get().GetEventManager();
+    }
+
+    PhysicsEngine& Component::GetPhysicsEngine() const
+    {
+        return Engine::Get().GetPhysicsEngine();
+    }
+
+    Renderer& Component::GetRenderer() const
+    {
+        return Engine::Get().GetRenderer();
+    }
+
+    InputManager& Component::GetInputManager() const
+    {
+        return Engine::Get().GetInputManager();
+    }
+
+    SceneManager& Component::GetSceneManager() const
+    {
+        return Engine::Get().GetSceneManager();
+    }
+
+    WindowManager& Component::GetWindowManager() const
+    {
+        return  Engine::Get().GetWindowManager();
+    }
+#pragma endregion
 }

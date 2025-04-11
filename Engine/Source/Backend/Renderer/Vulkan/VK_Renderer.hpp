@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "RenderingBackend.hpp"
+#include "IRendererBackend.hpp"
 
 #include "vulkan.h"
 
@@ -32,7 +32,7 @@ namespace Rigel::Backend::Vulkan
 
     struct AcquireImageInfo;
 
-    class VK_Renderer final : public RenderingBackend
+    class VK_Renderer final : public IRendererBackend
     {
     public:
         VK_Renderer();
@@ -40,7 +40,7 @@ namespace Rigel::Backend::Vulkan
 
         void LateInit() override;
         void InitImGUI() override;
-        void Render(SceneRenderInfo& sceneRenderInfo) override;
+        void Render() override;
         void WaitForFinish() const override;
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }

@@ -2,30 +2,15 @@
 
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
-#include "ComponentHandle.hpp"
-#include "Camera.hpp"
-#include "ModelRenderer.hpp"
+#include "SceneRenderInfo.hpp"
 
 #include <memory>
-#include <vector>
 
 namespace Rigel
 {
     namespace Backend
     {
-        class RenderingBackend;
-
-        struct SceneRenderInfo
-        {
-            ComponentHandle<Camera> MainCamera;
-            std::vector<ComponentHandle<ModelRenderer>> Models;
-
-            inline void Reset()
-            {
-                MainCamera = ComponentHandle<Camera>::Null();
-                Models.clear();
-            }
-        };
+        class IRendererBackend;
     }
 
     enum class GraphicsApi : uint8_t
@@ -44,10 +29,10 @@ namespace Rigel
         Renderer();
         ~Renderer() override;
 
-        NODISCARD Backend::RenderingBackend& GetBackend() const;
+        NODISCARD Backend::IRendererBackend& GetBackend() const;
+        NODISCARD Backend::SceneRenderInfo& GetSceneRenderInfo() { return m_CurrentRenderInfo; }
 
         void LateInit() const;
-
         void Prepare();
         void Render() const;
 
@@ -61,6 +46,6 @@ namespace Rigel
 
         NODISCARD static GraphicsApi SelectGraphicsAPI();
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
-        std::unique_ptr<Backend::RenderingBackend> m_BackendRenderer;
+        std::unique_ptr<Backend::IRendererBackend> m_BackendRenderer;
     };
 }

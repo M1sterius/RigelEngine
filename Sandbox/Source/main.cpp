@@ -34,3 +34,6 @@ int32_t main(const int32_t argc, char** argv)
 
     engine->Run();
 }
+
+// Serializer
+// Scene render info
