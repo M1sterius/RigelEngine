@@ -28,6 +28,7 @@ namespace Rigel::Backend::Vulkan
         VK_Swapchain operator = (const VK_Swapchain) = delete;
 
         NODISCARD uint32_t GetFramesInFlightCount() const { return m_FramesInFlight; }
+        NODISCARD uint32_t GetMinImageCount() const { return m_SwapchainSupportDetails.Capabilities.minImageCount; }
         NODISCARD std::vector<VkImage>& GetImages() { return m_Images; }
         NODISCARD std::vector<VkImageView>& GetImageViews() { return m_ImageViews; }
         NODISCARD VkFormat GetSwapchainImageFormat() const { return m_SwapchainImageFormat; }

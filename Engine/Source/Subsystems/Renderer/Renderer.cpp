@@ -80,6 +80,7 @@ namespace Rigel
 
     void Renderer::Render() const
     {
+        m_ImGuiBackend->DrawUI();
         m_BackendRenderer->Render();
     }
 

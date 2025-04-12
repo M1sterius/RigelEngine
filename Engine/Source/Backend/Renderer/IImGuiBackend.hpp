@@ -11,6 +11,8 @@ namespace Rigel::Backend
 
         IImGuiBackend(const IImGuiBackend& other) = delete;
         IImGuiBackend& operator = (const IImGuiBackend&) = delete;
+
+        virtual void DrawUI() = 0;
     protected:
         IImGuiBackend() = default;
     };

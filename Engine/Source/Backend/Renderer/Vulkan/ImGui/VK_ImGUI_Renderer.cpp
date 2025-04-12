@@ -22,32 +22,28 @@ namespace Rigel::Backend::Vulkan
         ImGui::StyleColorsDark();
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.Fonts->AddFontDefault();
 
         const auto& windowManager = Engine::Get().GetWindowManager();
         ImGui_ImplGlfw_InitForVulkan(windowManager.GetGLFWWindowPtr(), true);
 
-        const std::vector<VkDescriptorPoolSize> poolSizes = {{
-            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-        }};
+        const std::vector<VkDescriptorPoolSize> poolSizes = {
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },
+        };
 
         auto& device = m_Renderer.GetDevice();
-        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(device, poolSizes, 1000);
+        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(device, poolSizes, 1);
 
+        const auto imageFormat = m_Renderer.GetSwapchain().GetSwapchainImageFormat();
+
+        // We specify this so that imgui will enable blending
         VkPipelineRenderingCreateInfoKHR pipelineRenderingInfo {};
         pipelineRenderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+        pipelineRenderingInfo.colorAttachmentCount = 1;
+        pipelineRenderingInfo.pColorAttachmentFormats = &imageFormat;
 
         ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.ApiVersion = VK_Config::MinimalRequiredVulkanVersion;
+        init_info.ApiVersion = VK_Config::MinimalRequiredAPIVersion;
         init_info.Instance = m_Renderer.GetInstance().Get();
         init_info.PhysicalDevice = device.GetPhysicalDevice();
         init_info.Device = device.Get();
@@ -57,12 +53,13 @@ namespace Rigel::Backend::Vulkan
         init_info.PipelineRenderingCreateInfo = pipelineRenderingInfo;
         init_info.DescriptorPool = m_DescriptorPool->Get();
         init_info.Subpass = 0;
-        init_info.MinImageCount = m_Renderer.GetSwapchain().GetFramesInFlightCount() - 1; // maybe it's not a good idea?
+        init_info.MinImageCount = m_Renderer.GetSwapchain().GetMinImageCount();
         init_info.ImageCount = m_Renderer.GetSwapchain().GetFramesInFlightCount();
         init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         init_info.UseDynamicRendering = true;
 
         ImGui_ImplVulkan_Init(&init_info);
+        ImGui_ImplVulkan_CreateFontsTexture();
     }
 
     VK_ImGUI_Renderer::~VK_ImGUI_Renderer()
@@ -75,5 +72,22 @@ namespace Rigel::Backend::Vulkan
     void VK_ImGUI_Renderer::RenderFrame(const VK_CmdBuffer& cmdBuffer)
     {
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer.Get());
+    }
+
+    void VK_ImGUI_Renderer::DrawUI()
+    {
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Hello, Vulkan!");
+        ImGui::Text("This is a simple text");
+        if (ImGui::Button("Click me"))
+        {
+            Debug::Message("Click!");
+        }
+        ImGui::End();
+
+        ImGui::Render();
     }
 }

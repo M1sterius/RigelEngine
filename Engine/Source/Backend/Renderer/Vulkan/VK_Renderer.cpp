@@ -188,8 +188,8 @@ namespace Rigel::Backend::Vulkan
             }
         }
 
-        // const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-        // m_ImGuiBackend->RenderFrame(*m_CommandBuffers[frameIndex]);
+        const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
+        m_ImGuiBackend->RenderFrame(*m_CommandBuffers[frameIndex]);
 
         vkCmdEndRendering(commandBuffer);
 
@@ -205,8 +205,6 @@ namespace Rigel::Backend::Vulkan
             RecreateSwapchain();
             return;
         }
-
-        Debug::Message("{}", m_ImGuiBackend != nullptr);
 
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
         m_InFlightFences[frameIndex]->Wait();

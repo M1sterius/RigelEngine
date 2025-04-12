@@ -15,6 +15,7 @@ namespace Rigel::Backend::Vulkan
         ~VK_ImGUI_Renderer() override;
 
         void RenderFrame(const VK_CmdBuffer& cmdBuffer);
+        void DrawUI() override;
     private:
         VK_Renderer& m_Renderer;
 

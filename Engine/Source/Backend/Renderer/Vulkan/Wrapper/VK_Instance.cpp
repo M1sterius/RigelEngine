@@ -53,7 +53,7 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Creating Vulkan instance.");
 
-        if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredVulkanVersion))
+        if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredAPIVersion))
             throw RigelException("Minimal required vulkan version is not supported on this device!");
 
         if (VK_Config::EnableValidationLayers && !CheckValidationLayersSupport())
@@ -68,7 +68,7 @@ namespace Rigel::Backend::Vulkan
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.pEngineName = RIGEL_ENGINE_NAME;
         appInfo.engineVersion = RGE_API_CURRENT_VERSION;
-        appInfo.apiVersion = VK_Config::MinimalRequiredVulkanVersion;
+        appInfo.apiVersion = VK_Config::MinimalRequiredAPIVersion;
 
         auto createInfo = MakeInfo<VkInstanceCreateInfo>();
         createInfo.pApplicationInfo = &appInfo;
