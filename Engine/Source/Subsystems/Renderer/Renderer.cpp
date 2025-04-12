@@ -9,6 +9,7 @@
 #include "SceneManager.hpp"
 #include "ModelRenderer.hpp"
 #include "Renderer/Vulkan/VK_Renderer.hpp"
+#include "Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.hpp"
 
 namespace Rigel
 {
@@ -23,7 +24,9 @@ namespace Rigel
 
         // For now only Vulkan is supported
         m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
-        m_BackendRenderer->InitImGUI();
+        m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer));
+
+        dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer).SetImGuiBackend(dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get()));
 
         m_Initialized = true;
     }
@@ -38,8 +41,6 @@ namespace Rigel
         ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
         return *m_BackendRenderer;
     }
-
-
 
     void Renderer::LateInit() const
     {
@@ -66,7 +67,11 @@ namespace Rigel
             return false;
         });
 
-        if (cameras.empty()) return;
+        if (cameras.empty())
+        {
+            Debug::Warning("No main camera present on the scene. Rendering will not be performed!");
+            return;
+        }
 
         auto cameraGO = *cameras.begin();
         m_CurrentRenderInfo.MainCamera = cameraGO->GetComponent<Camera>();

@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.28)
 
 project(RigelEngine)
 
+set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+
+file(GLOB_RECURSE IMGUI_SOURCES
+    "${DEPENDENCIES_DIR}/imgui/*.h"
+    "${DEPENDENCIES_DIR}/imgui/*.cpp"
+)
+
 add_library(RigelEngine STATIC
+    ${IMGUI_SOURCES}
+
     Source/Engine.cpp
     Source/EngineTools/Time.cpp
     Source/Subsystems/SceneManager.cpp
@@ -37,7 +46,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
+    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
     Source/Subsystems/Renderer/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
@@ -53,6 +62,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
     Source/Subsystems/Renderer/Model.cpp
+    Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -91,7 +101,6 @@ target_precompile_headers(RigelEngine PRIVATE
     Include/Utils/PCH/RGE_PCH.hpp
 )
 
-set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
@@ -103,12 +112,12 @@ target_include_directories(RigelEngine PRIVATE
     Source/Backend/Renderer/Vulkan/Wrapper
     Source/Backend/Renderer/Vulkan/AssetBackends
 
+    ${DEPENDENCIES_DIR}
     ${Vulkan_INCLUDE_DIRS}
     ${VULKAN_SDK_PATH}/Include/vulkan
     ${DEPENDENCIES_DIR}/glfw/include/GLFW
+
     ${DEPENDENCIES_DIR}/imgui
-    ${DEPENDENCIES_DIR}/obj_loader
-    ${DEPENDENCIES_DIR}/stb_image
 )
 
 # Include paths that should be available outside to the projects linking the engine

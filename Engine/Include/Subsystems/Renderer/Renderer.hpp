@@ -11,6 +11,7 @@ namespace Rigel
     namespace Backend
     {
         class IRendererBackend;
+        class IImGuiBackend;
     }
 
     enum class GraphicsApi : uint8_t
@@ -46,6 +47,8 @@ namespace Rigel
 
         NODISCARD static GraphicsApi SelectGraphicsAPI();
         GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
+
         std::unique_ptr<Backend::IRendererBackend> m_BackendRenderer;
+        std::unique_ptr<Backend::IImGuiBackend> m_ImGuiBackend;
     };
 }

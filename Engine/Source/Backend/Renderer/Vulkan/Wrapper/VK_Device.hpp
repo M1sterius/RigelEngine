@@ -55,6 +55,7 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkDevice Get() const { return m_Device; }
 
+        NODISCARD inline VkPhysicalDevice GetPhysicalDevice() const { return m_SelectedPhysicalDevice.PhysicalDevice; }
         NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 

@@ -1,5 +1,5 @@
 #include "VK_Model.hpp"
-#include "obj_loader.h"
+#include "obj_loader/obj_loader.h"
 #include "Debug.hpp"
 
 #include "Engine.hpp"

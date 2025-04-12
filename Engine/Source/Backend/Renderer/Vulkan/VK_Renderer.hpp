@@ -30,6 +30,8 @@ namespace Rigel::Backend::Vulkan
     class VK_DescriptorPool;
     class VK_Image;
 
+    class VK_ImGUI_Renderer;
+
     struct AcquireImageInfo;
 
     class VK_Renderer final : public IRendererBackend
@@ -39,16 +41,19 @@ namespace Rigel::Backend::Vulkan
         ~VK_Renderer() override;
 
         void LateInit() override;
-        void InitImGUI() override;
         void Render() override;
         void WaitForFinish() const override;
 
+        inline void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
+
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
+        NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
+        NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
     private:
         void Startup() override;
         void Shutdown() override;
 
-        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image, SceneRenderInfo& sceneRenderInfo) const;
+        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
 
@@ -67,6 +72,7 @@ namespace Rigel::Backend::Vulkan
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
+        VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
         WindowManager& m_WindowManager;
         AssetManager& m_AssetManager;
     };

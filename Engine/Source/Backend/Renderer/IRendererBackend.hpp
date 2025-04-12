@@ -9,18 +9,20 @@ namespace Rigel::Backend
     /**
      * Base class for specific graphics API renderer implementations (such as Vulkan or OpenGL)
      */
-    class IRendererBackend : public RigelSubsystem
+    class IRendererBackend
     {
     public:
-        ~IRendererBackend() override = default;
+        virtual ~IRendererBackend() = default;
+
+        IRendererBackend(const IRendererBackend& other) = delete;
+        IRendererBackend& operator = (const IRendererBackend&) = delete;
 
         virtual void LateInit() = 0;
-        virtual void InitImGUI() = 0;
         virtual void Render() = 0;
         virtual void WaitForFinish() const = 0;
     protected:
         IRendererBackend() = default;
-        void Startup() override = 0;
-        void Shutdown() override = 0;
+        virtual void Startup() = 0;
+        virtual void Shutdown() = 0;
     };
 }

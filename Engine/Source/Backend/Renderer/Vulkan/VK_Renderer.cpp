@@ -1,5 +1,7 @@
 #include "VK_Renderer.hpp"
 
+#include <ImGui/VK_ImGUI_Renderer.hpp>
+
 #include "Shader.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
@@ -8,7 +10,6 @@
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "AssetManager.hpp"
-#include "VK_Shader.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 #include "GameObject.hpp"
@@ -17,12 +18,22 @@
 
 #include "vulkan.h"
 
+NODISCARD static Rigel::WindowManager& GetWindowManager()
+{
+    return Rigel::Engine::Get().GetWindowManager();
+}
+
+NODISCARD static Rigel::AssetManager& GetAssetManager()
+{
+     return Rigel::Engine::Get().GetAssetManager();
+}
+
 namespace Rigel::Backend::Vulkan
 {
     VK_Renderer::VK_Renderer() :
-    m_WindowManager(Engine::Get().GetWindowManager()),
-    m_AssetManager(Engine::Get().GetAssetManager())
-    { Startup(); }
+    m_WindowManager(GetWindowManager()),
+    m_AssetManager(GetAssetManager()) { Startup(); }
+
     VK_Renderer::~VK_Renderer() { Shutdown(); }
 
     void VK_Renderer::Startup()
@@ -56,13 +67,6 @@ namespace Rigel::Backend::Vulkan
 
             m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
         }
-
-        m_Initialized = true;
-    }
-
-    void VK_Renderer::InitImGUI()
-    {
-
     }
 
     void VK_Renderer::LateInit()
@@ -109,10 +113,8 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
-    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image, SceneRenderInfo& sceneRenderInfo) const
+    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
     {
-        const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-
         VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
@@ -155,32 +157,39 @@ namespace Rigel::Backend::Vulkan
         scissor.extent = m_Swapchain->GetExtent();
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        auto& camera = sceneRenderInfo.MainCamera;
-        const auto projView = camera->GetProjection() * camera->GetView();
+        auto& [camera, models] = Engine::Get().GetRenderer().GetSceneRenderInfo();
 
-        for (const auto& model : sceneRenderInfo.Models)
+        if (!camera.IsNull())
         {
-            const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
+            const auto projView = camera->GetProjection() * camera->GetView();
 
-            vkCmdPushConstants(
-                commandBuffer,
-                m_GraphicsPipeline->GetLayout(),
-                VK_SHADER_STAGE_VERTEX_BIT,
-                0,
-                sizeof(glm::mat4),
-                &mvp
-            );
+            for (const auto& model : models)
+            {
+                const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
 
-            const auto& vkModel = model->GetModel()->GetBackend<VK_Model>();
+                vkCmdPushConstants(
+                    commandBuffer,
+                    m_GraphicsPipeline->GetLayout(),
+                    VK_SHADER_STAGE_VERTEX_BIT,
+                    0,
+                    sizeof(glm::mat4),
+                    &mvp
+                );
 
-            const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
-            constexpr VkDeviceSize offsets[] = {0};
+                const auto& vkModel = model->GetModel()->GetBackend<VK_Model>();
 
-            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(commandBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+                const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
+                constexpr VkDeviceSize offsets[] = {0};
 
-            vkCmdDrawIndexed(commandBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                vkCmdBindIndexBuffer(commandBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+
+                vkCmdDrawIndexed(commandBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
+            }
         }
+
+        // const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
+        // m_ImGuiBackend->RenderFrame(*m_CommandBuffers[frameIndex]);
 
         vkCmdEndRendering(commandBuffer);
 
@@ -197,13 +206,7 @@ namespace Rigel::Backend::Vulkan
             return;
         }
 
-        auto& sceneRenderInfo = Engine::Get().GetRenderer().GetSceneRenderInfo();
-
-        if (sceneRenderInfo.MainCamera.IsNull())
-        {
-            Debug::Error("No camera on the active scene. Scene rendering aborted!");
-            return;
-        }
+        Debug::Message("{}", m_ImGuiBackend != nullptr);
 
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
         m_InFlightFences[frameIndex]->Wait();
@@ -214,7 +217,7 @@ namespace Rigel::Backend::Vulkan
         commandBuffer->Reset(0);
 
         commandBuffer->BeginRecording(0);
-        RecordCommandBuffer(commandBuffer->Get(), image, sceneRenderInfo);
+        RecordCommandBuffer(commandBuffer->Get(), image);
         commandBuffer->EndRecording();
 
         const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
