@@ -155,9 +155,9 @@ target_link_libraries(RigelEngine PUBLIC
     ${LINK_LIBRARIES} glfw Vulkan::Vulkan OpenGL::GL
 )
 
-add_custom_target(run_build_assets ALL
+add_custom_target(RunBuildAssets ALL
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Engine/Assets/BuildAssets.py ${CMAKE_SOURCE_DIR}/Engine/Assets ${CMAKE_BUILD_TYPE} ${ENGINE_OUTPUT_PATH}
     COMMENT "Running build assets python script!"
 )
 
-add_dependencies(RigelEngine run_build_assets)
+add_dependencies(RigelEngine RunBuildAssets)

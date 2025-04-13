@@ -69,13 +69,9 @@ namespace Rigel::Backend::Vulkan
         ImGui::DestroyContext();
     }
 
-    void VK_ImGUI_Renderer::RenderFrame(const VK_CmdBuffer& cmdBuffer)
+    void VK_ImGUI_Renderer::RenderFrame(void* optData)
     {
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer.Get());
-    }
-
-    void VK_ImGUI_Renderer::DrawUI()
-    {
+        // Temp! Will be moved later
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -89,5 +85,8 @@ namespace Rigel::Backend::Vulkan
         ImGui::End();
 
         ImGui::Render();
+        // -----------------------
+
+        // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer.Get());
     }
 }

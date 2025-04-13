@@ -53,7 +53,7 @@ namespace Rigel::Backend::Vulkan
         void Startup() override;
         void Shutdown() override;
 
-        void RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const;
+        void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
 

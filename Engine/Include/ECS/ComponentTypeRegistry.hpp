@@ -29,7 +29,7 @@ namespace Rigel
             }
         };
 
-        static Component* FindType(const std::string& type);
+        NODISCARD static Component* FindType(const std::string& type);
     private:
         inline static std::unordered_map<std::string, RegisterTypeFunc>& GetRegistry()
         {

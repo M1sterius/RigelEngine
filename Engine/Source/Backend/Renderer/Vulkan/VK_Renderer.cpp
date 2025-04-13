@@ -113,9 +113,12 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
-    void VK_Renderer::RecordCommandBuffer(VkCommandBuffer commandBuffer, const AcquireImageInfo& image) const
+    void VK_Renderer::RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const
     {
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
+        commandBuffer.BeginRecording(0);
+        const auto vkCmdBuffer = commandBuffer.Get();
+
+        VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
         auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
@@ -139,23 +142,13 @@ namespace Rigel::Backend::Vulkan
         renderingInfo.pColorAttachments = &colorAttachment;
         renderingInfo.pDepthAttachment = &depthAttachment;
 
-        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+        vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
+        vkCmdBindPipeline(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
 
-        VkViewport viewport {};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(m_Swapchain->GetExtent().width);
-        viewport.height = static_cast<float>(m_Swapchain->GetExtent().height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-        VkRect2D scissor {};
-        scissor.offset = {0, 0};
-        scissor.extent = m_Swapchain->GetExtent();
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        const auto viewportSize = glm::vec2(static_cast<float>(m_Swapchain->GetExtent().width), static_cast<float>(m_Swapchain->GetExtent().height));
+        VK_CmdBuffer::CmdSetViewport(vkCmdBuffer, {0.0, 0.0}, viewportSize, {0.0, 1.0});
+        VK_CmdBuffer::CmdSetScissor(vkCmdBuffer, {0.0, 0.0}, m_Swapchain->GetExtent());
 
         auto& [camera, models] = Engine::Get().GetRenderer().GetSceneRenderInfo();
 
@@ -168,7 +161,7 @@ namespace Rigel::Backend::Vulkan
                 const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
 
                 vkCmdPushConstants(
-                    commandBuffer,
+                    vkCmdBuffer,
                     m_GraphicsPipeline->GetLayout(),
                     VK_SHADER_STAGE_VERTEX_BIT,
                     0,
@@ -181,20 +174,19 @@ namespace Rigel::Backend::Vulkan
                 const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
                 constexpr VkDeviceSize offsets[] = {0};
 
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-                vkCmdBindIndexBuffer(commandBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, vertexBuffers, offsets);
+                vkCmdBindIndexBuffer(vkCmdBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
 
-                vkCmdDrawIndexed(commandBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
+                vkCmdDrawIndexed(vkCmdBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
             }
         }
 
-        const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-        m_ImGuiBackend->RenderFrame(*m_CommandBuffers[frameIndex]);
+        vkCmdEndRendering(vkCmdBuffer);
 
-        vkCmdEndRendering(commandBuffer);
-
-        VK_Image::CmdTransitionLayout(commandBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
+        VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+        commandBuffer.EndRecording();
     }
 
     void VK_Renderer::Render()
@@ -211,14 +203,12 @@ namespace Rigel::Backend::Vulkan
 
         const auto image = m_Swapchain->AcquireNextImage();
 
-        const auto& commandBuffer = m_CommandBuffers[frameIndex];
-        commandBuffer->Reset(0);
+        const auto& commandBuffer = *m_CommandBuffers[frameIndex];
+        commandBuffer.Reset(0);
 
-        commandBuffer->BeginRecording(0);
-        RecordCommandBuffer(commandBuffer->Get(), image);
-        commandBuffer->EndRecording();
+        RecordCommandBuffer(commandBuffer, image);
 
-        const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
+        const VkCommandBuffer submitBuffers[] = { commandBuffer.Get() };
         const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
         const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore[frameIndex]->Get() };
 

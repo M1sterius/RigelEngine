@@ -26,7 +26,8 @@ namespace Rigel
         m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
         m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer));
 
-        dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer).SetImGuiBackend(dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get()));
+        dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer).SetImGuiBackend(
+            dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get()));
 
         m_Initialized = true;
     }
@@ -80,7 +81,6 @@ namespace Rigel
 
     void Renderer::Render() const
     {
-        m_ImGuiBackend->DrawUI();
         m_BackendRenderer->Render();
     }
 
