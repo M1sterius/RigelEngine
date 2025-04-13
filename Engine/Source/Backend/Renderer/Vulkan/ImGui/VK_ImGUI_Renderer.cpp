@@ -1,9 +1,11 @@
 #include "VK_ImGUI_Renderer.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Config.hpp"
+#include "MakeInfo.hpp"
 #include "VulkanWrapper.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
+#include "EventManager.hpp"
 #include "WindowManager.hpp"
 
 #include "vulkan.h"
@@ -87,6 +89,7 @@ namespace Rigel::Backend::Vulkan
         ImGui::Render();
         // -----------------------
 
-        // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer.Get());
+        const auto cmdBuffer = static_cast<VkCommandBuffer>(optData);
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
     }
 }

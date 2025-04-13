@@ -7,6 +7,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Renderer;
     class VK_DescriptorPool;
     class VK_CmdBuffer;
+    class VK_Image;
 
     class VK_ImGUI_Renderer final : public IImGuiBackend
     {

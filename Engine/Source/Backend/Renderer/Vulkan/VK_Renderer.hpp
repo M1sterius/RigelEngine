@@ -73,7 +73,5 @@ namespace Rigel::Backend::Vulkan
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
-        WindowManager& m_WindowManager;
-        AssetManager& m_AssetManager;
     };
 }

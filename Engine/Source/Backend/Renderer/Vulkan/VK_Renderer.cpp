@@ -30,10 +30,7 @@ NODISCARD static Rigel::AssetManager& GetAssetManager()
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Renderer::VK_Renderer() :
-    m_WindowManager(GetWindowManager()),
-    m_AssetManager(GetAssetManager()) { Startup(); }
-
+    VK_Renderer::VK_Renderer() { Startup(); }
     VK_Renderer::~VK_Renderer() { Shutdown(); }
 
     void VK_Renderer::Startup()
@@ -43,8 +40,8 @@ namespace Rigel::Backend::Vulkan
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
-        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), m_WindowManager.GetSize());
-        CreateDepthBufferImage(m_WindowManager.GetSize());
+        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
+        CreateDepthBufferImage(GetWindowManager().GetSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
@@ -76,7 +73,7 @@ namespace Rigel::Backend::Vulkan
         layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
         const auto layout = layoutBuilder.BuildLayout();
 
-        const auto& defaultShader = m_AssetManager.Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackend<VK_Shader>();
+        const auto& defaultShader = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackend<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
         // After the pipeline is created, the descriptor layout is no longer needed
@@ -92,11 +89,11 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RecreateSwapchain()
     {
-        m_WindowManager.WaitForFocus();
+        GetWindowManager().WaitForFocus();
         m_Device->WaitIdle();
 
-        const auto windowSize = m_WindowManager.GetSize();
-        const auto vsync = m_WindowManager.IsVsyncEnabled();
+        const auto windowSize = GetWindowManager().GetSize();
+        const auto vsync = GetWindowManager().IsVsyncEnabled();
 
         CreateDepthBufferImage(windowSize);
         m_Swapchain->SetupSwapchain(windowSize, vsync);
@@ -183,6 +180,23 @@ namespace Rigel::Backend::Vulkan
 
         vkCmdEndRendering(vkCmdBuffer);
 
+        auto uiPassColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
+        uiPassColorAttachment.imageView = image.imageView;
+        uiPassColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        uiPassColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        uiPassColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        uiPassColorAttachment.clearValue.color = {{0.0f, 0.0f, 0.0f, 0.0f}};
+
+        auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
+        uiRenderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
+        uiRenderingInfo.layerCount = 1;
+        uiRenderingInfo.colorAttachmentCount = 1;
+        uiRenderingInfo.pColorAttachments = &uiPassColorAttachment;
+
+        vkCmdBeginRendering(vkCmdBuffer, &uiRenderingInfo);
+        m_ImGuiBackend->RenderFrame(commandBuffer.Get());
+        vkCmdEndRendering(vkCmdBuffer);
+
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
@@ -191,9 +205,9 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::Render()
     {
-        if (m_WindowManager.GetWindowResizeFlag())
+        if (GetWindowManager().GetWindowResizeFlag())
         {
-            m_WindowManager.ResetWindowResizeFlag();
+            GetWindowManager().ResetWindowResizeFlag();
             RecreateSwapchain();
             return;
         }
