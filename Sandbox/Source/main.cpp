@@ -26,6 +26,8 @@ int32_t main(const int32_t argc, char** argv)
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     model1->AddComponent<TestComponent>();
 
+    auto tex = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
+
     const auto json = scene->Serialize();
     auto nScene = sceneManager.CreateScene();
     nScene->Deserialize(json);

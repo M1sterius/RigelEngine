@@ -10,11 +10,7 @@ namespace Rigel::Backend::Vulkan
 {
 
     VK_DescriptorSetBuilder::VK_DescriptorSetBuilder(VK_Device& device)
-        : m_Device(device)
-    {
-
-    }
-
+        : m_Device(device) { }
     VK_DescriptorSetBuilder::~VK_DescriptorSetBuilder() = default;
 
     VkDescriptorSetLayout VK_DescriptorSetBuilder::BuildLayout() const
@@ -46,7 +42,7 @@ namespace Rigel::Backend::Vulkan
             .stageFlags = static_cast<VkShaderStageFlags>(shaderStage)
         });
 
-        VkWriteDescriptorSet write{};
+        VkWriteDescriptorSet write {};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         write.dstSet = nullptr; // Will be filled later
         write.dstBinding = binding;
@@ -79,7 +75,8 @@ namespace Rigel::Backend::Vulkan
         for (auto& write : descriptorWrites)
             write.dstSet = m_DescriptorSet;
 
-        vkUpdateDescriptorSets(m_Device.Get(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+        vkUpdateDescriptorSets(m_Device.Get(), descriptorWrites.size(),
+            descriptorWrites.data(), 0, nullptr);
     }
 
     VK_DescriptorSet::~VK_DescriptorSet()

@@ -71,24 +71,15 @@ namespace Rigel::Backend::Vulkan
         ImGui::DestroyContext();
     }
 
-    void VK_ImGUI_Renderer::RenderFrame(void* optData)
+    void VK_ImGUI_Renderer::BeginNewFrame()
     {
-        // Temp! Will be moved later
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+    }
 
-        ImGui::Begin("Hello, Vulkan!");
-        ImGui::Text("This is a simple text");
-        if (ImGui::Button("Click me"))
-        {
-            Debug::Message("Click!");
-        }
-        ImGui::End();
-
-        ImGui::Render();
-        // -----------------------
-
+    void VK_ImGUI_Renderer::RenderFrame(void* optData)
+    {
         const auto cmdBuffer = static_cast<VkCommandBuffer>(optData);
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
     }

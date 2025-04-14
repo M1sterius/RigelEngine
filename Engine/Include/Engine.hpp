@@ -8,6 +8,11 @@
 
 namespace Rigel
 {
+    namespace Backend::Editor
+    {
+        class Editor;
+    }
+
     class SceneManager;
     class Renderer;
     class EventManager;
@@ -77,6 +82,7 @@ namespace Rigel
         uint64_t m_FrameCounter = 0;
 
         std::unique_ptr<ThreadPool> m_ThreadPool;
+        std::unique_ptr<Backend::Editor::Editor> m_Editor; // this is probably temp
 
         // Subsystem instances
         std::unique_ptr<EventManager> m_EventManager;

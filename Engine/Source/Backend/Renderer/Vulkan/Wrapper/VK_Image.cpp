@@ -1,4 +1,7 @@
 #include "VK_Image.hpp"
+
+#include <VK_MemoryBuffer.hpp>
+
 #include "VK_CmdBuffer.hpp"
 #include "VulkanException.hpp"
 #include "VK_Device.hpp"
@@ -159,5 +162,30 @@ namespace Rigel::Backend::Vulkan
         vkDestroyImageView(m_Device.Get(), m_ImageView, nullptr);
         vkDestroyImage(m_Device.Get(), m_Image, nullptr);
         vkFreeMemory(m_Device.Get(), m_ImageMemory, nullptr);
+    }
+
+    void VK_Image::CopyFromBuffer(const VK_MemoryBuffer& buffer)
+    {
+        const auto cmdBuffer = VK_CmdBuffer::BeginSingleTime(m_Device);
+
+        VkBufferImageCopy region {};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = {0, 0, 0};
+        region.imageExtent = {
+            m_Size.x,
+            m_Size.y,
+            1
+        };
+
+        vkCmdCopyBufferToImage(cmdBuffer->Get(), buffer.Get(), m_Image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+        VK_CmdBuffer::EndSingleTime(m_Device, *cmdBuffer);
     }
 }

@@ -31,6 +31,8 @@ namespace Rigel
         ~Renderer() override;
 
         NODISCARD Backend::IRendererBackend& GetBackend() const;
+        NODISCARD Backend::IImGuiBackend& GetImGuiBackend() const { return *m_ImGuiBackend; }
+
         NODISCARD Backend::SceneRenderInfo& GetSceneRenderInfo() { return m_CurrentRenderInfo; }
 
         void LateInit() const;

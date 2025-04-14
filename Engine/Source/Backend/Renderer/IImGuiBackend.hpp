@@ -13,6 +13,7 @@ namespace Rigel::Backend
         IImGuiBackend& operator = (const IImGuiBackend&) = delete;
 
         virtual void RenderFrame(void* optData) = 0;
+        virtual void BeginNewFrame() = 0;
     protected:
         IImGuiBackend() = default;
     };

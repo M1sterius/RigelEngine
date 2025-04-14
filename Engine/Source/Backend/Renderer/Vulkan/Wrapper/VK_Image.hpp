@@ -8,6 +8,7 @@
 namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
+    class VK_MemoryBuffer;
 
     class VK_Image 
     {
@@ -20,6 +21,8 @@ namespace Rigel::Backend::Vulkan
         VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
                         VkImageUsageFlags usage, VkImageAspectFlags aspectFlags);
         ~VK_Image();
+
+        void CopyFromBuffer(const VK_MemoryBuffer& buffer);
 
         NODISCARD inline VkImage Get() const { return m_Image; }
         NODISCARD inline VkImageView GetView() const { return m_ImageView; }

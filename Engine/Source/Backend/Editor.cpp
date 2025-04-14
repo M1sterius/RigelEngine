@@ -1,0 +1,33 @@
+#include "Editor.hpp"
+#include "imgui/imgui.h"
+#include "Engine.hpp"
+#include "Renderer.hpp"
+#include "IImGuiBackend.hpp"
+
+namespace Rigel::Backend::Editor
+{
+    Editor::Editor()
+    {
+
+    }
+
+    Editor::~Editor()
+    {
+
+    }
+
+    void Editor::Draw()
+    {
+        Engine::Get().GetRenderer().GetImGuiBackend().BeginNewFrame();
+
+        ImGui::Begin("Hello, Vulkan!");
+        ImGui::Text("This is a simple text");
+        if (ImGui::Button("Click me"))
+        {
+            Debug::Message("Click!");
+        }
+        ImGui::End();
+
+        ImGui::Render();
+    }
+}

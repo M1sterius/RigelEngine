@@ -15,6 +15,7 @@ namespace Rigel::Backend::Vulkan
         explicit VK_ImGUI_Renderer(VK_Renderer& renderer);
         ~VK_ImGUI_Renderer() override;
 
+        void BeginNewFrame() override;
         void RenderFrame(void* optData) override;
     private:
         VK_Renderer& m_Renderer;

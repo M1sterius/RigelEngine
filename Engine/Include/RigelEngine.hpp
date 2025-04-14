@@ -29,11 +29,14 @@
 // Subsystem-related classes
 #include "Event.hpp"
 #include "EngineEvents.hpp"
-#include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
+#include "KeysAndButtons.hpp"
+
+// Assets
+#include "RigelAsset.hpp"
 #include "Shader.hpp"
 #include "Model.hpp"
-#include "KeysAndButtons.hpp"
+#include "Texture.hpp"
 
 // Debug
 #include "Debug.hpp"

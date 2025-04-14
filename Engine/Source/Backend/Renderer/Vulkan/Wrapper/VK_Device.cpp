@@ -66,17 +66,20 @@ namespace Rigel::Backend::Vulkan
         VkPhysicalDeviceFeatures deviceFeatures {};
         deviceFeatures.samplerAnisotropy = true;
 
-        // This is done so that imgui can render to the same image attachment the scene was rendered to
-        // VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT unusedAttachmentFeature {};
-        // unusedAttachmentFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT;
-        // unusedAttachmentFeature.dynamicRenderingUnusedAttachments = VK_TRUE;
-        // unusedAttachmentFeature.pNext = nullptr;
+        // Enable bindless descriptors
+        VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures = {};
+        indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+        indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+        indexingFeatures.runtimeDescriptorArray = VK_TRUE;
+        indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+        indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
-        // Explicitly enable dynamic rendering
+        // Enable dynamic rendering
         VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature {};
         dynamicRenderingFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
         dynamicRenderingFeature.dynamicRendering = VK_TRUE;
-        // dynamicRenderingFeature.pNext = &unusedAttachmentFeature;
+
+        indexingFeatures.pNext = &dynamicRenderingFeature;
 
         auto createInfo = MakeInfo<VkDeviceCreateInfo>();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -84,7 +87,7 @@ namespace Rigel::Backend::Vulkan
         createInfo.pEnabledFeatures = &deviceFeatures;
         createInfo.enabledExtensionCount = static_cast<uint32_t>(VK_Config::RequiredPhysicalDeviceExtensions.size());
         createInfo.ppEnabledExtensionNames = VK_Config::RequiredPhysicalDeviceExtensions.data();
-        createInfo.pNext = &dynamicRenderingFeature;
+        createInfo.pNext = &indexingFeatures;
 
         if (VK_Config::EnableValidationLayers)
         {

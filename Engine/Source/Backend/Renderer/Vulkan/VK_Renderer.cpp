@@ -180,18 +180,17 @@ namespace Rigel::Backend::Vulkan
 
         vkCmdEndRendering(vkCmdBuffer);
 
-        auto uiPassColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        uiPassColorAttachment.imageView = image.imageView;
-        uiPassColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        uiPassColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        uiPassColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        uiPassColorAttachment.clearValue.color = {{0.0f, 0.0f, 0.0f, 0.0f}};
+        auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
+        uiColorAttachment.imageView = image.imageView;
+        uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
         auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
         uiRenderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
         uiRenderingInfo.layerCount = 1;
         uiRenderingInfo.colorAttachmentCount = 1;
-        uiRenderingInfo.pColorAttachments = &uiPassColorAttachment;
+        uiRenderingInfo.pColorAttachments = &uiColorAttachment;
 
         vkCmdBeginRendering(vkCmdBuffer, &uiRenderingInfo);
         m_ImGuiBackend->RenderFrame(commandBuffer.Get());

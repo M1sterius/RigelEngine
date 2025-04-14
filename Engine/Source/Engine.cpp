@@ -15,6 +15,7 @@
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "Directory.hpp"
+#include "Editor.hpp"
 
 /*
  * Helps avoid boilerplate when writing a dozen of identical getters for engine subsystems.
@@ -73,6 +74,8 @@ namespace Rigel
 
         m_ThreadPool = std::make_unique<ThreadPool>();
         Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
+
+        m_Editor = std::make_unique<Backend::Editor::Editor>();
 
         m_Running = true;
         m_GlobalTimeStopwatch.Start();
@@ -146,6 +149,8 @@ namespace Rigel
 
     void Engine::EngineUpdate()
     {
+        m_Editor->Draw();
+
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
