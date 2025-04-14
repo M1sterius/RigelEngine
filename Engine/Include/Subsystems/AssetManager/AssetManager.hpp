@@ -6,9 +6,9 @@
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "Hash.hpp"
+#include "plf_colony.h"
 
 #include <filesystem>
-#include <unordered_map>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
@@ -20,6 +20,7 @@ namespace Rigel
 
     struct AssetRegistryRecord final
     {
+        uid_t AssetID;
         uint64_t PathHash;
         std::filesystem::path Path;
         std::unique_ptr<RigelAsset> Asset;
@@ -33,10 +34,13 @@ namespace Rigel
         {
             std::shared_lock lock(m_RegistryMutex);
 
-            for (const auto& [id, record] : m_AssetsRegistry)
+            for (const auto& record : m_AssetsRegistry)
             {
-                if (const auto cast = dynamic_cast<T*>(record.Asset.get()); cast && Hash(path.string()) == record.PathHash)
-                    return AssetHandle<T>(cast, id);
+                if (const auto cast = dynamic_cast<T*>(record.Asset.get());
+                    cast && Hash(path.string()) == record.PathHash)
+                {
+                    return AssetHandle<T>(cast, record.AssetID);
+                }
             }
 
             return AssetHandle<T>::Null();
@@ -48,6 +52,12 @@ namespace Rigel
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
+            // if (!exists(path))
+            // {
+            //     Debug::Error("An asset at path '{}' does not exist!", path.string());
+            //     return AssetHandle<T>::Null();
+            // }
+
             std::unique_ptr<RigelAsset> assetPtr;
 
             try
@@ -57,7 +67,7 @@ namespace Rigel
             catch (const std::exception& e)
             {
                 Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
-                return AssetHandle<T>(nullptr, NULL_ID);
+                return AssetHandle<T>::Null();
             }
 
             const auto ID = AssignID(assetPtr.get());
@@ -65,56 +75,71 @@ namespace Rigel
 
             {
                 std::unique_lock lock(m_RegistryMutex);
-                m_AssetsRegistry[ID] = {
+                m_AssetsRegistry.insert({
+                    .AssetID = ID,
                     .PathHash = Hash(path.string()),
                     .Path = path,
                     .Asset = std::move(assetPtr)
-                };
+                });
             }
 
             return AssetHandle<T>(rawPtr, ID);
         }
 
-        template<RigelAssetConcept T>
-        void Unload(const std::filesystem::path& path)
-        {
-            const auto found = Find<T>(path);
-
-            if (found.IsNull())
-            {
-                Debug::Error("Failed to unload asset at path: {}! Asset not found!", path.string());
-                return;
-            }
-
-            // TODO: Improve unloading to work on multiple threads
-            std::unique_lock lock(m_RegistryMutex);
-            m_AssetsRegistry.erase(found.GetID());
-        }
-
-        template<RigelAssetConcept T>
-        void Unload(const AssetHandle<T>& handle)
-        {
-            if (!Validate<T>(handle))
-            {
-                Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
-                return;
-            }
-
-            // TODO: Improve unloading to work on multiple threads
-            std::unique_lock lock(m_RegistryMutex);
-            m_AssetsRegistry.erase(handle.GetID());
-        }
+        // template<RigelAssetConcept T>
+        // void Unload(const std::filesystem::path& path)
+        // {
+        //     const auto found = Find<T>(path);
+        //
+        //     if (found.IsNull())
+        //     {
+        //         Debug::Error("Failed to unload asset at path: {}! Asset not found!", path.string());
+        //         return;
+        //     }
+        //
+        //     // TODO: Improve unloading to work on multiple threads
+        //     std::unique_lock lock(m_RegistryMutex);
+        //     m_AssetsRegistry.erase(found.GetID());
+        // }
+        //
+        // template<RigelAssetConcept T>
+        // void Unload(const AssetHandle<T>& handle)
+        // {
+        //     if (!Validate<T>(handle))
+        //     {
+        //         Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
+        //         return;
+        //     }
+        //
+        //     // TODO: Improve unloading to work on multiple threads
+        //     std::unique_lock lock(m_RegistryMutex);
+        //     m_AssetsRegistry.erase(handle.GetID());
+        // }
 
         template<RigelAssetConcept T>
         NODISCARD std::filesystem::path GetAssetPath(const AssetHandle<T>& handle) const
         {
-            return m_AssetsRegistry.at(handle.GetID()).Path;
+            for (const auto& record : m_AssetsRegistry)
+            {
+                if (record.AssetID == handle.GetID())
+                    return record.Path;
+            }
+
+            Debug::Error("Failed to find an asset with ID: {}!", handle.GetID());
+            return "";
         }
 
         NODISCARD inline bool Validate(const uid_t assetID) const
         {
             std::shared_lock lock(m_RegistryMutex);
-            return m_AssetsRegistry.contains(assetID);
+
+            for (const auto& record : m_AssetsRegistry)
+            {
+                if (record.AssetID == assetID)
+                    return true;
+            }
+
+            return false;
         }
 
         template<RigelAssetConcept T>
@@ -139,9 +164,6 @@ namespace Rigel
         mutable std::shared_mutex m_RegistryMutex;
         std::mutex m_IDMutex;
 
-        std::unordered_map<uid_t, AssetRegistryRecord> m_AssetsRegistry;
-
-        std::filesystem::path m_WorkingDirectory;
-        std::filesystem::path m_AssetsDirectory;
+        plf::colony<AssetRegistryRecord> m_AssetsRegistry;
     };
 }

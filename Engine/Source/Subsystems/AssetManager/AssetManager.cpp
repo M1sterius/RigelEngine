@@ -18,13 +18,6 @@ namespace Rigel
     void AssetManager::Startup()
     {
         Debug::Trace("Starting up asset manager.");
-
-        m_WorkingDirectory = Directory::WorkingDirectory();
-        m_AssetsDirectory = m_WorkingDirectory.concat("/Assets");
-
-        if (!fs::exists(m_AssetsDirectory))
-            throw RigelException("Asset manager initialisation failed! Cannot find root Assets directory in the working directory.");
-
         m_Initialized = true;
     }
 
