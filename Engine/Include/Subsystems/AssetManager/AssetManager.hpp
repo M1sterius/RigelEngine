@@ -21,6 +21,7 @@ namespace Rigel
     struct AssetRegistryRecord final
     {
         uid_t AssetID;
+        uint32_t RefCount;
         uint64_t PathHash;
         std::filesystem::path Path;
         std::unique_ptr<RigelAsset> Asset;
@@ -77,6 +78,7 @@ namespace Rigel
                 std::unique_lock lock(m_RegistryMutex);
                 m_AssetsRegistry.insert({
                     .AssetID = ID,
+                    .RefCount = 0,
                     .PathHash = Hash(path.string()),
                     .Path = path,
                     .Asset = std::move(assetPtr)
@@ -147,9 +149,14 @@ namespace Rigel
         {
             return Validate(handle.GetID());
         }
+
+        NODISCARD uint32_t GetRefCount(const uid_t id);
     INTERNAL:
         AssetManager();
         ~AssetManager() override;
+
+        void IncrementRefCount(const uid_t id);
+        void DecrementRefCount(const uid_t id);
 
         void UnloadAllAssets();
     private:

@@ -3,6 +3,8 @@
 #include "Core.hpp"
 #include "ITextureBackend.hpp"
 
+#include "vulkan.h"
+
 #include <filesystem>
 #include <memory>
 

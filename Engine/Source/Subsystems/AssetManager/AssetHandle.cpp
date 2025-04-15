@@ -2,11 +2,29 @@
 #include "Engine.hpp"
 #include "AssetManager.hpp"
 
-namespace Rigel::Backend::HandleValidation
+namespace Rigel::Backend
 {
-    bool ValidateAssetHandleImpl(const uid_t id)
+    namespace HandleValidation
     {
-        const auto& assetManager = Engine::Get().GetAssetManager();
-        return assetManager.Validate(id);
+        bool ValidateAssetHandleImpl(const uid_t id)
+        {
+            const auto& assetManager = Engine::Get().GetAssetManager();
+            return assetManager.Validate(id);
+        }
+    }
+
+    namespace RefCountingImpl
+    {
+        void IncrementRefCount(const uid_t id)
+        {
+            auto& assetManager = Engine::Get().GetAssetManager();
+            assetManager.IncrementRefCount(id);
+        }
+
+        void DecrementRefCount(const uid_t id)
+        {
+            auto& assetManager = Engine::Get().GetAssetManager();
+            assetManager.DecrementRefCount(id);
+        }
     }
 }

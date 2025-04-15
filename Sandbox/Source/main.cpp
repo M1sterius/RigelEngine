@@ -27,6 +27,7 @@ int32_t main(const int32_t argc, char** argv)
     model1->AddComponent<TestComponent>();
 
     auto tex = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
+    Rigel::Debug::Message("{}", assetManager.GetRefCount(tex.GetID()));
 
     const auto json = scene->Serialize();
     auto nScene = sceneManager.CreateScene();

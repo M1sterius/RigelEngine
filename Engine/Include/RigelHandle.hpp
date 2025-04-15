@@ -29,6 +29,8 @@ namespace Rigel
         virtual ~RigelHandle() = default;
     protected:
         RigelHandle(T* ptr, const uid_t id) : m_Ptr(ptr), m_ID(id) { }
+        RigelHandle(const RigelHandle&) = default;
+        RigelHandle& operator = (const RigelHandle&) = default;
 
         /**
         * Returns true if at least one of the handle members (e.g. the underlying pointer,

@@ -10,6 +10,12 @@ namespace Rigel
         NODISCARD bool ValidateAssetHandleImpl(const uid_t id);
     }
 
+    namespace Backend::RefCountingImpl
+    {
+        void IncrementRefCount(const uid_t id);
+        void DecrementRefCount(const uid_t id);
+    }
+
     class RigelAsset;
 
     // TODO: Implement reference counting logic, add asset path a field
@@ -18,7 +24,26 @@ namespace Rigel
     {
     public:
         AssetHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
-        AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id) { }
+        AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id)
+        {
+            Backend::RefCountingImpl::IncrementRefCount(id);
+        }
+
+        ~AssetHandle() override
+        {
+            Backend::RefCountingImpl::DecrementRefCount(this->GetID());
+        }
+
+        AssetHandle(const AssetHandle& handle) : RigelHandle<T>(handle)
+        {
+            Backend::RefCountingImpl::IncrementRefCount(this->GetID());
+        }
+
+        AssetHandle& operator = (const AssetHandle&)
+        {
+            Backend::RefCountingImpl::IncrementRefCount(this->GetID());
+            return *this;
+        }
 
         NODISCARD static AssetHandle Null()
         {
