@@ -27,13 +27,15 @@ int32_t main(const int32_t argc, char** argv)
     model1->AddComponent<TestComponent>();
 
     auto tex = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
-    Rigel::Debug::Message("{}", assetManager.GetRefCount(tex.GetID()));
+    auto tex1 = tex;
 
     const auto json = scene->Serialize();
     auto nScene = sceneManager.CreateScene();
     nScene->Deserialize(json);
 
     sceneManager.LoadScene(nScene);
+
+    assetManager.PrintIDs();
 
     engine->Run();
 }

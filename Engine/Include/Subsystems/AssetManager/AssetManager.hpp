@@ -53,12 +53,6 @@ namespace Rigel
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
-            // if (!exists(path))
-            // {
-            //     Debug::Error("An asset at path '{}' does not exist!", path.string());
-            //     return AssetHandle<T>::Null();
-            // }
-
             std::unique_ptr<RigelAsset> assetPtr;
 
             try
@@ -151,6 +145,14 @@ namespace Rigel
         }
 
         NODISCARD uint32_t GetRefCount(const uid_t id);
+
+        inline void PrintIDs()
+        {
+            for (const auto& record : m_AssetsRegistry)
+            {
+                Debug::Message("Path: {}, ID: {}, RefCount: {}", record.Path.string(), record.AssetID, record.RefCount);
+            }
+        }
     INTERNAL:
         AssetManager();
         ~AssetManager() override;

@@ -18,7 +18,6 @@ namespace Rigel
 
     class RigelAsset;
 
-    // TODO: Implement reference counting logic, add asset path a field
     template<typename T> requires std::is_base_of_v<RigelAsset, T>
     class AssetHandle final : public RigelHandle<T>
     {
@@ -29,35 +28,26 @@ namespace Rigel
             Backend::RefCountingImpl::IncrementRefCount(id);
         }
 
-        ~AssetHandle() override
+        AssetHandle(const AssetHandle& other) : RigelHandle<T>(other)
         {
-            Backend::RefCountingImpl::DecrementRefCount(this->GetID());
+            Backend::RefCountingImpl::IncrementRefCount(other.m_ID);
         }
 
-        AssetHandle(const AssetHandle& handle) : RigelHandle<T>(handle)
+        AssetHandle& operator = (const AssetHandle& other)
         {
-            Backend::RefCountingImpl::IncrementRefCount(this->GetID());
-        }
-
-        AssetHandle& operator = (const AssetHandle&)
-        {
-            Backend::RefCountingImpl::IncrementRefCount(this->GetID());
+            if (this != &other) // checks that we are not trying to assign an object to itself
+            {
+                Backend::RefCountingImpl::IncrementRefCount(other.GetID());
+                RigelHandle<T>::operator = (other);
+            }
             return *this;
         }
 
-        NODISCARD static AssetHandle Null()
-        {
-            return {nullptr, NULL_ID};
-        }
+        ~AssetHandle() override { Backend::RefCountingImpl::DecrementRefCount(this->GetID()); }
 
-        NODISCARD bool IsNull() const override
-        {
-            return this->m_Ptr == nullptr || this->m_ID == NULL_ID;
-        }
+        NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID}; }
+        NODISCARD bool IsNull() const override { return this->m_Ptr == nullptr || this->m_ID == NULL_ID;}
 
-        NODISCARD bool IsValid() const override
-        {
-            return Backend::HandleValidation::ValidateAssetHandleImpl(this->GetID());
-        }
+        NODISCARD bool IsValid() const override { return Backend::HandleValidation::ValidateAssetHandleImpl(this->GetID()); }
     };
 }

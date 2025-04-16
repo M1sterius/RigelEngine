@@ -46,7 +46,10 @@ namespace Rigel
         for (auto& record : m_AssetsRegistry)
         {
             if (record.AssetID == id)
+            {
                 record.RefCount++;
+                return;
+            }
         }
 
         Debug::Error("Failed to increment reference count for an asset with ID {}. Asset cannot be found!", id);
@@ -59,7 +62,10 @@ namespace Rigel
         for (auto& record : m_AssetsRegistry)
         {
             if (record.AssetID == id)
+            {
                 record.RefCount--;
+                return;
+            }
         }
 
         Debug::Error("Failed to decrement reference count for an asset with ID {}. Asset cannot be found!", id);
