@@ -49,14 +49,14 @@ namespace Rigel
     INTERNAL:
         SceneManager();
         ~SceneManager() override;
-    private:
+
         void Startup() override;
         void Shutdown() override;
-
+    private:
         NODISCARD inline uid_t GetNextSceneID() { return m_NextSceneID++; }
 
         uid_t m_NextSceneID = 1;
-        std::unordered_map<uid_t, std::unique_ptr<Scene>> m_Scenes; // The scene manager owns all scenes
+        std::unordered_map<uid_t, std::unique_ptr<Scene>> m_Scenes;
         SceneHandle m_LoadedScene;
     };
 }

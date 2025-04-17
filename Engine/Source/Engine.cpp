@@ -37,7 +37,7 @@ namespace Rigel
     {
         Shutdown();
 
-        // Reset the global instance so that a new one could be properly created
+        // Reset the global instance so that a new one can be properly created
         m_GlobalInstance = nullptr;
     }
 

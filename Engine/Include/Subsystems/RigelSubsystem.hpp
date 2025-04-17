@@ -10,7 +10,7 @@ namespace Rigel
     {
     public:
         RigelSubsystem(const RigelSubsystem&) = delete;
-        RigelSubsystem operator = (const RigelSubsystem&) = delete;
+        RigelSubsystem& operator = (const RigelSubsystem&) = delete;
 
         NODISCARD bool IsInitialized() const { return m_Initialized; }
     protected:

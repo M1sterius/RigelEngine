@@ -9,7 +9,7 @@
 
 namespace Rigel
 {
-    SceneManager::SceneManager() : m_LoadedScene(SceneHandle(nullptr, NULL_ID)) { Startup(); }
+    SceneManager::SceneManager() { Startup(); }
     SceneManager::~SceneManager() { Shutdown(); }
 
     void SceneManager::Startup()
@@ -21,6 +21,9 @@ namespace Rigel
 
     void SceneManager::Shutdown()
     {
+        if (IsSceneLoaded())
+            m_LoadedScene->OnUnload();
+
         Debug::Trace("Shutting down scene manager.");
     }
 
@@ -46,14 +49,13 @@ namespace Rigel
             return;
         }
 
-        m_Scenes[scene.GetID()].reset();
         m_Scenes.erase(scene.GetID());
     }
 
     void SceneManager::LoadScene(SceneHandle& scene)
     {
         if (scene.IsNull() || !ValidateSceneHandle(scene))
-            throw std::runtime_error("Attempted to load an invalid scene.");
+            throw RigelException("Attempted to load an invalid scene.");
 
         ASSERT(m_LoadedScene.GetID() != scene.GetID(), "Attempted to load the scene that's already been loaded.");
 

@@ -157,14 +157,14 @@ namespace Rigel
         AssetManager();
         ~AssetManager() override;
 
+        void Startup() override;
+        void Shutdown() override;
+
         void IncrementRefCount(const uid_t id);
         void DecrementRefCount(const uid_t id);
 
         void UnloadAllAssets();
     private:
-        void Startup() override;
-        void Shutdown() override;
-
         uid_t AssignID(RigelAsset* ptr);
 
         NODISCARD uid_t GetNextAssetID();
