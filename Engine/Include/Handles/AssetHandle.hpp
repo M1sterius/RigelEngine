@@ -5,11 +5,6 @@
 
 namespace Rigel
 {
-    namespace Backend::HandleValidation
-    {
-        NODISCARD bool ValidateAssetHandleImpl(const uid_t id);
-    }
-
     namespace Backend::RefCountingImpl
     {
         void IncrementRefCount(const uid_t id);

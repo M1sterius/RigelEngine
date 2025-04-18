@@ -21,8 +21,8 @@ namespace Rigel
 
     void SceneManager::Shutdown()
     {
-        if (IsSceneLoaded())
-            m_LoadedScene->OnUnload();
+        // if (IsSceneLoaded())
+        //     m_LoadedScene->OnUnload();
 
         Debug::Trace("Shutting down scene manager.");
     }

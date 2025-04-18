@@ -104,11 +104,11 @@ namespace Rigel
         template<RigelAssetConcept T>
         void Unload(const AssetHandle<T>& handle)
         {
-            if (!Validate<T>(handle))
-            {
-                Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
-                return;
-            }
+            // if (!Validate<T>(handle))
+            // {
+            //     Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
+            //     return;
+            // }
 
             // TODO: Improve unloading to work on multiple threads
             std::unique_lock lock(m_RegistryMutex);
@@ -133,25 +133,6 @@ namespace Rigel
 
             Debug::Error("Failed to find an asset with ID: {}!", handle.GetID());
             return "";
-        }
-
-        NODISCARD inline bool Validate(const uid_t assetID) const
-        {
-            std::shared_lock lock(m_RegistryMutex);
-
-            for (const auto& record : m_AssetsRegistry)
-            {
-                if (record.AssetID == assetID)
-                    return true;
-            }
-
-            return false;
-        }
-
-        template<RigelAssetConcept T>
-        NODISCARD inline bool Validate(const AssetHandle<T>& handle)
-        {
-            return Validate(handle.GetID());
         }
 
         NODISCARD uint32_t GetRefCount(const uid_t id);
