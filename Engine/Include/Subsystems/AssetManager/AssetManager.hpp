@@ -6,6 +6,7 @@
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "Hash.hpp"
+#include "HandleValidator.hpp"
 #include "plf_colony.h"
 
 #include <filesystem>
@@ -68,6 +69,8 @@ namespace Rigel
             const auto ID = AssignID(assetPtr.get());
             const auto rawPtr = static_cast<T*>(assetPtr.get());
 
+            Backend::HandleValidation::HandleValidator::AddAssetHandle(ID);
+
             {
                 std::unique_lock lock(m_RegistryMutex);
                 m_AssetsRegistry.insert({
@@ -98,19 +101,26 @@ namespace Rigel
         //     m_AssetsRegistry.erase(found.GetID());
         // }
         //
-        // template<RigelAssetConcept T>
-        // void Unload(const AssetHandle<T>& handle)
-        // {
-        //     if (!Validate<T>(handle))
-        //     {
-        //         Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
-        //         return;
-        //     }
-        //
-        //     // TODO: Improve unloading to work on multiple threads
-        //     std::unique_lock lock(m_RegistryMutex);
-        //     m_AssetsRegistry.erase(handle.GetID());
-        // }
+        template<RigelAssetConcept T>
+        void Unload(const AssetHandle<T>& handle)
+        {
+            if (!Validate<T>(handle))
+            {
+                Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
+                return;
+            }
+
+            // TODO: Improve unloading to work on multiple threads
+            std::unique_lock lock(m_RegistryMutex);
+            for (auto it = m_AssetsRegistry.begin(); it != m_AssetsRegistry.end(); ++it)
+            {
+                if (it->AssetID == handle.GetID())
+                {
+                    m_AssetsRegistry.erase(it);
+                    Backend::HandleValidation::HandleValidator::RemoveAssetHandle(handle.GetID());
+                }
+            }
+        }
 
         template<RigelAssetConcept T>
         NODISCARD std::filesystem::path GetAssetPath(const AssetHandle<T>& handle) const

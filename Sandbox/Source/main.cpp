@@ -29,6 +29,12 @@ int32_t main(const int32_t argc, char** argv)
     auto tex = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
     auto tex1 = tex;
 
+    Rigel::Debug::Message("{}", tex.IsValid());
+
+    assetManager.Unload(tex);
+
+    Rigel::Debug::Message("{}", tex.IsValid());
+
     const auto json = scene->Serialize();
     auto nScene = sceneManager.CreateScene();
     nScene->Deserialize(json);

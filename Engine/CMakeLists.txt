@@ -23,9 +23,9 @@ add_library(RigelEngine STATIC
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
     Source/Components/Transform.cpp
-    Source/ECS/SceneHandle.cpp
+    Source/Handles/SceneHandle.cpp
     Source/Utils/Threading/SleepUtility.cpp
-    Source/ECS/GOHandle.cpp
+    Source/Handles/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
     Source/ECS/ComponentTypeRegistry.cpp
@@ -57,18 +57,16 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_UniformBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
-    Source/ECS/ComponentHandle.cpp
+    Source/Handles/ComponentHandle.cpp
     Source/Subsystems/AssetManager/AssetHandle.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
     Source/Subsystems/Renderer/Model.cpp
     Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
-        Source/Backend/Editor.cpp
-        Source/Backend/Editor.hpp
-        Source/Subsystems/Renderer/Texture.cpp
-        Include/Subsystems/Renderer/Texture.hpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
-        Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp
+    Source/Backend/Editor.cpp
+    Source/Subsystems/Renderer/Texture.cpp
+    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
+    Source/Handles/HandleValidator.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -136,6 +134,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Debug
     Include/ECS
     Include/Components
+    Include/Handles
     Include/Utils
     Include/Utils/Filesystem
     Include/Utils/Math
