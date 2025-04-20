@@ -2,6 +2,7 @@
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "InternalEvents.hpp"
+#include "HandleValidator.hpp"
 #include "GameObject.hpp"
 #include "Transform.hpp"
 #include "GOHandle.hpp"
@@ -9,17 +10,18 @@
 
 namespace Rigel
 {
-    Scene::Scene(const uid_t id, std::string name) : RigelObject(id)
-    {
-        m_Name = std::move(name);
-    }
+    Scene::Scene(const uid_t id, std::string name) : RigelObject(id), m_Name(std::move(name)) { }
 
     GOHandle Scene::Instantiate(std::string name)
     {
         const auto go = new GameObject(GetNextObjectID(), std::move(name));
         go->m_Scene = SceneHandle(this, this->GetID());
         go->AddComponent<Transform>();
+
         m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+
+        using namespace Backend::HandleValidation;
+        HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
 
         /*
          * If the scene is loaded, appropriate event functions must be invoked
@@ -33,47 +35,39 @@ namespace Rigel
             go->OnStart();
         }
 
-        return {go, go->GetID(), this->GetID()};
+        return {go, go->GetID()};
     }
 
-    GOHandle Scene::InstantiateForDeserialization()
+    void Scene::DestroyGOImpl(const uid_t id)
     {
-        const auto go = new GameObject(GetNextObjectID(), "GameObject");
-        go->m_Scene = SceneHandle(this, this->GetID());
-        m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+        for (auto it = m_GameObjects.begin(); it != m_GameObjects.end(); ++it)
+        {
+            auto& currentObject = *it;
 
-        // The scene is never loaded during deserialization, so we
-        // don't have to worry about OnLoad and OnStart
+            if (currentObject->GetID() == id)
+            {
+                if (IsLoaded())
+                    currentObject->OnDestroy();
 
-        return {go, go->GetID(), this->GetID()};
+                // This has to stay before the 'erase' so that there is no 'use-after-free' issues
+                using namespace Backend::HandleValidation;
+                HandleValidator::RemoveHandle<HandleType::GOHandle>(currentObject->GetID());
+
+                m_GameObjects.erase(it);
+                return;
+            }
+        }
+
+        Debug::Error("Failed to destroy game object with ID {}. "
+                     "Game object isn't present on the scene with ID {}.", id, this->GetID());
     }
 
     void Scene::Destroy(const GOHandle& handle)
     {
         if (!m_IsLoaded)
-            DestroyGOImpl(handle);
+            DestroyGOImpl(handle.GetID());
         else
             m_DestroyQueue.push(handle);
-    }
-
-    void Scene::DestroyGOImpl(const GOHandle& handle)
-    {
-        for (auto it = m_GameObjects.begin(); it != m_GameObjects.end();)
-        {
-            if ((*it)->GetID() == handle.GetID())
-            {
-                if (IsLoaded())
-                    (*it)->OnDestroy();
-
-                m_GameObjects.erase(it);
-                return;
-            }
-
-            ++it; // move to the next element
-        }
-
-        Debug::Error("Failed to destroy game object with ID {}. "
-                     "Game object isn't present on the scene with ID {}.", handle.GetID(), this->GetID());
     }
 
     void Scene::OnLoad()
@@ -95,7 +89,7 @@ namespace Rigel
     void Scene::OnUnload()
     {
         for (const auto& go : m_GameObjects)
-            go->OnDestroy();
+            DestroyGOImpl(go->GetID());
 
         m_IsLoaded = false;
 
@@ -110,16 +104,9 @@ namespace Rigel
         while (!m_DestroyQueue.empty())
         {
             const auto currentHandle = m_DestroyQueue.front();
-            DestroyGOImpl(currentHandle);
+            DestroyGOImpl(currentHandle.GetID());
             m_DestroyQueue.pop();
         }
-    }
-
-    bool Scene::ValidateGOHandle(const GOHandle& handle) const
-    {
-        for (const auto& obj : m_GameObjects)
-            if (obj->GetID() == handle.GetID()) return true;
-        return false;
     }
 
     GOHandle Scene::GetGameObjectByID(const uid_t id) const
@@ -127,7 +114,7 @@ namespace Rigel
         for (const auto& go : m_GameObjects)
         {
             if (go->GetID() == id)
-                return {go.get(), id, this->GetID()};
+                return {go.get(), id};
         }
 
         return GOHandle::Null();
@@ -143,7 +130,7 @@ namespace Rigel
             if (++depth > depthLimit)
                 return objects;
 
-            auto curHandle = GOHandle(go.get(), go->GetID(), this->GetID());
+            auto curHandle = GOHandle(go.get(), go->GetID());
             if (condition(curHandle))
                 objects.insert(curHandle);
         }
@@ -180,8 +167,8 @@ namespace Rigel
 
         if (!m_GameObjects.empty())
         {
-            Debug::Error("Attempted to deserialized a scene that is not empty! All objects already present will be deleted!");
-            m_GameObjects.clear();
+            Debug::Error("Attempted to deserialized a scene that is not empty! Destroy all objects already instantiated and try again.");
+            return false;
         }
 
         m_Name = json["Name"].get<std::string>();
@@ -199,8 +186,8 @@ namespace Rigel
 
             m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
 
-            // if (auto go = InstantiateForDeserialization(); !go->Deserialize(goJson))
-            //     Destroy(go);
+            using namespace Backend::HandleValidation;
+            HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
         }
 
         return true;

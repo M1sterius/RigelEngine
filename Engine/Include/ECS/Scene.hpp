@@ -28,7 +28,6 @@ namespace Rigel
         NODISCARD inline size_t GetSize() const { return m_GameObjects.size(); }
 
         NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
-        NODISCARD bool ValidateGOHandle(const GOHandle& handle) const;
 
         NODISCARD GOHandle GetGameObjectByID(const uid_t id) const;
 
@@ -41,7 +40,7 @@ namespace Rigel
          * use it unless absolutely necessary. Always prefer regular 'Destroy'!
          * @param handle The GameObject to be destroyed
          */
-        inline void DestroyImmediately(const GOHandle& handle) { DestroyGOImpl(handle); }
+        inline void DestroyImmediately(const GOHandle& handle) { DestroyGOImpl(handle.GetID()); }
 
         /**
          * Searches objects on the scene by given conditional function
@@ -70,7 +69,7 @@ namespace Rigel
     INTERNAL:
         ~Scene() override = default;
 
-        // used to assign unique IDs to game object and components
+        // used to assign unique IDs to game objects and components
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
@@ -79,9 +78,7 @@ namespace Rigel
         void OnUnload(); // Used for cleanup logic.
         void OnEndOfFrame(); // Used to process GO deletion queue
 
-        void DestroyGOImpl(const GOHandle& handle);
-
-        NODISCARD GOHandle InstantiateForDeserialization();
+        void DestroyGOImpl(const uid_t id);
 
         std::string m_Name;
         bool m_IsLoaded = false;

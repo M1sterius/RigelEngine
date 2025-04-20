@@ -6,6 +6,7 @@
 #include "Component.hpp"
 #include "ISerializable.hpp"
 #include "RigelObject.hpp"
+#include "HandleValidator.hpp"
 #include "SceneHandle.hpp"
 #include "Transform.hpp"
 
@@ -44,6 +45,7 @@ namespace Rigel
             return GetComponent<Transform>();
         }
 
+#pragma region Components
         template<ComponentConcept T, typename... Args>
         ComponentHandle<T> AddComponent(Args&&... args)
         {
@@ -55,7 +57,7 @@ namespace Rigel
 
             const auto component = static_cast<Component*>(new T(std::forward<Args>(args)...));
             component->m_Scene = m_Scene;
-            component->m_GameObject = GOHandle(this, this->GetID(), m_Scene.GetID());
+            component->m_GameObject = GOHandle(this, this->GetID());
 
             // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
             const auto id = AssignIDToComponent(component);
@@ -63,6 +65,20 @@ namespace Rigel
             m_Components[id] = std::unique_ptr<Component>(component);
 
             return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_Scene.GetID());
+        }
+
+        template<ComponentConcept T>
+        void RemoveComponent(const ComponentHandle<T>& handle)
+        {
+            for (const auto& [id, component] : m_Components)
+            {
+                if (const auto cast = dynamic_cast<T*>(component.get()))
+                {
+                    m_Components.erase(id);
+                }
+            }
+
+            Debug::Error("Failed to remove component with ID {} from GameObject with ID {}!", handle.GetID(), this->GetID());
         }
 
         /**
@@ -118,6 +134,7 @@ namespace Rigel
 
             return false;
         }
+#pragma endregion
     INTERNAL:
         ~GameObject() override;
     private:

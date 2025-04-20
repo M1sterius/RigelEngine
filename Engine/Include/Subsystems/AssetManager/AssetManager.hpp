@@ -51,17 +51,17 @@ namespace Rigel
         template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path)
         {
+            using namespace Backend::HandleValidation;
+
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
             std::unique_ptr<RigelAsset> assetPtr;
 
-            try
-            {
+            try {
                 assetPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
             }
-            catch (const std::exception& e)
-            {
+            catch (const std::exception& e) {
                 Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
                 return AssetHandle<T>::Null();
             }
@@ -69,10 +69,11 @@ namespace Rigel
             const auto ID = AssignID(assetPtr.get());
             const auto rawPtr = static_cast<T*>(assetPtr.get());
 
-            Backend::HandleValidation::HandleValidator::AddAssetHandle(ID);
+            HandleValidator::AddHandle<HandleType::AssetHandle>(ID);
 
             {
                 std::unique_lock lock(m_RegistryMutex);
+
                 m_AssetsRegistry.insert({
                     .AssetID = ID,
                     .RefCount = 0,
@@ -104,11 +105,7 @@ namespace Rigel
         template<RigelAssetConcept T>
         void Unload(const AssetHandle<T>& handle)
         {
-            // if (!Validate<T>(handle))
-            // {
-            //     Debug::Error("Failed to unload with ID: {}! Asset not found!", handle.GetID());
-            //     return;
-            // }
+            using namespace Backend::HandleValidation;
 
             // TODO: Improve unloading to work on multiple threads
             std::unique_lock lock(m_RegistryMutex);
@@ -117,7 +114,7 @@ namespace Rigel
                 if (it->AssetID == handle.GetID())
                 {
                     m_AssetsRegistry.erase(it);
-                    Backend::HandleValidation::HandleValidator::RemoveAssetHandle(handle.GetID());
+                    HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
                 }
             }
         }

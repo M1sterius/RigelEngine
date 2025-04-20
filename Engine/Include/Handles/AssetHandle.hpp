@@ -45,7 +45,8 @@ namespace Rigel
 
         NODISCARD bool IsValid() const override
         {
-            return Backend::HandleValidation::HandleValidator::ValidateAssetHandle(this->GetID());
+            using namespace Backend::HandleValidation;
+            return HandleValidator::Validate<HandleType::AssetHandle>(this->GetID());
         }
     };
 }

@@ -42,7 +42,6 @@ namespace Rigel
         NODISCARD SceneHandle GetSceneByID(const uid_t id) const;
 
         NODISCARD bool IsSceneLoaded() const { return !m_LoadedScene.IsNull(); }
-        NODISCARD bool ValidateSceneHandle(const SceneHandle& handle) const;
         NODISCARD SceneHandle GetLoadedScene() const;
 
         void LoadScene(SceneHandle& scene);

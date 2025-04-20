@@ -70,7 +70,7 @@ namespace Rigel
             if (const auto cmpPtr = ComponentTypeRegistry::FindType(type); cmpPtr != nullptr)
             {
                 cmpPtr->m_Scene = m_Scene;
-                cmpPtr->m_GameObject = GOHandle(this, this->GetID(), m_Scene.GetID());
+                cmpPtr->m_GameObject = GOHandle(this, this->GetID());
                 cmpPtr->Deserialize(component);
 
                 m_Components[cmpPtr->GetID()] = std::unique_ptr<Component>(cmpPtr);

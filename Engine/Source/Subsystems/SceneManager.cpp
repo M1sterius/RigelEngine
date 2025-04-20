@@ -1,10 +1,11 @@
 #include "SceneManager.hpp"
 #include "SceneHandle.hpp"
+#include "HandleValidator.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
 
-#include <stdexcept>
+
 #include <utility>
 
 namespace Rigel
@@ -32,31 +33,29 @@ namespace Rigel
         const auto scene = new Scene(GetNextSceneID(), std::move(name));
         m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
 
+        using namespace Backend::HandleValidation;
+        HandleValidator::AddHandle<HandleType::SceneHandle>(scene->GetID());
+
         return {scene, scene->GetID()};
     }
 
     void SceneManager::DestroyScene(const SceneHandle& scene)
     {
-        if (!ValidateSceneHandle(scene))
-        {
-            Debug::Error("An invalid handle was passed to SceneManager::DestroyScene!");
-            return;
-        }
-
         if (scene->IsLoaded())
         {
             Debug::Error("Attempted to destroy a loaded scene, unload it and then try to destroy it again!");
             return;
         }
 
+        // This has to stay before the 'erase' so that there is no 'use-after-free' issues
+        using namespace Backend::HandleValidation;
+        HandleValidator::RemoveHandle<HandleType::SceneHandle>(scene->GetID());
+
         m_Scenes.erase(scene.GetID());
     }
 
     void SceneManager::LoadScene(SceneHandle& scene)
     {
-        if (scene.IsNull() || !ValidateSceneHandle(scene))
-            throw RigelException("Attempted to load an invalid scene.");
-
         ASSERT(m_LoadedScene.GetID() != scene.GetID(), "Attempted to load the scene that's already been loaded.");
 
         if (IsSceneLoaded())
@@ -83,12 +82,5 @@ namespace Rigel
     SceneHandle SceneManager::GetLoadedScene() const
     {
         return m_LoadedScene;
-    }
-
-    bool SceneManager::ValidateSceneHandle(const SceneHandle& handle) const
-    {
-        if (const auto it = m_Scenes.find(handle.GetID()); it != m_Scenes.end())
-            return true;
-        return false;
     }
 }

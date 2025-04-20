@@ -1,6 +1,5 @@
 #include "SceneHandle.hpp"
-#include "SceneManager.hpp"
-#include "Engine.hpp"
+#include "HandleValidator.hpp"
 
 namespace Rigel
 {
@@ -13,7 +12,7 @@ namespace Rigel
 
     bool SceneHandle::IsValid() const
     {
-        const auto& manager = Engine::Get().GetSceneManager();
-        return manager.ValidateSceneHandle(*this);
+        using namespace Backend::HandleValidation;
+        return HandleValidator::Validate<HandleType::SceneHandle>(m_ID);
     }
 }
