@@ -1,6 +1,7 @@
 #include "Component.hpp"
 #include "Debug.hpp"
 #include "json.hpp"
+#include "HandleValidator.hpp"
 
 #include "Engine.hpp"
 
@@ -8,6 +9,7 @@ namespace Rigel
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
     Component::Component() : RigelObject(NULL_ID) { }
+    Component::~Component() { }
 
     nlohmann::json Component::Serialize() const
     {
@@ -25,7 +27,12 @@ namespace Rigel
             return false;
         }
 
+        using namespace Backend::HandleValidation;
+        HandleValidator::RemoveHandle<HandleType::ComponentHandle>(this->GetID());
+
         this->OverrideID(json["ID"].get<uid_t>());
+
+        HandleValidator::AddHandle<HandleType::ComponentHandle>(this->GetID());
 
         return true;
     }

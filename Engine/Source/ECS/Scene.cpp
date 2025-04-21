@@ -10,7 +10,18 @@
 
 namespace Rigel
 {
-    Scene::Scene(const uid_t id, std::string name) : RigelObject(id), m_Name(std::move(name)) { }
+    using namespace Backend::HandleValidation;
+
+    Scene::Scene(const uid_t id, std::string name)
+        : RigelObject(id), m_Name(std::move(name))
+    {
+        HandleValidator::AddHandle<HandleType::SceneHandle>(this->GetID());
+    }
+
+    Scene::~Scene()
+    {
+        HandleValidator::RemoveHandle<HandleType::SceneHandle>(this->GetID());
+    }
 
     GOHandle Scene::Instantiate(std::string name)
     {
@@ -19,9 +30,6 @@ namespace Rigel
         go->AddComponent<Transform>();
 
         m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
-
-        using namespace Backend::HandleValidation;
-        HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
 
         /*
          * If the scene is loaded, appropriate event functions must be invoked
@@ -48,10 +56,6 @@ namespace Rigel
             {
                 if (IsLoaded())
                     currentObject->OnDestroy();
-
-                // This has to stay before the 'erase' so that there is no 'use-after-free' issues
-                using namespace Backend::HandleValidation;
-                HandleValidator::RemoveHandle<HandleType::GOHandle>(currentObject->GetID());
 
                 m_GameObjects.erase(it);
                 return;
@@ -185,9 +189,6 @@ namespace Rigel
             }
 
             m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
-
-            using namespace Backend::HandleValidation;
-            HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
         }
 
         return true;

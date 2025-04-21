@@ -1,18 +1,24 @@
 #include "GameObject.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
-#include "Components/Transform.hpp"
+#include "Transform.hpp"
 #include "json.hpp"
 #include "ComponentTypeRegistry.hpp"
 
 namespace Rigel
 {
-    GameObject::GameObject(const uid_t id, std::string name) : RigelObject(id)
+    using namespace Backend::HandleValidation;
+
+    GameObject::GameObject(const uid_t id, std::string name)
+        : RigelObject(id), m_Name(std::move(name))
     {
-        m_Name = std::move(name);
+        HandleValidator::AddHandle<HandleType::GOHandle>(this->GetID());
     }
 
-    GameObject::~GameObject() = default;
+    GameObject::~GameObject()
+    {
+        HandleValidator::RemoveHandle<HandleType::GOHandle>(this->GetID());
+    }
 
     uid_t GameObject::AssignIDToComponent(Component* ptr)
     {
@@ -60,8 +66,13 @@ namespace Rigel
             return false;
         }
 
+        HandleValidator::RemoveHandle<HandleType::GOHandle>(this->GetID());
+
         m_Name = json["Name"].get<std::string>();
         OverrideID(json["ID"].get<uid_t>());
+
+        // This is done so that the proper ID will be in the validation list after the deserialization
+        HandleValidator::AddHandle<HandleType::GOHandle>(this->GetID());
 
         for (const auto& component : json["Components"])
         {

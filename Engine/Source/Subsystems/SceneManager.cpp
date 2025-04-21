@@ -1,10 +1,8 @@
 #include "SceneManager.hpp"
 #include "SceneHandle.hpp"
-#include "HandleValidator.hpp"
 #include "Assert.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
-
 
 #include <utility>
 
@@ -22,8 +20,8 @@ namespace Rigel
 
     void SceneManager::Shutdown()
     {
-        // if (IsSceneLoaded())
-        //     m_LoadedScene->OnUnload();
+        if (IsSceneLoaded())
+            m_LoadedScene->OnUnload();
 
         Debug::Trace("Shutting down scene manager.");
     }
@@ -32,9 +30,6 @@ namespace Rigel
     {
         const auto scene = new Scene(GetNextSceneID(), std::move(name));
         m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
-
-        using namespace Backend::HandleValidation;
-        HandleValidator::AddHandle<HandleType::SceneHandle>(scene->GetID());
 
         return {scene, scene->GetID()};
     }
@@ -46,10 +41,6 @@ namespace Rigel
             Debug::Error("Attempted to destroy a loaded scene, unload it and then try to destroy it again!");
             return;
         }
-
-        // This has to stay before the 'erase' so that there is no 'use-after-free' issues
-        using namespace Backend::HandleValidation;
-        HandleValidator::RemoveHandle<HandleType::SceneHandle>(scene->GetID());
 
         m_Scenes.erase(scene.GetID());
     }

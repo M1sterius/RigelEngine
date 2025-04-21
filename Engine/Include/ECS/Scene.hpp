@@ -67,7 +67,7 @@ namespace Rigel
             return components;
         }
     INTERNAL:
-        ~Scene() override = default;
+        ~Scene() override;
 
         // used to assign unique IDs to game objects and components
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }

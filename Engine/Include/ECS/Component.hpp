@@ -20,7 +20,7 @@ namespace Rigel
     class Component : public RigelObject, public ISerializable
     {
     public:
-        ~Component() override = default;
+        ~Component() override;
 
         // Returns the type of derived component represented as a string
         NODISCARD virtual const char* GetTypeName() const = 0;

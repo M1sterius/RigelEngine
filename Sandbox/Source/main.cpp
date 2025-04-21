@@ -13,18 +13,25 @@ int32_t main(const int32_t argc, char** argv)
 
     auto scene = sceneManager.CreateScene();
 
-    auto camera = scene->Instantiate();
+    auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto model = scene->Instantiate();
+    auto model = scene->Instantiate("Model1");
     model->GetTransform()->SetPosition({0, 0, -2.5});
     model->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
     model->AddComponent<TestComponent>();
 
-    auto model1 = scene->Instantiate();
+    auto model1 = scene->Instantiate("Model2");
     model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     model1->AddComponent<TestComponent>();
+
+    auto g = scene->Instantiate();
+    auto h = g->AddComponent<TestComponent>();
+    Rigel::Debug::Message("{}", h.IsValid());
+    g->RemoveComponent<TestComponent>();
+    Rigel::Debug::Message("{}", h.IsValid());
+    scene->Destroy(g);
 
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);

@@ -3,10 +3,10 @@
 #include "Core.hpp"
 #include "Debug.hpp"
 #include "ComponentHandle.hpp"
+#include "HandleValidator.hpp"
 #include "Component.hpp"
 #include "ISerializable.hpp"
 #include "RigelObject.hpp"
-#include "HandleValidator.hpp"
 #include "SceneHandle.hpp"
 #include "Transform.hpp"
 
@@ -62,23 +62,37 @@ namespace Rigel
             // ID assigning implemented as a private method to allow RigelObject::OverrideID to remain internal
             const auto id = AssignIDToComponent(component);
 
+            using namespace Backend::HandleValidation;
+            HandleValidator::AddHandle<HandleType::ComponentHandle>(id);
+
             m_Components[id] = std::unique_ptr<Component>(component);
 
-            return ComponentHandle<T>(static_cast<T*>(component), id, this->GetID(), m_Scene.GetID());
+            return ComponentHandle<T>(static_cast<T*>(component), id);
         }
 
         template<ComponentConcept T>
-        void RemoveComponent(const ComponentHandle<T>& handle)
+        void RemoveComponent()
         {
-            for (const auto& [id, component] : m_Components)
+            for (auto it = m_Components.begin(); it != m_Components.end();)
             {
+                const auto& [id, component] = *it;
+
                 if (const auto cast = dynamic_cast<T*>(component.get()))
                 {
-                    m_Components.erase(id);
+                    using namespace Backend::HandleValidation;
+                    HandleValidator::RemoveHandle<HandleType::ComponentHandle>(id);
+
+                    it = m_Components.erase(it); // returns next valid iterator
+                    return;
+                }
+                else
+                {
+                    ++it;
                 }
             }
 
-            Debug::Error("Failed to remove component with ID {} from GameObject with ID {}!", handle.GetID(), this->GetID());
+            Debug::Error("Failed to remove component of type {} from GameObject with ID {}!",
+                         typeid(T).name(), this->GetID());
         }
 
         /**
@@ -90,7 +104,7 @@ namespace Rigel
             for (const auto& [id, component] : m_Components)
             {
                 if (const auto cast = dynamic_cast<T*>(component.get()))
-                    return ComponentHandle<T>(cast, id, this->GetID(), m_Scene.GetID());
+                    return ComponentHandle<T>(cast, id);
             }
 
             Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
@@ -106,7 +120,7 @@ namespace Rigel
             for (const auto& [id, component] : m_Components)
             {
                 if (const auto cast = dynamic_cast<T*>(component.get()))
-                    components.emplace_back(cast, id, this->GetID(), m_Scene.GetID());
+                    components.emplace_back(cast, id);
             }
 
             return components;
@@ -117,7 +131,7 @@ namespace Rigel
             for (const auto& [currentID, component] : m_Components)
             {
                 if (ID == currentID)
-                    return { component.get(), currentID, this->GetID(), m_Scene.GetID() };
+                    return {component.get(), currentID};
             }
 
             return ComponentHandle<Component>::Null();
