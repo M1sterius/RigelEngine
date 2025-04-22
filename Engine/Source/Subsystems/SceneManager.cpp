@@ -20,10 +20,13 @@ namespace Rigel
 
     void SceneManager::Shutdown()
     {
+        Debug::Trace("Shutting down scene manager.");
+    }
+
+    void SceneManager::UnloadCurrentScene()
+    {
         if (IsSceneLoaded())
             m_LoadedScene->OnUnload();
-
-        Debug::Trace("Shutting down scene manager.");
     }
 
     SceneHandle SceneManager::CreateScene(std::string name)

@@ -89,6 +89,7 @@ namespace Rigel
 
         // Additional logic needed to shut down subsystems
         m_Renderer->WaitForFinish();
+        m_SceneManager->UnloadCurrentScene();
         m_AssetManager->UnloadAllAssets();
 
         // Delete subsystem instances, shutdown methods are called in destructors

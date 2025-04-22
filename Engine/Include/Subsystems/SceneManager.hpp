@@ -51,6 +51,8 @@ namespace Rigel
 
         void Startup() override;
         void Shutdown() override;
+
+        void UnloadCurrentScene();
     private:
         NODISCARD inline uid_t GetNextSceneID() { return m_NextSceneID++; }
 
