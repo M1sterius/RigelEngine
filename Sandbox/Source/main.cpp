@@ -26,12 +26,11 @@ int32_t main(const int32_t argc, char** argv)
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     model1->AddComponent<TestComponent>();
 
-    auto g = scene->Instantiate();
-    auto h = g->AddComponent<TestComponent>();
-    Rigel::Debug::Message("{}", h.IsValid());
-    g->RemoveComponent<TestComponent>();
-    Rigel::Debug::Message("{}", h.IsValid());
-    scene->Destroy(g);
+    auto tex = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Black.png");
+    Rigel::Debug::Message("{}", tex.IsValid());
+    assetManager.Unload(tex);
+    Rigel::Debug::Message("{}", tex.IsValid());
+    tex = Rigel::AssetHandle<Rigel::Texture>::Null();
 
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);

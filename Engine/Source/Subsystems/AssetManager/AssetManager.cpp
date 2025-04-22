@@ -43,6 +43,8 @@ namespace Rigel
     {
         if (id == NULL_ID) return;
 
+        std::unique_lock lock(m_RegistryMutex);
+
         for (auto& record : m_AssetsRegistry)
         {
             if (record.AssetID == id)
@@ -58,6 +60,8 @@ namespace Rigel
     void AssetManager::DecrementRefCount(const uid_t id)
     {
         if (id == NULL_ID) return;
+
+        std::unique_lock lock(m_RegistryMutex);
 
         for (auto& record : m_AssetsRegistry)
         {

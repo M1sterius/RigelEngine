@@ -56,18 +56,19 @@ namespace Rigel
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
-            std::unique_ptr<RigelAsset> assetPtr;
+            RigelAsset* ptr = nullptr;
 
             try {
-                assetPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
+                ptr = static_cast<RigelAsset*>(new T(path));
             }
-            catch (const std::exception& e) {
+            catch (const std::exception& e)
+            {
+                delete ptr;
                 Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
                 return AssetHandle<T>::Null();
             }
 
-            const auto ID = AssignID(assetPtr.get());
-            const auto rawPtr = static_cast<T*>(assetPtr.get());
+            const auto ID = AssignID(ptr);
 
             HandleValidator::AddHandle<HandleType::AssetHandle>(ID);
 
@@ -79,44 +80,36 @@ namespace Rigel
                     .RefCount = 0,
                     .PathHash = Hash(path.string()),
                     .Path = path,
-                    .Asset = std::move(assetPtr)
+                    .Asset = std::unique_ptr<RigelAsset>(ptr)
                 });
             }
 
-            return AssetHandle<T>(rawPtr, ID);
+            return AssetHandle<T>(static_cast<T*>(ptr), ID);
         }
 
-        // template<RigelAssetConcept T>
-        // void Unload(const std::filesystem::path& path)
-        // {
-        //     const auto found = Find<T>(path);
-        //
-        //     if (found.IsNull())
-        //     {
-        //         Debug::Error("Failed to unload asset at path: {}! Asset not found!", path.string());
-        //         return;
-        //     }
-        //
-        //     // TODO: Improve unloading to work on multiple threads
-        //     std::unique_lock lock(m_RegistryMutex);
-        //     m_AssetsRegistry.erase(found.GetID());
-        // }
-        //
         template<RigelAssetConcept T>
         void Unload(const AssetHandle<T>& handle)
         {
             using namespace Backend::HandleValidation;
 
-            // TODO: Improve unloading to work on multiple threads
-            std::unique_lock lock(m_RegistryMutex);
-            for (auto it = m_AssetsRegistry.begin(); it != m_AssetsRegistry.end(); ++it)
+            std::unique_ptr<RigelAsset> ptr;
+
             {
-                if (it->AssetID == handle.GetID())
+                std::unique_lock lock(m_RegistryMutex);
+
+                for (auto it = m_AssetsRegistry.begin(); it != m_AssetsRegistry.end(); ++it)
                 {
-                    m_AssetsRegistry.erase(it);
-                    HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
+                    if (it->AssetID == handle.GetID())
+                    {
+                        ptr = std::move(it->Asset);
+                        m_AssetsRegistry.erase(it);
+
+                        HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
+                    }
                 }
             }
+
+            ptr.reset();
         }
 
         template<RigelAssetConcept T>
