@@ -56,19 +56,19 @@ namespace Rigel
             if (const auto found = Find<T>(path); !found.IsNull())
                 return found;
 
-            RigelAsset* ptr = nullptr;
+            std::unique_ptr<RigelAsset> unqPtr;
 
             try {
-                ptr = static_cast<RigelAsset*>(new T(path));
+                unqPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
             }
             catch (const std::exception& e)
             {
-                delete ptr;
                 Debug::Error("Failed to load an asset at path: {}! Exception: {}!", path.string(), e.what());
                 return AssetHandle<T>::Null();
             }
 
-            const auto ID = AssignID(ptr);
+            const auto rawPtr = unqPtr.get();
+            const auto ID = AssignID(rawPtr);
 
             HandleValidator::AddHandle<HandleType::AssetHandle>(ID);
 
@@ -80,11 +80,11 @@ namespace Rigel
                     .RefCount = 0,
                     .PathHash = Hash(path.string()),
                     .Path = path,
-                    .Asset = std::unique_ptr<RigelAsset>(ptr)
+                    .Asset = std::move(unqPtr)
                 });
             }
 
-            return AssetHandle<T>(static_cast<T*>(ptr), ID);
+            return AssetHandle<T>(static_cast<T*>(rawPtr), ID);
         }
 
         template<RigelAssetConcept T>
@@ -103,13 +103,13 @@ namespace Rigel
                     {
                         ptr = std::move(it->Asset);
                         m_AssetsRegistry.erase(it);
-
-                        HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
+                        break;
                     }
                 }
             }
 
-            ptr.reset();
+            HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
+            ptr.reset(); // explicitly delete the object just for clarity
         }
 
         template<RigelAssetConcept T>
