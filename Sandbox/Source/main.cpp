@@ -2,8 +2,27 @@
 #include "RigelEngine.hpp"
 #include "TestComponent.hpp"
 
+void Sleep(const uint32_t ms)
+{
+    Rigel::SleepUtility::PreciseSleep(Rigel::ElapsedTime::FromMilliseconds(ms));
+}
+
 int32_t main(const int32_t argc, char** argv)
 {
+    // auto pool = Rigel::ThreadPool(4);
+    // auto sw = Rigel::Stopwatch::StartNew();
+    //
+    // auto future = pool.Enqueue(Sleep, 1000);
+    // future.get();
+    //
+    // pool.Enqueue(Sleep, 1000);
+    // pool.Enqueue(Sleep, 150);
+    //
+    // pool.WaitForAll();
+    //
+    // Rigel::Debug::Message("{}", sw.Stop().AsMilliseconds());
+    // std::cin.get();
+
     const auto engine = Rigel::Engine::CreateInstance(argc, argv);
     Rigel::Time::SetTargetFPS(120);
 

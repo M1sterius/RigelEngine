@@ -8,7 +8,6 @@ namespace Rigel
     {
         const auto _numThreads = numThreads == 0 ? std::thread::hardware_concurrency() : numThreads;
 
-        m_WorkerThreads.reserve(_numThreads);
         for (size_t i = 0; i < _numThreads; ++i)
             m_WorkerThreads.emplace_back(std::thread(ThreadLoop, this));
     }
@@ -64,12 +63,10 @@ namespace Rigel
 
             ++m_ActiveTasks;
 
-            try
-            {
+            try {
                 task();
             }
-            catch (const std::exception& e)
-            {
+            catch (const std::exception& e) {
                 Debug::Error("An exception was thrown when executing a task on a thread pool! Exception: {}", e.what());
             }
 

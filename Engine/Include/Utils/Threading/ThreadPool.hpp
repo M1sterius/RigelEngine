@@ -32,17 +32,27 @@ namespace Rigel
         NODISCARD inline size_t GetActiveTasksCount() const { return m_ActiveTasks; }
 
         /**
-         * Waits for all tasks to complete
+         * Waits for all scheduled and active tasks to complete
          */
         void WaitForAll();
 
-        void Enqueue(const std::function<void()>& task)
+        // TODO: Add method description
+        template<typename Func, typename... Args>
+        std::future<std::invoke_result_t<Func, Args...>> Enqueue(Func&& func, Args&&... args)
         {
+            using RetType = std::invoke_result_t<Func, Args...>;
+
+            auto taskPtr = std::make_shared<std::packaged_task<RetType()>>(
+                std::bind(std::forward<Func>(func), std::forward<Args>(args)...)
+            );
+
             {
                 std::unique_lock lock(m_QueueMutex);
-                m_Tasks.push(task);
+                m_Tasks.emplace([taskPtr]() { (*taskPtr)(); });
             }
             m_QueueCondition.notify_one();
+
+            return taskPtr->get_future();
         }
     private:
         void ThreadLoop();
