@@ -65,18 +65,19 @@ namespace Rigel
         /**
          * Executes an event of 'EventType' on a thread pool. All subscriber functions are grouped to avoid Enqueue overhead.
          * Assumes that all subscriber functions are atomic.
-         * Uses the global thread pool instantiated by the Engine class. Blocks the calling thread
-         * until all event subscribers have been dispatched.
+         * Blocks the calling thread until all event subscribers have been dispatched.
          * @tparam EventType The type of the event that will be dispatched
+         * @param pool The thread pool that will be used to dispatch the event subscribers
          * @param event An event that will be dispatched on a thread pool
          * @param groups How many groups all the event subscribers will be divided to. Each group
          * guaranteed to be executed a separate thread.
          */
         template<EventTypeConcept EventType>
-        void DispatchThreaded(const EventType& event, const size_t groups)
+        void DispatchThreaded(const EventType& event, ThreadPool& pool, const size_t groups)
         {
-            auto& pool = Engine::Get().GetThreadPool();
             ASSERT(groups <= pool.GetSize(), "The number of threaded dispatch task groups must be less than the number of threads in the pool");
+
+            auto futures = std::vector<std::future<void>>();
 
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
@@ -91,16 +92,16 @@ namespace Rigel
 
                     const auto endIdx = std::min(startIdx + eventsPerThread, totalEvents);
 
-                    pool.Enqueue([startIdx, endIdx, it, event]
+                    futures.emplace_back(pool.Enqueue([startIdx, endIdx, it, event]
                     {
-                        for (size_t i = startIdx; i < endIdx; ++i) {
-                             it->second[i].second(event);
-                        }
-                    });
+                        for (size_t i = startIdx; i < endIdx; ++i)
+                            it->second[i].second(event);
+                    }));
                 }
-
-                pool.WaitForAll();
             }
+
+            for (auto& future : futures)
+                future.wait();
         }
     INTERNAL:
         EventManager();
