@@ -149,6 +149,8 @@ namespace Rigel
         json["ID"] = GetID();
         json["Name"] = GetName();
 
+        // TODO: Save the last object ID that was assigned!!!
+
         for (const auto& gameObject : m_GameObjects)
             json["GameObjects"].push_back(gameObject->Serialize());
 
