@@ -34,6 +34,7 @@ namespace Rigel::Backend::HandleValidation
         static void AddHandle(const uid_t handle)
         {
             static_assert(IS_HANDLE_TYPE_VALID<hT>());
+            if (handle == NULL_ID) return;
 
             std::unique_lock lock(m_Mutex);
             m_ValidHandles[static_cast<uint32_t>(hT)].insert(handle);
@@ -43,6 +44,7 @@ namespace Rigel::Backend::HandleValidation
         static void RemoveHandle(const uid_t handle)
         {
             static_assert(IS_HANDLE_TYPE_VALID<hT>());
+            if (handle == NULL_ID) return;
 
             std::unique_lock lock(m_Mutex);
             m_ValidHandles[static_cast<uint32_t>(hT)].erase(handle);
@@ -52,6 +54,7 @@ namespace Rigel::Backend::HandleValidation
         NODISCARD static bool Validate(const uid_t handle)
         {
             static_assert(IS_HANDLE_TYPE_VALID<hT>());
+            if (handle == NULL_ID) return false;
 
             std::unique_lock lock(m_Mutex);
             return m_ValidHandles[static_cast<uint32_t>(hT)].contains(handle);

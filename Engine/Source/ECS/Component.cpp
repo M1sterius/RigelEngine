@@ -9,13 +9,15 @@ namespace Rigel
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
     Component::Component() : RigelObject(NULL_ID) { }
-    Component::~Component() { }
+    Component::~Component() = default;
 
     nlohmann::json Component::Serialize() const
     {
         auto json = nlohmann::json();
+
         json["Type"] = GetTypeName();
         json["ID"] = GetID();
+
         return json;
     }
 

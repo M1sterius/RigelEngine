@@ -17,9 +17,7 @@ void TestComponent::OnLoad()
 
 void TestComponent::OnStart()
 {
-    GetEventManager().Subscribe<Rigel::GameUpdateEvent>(
-    [this](const Rigel::GameUpdateEvent& e) { this->OnGameUpdate(e); }
-    );
+    GetEventManager().Subscribe<Rigel::GameUpdateEvent>(this, &TestComponent::OnGameUpdate);
 
     m_ModelRenderer = this->GetGameObject()->GetComponent<Rigel::ModelRenderer>();
 }

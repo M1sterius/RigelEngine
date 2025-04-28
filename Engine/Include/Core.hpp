@@ -19,6 +19,11 @@
 #define NODISCARD [[nodiscard]]
 #define MAYBE_UNUSED [[maybe_unused]]
 
+#define SET_BIT(n) (1 << n)
+#define TYPE_EQUAL(T1, T2) (typeid(T1) == typeid(T2))
+#define TYPE_INDEX(T) (std::type_index(typeid(T)))
+#define TYPE_NAME(T) (typeid(T).name())
+
 #ifdef RIGEL_INTERNAL
     #define RIGEL_API __declspec(dllexport)
 #else

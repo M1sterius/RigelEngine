@@ -84,7 +84,8 @@ namespace Rigel
                 cmpPtr->m_GameObject = GOHandle(this, this->GetID());
                 cmpPtr->Deserialize(component);
 
-                m_Components[cmpPtr->GetID()] = std::unique_ptr<Component>(cmpPtr);
+                const auto derivedTypeIndex = std::type_index(typeid(*cmpPtr));
+                m_Components[derivedTypeIndex] = std::unique_ptr<Component>(cmpPtr);
             }
             else
                 Debug::Error("Failed to serialize component of type: {}!", type);

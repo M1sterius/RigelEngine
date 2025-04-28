@@ -21,17 +21,6 @@ namespace Rigel
     class InputManager;
     class PhysicsEngine;
 
-    struct SubsystemsCollection
-    {
-        SceneManager& SceneManager;
-        Renderer& Renderer;
-        EventManager& EventManager;
-        AssetManager& AssetManager;
-        WindowManager& WindowManager;
-        InputManager& InputManager;
-        PhysicsEngine& PhysicsEngine;
-    };
-
     class ThreadPool;
 
     class Engine final
@@ -59,8 +48,6 @@ namespace Rigel
         NODISCARD WindowManager& GetWindowManager() const;
         NODISCARD InputManager& GetInputManager() const;
         NODISCARD PhysicsEngine& GetPhysicsEngine() const;
-
-        NODISCARD SubsystemsCollection GetAllSubsystems() const;
 
         void Run();
     INTERNAL:

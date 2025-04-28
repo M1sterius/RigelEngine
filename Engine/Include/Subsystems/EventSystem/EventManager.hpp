@@ -7,6 +7,7 @@
 #include "Engine.hpp"
 #include "ThreadPool.hpp"
 
+#include <ranges>
 #include <functional>
 #include <unordered_map>
 #include <typeindex>
@@ -17,17 +18,18 @@ namespace Rigel
     template<typename T>
     concept EventTypeConcept = std::is_base_of_v<Event, T>;
 
-    template<EventTypeConcept EventType>
-    const EventType& CastEvent(const Event& event)
-    {
-        return static_cast<const EventType&>(event);
-    }
-
     class EventManager final : public RigelSubsystem
     {
     public:
         using CallbackID = uid_t;
 
+        /**
+         * Subscribe a callback function to an event of type EventType
+         * NOTE: This overload only supports lambdas and free functions
+         * @tparam EventType The type of event to subscribe to
+         * @param callback The event callback function
+         * @return A unique event callback ID, you can use it to unsubscribe the callback
+         */
         template<EventTypeConcept EventType>
         CallbackID Subscribe(const std::function<void(const EventType&)>& callback)
         {
@@ -35,6 +37,29 @@ namespace Rigel
             auto wrapper = [callback](const Event& event) {
                 callback(static_cast<const EventType&>(event));
             };
+
+            m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
+            return id;
+        }
+
+        /**
+         * Subscribe a callback method to an event of type EventType
+         * NOTE: This overload is meant to work with class method and does not
+         * support lambdas or free functions
+         * @tparam EventType The type of event to subscribe to
+         * @tparam T Class instance type
+         * @param instance The class instance
+         * @param memberFunc The class member function
+         * @return A unique event callback ID, you can use it to unsubscribe the callback
+         */
+        template<EventTypeConcept EventType, typename T>
+        CallbackID Subscribe(T* instance, void (T::*memberFunc)(const EventType&))
+        {
+            CallbackID id = m_NextCallbackID++;
+            auto wrapper = [instance, memberFunc](const Event& event) {
+                (instance->*memberFunc)(static_cast<const EventType&>(event));
+            };
+
             m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
             return id;
         }
@@ -57,7 +82,7 @@ namespace Rigel
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
             {
-                for (const auto& [_, callback] : it->second)
+                for (const auto& callback : it->second | std::views::values)
                     callback(event);
             }
         }

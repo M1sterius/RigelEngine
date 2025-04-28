@@ -12,6 +12,8 @@
 
 #include <string>
 #include <ranges>
+#include <typeindex>
+#include <type_traits>
 #include <unordered_map>
 
 namespace Rigel
@@ -45,13 +47,12 @@ namespace Rigel
             return GetComponent<Transform>();
         }
 
-#pragma region Components
         template<ComponentConcept T, typename... Args>
         ComponentHandle<T> AddComponent(Args&&... args)
         {
-            if (typeid(T) == typeid(Transform) && HasComponent<Transform>())
+            if (HasComponent<T>())
             {
-                Debug::Error("Only one instance of Transform component is allowed to be attached to a Game Object!");
+                Debug::Error("Only one instance of a component of any type is allowed to be attached to a Game Object at the same time!");
                 return ComponentHandle<T>::Null();
             }
 
@@ -65,7 +66,7 @@ namespace Rigel
             using namespace Backend::HandleValidation;
             HandleValidator::AddHandle<HandleType::ComponentHandle>(id);
 
-            m_Components[id] = std::unique_ptr<Component>(component);
+            m_Components[TYPE_INDEX(T)] = std::unique_ptr<Component>(component);
 
             return ComponentHandle<T>(static_cast<T*>(component), id);
         }
@@ -73,26 +74,14 @@ namespace Rigel
         template<ComponentConcept T>
         void RemoveComponent()
         {
-            for (auto it = m_Components.begin(); it != m_Components.end();)
+            if (!HasComponent<T>())
             {
-                const auto& [id, component] = *it;
-
-                if (const auto cast = dynamic_cast<T*>(component.get()))
-                {
-                    using namespace Backend::HandleValidation;
-                    HandleValidator::RemoveHandle<HandleType::ComponentHandle>(id);
-
-                    it = m_Components.erase(it); // returns next valid iterator
-                    return;
-                }
-                else
-                {
-                    ++it;
-                }
+                Debug::Error("Failed to remove a component of type {} from game object with ID {}, "
+                        "the component is not attached to this game object", TYPE_NAME(T), GetID());
+                return;
             }
 
-            Debug::Error("Failed to remove component of type {} from GameObject with ID {}!",
-                         typeid(T).name(), this->GetID());
+            m_Components.erase(TYPE_INDEX(T));
         }
 
         /**
@@ -101,54 +90,21 @@ namespace Rigel
         template<ComponentConcept T>
         NODISCARD ComponentHandle<T> GetComponent() const
         {
-            for (const auto& [id, component] : m_Components)
-            {
-                if (const auto cast = dynamic_cast<T*>(component.get()))
-                    return ComponentHandle<T>(cast, id);
-            }
+            const auto index = TYPE_INDEX(T);
 
-            Debug::Error("Failed to retrieve a component of type " + static_cast<std::string>(typeid(T).name()));
+            if (m_Components.contains(index))
+                return ComponentHandle<T>(static_cast<T*>(m_Components.at(index).get()),
+                    m_Components.at(index)->GetID());
 
+            Debug::Error("Component of type {} is not attached to game object with ID {}!", TYPE_NAME(T), GetID());
             return ComponentHandle<T>::Null();
-        }
-
-        template<ComponentConcept T>
-        NODISCARD std::vector<ComponentHandle<T>> GetComponents() const
-        {
-            auto components = std::vector<ComponentHandle<T>>();
-
-            for (const auto& [id, component] : m_Components)
-            {
-                if (const auto cast = dynamic_cast<T*>(component.get()))
-                    components.emplace_back(cast, id);
-            }
-
-            return components;
-        }
-
-        NODISCARD ComponentHandle<Component> GetComponentByID(const uid_t ID) const
-        {
-            for (const auto& [currentID, component] : m_Components)
-            {
-                if (ID == currentID)
-                    return {component.get(), currentID};
-            }
-
-            return ComponentHandle<Component>::Null();
         }
 
         template<ComponentConcept T>
         NODISCARD bool HasComponent() const
         {
-            for (const auto& component : m_Components | std::views::values)
-            {
-                if (const auto cast = dynamic_cast<T*>(component.get()))
-                    return true;
-            }
-
-            return false;
+            return m_Components.contains(TYPE_INDEX(T));
         }
-#pragma endregion
     INTERNAL:
         ~GameObject() override;
     private:
@@ -162,7 +118,7 @@ namespace Rigel
 
         SceneHandle m_Scene;
         std::string m_Name;
-        std::unordered_map<uid_t, std::unique_ptr<Component>> m_Components;
+        std::unordered_map<std::type_index, std::unique_ptr<Component>> m_Components;
 
         friend class Scene;
     };

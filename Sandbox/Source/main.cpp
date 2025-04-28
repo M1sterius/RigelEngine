@@ -34,7 +34,5 @@ int32_t main(const int32_t argc, char** argv)
 
     sceneManager.LoadScene(nScene);
 
-    assetManager.PrintIDs();
-
     engine->Run();
 }

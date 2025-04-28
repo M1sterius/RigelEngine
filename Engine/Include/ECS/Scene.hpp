@@ -5,6 +5,8 @@
 #include "RigelObject.hpp"
 #include "GameObject.hpp"
 #include "ISerializable.hpp"
+#include "ECS_ObjectState.hpp"
+
 #include "plf_colony.h"
 
 #include <memory>
@@ -57,8 +59,8 @@ namespace Rigel
 
             for (const auto& go : m_GameObjects)
             {
-                const auto currentComponents = go->GetComponents<T>();
-                components.insert(components.end(), currentComponents.begin(), currentComponents.end());
+                if (go->HasComponent<T>())
+                    components.push_back(go->GetComponent<T>());
 
                 if (components.size() > maxComponents)
                     return components;
@@ -69,13 +71,14 @@ namespace Rigel
     INTERNAL:
         ~Scene() override;
 
-        // used to assign unique IDs to game objects and components
+        // use to assign unique IDs to game objects and components
         NODISCARD uid_t GetNextObjectID() { return m_NextObjectID++; }
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
 
         void OnLoad(); // Used for initialization logic.
         void OnUnload(); // Used for cleanup logic.
+
         void OnEndOfFrame(); // Used to process GO deletion queue
 
         void DestroyGOImpl(const uid_t id);
