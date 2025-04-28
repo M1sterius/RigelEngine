@@ -5,7 +5,6 @@
 #include "RigelObject.hpp"
 #include "GameObject.hpp"
 #include "ISerializable.hpp"
-#include "ECS_ObjectState.hpp"
 
 #include "plf_colony.h"
 
@@ -29,7 +28,7 @@ namespace Rigel
 
         NODISCARD inline size_t GetSize() const { return m_GameObjects.size(); }
 
-        NODISCARD inline bool IsLoaded() const { return m_IsLoaded; }
+        NODISCARD inline bool IsLoaded() const { return m_Loaded; }
 
         NODISCARD GOHandle GetGameObjectByID(const uid_t id) const;
 
@@ -52,6 +51,12 @@ namespace Rigel
          */
         NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max()) const;
 
+        /**
+         * Finds all components of type T attached to game objects on this scene
+         * @tparam T
+         * @param maxComponents
+         * @return
+         */
         template<typename T> requires std::is_base_of_v<Component, T>
         NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max())
         {
@@ -76,15 +81,18 @@ namespace Rigel
     private:
         explicit Scene(const uid_t id, std::string name = "New scene");
 
-        void OnLoad(); // Used for initialization logic.
-        void OnUnload(); // Used for cleanup logic.
+        void OnLoad(); // Called by SceneManager::Load
+        void OnUnload(); // Called by SceneManager
 
         void OnEndOfFrame(); // Used to process GO deletion queue
 
         void DestroyGOImpl(const uid_t id);
 
+        // Defines whether loading logic for GOs/Components should be executed,
+        // will be set to true in OnLoad method when this scene gets loaded via SceneManager::Load
+        bool m_Loaded = false;
+
         std::string m_Name;
-        bool m_IsLoaded = false;
         uid_t m_NextObjectID = 1;
         uid_t m_EndOfFrameCallbackID = NULL_ID;
 

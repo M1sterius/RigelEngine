@@ -68,6 +68,12 @@ namespace Rigel
 
             m_Components[TYPE_INDEX(T)] = std::unique_ptr<Component>(component);
 
+            if (m_Loaded)
+            {
+                component->OnLoad();
+                component->OnStart();
+            }
+
             return ComponentHandle<T>(static_cast<T*>(component), id);
         }
 
@@ -77,15 +83,18 @@ namespace Rigel
             if (!HasComponent<T>())
             {
                 Debug::Error("Failed to remove a component of type {} from game object with ID {}, "
-                        "the component is not attached to this game object", TYPE_NAME(T), GetID());
+                        "the component is not attached to this game object!", TYPE_NAME(T), GetID());
                 return;
             }
+
+            if (m_Loaded)
+                m_Components[TYPE_INDEX(T)]->OnDestroy();
 
             m_Components.erase(TYPE_INDEX(T));
         }
 
         /**
-         * Returns handle to the first component of type T attached to this GameObject
+         * Returns handle to component of type T attached to this GameObject
          */
         template<ComponentConcept T>
         NODISCARD ComponentHandle<T> GetComponent() const
@@ -115,6 +124,10 @@ namespace Rigel
         void OnDestroy(); // Handles freeing assets and other behaviour that may be required during object's destruction.
 
         NODISCARD uid_t AssignIDToComponent(Component* ptr);
+
+        // Defines whether loading logic for Components should be executed,
+        // will be set to true in OnLoad method, which is called by Scene::OnLoad
+        bool m_Loaded = false;
 
         SceneHandle m_Scene;
         std::string m_Name;

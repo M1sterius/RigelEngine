@@ -6,6 +6,7 @@
 #include "GameObject.hpp"
 #include "Transform.hpp"
 #include "GOHandle.hpp"
+
 #include "json.hpp"
 
 namespace Rigel
@@ -37,7 +38,7 @@ namespace Rigel
          *
          * Before the scene becomes loaded, all objects on it are NOT instantiated
          */
-        if (IsLoaded())
+        if (m_Loaded)
         {
             go->OnLoad();
             go->OnStart();
@@ -54,7 +55,7 @@ namespace Rigel
 
             if (currentObject->GetID() == id)
             {
-                if (IsLoaded())
+                if (m_Loaded)
                     currentObject->OnDestroy();
 
                 m_GameObjects.erase(it);
@@ -68,7 +69,7 @@ namespace Rigel
 
     void Scene::Destroy(const GOHandle& handle)
     {
-        if (!m_IsLoaded)
+        if (!m_Loaded)
             DestroyGOImpl(handle.GetID());
         else
             m_DestroyQueue.push(handle);
@@ -76,18 +77,18 @@ namespace Rigel
 
     void Scene::OnLoad()
     {
+        m_Loaded = true;
+
         m_EndOfFrameCallbackID = Engine::Get().GetEventManager().Subscribe<Backend::EndOfFrameEvent>(
             [this](const Backend::EndOfFrameEvent&){
             OnEndOfFrame();
         });
 
-        m_IsLoaded = true;
-
+        // Calls are intentionally split into two loops to insure proper loading logic
         for (const auto& go : m_GameObjects)
-        {
             go->OnLoad();
+        for (const auto& go : m_GameObjects)
             go->OnStart();
-        }
     }
 
     void Scene::OnUnload()
@@ -95,9 +96,9 @@ namespace Rigel
         for (const auto& go : m_GameObjects)
             DestroyGOImpl(go->GetID());
 
-        m_IsLoaded = false;
-
         Engine::Get().GetEventManager().Unsubscribe<Backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
+
+        m_Loaded = false;
     }
 
     void Scene::OnEndOfFrame()
@@ -159,7 +160,7 @@ namespace Rigel
 
     bool Scene::Deserialize(const nlohmann::json& json)
     {
-        if (IsLoaded())
+        if (m_Loaded)
         {
             Debug::Error("Deserialization on a loaded scene is not allowed. Deserialization aborted!");
             return false;

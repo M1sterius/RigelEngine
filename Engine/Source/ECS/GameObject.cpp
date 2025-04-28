@@ -29,6 +29,8 @@ namespace Rigel
 
     void GameObject::OnLoad()
     {
+        m_Loaded = true;
+
         for (const auto& component : m_Components | std::views::values)
             component->OnLoad();
     }
@@ -43,6 +45,8 @@ namespace Rigel
     {
         for (const auto& component : m_Components | std::views::values)
             component->OnDestroy();
+
+        m_Loaded = false;
     }
 
     nlohmann::json GameObject::Serialize() const
