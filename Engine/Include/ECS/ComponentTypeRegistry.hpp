@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 
+#include <memory>
 #include <string>
 #include <functional>
 #include <unordered_map>
@@ -29,7 +30,7 @@ namespace Rigel
             }
         };
 
-        NODISCARD static Component* FindType(const std::string& type);
+        NODISCARD static std::unique_ptr<Component> FindType(const std::string& type);
     private:
         inline static std::unordered_map<std::string, RegisterTypeFunc>& GetRegistry()
         {

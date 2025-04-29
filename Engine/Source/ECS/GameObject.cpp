@@ -69,28 +69,26 @@ namespace Rigel
         for (const auto& componentJson : json["Components"])
         {
             const auto typeString = componentJson["Type"].get<std::string>();
-            const auto cmpPtr = ComponentTypeRegistry::FindType(typeString);
 
-            if (cmpPtr)
+            if (auto component = ComponentTypeRegistry::FindType(typeString))
             {
-                if (!cmpPtr->Deserialize(componentJson))
-                {
-                    // Debug message?
-                    delete cmpPtr;
-                    continue;
-                }
+                if (!component->Deserialize(componentJson))
+                    continue; // if deserialization failed, std::unique_ptr will automatically delete the component
 
-                cmpPtr->m_Scene = m_Scene;
-                cmpPtr->m_GameObject = GOHandle(this, this->GetID());
+                component->m_Scene = m_Scene;
+                component->m_GameObject = GOHandle(this, this->GetID());
 
                 // This weird line acquires type_index of derived class type from a base class instance
-                const auto derivedTypeIndex = std::type_index(typeid(*cmpPtr));
+                const auto derivedTypeIndex = std::type_index(typeid(*component));
 
-                m_Components[derivedTypeIndex] = std::unique_ptr<Component>(cmpPtr);
-                HandleValidator::AddHandle<HandleType::ComponentHandle>(cmpPtr->GetID());
+                HandleValidator::AddHandle<HandleType::ComponentHandle>(component->GetID());
+                m_Components[derivedTypeIndex] = std::move(component);
             }
             else
-                Debug::Error("Failed to serialize component of type: {}!", typeString);
+            {
+                Debug::Error("Failed to serialize component of type: {}. "
+                             "ComponentTypeRegistry returned nullptr!", typeString);
+            }
         }
 
         return true;

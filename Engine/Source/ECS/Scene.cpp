@@ -182,19 +182,15 @@ namespace Rigel
         for (const auto& goJson : json["GameObjects"])
         {
             // Pass empty name and NULL_ID because they will be overridden during deserialization anyway
-            const auto go = new GameObject(NULL_ID, "");
+            auto go = std::unique_ptr<GameObject>(new GameObject(NULL_ID, ""));
 
             if (!go->Deserialize(goJson))
-            {
-                // Debug message?
-                delete go;
-                continue;
-            }
+                continue; // if deserialization failed, std::unique_ptr will automatically delete the object
 
             go->m_Scene = SceneHandle(this, this->GetID());
 
-            m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
             HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
+            m_GameObjects.emplace(std::move(go));
         }
 
         return true;

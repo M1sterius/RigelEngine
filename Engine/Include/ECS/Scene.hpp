@@ -86,7 +86,7 @@ namespace Rigel
 
         void OnEndOfFrame(); // Used to process GO deletion queue
 
-        void DestroyGOImpl(const uid_t id);
+        void DestroyGOImpl(const uid_t id); // the actual GO destroy logic
 
         // Defines whether loading logic for GOs/Components should be executed,
         // will be set to true in OnLoad method when this scene gets loaded via SceneManager::Load

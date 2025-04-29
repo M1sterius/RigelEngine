@@ -104,9 +104,7 @@ namespace Rigel
         template<ComponentConcept T>
         NODISCARD ComponentHandle<T> GetComponent() const
         {
-            const auto index = TYPE_INDEX(T);
-
-            if (m_Components.contains(index))
+            if (const auto index = TYPE_INDEX(T); m_Components.contains(index))
                 return ComponentHandle<T>(static_cast<T*>(m_Components.at(index).get()),
                     m_Components.at(index)->GetID());
 
