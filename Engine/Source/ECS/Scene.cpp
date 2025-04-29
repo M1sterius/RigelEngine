@@ -2,8 +2,8 @@
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "InternalEvents.hpp"
-#include "HandleValidator.hpp"
 #include "GameObject.hpp"
+#include "HandleValidator.hpp"
 #include "Transform.hpp"
 #include "GOHandle.hpp"
 
@@ -14,15 +14,8 @@ namespace Rigel
     using namespace Backend::HandleValidation;
 
     Scene::Scene(const uid_t id, std::string name)
-        : RigelObject(id), m_Name(std::move(name))
-    {
-        HandleValidator::AddHandle<HandleType::SceneHandle>(this->GetID());
-    }
-
-    Scene::~Scene()
-    {
-        HandleValidator::RemoveHandle<HandleType::SceneHandle>(this->GetID());
-    }
+        : RigelObject(id), m_Name(std::move(name)) { }
+    Scene::~Scene() = default;
 
     GOHandle Scene::Instantiate(std::string name)
     {
@@ -30,6 +23,7 @@ namespace Rigel
         go->m_Scene = SceneHandle(this, this->GetID());
         go->AddComponent<Transform>();
 
+        HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
         m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
 
         /*
@@ -58,6 +52,7 @@ namespace Rigel
                 if (m_Loaded)
                     currentObject->OnDestroy();
 
+                HandleValidator::AddHandle<HandleType::GOHandle>(currentObject->GetID());
                 m_GameObjects.erase(it);
                 return;
             }
@@ -149,8 +144,10 @@ namespace Rigel
 
         json["ID"] = GetID();
         json["Name"] = GetName();
+        json["ExtensionPath"] = ""; // This will be implemented later
 
-        // TODO: Save the last object ID that was assigned!!!
+        // this makes sure that there is no ID overlap between serialized object and newly created ones
+        json["NextObjectID"] = m_NextObjectID;
 
         for (const auto& gameObject : m_GameObjects)
             json["GameObjects"].push_back(gameObject->Serialize());
@@ -166,7 +163,8 @@ namespace Rigel
             return false;
         }
 
-        if (!json.contains("ID") || !json.contains("Name") || !json.contains("GameObjects"))
+        if (!json.contains("ID") || !json.contains("Name") || !json.contains("GameObjects") ||
+            !json.contains("NextObjectID"))
         {
             Debug::Error("Failed to deserialize Rigel::Scene! Some of the required data is not present in the json object.");
             return false;
@@ -179,19 +177,24 @@ namespace Rigel
         }
 
         m_Name = json["Name"].get<std::string>();
+        m_NextObjectID = json["NextObjectID"].get<uid_t>();
 
         for (const auto& goJson : json["GameObjects"])
         {
-            const auto go = new GameObject(GetNextObjectID(), "GameObject");
-            go->m_Scene = SceneHandle(this, this->GetID());
+            // Pass empty name and NULL_ID because they will be overridden during deserialization anyway
+            const auto go = new GameObject(NULL_ID, "");
 
             if (!go->Deserialize(goJson))
             {
+                // Debug message?
                 delete go;
                 continue;
             }
 
+            go->m_Scene = SceneHandle(this, this->GetID());
+
             m_GameObjects.emplace(std::unique_ptr<GameObject>(go));
+            HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
         }
 
         return true;

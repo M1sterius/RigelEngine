@@ -10,15 +10,8 @@ namespace Rigel
     using namespace Backend::HandleValidation;
 
     GameObject::GameObject(const uid_t id, std::string name)
-        : RigelObject(id), m_Name(std::move(name))
-    {
-        HandleValidator::AddHandle<HandleType::GOHandle>(this->GetID());
-    }
-
-    GameObject::~GameObject()
-    {
-        HandleValidator::RemoveHandle<HandleType::GOHandle>(this->GetID());
-    }
+        : RigelObject(id), m_Name(std::move(name)) { }
+    GameObject::~GameObject() = default;
 
     uid_t GameObject::AssignIDToComponent(Component* ptr)
     {
@@ -66,33 +59,38 @@ namespace Rigel
     {
         if (!json.contains("Components") || !json.contains("ID") || !json.contains("Name"))
         {
-            Debug::Error("Failed to serialize Rigel::GameObject! Some of the required data is not present in the json object.");
+            Debug::Error("Failed to deserialize Rigel::GameObject! Some of the required data is not present in the json object.");
             return false;
         }
 
-        HandleValidator::RemoveHandle<HandleType::GOHandle>(this->GetID());
-
         m_Name = json["Name"].get<std::string>();
-        OverrideID(json["ID"].get<uid_t>());
+        this->OverrideID(json["ID"].get<uid_t>());
 
-        // This is done so that the proper ID will be in the validation list after the deserialization
-        HandleValidator::AddHandle<HandleType::GOHandle>(this->GetID());
-
-        for (const auto& component : json["Components"])
+        for (const auto& componentJson : json["Components"])
         {
-            const auto type = component["Type"].get<std::string>();
+            const auto typeString = componentJson["Type"].get<std::string>();
+            const auto cmpPtr = ComponentTypeRegistry::FindType(typeString);
 
-            if (const auto cmpPtr = ComponentTypeRegistry::FindType(type); cmpPtr != nullptr)
+            if (cmpPtr)
             {
+                if (!cmpPtr->Deserialize(componentJson))
+                {
+                    // Debug message?
+                    delete cmpPtr;
+                    continue;
+                }
+
                 cmpPtr->m_Scene = m_Scene;
                 cmpPtr->m_GameObject = GOHandle(this, this->GetID());
-                cmpPtr->Deserialize(component);
 
+                // This weird line acquires type_index of derived class type from a base class instance
                 const auto derivedTypeIndex = std::type_index(typeid(*cmpPtr));
+
                 m_Components[derivedTypeIndex] = std::unique_ptr<Component>(cmpPtr);
+                HandleValidator::AddHandle<HandleType::ComponentHandle>(cmpPtr->GetID());
             }
             else
-                Debug::Error("Failed to serialize component of type: {}!", type);
+                Debug::Error("Failed to serialize component of type: {}!", typeString);
         }
 
         return true;

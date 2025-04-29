@@ -25,16 +25,11 @@ namespace Rigel
     {
         if (!json.contains("ID"))
         {
-            Debug::Error("Failed to serialize Rigel::Component! Some of the required data is not present in the json object.");
+            Debug::Error("Failed to deserialize Rigel::Component! Some of the required data is not present in the json object.");
             return false;
         }
 
-        using namespace Backend::HandleValidation;
-        HandleValidator::RemoveHandle<HandleType::ComponentHandle>(this->GetID());
-
         this->OverrideID(json["ID"].get<uid_t>());
-
-        HandleValidator::AddHandle<HandleType::ComponentHandle>(this->GetID());
 
         return true;
     }

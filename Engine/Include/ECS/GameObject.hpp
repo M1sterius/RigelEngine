@@ -87,10 +87,15 @@ namespace Rigel
                 return;
             }
 
-            if (m_Loaded)
-                m_Components[TYPE_INDEX(T)]->OnDestroy();
+            const auto index = TYPE_INDEX(T);
 
-            m_Components.erase(TYPE_INDEX(T));
+            if (m_Loaded)
+                m_Components[index]->OnDestroy();
+
+            using namespace Backend::HandleValidation;
+            HandleValidator::RemoveHandle<HandleType::ComponentHandle>(m_Components.at(index)->GetID());
+
+            m_Components.erase(index);
         }
 
         /**

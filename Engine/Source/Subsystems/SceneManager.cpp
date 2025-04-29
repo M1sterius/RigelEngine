@@ -6,8 +6,11 @@
 
 #include <utility>
 
+
 namespace Rigel
 {
+    using namespace Backend::HandleValidation;
+
     SceneManager::SceneManager() { Startup(); }
     SceneManager::~SceneManager() { Shutdown(); }
 
@@ -33,6 +36,7 @@ namespace Rigel
     {
         const auto scene = new Scene(GetNextSceneID(), std::move(name));
         m_Scenes[scene->GetID()] = std::unique_ptr<Scene>(scene);
+        HandleValidator::AddHandle<HandleType::SceneHandle>(scene->GetID());
 
         return {scene, scene->GetID()};
     }
@@ -45,7 +49,9 @@ namespace Rigel
             return;
         }
 
-        m_Scenes.erase(scene.GetID());
+        const auto id = scene.GetID();
+        HandleValidator::RemoveHandle<HandleType::SceneHandle>(id);
+        m_Scenes.erase(id);
     }
 
     void SceneManager::LoadScene(SceneHandle& scene)
