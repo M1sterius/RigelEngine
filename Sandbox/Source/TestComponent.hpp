@@ -13,12 +13,13 @@ private:
     TestComponent() = default;
     ~TestComponent() override = default;
 
-    void OnLoad() override;
     void OnStart() override;
     void OnDestroy() override;
 
-    Rigel::ComponentHandle<Rigel::ModelRenderer> m_ModelRenderer;
+    void OnGameUpdate();
+    void OnPhysicsTick();
 
-    void OnGameUpdate(const Rigel::GameUpdateEvent& event);
+    Rigel::ComponentHandle<Rigel::ModelRenderer> m_ModelRenderer;
+    uid_t m_UpdateEventCallbackID = NULL_ID;
 };
 

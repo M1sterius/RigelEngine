@@ -1,15 +1,77 @@
 #include "Component.hpp"
 #include "Debug.hpp"
 #include "json.hpp"
-#include "HandleValidator.hpp"
 
-#include "Engine.hpp"
+#include <ranges>
 
 namespace Rigel
 {
     // The NULL_ID will be overwritten by GameObject::AddComponent method
     Component::Component() : RigelObject(NULL_ID) { }
     Component::~Component() = default;
+
+    void Component::SetActive(const bool active)
+    {
+        if (m_Active == active) return;
+
+        if (m_Active == true && active == false)
+            CallOnDisable();
+        else
+            CallOnEnable();
+
+        m_Active = active;
+    }
+
+    void Component::CallOnLoad()
+    {
+        OnLoad();
+    }
+
+    void Component::CallOnStart()
+    {
+        OnStart();
+    }
+
+    void Component::CallOnDestroy()
+    {
+        OnDestroy();
+
+        auto& eventManager = Engine::Get().GetEventManager();
+
+        for (const auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
+            eventManager.Unsubscribe(typeIndex, idCallbackPair.first);
+
+        m_EventsRegistry.clear();
+    }
+
+    void Component::CallOnEnable()
+    {
+        OnEnable();
+
+        auto& eventManager = Engine::Get().GetEventManager();
+
+        // Resubscribe to events
+        for (auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
+        {
+            if (idCallbackPair.first == NULL_ID)
+                eventManager.Subscribe(typeIndex, idCallbackPair.second);
+        }
+    }
+
+    void Component::CallOnDisable()
+    {
+        OnDisable();
+
+        auto& eventManager = Engine::Get().GetEventManager();
+
+        for (auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
+        {
+            eventManager.Unsubscribe(typeIndex, idCallbackPair.first);
+            idCallbackPair.first = NULL_ID;
+        }
+
+        // Note that we don't clear the registry because we want to resubscribe to the same events in OnEnable
+    }
 
     nlohmann::json Component::Serialize() const
     {
@@ -33,46 +95,4 @@ namespace Rigel
 
         return true;
     }
-
-#pragma region SubsystemGetter
-    Engine& Component::GetEngine() const
-    {
-        return Engine::Get();
-    }
-
-    AssetManager& Component::GetAssetManager() const
-    {
-        return Engine::Get().GetAssetManager();
-    }
-
-    EventManager& Component::GetEventManager() const
-    {
-        return Engine::Get().GetEventManager();
-    }
-
-    PhysicsEngine& Component::GetPhysicsEngine() const
-    {
-        return Engine::Get().GetPhysicsEngine();
-    }
-
-    Renderer& Component::GetRenderer() const
-    {
-        return Engine::Get().GetRenderer();
-    }
-
-    InputManager& Component::GetInputManager() const
-    {
-        return Engine::Get().GetInputManager();
-    }
-
-    SceneManager& Component::GetSceneManager() const
-    {
-        return Engine::Get().GetSceneManager();
-    }
-
-    WindowManager& Component::GetWindowManager() const
-    {
-        return  Engine::Get().GetWindowManager();
-    }
-#pragma endregion
 }

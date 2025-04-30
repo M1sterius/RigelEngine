@@ -126,14 +126,6 @@ namespace Rigel
         }
 
         NODISCARD uint32_t GetRefCount(const uid_t id);
-
-        inline void PrintIDs()
-        {
-            for (const auto& record : m_AssetsRegistry)
-            {
-                Debug::Message("Path: {}, ID: {}, RefCount: {}", record.Path.string(), record.AssetID, record.RefCount);
-            }
-        }
     INTERNAL:
         AssetManager();
         ~AssetManager() override;

@@ -25,19 +25,19 @@ namespace Rigel
         m_Loaded = true;
 
         for (const auto& component : m_Components | std::views::values)
-            component->OnLoad();
+            component->CallOnLoad();
     }
 
     void GameObject::OnStart()
     {
         for (const auto& component : m_Components | std::views::values)
-            component->OnStart();
+            component->CallOnStart();
     }
 
     void GameObject::OnDestroy()
     {
         for (const auto& component : m_Components | std::views::values)
-            component->OnDestroy();
+            component->CallOnDestroy();
 
         m_Loaded = false;
     }
@@ -92,5 +92,12 @@ namespace Rigel
         }
 
         return true;
+    }
+
+    void GameObject::SetActive(const bool active)
+    {
+        if (m_Active == active) return;
+
+
     }
 }

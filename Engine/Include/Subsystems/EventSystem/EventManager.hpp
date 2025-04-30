@@ -15,6 +15,8 @@
 
 namespace Rigel
 {
+    class Component;
+
     template<typename T>
     concept EventTypeConcept = std::is_base_of_v<Event, T>;
 
@@ -33,12 +35,12 @@ namespace Rigel
         template<EventTypeConcept EventType>
         CallbackID Subscribe(const std::function<void(const EventType&)>& callback)
         {
-            CallbackID id = m_NextCallbackID++;
+            const auto id = m_NextCallbackID++;
             auto wrapper = [callback](const Event& event) {
                 callback(static_cast<const EventType&>(event));
             };
 
-            m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
+            m_Subscribers[TYPE_INDEX(EventType)].emplace_back(id, wrapper);
             return id;
         }
 
@@ -52,30 +54,83 @@ namespace Rigel
          * @param memberFunc The class member function
          * @return A unique event callback ID, you can use it to unsubscribe the callback
          */
-        template<EventTypeConcept EventType, typename T>
+        template<EventTypeConcept EventType, typename T> requires std::is_base_of_v<Component, T>
         CallbackID Subscribe(T* instance, void (T::*memberFunc)(const EventType&))
         {
-            CallbackID id = m_NextCallbackID++;
+            const auto id = m_NextCallbackID++;
             auto wrapper = [instance, memberFunc](const Event& event) {
                 (instance->*memberFunc)(static_cast<const EventType&>(event));
             };
 
-            m_Subscribers[typeid(EventType)].emplace_back(id, wrapper);
+            m_Subscribers[TYPE_INDEX(EventType)].emplace_back(id, wrapper);
             return id;
         }
 
-        template<EventTypeConcept EventType>
-        void Unsubscribe(CallbackID id)
+        template<typename T> requires std::is_base_of_v<Component, T>
+        CallbackID Subscribe(const std::type_index typeIndex, T* instance, void (T::*memberFunc)())
         {
-            auto it = m_Subscribers.find(typeid(EventType));
-            if (it != m_Subscribers.end())
+            const auto id = m_NextCallbackID++;
+            auto wrapper = [instance, memberFunc](const Event&) {
+                (instance->*memberFunc)();
+            };
+
+            m_Subscribers[typeIndex].emplace_back(id, wrapper);
+            return id;
+        }
+
+        CallbackID Subscribe(const std::type_index typeIndex, const std::function<void()>& callback)
+        {
+            const auto id = m_NextCallbackID++;
+            auto wrapper = [callback](const Event&) {
+                callback();
+            };
+
+            m_Subscribers[typeIndex].emplace_back(id, wrapper);
+            return id;
+        }
+
+        /**
+         * @brief Unsubscribes a previously registered callback from an event of type EventType.
+         *
+         * This overload is type-safe and should be used when the event type is known at compile time.
+         * If the given CallbackID is invalid (NULL_ID), the call is ignored.
+
+         * @tparam EventType The event type to unsubscribe from.
+         * @param id The unique ID of the callback to be removed.
+         */
+        template<EventTypeConcept EventType>
+        void Unsubscribe(const CallbackID id)
+        {
+            if (id == NULL_ID) return;
+
+            Unsubscribe(TYPE_INDEX(EventType), id);
+        }
+
+        /**
+         * @brief Unsubscribes a previously registered callback using both event type and callback ID.
+         *
+         * This overload is useful when the type is only known at runtime (e.g., from a registry).
+         * If the given CallbackID is invalid (NULL_ID), the call is ignored.
+         *
+         * @param type The type index of the event to unsubscribe from.
+         * @param id The unique ID of the callback to remove.
+         */
+        void Unsubscribe(const std::type_index type, const CallbackID id)
+        {
+            if (id == NULL_ID) return;
+
+            if (const auto it = m_Subscribers.find(type); it != m_Subscribers.end())
             {
                 auto& vec = it->second;
-                vec.erase(std::remove_if(vec.begin(), vec.end(),
-                    [id](const auto& pair) { return pair.first == id; }), vec.end());
+                std::erase_if(vec, [id](const auto& pair) { return pair.first == id; });
             }
         }
 
+        /**
+         * @brief Dispatches an event to all registered callbacks for the given event type on the calling thread.
+         * @tparam EventType The concrete event type to dispatch.
+         * @param event The event instance to pass to all subscribers.
+         */
         template<EventTypeConcept EventType>
         void Dispatch(const EventType& event)
         {
@@ -83,7 +138,10 @@ namespace Rigel
             if (it != m_Subscribers.end())
             {
                 for (const auto& callback : it->second | std::views::values)
-                    callback(event);
+                {
+                    if (callback)
+                        callback(event);
+                }
             }
         }
 

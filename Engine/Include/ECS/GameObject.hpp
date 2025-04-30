@@ -33,6 +33,8 @@ namespace Rigel
         NODISCARD inline std::string GetName() const { return m_Name; }
         inline void SetName(std::string name) { m_Name = std::move(name); }
 
+        void SetActive(const bool active);
+
         // Returns handle to the scene this object is attached to
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
@@ -70,8 +72,8 @@ namespace Rigel
 
             if (m_Loaded)
             {
-                component->OnLoad();
-                component->OnStart();
+                component->CallOnLoad();
+                component->CallOnStart();
             }
 
             return ComponentHandle<T>(static_cast<T*>(component), id);
@@ -90,7 +92,7 @@ namespace Rigel
             const auto index = TYPE_INDEX(T);
 
             if (m_Loaded)
-                m_Components[index]->OnDestroy();
+                m_Components[index]->CallOnDestroy();
 
             using namespace Backend::HandleValidation;
             HandleValidator::RemoveHandle<HandleType::ComponentHandle>(m_Components.at(index)->GetID());
@@ -131,6 +133,7 @@ namespace Rigel
         // Defines whether loading logic for Components should be executed,
         // will be set to true in OnLoad method, which is called by Scene::OnLoad
         bool m_Loaded = false;
+        bool m_Active = true;
 
         SceneHandle m_Scene;
         std::string m_Name;
