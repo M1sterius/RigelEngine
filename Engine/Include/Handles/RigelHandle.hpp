@@ -58,7 +58,7 @@ namespace Rigel
             if (IsNull())
                 throw RigelException("Attempted to dereference a null Rigel handle!");
 
-            #ifdef RGE_ENABLE_HANDLE_VALIDATION
+            #ifdef RIGEL_ENABLE_HANDLE_VALIDATION
             if (!IsValid())
                 throw RigelException("Attempted to dereference an invalid Rigel handle!");
             #endif

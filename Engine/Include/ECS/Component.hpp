@@ -77,6 +77,7 @@ namespace Rigel
         SceneHandle m_Scene;
         GOHandle m_GameObject;
         bool m_Active = true;
+        bool m_Loaded = false;
 
         // Use these methods to propagate events instead of calling virtual event methods directly
         void CallOnLoad();

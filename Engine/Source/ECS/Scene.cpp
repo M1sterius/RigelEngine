@@ -145,6 +145,7 @@ namespace Rigel
         json["ID"] = GetID();
         json["Name"] = GetName();
         json["ExtensionPath"] = ""; // This will be implemented later
+        json["Version"] = 1u;
 
         // this makes sure that there is no ID overlap between serialized object and newly created ones
         json["NextObjectID"] = m_NextObjectID;
@@ -164,7 +165,7 @@ namespace Rigel
         }
 
         if (!json.contains("ID") || !json.contains("Name") || !json.contains("GameObjects") ||
-            !json.contains("NextObjectID"))
+            !json.contains("NextObjectID") || !json.contains("Version"))
         {
             Debug::Error("Failed to deserialize Rigel::Scene! Some of the required data is not present in the json object.");
             return false;
@@ -173,6 +174,13 @@ namespace Rigel
         if (!m_GameObjects.empty())
         {
             Debug::Error("Attempted to deserialized a scene that is not empty! Destroy all objects already instantiated and try again.");
+            return false;
+        }
+
+        // Currently only one version of scene json exists
+        if (const auto version = json["Version"].get<uint32_t>(); version != 1u)
+        {
+            Debug::Error("Scene json version {} is not supported!", version);
             return false;
         }
 

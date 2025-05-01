@@ -11,7 +11,6 @@
 #include "Transform.hpp"
 
 #include <string>
-#include <ranges>
 #include <typeindex>
 #include <type_traits>
 #include <unordered_map>

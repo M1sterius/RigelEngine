@@ -2,8 +2,11 @@
 #include "Debug.hpp"
 #include "Scene.hpp"
 #include "Transform.hpp"
-#include "json.hpp"
 #include "ComponentTypeRegistry.hpp"
+
+#include "json.hpp"
+
+#include <ranges>
 
 namespace Rigel
 {
@@ -17,32 +20,31 @@ namespace Rigel
     {
         if (m_Active == active) return;
 
-        if (m_Active == true && active == false)
-        {
-            for (const auto& component : m_Components | std::views::values)
-                component->CallOnDisable();
-        }
-        else
-        {
-            for (const auto& component : m_Components | std::views::values)
-                component->CallOnEnable();
-        }
+        for (const auto& component : m_Components | std::views::values)
+            component->SetActive(active);
 
         m_Active = active;
     }
 
     void GameObject::OnLoad()
     {
-        m_Loaded = true;
-
         for (const auto& component : m_Components | std::views::values)
             component->CallOnLoad();
+
+        m_Loaded = true;
     }
 
     void GameObject::OnStart()
     {
         for (const auto& component : m_Components | std::views::values)
             component->CallOnStart();
+
+        // This is used to preserve active state after deserialization
+        if (!m_Active)
+        {
+            for (const auto& component : m_Components | std::views::values)
+                component->SetActive(false);
+        }
     }
 
     void GameObject::OnDestroy()
@@ -66,6 +68,7 @@ namespace Rigel
 
         json["ID"] = GetID();
         json["Name"] = GetName();
+        json["Active"] = m_Active;
 
         for (const auto& component : m_Components | std::views::values)
             json["Components"].push_back(component->Serialize());
@@ -75,14 +78,16 @@ namespace Rigel
 
     bool GameObject::Deserialize(const nlohmann::json& json)
     {
-        if (!json.contains("Components") || !json.contains("ID") || !json.contains("Name"))
+        if (!json.contains("Components") || !json.contains("ID") || !json.contains("Name") ||
+            !json.contains("Active"))
         {
             Debug::Error("Failed to deserialize Rigel::GameObject! Some of the required data is not present in the json object.");
             return false;
         }
 
         m_Name = json["Name"].get<std::string>();
-        this->OverrideID(json["ID"].get<uid_t>());
+        OverrideID(json["ID"].get<uid_t>());
+        m_Active = json["Active"].get<bool>();
 
         for (const auto& componentJson : json["Components"])
         {

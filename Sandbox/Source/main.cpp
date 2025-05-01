@@ -1,4 +1,4 @@
-#define RGE_ENABLE_HANDLE_VALIDATION
+#define RIGEL_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
 #include "TestComponent.hpp"
 
@@ -11,7 +11,7 @@ int32_t main(const int32_t argc, char** argv)
     auto& assetManager = engine->GetAssetManager();
     auto& windowManager = engine->GetWindowManager();
 
-    auto scene = sceneManager.CreateScene();
+    auto scene = sceneManager.CreateScene();;
 
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
@@ -28,6 +28,8 @@ int32_t main(const int32_t argc, char** argv)
 
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);
+
+    Rigel::File::WriteText("ExampleScene.json", json.dump());
 
     auto nScene = sceneManager.CreateScene();
     nScene->Deserialize(json);

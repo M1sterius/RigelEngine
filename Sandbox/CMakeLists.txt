@@ -23,12 +23,12 @@ target_include_directories(Sandbox PRIVATE ${CMAKE_SOURCE_DIR}/Engine/Include)
 target_link_libraries(Sandbox PRIVATE ${LINK_LIBRARIES})
 
 # Copies all test assets from Sandbox project into the output assets folder
-set(COPY_OUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets)
-add_custom_command(TARGET Sandbox POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/Sandbox/Assets
-    ${COPY_OUT_DIR}
-)
+#set(COPY_OUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets)
+#add_custom_command(TARGET Sandbox POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_directory
+#    ${CMAKE_SOURCE_DIR}/Sandbox/Assets
+#    ${COPY_OUT_DIR}
+#)
 
 # Copies assets included with the Rigel engine into the output assets folder
 add_custom_command(TARGET Sandbox POST_BUILD

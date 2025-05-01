@@ -23,6 +23,7 @@ def build_shaders():
 def copy_assets_to_output():
     shutil.copytree(f"{assets_dir}/Models", f"{output_path}/Models", dirs_exist_ok=True)
     shutil.copytree(f"{assets_dir}/Textures", f"{output_path}/Textures", dirs_exist_ok=True)
+    shutil.copytree(f"{assets_dir}/Scenes", f"{output_path}/Scenes", dirs_exist_ok=True)
 
 if __name__ == "__main__":
     if len(sys.argv) < 4: exit("Failed to receive required cmake variables!")

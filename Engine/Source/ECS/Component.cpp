@@ -26,11 +26,17 @@ namespace Rigel
     void Component::CallOnLoad()
     {
         OnLoad();
+        m_Loaded = true;
     }
 
     void Component::CallOnStart()
     {
         OnStart();
+
+        // This is used to preserve active state after deserialization,
+        // note that the component will be disabled AFTER both OnLoad and OnStart ran
+        if (!m_Active)
+            CallOnDisable();
     }
 
     void Component::CallOnDestroy()
@@ -40,6 +46,8 @@ namespace Rigel
         for (const auto& [typeIndex, id] : m_EventsRegistry)
             Engine::Get().GetEventManager().Unsubscribe(typeIndex, id);
         m_EventsRegistry.clear();
+
+        m_Loaded = false;
     }
 
     void Component::CallOnEnable()
@@ -64,19 +72,21 @@ namespace Rigel
 
         json["Type"] = GetTypeName();
         json["ID"] = GetID();
+        json["Active"] = m_Active;
 
         return json;
     }
 
     bool Component::Deserialize(const nlohmann::json& json)
     {
-        if (!json.contains("ID"))
+        if (!json.contains("ID") || !json.contains("Active"))
         {
             Debug::Error("Failed to deserialize Rigel::Component! Some of the required data is not present in the json object.");
             return false;
         }
 
-        this->OverrideID(json["ID"].get<uid_t>());
+        OverrideID(json["ID"].get<uid_t>());
+        m_Active = json["Active"].get<bool>();
 
         return true;
     }
