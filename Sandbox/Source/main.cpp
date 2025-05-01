@@ -2,53 +2,6 @@
 #include "RigelEngine.hpp"
 #include "TestComponent.hpp"
 
-class DeactivateComponent final : public Rigel::Component
-{
-public:
-    RIGEL_REGISTER_COMPONENT(DeactivateComponent);
-
-    NODISCARD nlohmann::json Serialize() const override
-    {
-        return Component::Serialize();
-    }
-
-    bool Deserialize(const nlohmann::json& json) override
-    {
-        Component::Deserialize(json);
-        return true;
-    }
-private:
-    DeactivateComponent() = default;
-    ~DeactivateComponent() override = default;
-
-    void OnStart() override
-    {
-        SubscribeEvent<Rigel::GameUpdateEvent>(OnGameUpdate);
-
-        m_Cmp = GetGameObject()->GetComponent<TestComponent>();
-    }
-
-    void OnGameUpdate()
-    {
-        if (Rigel::Input::GetKeyDown(Rigel::KeyCode::G))
-        {
-            if (m_State)
-            {
-                m_Cmp->SetActive(false);
-                m_State = false;
-            }
-            else
-            {
-                m_Cmp->SetActive(true);
-                m_State = true;
-            }
-        }
-    }
-
-    Rigel::ComponentHandle<TestComponent> m_Cmp;
-    bool m_State = true;
-};
-
 int32_t main(const int32_t argc, char** argv)
 {
     const auto engine = Rigel::Engine::CreateInstance(argc, argv);
@@ -72,7 +25,6 @@ int32_t main(const int32_t argc, char** argv)
     model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     model1->AddComponent<TestComponent>();
-    model1->AddComponent<DeactivateComponent>();
 
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);

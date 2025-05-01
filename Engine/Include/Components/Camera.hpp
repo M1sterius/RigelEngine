@@ -27,11 +27,10 @@ namespace Rigel
         ~Camera() override = default;
 
         void OnStart() override;
-        void OnDestroy() override;
 
+        void OnWindowResize();
         void CalcProjection();
 
-        uid_t m_WindowResizeCallbackID = NULL_ID;
         glm::uvec2 m_ViewportSize;
         float32_t m_FOV;
         float32_t m_Near;

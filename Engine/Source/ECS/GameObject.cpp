@@ -13,11 +13,22 @@ namespace Rigel
         : RigelObject(id), m_Name(std::move(name)) { }
     GameObject::~GameObject() = default;
 
-    uid_t GameObject::AssignIDToComponent(Component* ptr)
+    void GameObject::SetActive(const bool active)
     {
-        const auto id = m_Scene->GetNextObjectID();
-        ptr->OverrideID(id);
-        return id;
+        if (m_Active == active) return;
+
+        if (m_Active == true && active == false)
+        {
+            for (const auto& component : m_Components | std::views::values)
+                component->CallOnDisable();
+        }
+        else
+        {
+            for (const auto& component : m_Components | std::views::values)
+                component->CallOnEnable();
+        }
+
+        m_Active = active;
     }
 
     void GameObject::OnLoad()
@@ -40,6 +51,13 @@ namespace Rigel
             component->CallOnDestroy();
 
         m_Loaded = false;
+    }
+
+    uid_t GameObject::AssignIDToComponent(Component* ptr)
+    {
+        const auto id = m_Scene->GetNextObjectID();
+        ptr->OverrideID(id);
+        return id;
     }
 
     nlohmann::json GameObject::Serialize() const
@@ -92,12 +110,5 @@ namespace Rigel
         }
 
         return true;
-    }
-
-    void GameObject::SetActive(const bool active)
-    {
-        if (m_Active == active) return;
-
-
     }
 }

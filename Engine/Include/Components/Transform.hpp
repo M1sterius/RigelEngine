@@ -31,7 +31,6 @@ namespace Rigel
         Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
         void OnStart() override;
-        void OnDestroy() override;
 
         void Update();
 
@@ -46,6 +45,5 @@ namespace Rigel
         glm::vec3 m_UpVector{};
 
         bool m_UpdateRequiredFlag = true;
-        uid_t m_UpdateCallbackID = NULL_ID;
     };
 }

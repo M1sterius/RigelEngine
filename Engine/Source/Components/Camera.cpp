@@ -53,18 +53,13 @@ namespace Rigel
 
     void Camera::OnStart()
     {
-        auto& eventManager = Engine::Get().GetEventManager();
-        m_WindowResizeCallbackID = eventManager.Subscribe<WindowResizeEvent>([this](const WindowResizeEvent& event)
-        {
-            m_ViewportSize = event.NewSize;
-            CalcProjection();
-        });
+        SubscribeEvent<WindowResizeEvent>(OnWindowResize);
     }
 
-    void Camera::OnDestroy()
+    void Camera::OnWindowResize()
     {
-        auto& eventManager = Engine::Get().GetEventManager();
-        eventManager.Unsubscribe<WindowResizeEvent>(m_WindowResizeCallbackID);
+        m_ViewportSize = Engine::Get().GetWindowManager().GetSize();
+        CalcProjection();
     }
 
     void Camera::CalcProjection()

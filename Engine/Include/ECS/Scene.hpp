@@ -52,10 +52,11 @@ namespace Rigel
         NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max()) const;
 
         /**
-         * Finds all components of type T attached to game objects on this scene
-         * @tparam T
-         * @param maxComponents
-         * @return
+         * Finds and returns all components of the specified type in the scene.
+         * This method searches through all active GameObjects and retrieves components
+         * that match the provided type.
+         * @tparam T The type of the components to find.
+         * @return A list of components of the specified type found in the scene.
          */
         template<typename T> requires std::is_base_of_v<Component, T>
         NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max())
@@ -65,7 +66,10 @@ namespace Rigel
             for (const auto& go : m_GameObjects)
             {
                 if (go->HasComponent<T>())
-                    components.push_back(go->GetComponent<T>());
+                {
+                    if (const auto cmp = go->GetComponent<T>(); cmp->IsActive())
+                        components.push_back(cmp);
+                }
 
                 if (components.size() > maxComponents)
                     return components;

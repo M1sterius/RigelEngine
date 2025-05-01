@@ -34,10 +34,15 @@ namespace Rigel
         inline void SetName(std::string name) { m_Name = std::move(name); }
 
         void SetActive(const bool active);
+        NODISCARD bool IsActive() const { return m_Active; }
 
         // Returns handle to the scene this object is attached to
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
 
+        /**
+         * Returns Transform component attached to the GameObject
+         * @return Rigel::ComponentHandle<Rigel::Transform> to Transform attached to the game object
+         */
         NODISCARD inline ComponentHandle<Transform> GetTransform() const
         {
             if (!HasComponent<Transform>())
@@ -49,12 +54,24 @@ namespace Rigel
             return GetComponent<Transform>();
         }
 
+
+        /**
+         * Adds a component of type T to the GameObject.
+         *
+         * If a component of the same type already exists, a null ComponentHandle is returned.
+         * A component of any type can only exist once per GameObject at the same time.
+         *
+         * @tparam T The type of the component to add.
+         * @param args Constructor arguments for creating the component instance.
+         * @return A valid ComponentHandle for the added component, or a null ComponentHandle if component of the
+         * same type is already attached to the GameObject.
+         */
         template<ComponentConcept T, typename... Args>
         ComponentHandle<T> AddComponent(Args&&... args)
         {
             if (HasComponent<T>())
             {
-                Debug::Error("Only one instance of a component of any type is allowed to be attached to a Game Object at the same time!");
+                Debug::Error("Only one instance of a component of any type is allowed to be attached to a Game Object at a time!");
                 return ComponentHandle<T>::Null();
             }
 
@@ -79,6 +96,11 @@ namespace Rigel
             return ComponentHandle<T>(static_cast<T*>(component), id);
         }
 
+        /**
+         * Removes component of type T attached to the GameObject.
+         * Calls OnDestroy component method if the component was loaded.
+         * @tparam T The type of the component to remove.
+         */
         template<ComponentConcept T>
         void RemoveComponent()
         {
@@ -101,7 +123,9 @@ namespace Rigel
         }
 
         /**
-         * Returns handle to component of type T attached to this GameObject
+         * Returns handle to the component of type T attached to this GameObject.
+         * Will Return a null handle if the component of type T is not attached to the GameObject.
+         * @tparam T The type of the component to get.
          */
         template<ComponentConcept T>
         NODISCARD ComponentHandle<T> GetComponent() const
@@ -114,6 +138,11 @@ namespace Rigel
             return ComponentHandle<T>::Null();
         }
 
+        /**
+         * Checks whether the component of type T is attached to the GameObject.
+         * @tparam T The type of the component
+         * @return A bool indicating whether the component of type T is attached to the GameObject
+         */
         template<ComponentConcept T>
         NODISCARD bool HasComponent() const
         {
@@ -130,7 +159,7 @@ namespace Rigel
 
         NODISCARD uid_t AssignIDToComponent(Component* ptr);
 
-        // Defines whether loading logic for Components should be executed,
+        // m_Loaded defines whether loading logic for Components should be executed,
         // will be set to true in OnLoad method, which is called by Scene::OnLoad
         bool m_Loaded = false;
         bool m_Active = true;
