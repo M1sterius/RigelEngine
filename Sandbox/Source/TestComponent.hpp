@@ -17,9 +17,7 @@ private:
     void OnDestroy() override;
 
     void OnGameUpdate();
-    void OnPhysicsTick();
 
     Rigel::ComponentHandle<Rigel::ModelRenderer> m_ModelRenderer;
-    uid_t m_UpdateEventCallbackID = NULL_ID;
 };
 

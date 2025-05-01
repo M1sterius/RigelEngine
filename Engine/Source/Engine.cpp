@@ -30,7 +30,7 @@
 
 namespace Rigel
 {
-    Engine* Engine::m_GlobalInstance = nullptr;
+    Engine* Engine::s_Instance = nullptr;
 
     Engine::Engine() = default;
     Engine::~Engine()
@@ -38,17 +38,17 @@ namespace Rigel
         Shutdown();
 
         // Reset the global instance so that a new one can be properly created
-        m_GlobalInstance = nullptr;
+        s_Instance = nullptr;
     }
 
     std::unique_ptr<Engine> Engine::CreateInstance(const int32_t argc, char** argv)
     {
-        ASSERT(m_GlobalInstance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
+        ASSERT(s_Instance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
         Debug::Trace("Creating Rigel engine instance.");
 
         const auto instance = new Engine();
         ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
-        m_GlobalInstance = instance;
+        s_Instance = instance;
         instance->Startup(argc, argv);
 
         return std::unique_ptr<Engine>(instance);

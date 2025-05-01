@@ -37,7 +37,7 @@ namespace Rigel
         */
         static std::unique_ptr<Engine> CreateInstance(const int32_t argc, char** argv);
 
-        NODISCARD inline static Engine& Get() { return *m_GlobalInstance; }
+        NODISCARD inline static Engine& Get() { return *s_Instance; }
 
         NODISCARD bool Running() const { return m_Running; }
 
@@ -80,7 +80,7 @@ namespace Rigel
         std::unique_ptr<Renderer> m_Renderer;
         std::unique_ptr<PhysicsEngine> m_PhysicsEngine;
 
-        static Engine* m_GlobalInstance;
+        static Engine* s_Instance;
 
         friend class Time;
     };

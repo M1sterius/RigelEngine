@@ -43,8 +43,8 @@ namespace Rigel
         template<typename EventType, typename T> requires std::is_base_of_v<Event, EventType>
         void SubscribeEvent(void (T::*callback)())
         {
-            const auto index = TYPE_INDEX(EventType);
-            if (m_EventsRegistry.contains(index))
+            const auto typeIndex = TYPE_INDEX(EventType);
+            if (m_EventsRegistry.contains(typeIndex))
             {
                 Debug::Error("Component with ID {} has already subscribed to an event of type {}!",
                     this->GetID(), TYPE_NAME(EventType));
@@ -52,9 +52,9 @@ namespace Rigel
             }
 
             auto& eventManager = Engine::Get().GetEventManager();
-            const auto callbackID = eventManager.Subscribe(TYPE_INDEX(EventType), static_cast<T*>(this), callback);
+            const auto callbackID = eventManager.Subscribe(typeIndex, static_cast<T*>(this), callback);
 
-            m_EventsRegistry[index] = {callbackID, [this, callback] { (static_cast<T*>(this)->*callback)(); }};
+            m_EventsRegistry[typeIndex] = callbackID;
         }
     private:
         SceneHandle m_Scene;
@@ -68,9 +68,7 @@ namespace Rigel
         void CallOnEnable();
         void CallOnDisable();
 
-        // NULL_ID here means that the events was subscribed to before OnDisable and
-        // should be resubscribed to in OnEnable
-        std::unordered_map<std::type_index, std::pair<uid_t, std::function<void()>>> m_EventsRegistry{};
+        std::unordered_map<std::type_index, uid_t> m_EventsRegistry{};
 
         friend class GameObject;
     };

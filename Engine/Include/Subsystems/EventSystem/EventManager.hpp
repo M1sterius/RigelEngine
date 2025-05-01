@@ -41,6 +41,7 @@ namespace Rigel
             };
 
             m_Subscribers[TYPE_INDEX(EventType)].emplace_back(id, wrapper);
+            m_SuspendTable[id] = false;
             return id;
         }
 
@@ -63,6 +64,8 @@ namespace Rigel
             };
 
             m_Subscribers[TYPE_INDEX(EventType)].emplace_back(id, wrapper);
+            m_SuspendTable[id] = false;
+
             return id;
         }
 
@@ -75,18 +78,20 @@ namespace Rigel
             };
 
             m_Subscribers[typeIndex].emplace_back(id, wrapper);
+            m_SuspendTable[id] = false;
+
             return id;
         }
 
-        CallbackID Subscribe(const std::type_index typeIndex, const std::function<void()>& callback)
+        void SetSuspend(const CallbackID id, const bool state)
         {
-            const auto id = m_NextCallbackID++;
-            auto wrapper = [callback](const Event&) {
-                callback();
-            };
+            if (!m_SuspendTable.contains(id))
+            {
+                Debug::Error("Attempted to suspend an event callback with invalid ID {}!", id);
+                return;
+            }
 
-            m_Subscribers[typeIndex].emplace_back(id, wrapper);
-            return id;
+            m_SuspendTable[id] = state;
         }
 
         /**
@@ -124,6 +129,8 @@ namespace Rigel
                 auto& vec = it->second;
                 std::erase_if(vec, [id](const auto& pair) { return pair.first == id; });
             }
+
+            m_SuspendTable.erase(id);
         }
 
         /**
@@ -137,9 +144,9 @@ namespace Rigel
             auto it = m_Subscribers.find(typeid(EventType));
             if (it != m_Subscribers.end())
             {
-                for (const auto& callback : it->second | std::views::values)
+                for (const auto& [id, callback] : it->second)
                 {
-                    if (callback)
+                    if (!m_SuspendTable.at(id))
                         callback(event);
                 }
             }
@@ -175,10 +182,14 @@ namespace Rigel
 
                     const auto endIdx = std::min(startIdx + eventsPerThread, totalEvents);
 
-                    futures.emplace_back(pool.Enqueue([startIdx, endIdx, it, event]
+                    futures.emplace_back(pool.Enqueue([startIdx, endIdx, it, event, this]
                     {
                         for (size_t i = startIdx; i < endIdx; ++i)
-                            it->second[i].second(event);
+                        {
+                            const auto& [id, callback] = it->second[i];
+                            if (!m_SuspendTable.at(id))
+                                callback(event);
+                        }
                     }));
                 }
             }
@@ -193,7 +204,8 @@ namespace Rigel
         void Startup() override;
         void Shutdown() override;
 
-        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers {};
+        std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers{};
+        std::unordered_map<uid_t, bool> m_SuspendTable{}; // Ideally this should be optimized to use 1 bit per flag.
         CallbackID m_NextCallbackID = 0;
     };
 }

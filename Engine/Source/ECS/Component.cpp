@@ -1,5 +1,6 @@
 #include "Component.hpp"
 #include "Debug.hpp"
+
 #include "json.hpp"
 
 #include <ranges>
@@ -36,11 +37,8 @@ namespace Rigel
     {
         OnDestroy();
 
-        auto& eventManager = Engine::Get().GetEventManager();
-
-        for (const auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
-            eventManager.Unsubscribe(typeIndex, idCallbackPair.first);
-
+        for (const auto& [typeIndex, id] : m_EventsRegistry)
+            Engine::Get().GetEventManager().Unsubscribe(typeIndex, id);
         m_EventsRegistry.clear();
     }
 
@@ -48,29 +46,16 @@ namespace Rigel
     {
         OnEnable();
 
-        auto& eventManager = Engine::Get().GetEventManager();
-
-        // Resubscribe to events
-        for (auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
-        {
-            if (idCallbackPair.first == NULL_ID)
-                eventManager.Subscribe(typeIndex, idCallbackPair.second);
-        }
+        for (const auto id : m_EventsRegistry | std::views::values)
+            Engine::Get().GetEventManager().SetSuspend(id, false);
     }
 
     void Component::CallOnDisable()
     {
         OnDisable();
 
-        auto& eventManager = Engine::Get().GetEventManager();
-
-        for (auto& [typeIndex, idCallbackPair] : m_EventsRegistry)
-        {
-            eventManager.Unsubscribe(typeIndex, idCallbackPair.first);
-            idCallbackPair.first = NULL_ID;
-        }
-
-        // Note that we don't clear the registry because we want to resubscribe to the same events in OnEnable
+        for (const auto id : m_EventsRegistry | std::views::values)
+            Engine::Get().GetEventManager().SetSuspend(id, true);
     }
 
     nlohmann::json Component::Serialize() const
