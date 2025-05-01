@@ -1,6 +1,7 @@
 # Rigel Engine
-A free and open source 3D game engine written in C++. I'm working on this hobby project in my free
-time to, first of all, LEARN as much as possible and to have fun. That means that some implementations may be naive and not fully production-ready, so don't just me too hard on that.
+A free and open source 3D game engine written in C++.  
+
+First and foremost, this project is a way for me to learn, experiment and have fun building a game engine from scratch. I'm working on it alone in my free time, so it's not even close to anything production-grade and most likely never will be. Nevertheless, I plan to work on this engine for many years, so maybe over time it will evelove into something quite powerful and capable.
 
 ## Implemented and planned features
 - ✅ Component-based architecture similar to unity
@@ -12,8 +13,6 @@ time to, first of all, LEARN as much as possible and to have fun. That means tha
 - ✅ Multithreaded transform update
 - 🔧 Graphics API agnostic renderer (the rendering system is designed with support for multiple APIs in mind, however currently only Vulkan renderer is implemented and I don't think I have enough time to work on integrating any other API)
 - 🔧 Graphics API agnostic ImGUI integration (UI system is also designed with support for multiple APIs in mind but the situation here is similar to the main renderer).
-
-## Project goals
 
 ## Project structure overview
 The project is divided into 3 targets, all compiled together via CMakeLists file at the root directory. The targets are:
@@ -74,4 +73,47 @@ int32_t main(const int32_t argc, char** argv)
     // Enter the game loop
     engine->Run();
 }
+```  
+
+There are some rules to writing custom Component. Below is an example that shows how implement a custom Component following those rules:
+```c++
+class ExampleComponent final : public Rigel::Component
+{
+public:
+    // Every single component MUST use this macro, namespaces are currently not supported
+    RIGEL_REGISTER_COMPONENT(ExampleComponent);
+
+    NODISCARD nlohmann::json Serialize() const override
+    {
+        return Component::Serialize(); // Base method MUST be explicitly called
+    }
+
+    bool Deserialize(const nlohmann::json& json) override
+    {
+        return Component::Deserialize(json); // Base method MUST be explicitly called
+    }
+private:
+    // Every component MUST define default constructor and destructor
+    ExampleComponent() = default;
+    ~ExampleComponent() override = default;
+
+    // OnStart is called after OnLoad and before the first frame
+    void OnStart() override
+    {
+        // Use this method to subscribe the component to engine events
+        SubscribeEvent<Rigel::GameUpdateEvent>(OnGameUpdate);
+    }
+
+    // Will be called every frame
+    void OnGameUpdate()
+    {
+        if (Rigel::Input::GetKeyDown(Rigel::KeyCode::SPACE))
+        {
+            Rigel::Debug::Message("Printed from ExampleComponent!");
+        }
+    }
+};
 ```
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
