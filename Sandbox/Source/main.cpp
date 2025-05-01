@@ -1,40 +1,27 @@
 #define RIGEL_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
-#include "TestComponent.hpp"
 
 int32_t main(const int32_t argc, char** argv)
 {
+    // Create an engine instance as a std::unique_ptr
     const auto engine = Rigel::Engine::CreateInstance(argc, argv);
+
+    // Set target frame rate
     Rigel::Time::SetTargetFPS(120);
 
+    // Access the scene manager
     auto& sceneManager = engine->GetSceneManager();
-    auto& assetManager = engine->GetAssetManager();
-    auto& windowManager = engine->GetWindowManager();
 
-    auto scene = sceneManager.CreateScene();;
+    // Create a new empty scene
+    auto scene = sceneManager.CreateScene();
 
-    auto camera = scene->Instantiate("Camera");
-    camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
+    // Load scene data from JSON
+    const auto sceneJson = Rigel::File::ReadJSON("Assets/EngineAssets/Scenes/ExampleScene.json");
+    scene->Deserialize(sceneJson);
 
-    auto model = scene->Instantiate("Model0");
-    model->GetTransform()->SetPosition({0, 0, -2.5});
-    model->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
-    model->AddComponent<TestComponent>();
+    // Load the scene
+    sceneManager.LoadScene(scene);
 
-    auto model1 = scene->Instantiate("Model1");
-    model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
-    model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
-    model1->AddComponent<TestComponent>();
-
-    const auto json = scene->Serialize();
-    sceneManager.DestroyScene(scene);
-
-    Rigel::File::WriteText("ExampleScene.json", json.dump());
-
-    auto nScene = sceneManager.CreateScene();
-    nScene->Deserialize(json);
-
-    sceneManager.LoadScene(nScene);
-
+    // Enter the game loop
     engine->Run();
 }

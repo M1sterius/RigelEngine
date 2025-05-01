@@ -37,9 +37,41 @@ The event system is centered around the `EventManager` subsystem. A callback (wh
 All dependencies are built from source that's located in Dependencies directory. You don't need to download anything other than the tools listed above.
 
 ## Build
-Use command below to generate CMake build files with Ninja:
-```cmake -S . -B CMakeBuild -DCMAKE_BUILD_TYPE=Debug -G "Ninja"```
+Use command below to generate CMake build files with Ninja:  
+```cmake -S . -B CMakeBuild -DCMAKE_BUILD_TYPE=Debug -G "Ninja"```  
 CMAKE_BUILD_TYPE must be `Debug`, `Test` or `Release`.
 
-Build the project with
-```ninja -C CMakeBuild```
+Build the project with:  
+```ninja -C CMakeBuild```  
+
+## Code examples
+Below is the code to load an example scene bundled with the engine
+```c++
+#define RIGEL_ENABLE_HANDLE_VALIDATION
+#include "RigelEngine.hpp"
+
+int32_t main(const int32_t argc, char** argv)
+{
+    // Create an engine instance as a std::unique_ptr
+    const auto engine = Rigel::Engine::CreateInstance(argc, argv);
+
+    // Set target frame rate
+    Rigel::Time::SetTargetFPS(120);
+
+    // Access the scene manager
+    auto& sceneManager = engine->GetSceneManager();
+
+    // Create a new empty scene
+    auto scene = sceneManager.CreateScene();
+
+    // Load scene data from JSON
+    const auto sceneJson = Rigel::File::ReadJSON("Assets/EngineAssets/Scenes/ExampleScene.json");
+    scene->Deserialize(sceneJson);
+
+    // Load the scene
+    sceneManager.LoadScene(scene);
+
+    // Enter the game loop
+    engine->Run();
+}
+```
