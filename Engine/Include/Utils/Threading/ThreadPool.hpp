@@ -36,7 +36,18 @@ namespace Rigel
          */
         void WaitForAll();
 
-        // TODO: Add method description
+        /**
+         * @brief Enqueues a task to be executed on the thread pool.
+         *
+         * Returns a std::future that can be used to block the calling thread until
+         * the task has been executed.
+         *
+         * @tparam Func The type of the callable object to be executed.
+         * @tparam Args The types of the arguments to be passed to the callable.
+         * @param func The callable object (e.g., function, lambda, functor).
+         * @param args The arguments to be passed to the callable.
+         * @return A future that can be used to retrieve the result of the task once it's completed.
+         */
         template<typename Func, typename... Args>
         std::future<std::invoke_result_t<Func, Args...>> Enqueue(Func&& func, Args&&... args)
         {

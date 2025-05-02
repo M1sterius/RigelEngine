@@ -44,7 +44,8 @@ Build the project with:
 ```ninja -C CMakeBuild```  
 
 ## Code examples
-Below is the code to load an example scene bundled with the engine
+Keep in mind that the engine is actively being developed, so some code examples may soon become invalid. I will try to update them promptly.  
+Below is the code to load an example scene bundled with the engine:
 ```c++
 #define RIGEL_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"

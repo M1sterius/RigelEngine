@@ -53,7 +53,6 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "Component.hpp"
-#include "ComponentTypeRegistry.hpp"
 
 // Components
 #include "Transform.hpp"
@@ -61,6 +60,7 @@
 #include "ModelRenderer.hpp"
 
 // Utility
+#include "TypeRegistry.hpp"
 #include "ThreadPool.hpp"
 #include "SleepUtility.hpp"
 #include "ISerializable.hpp"

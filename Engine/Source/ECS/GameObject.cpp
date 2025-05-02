@@ -2,7 +2,7 @@
 #include "Debug.hpp"
 #include "Scene.hpp"
 #include "Transform.hpp"
-#include "ComponentTypeRegistry.hpp"
+#include "TypeRegistry.hpp"
 
 #include "json.hpp"
 
@@ -92,8 +92,9 @@ namespace Rigel
         for (const auto& componentJson : json["Components"])
         {
             const auto typeString = componentJson["Type"].get<std::string>();
+            auto typePtr = TypeRegistry::FindType(typeString);
 
-            if (auto component = ComponentTypeRegistry::FindType(typeString))
+            if (auto component = std::unique_ptr<Component>(static_cast<Component*>(typePtr.release())))
             {
                 if (!component->Deserialize(componentJson))
                     continue; // if deserialization failed, std::unique_ptr will automatically delete the component

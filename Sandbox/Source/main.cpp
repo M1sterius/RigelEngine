@@ -1,67 +1,40 @@
 #define RIGEL_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
-
-class ExampleComponent final : public Rigel::Component
-{
-public:
-    // Every single component MUST use this macro, namespaces are currently not supported
-    RIGEL_REGISTER_COMPONENT(ExampleComponent);
-
-    NODISCARD nlohmann::json Serialize() const override
-    {
-        return Component::Serialize(); // Base method MUST be explicitly called
-    }
-
-    bool Deserialize(const nlohmann::json& json) override
-    {
-        return Component::Deserialize(json); // Base method MUST be explicitly called
-    }
-private:
-    // Every component MUST define default constructor and destructor
-    ExampleComponent() = default;
-    ~ExampleComponent() override = default;
-
-    // OnStart is called after OnLoad and before the first frame
-    void OnStart() override
-    {
-        // Use this method to subscribe the component to engine events
-        SubscribeEvent<Rigel::GameUpdateEvent>(OnGameUpdate);
-    }
-
-    // Will be called every frame
-    void OnGameUpdate()
-    {
-        if (Rigel::Input::GetKeyDown(Rigel::KeyCode::SPACE))
-        {
-            Rigel::Debug::Message("Printed from ExampleComponent!");
-        }
-    }
-};
+#include "TestComponent.hpp"
 
 int32_t main(const int32_t argc, char** argv)
 {
-    // Create an engine instance as a std::unique_ptr
     const auto engine = Rigel::Engine::CreateInstance(argc, argv);
-
-    // Set target frame rate
     Rigel::Time::SetTargetFPS(120);
 
-    // Access the scene manager
     auto& sceneManager = engine->GetSceneManager();
+    auto& assetManager = engine->GetAssetManager();
+    auto& windowManager = engine->GetWindowManager();
 
-    // Create a new empty scene
     auto scene = sceneManager.CreateScene();
 
-    // Load scene data from JSON
-    const auto sceneJson = Rigel::File::ReadJSON("Assets/EngineAssets/Scenes/ExampleScene.json");
-    scene->Deserialize(sceneJson);
+    auto camera = scene->Instantiate("Camera");
+    camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto go = scene->Instantiate();
-    go->AddComponent<ExampleComponent>();
+    auto model = scene->Instantiate("Model0");
+    model->GetTransform()->SetPosition({0, 0, -2.5});
+    model->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
+    model->AddComponent<TestComponent>();
 
-    // Load the scene
-    sceneManager.LoadScene(scene);
+    auto model1 = scene->Instantiate("Model1");
+    model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
+    model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    model1->AddComponent<TestComponent>();
 
-    // Enter the game loop
+    const auto json = scene->Serialize();
+    sceneManager.DestroyScene(scene);
+
+    Rigel::Debug::Message(json.dump(4));
+
+    auto nScene = sceneManager.CreateScene();
+    nScene->Deserialize(json);
+
+    sceneManager.LoadScene(nScene);
+
     engine->Run();
 }

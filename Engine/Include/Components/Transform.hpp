@@ -2,7 +2,6 @@
 
 #include "Core.hpp"
 #include "Component.hpp"
-#include "ComponentTypeRegistry.hpp"
 #include "Math.hpp"
 
 #include <iostream>
@@ -12,7 +11,7 @@ namespace Rigel
     class Transform final : public Component
     {
     public:
-        RIGEL_REGISTER_COMPONENT(Transform);
+        RIGEL_REGISTER_COMPONENT(Rigel, Transform);
 
         NODISCARD glm::vec3 GetPosition();
         NODISCARD glm::quat GetRotation();

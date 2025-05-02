@@ -8,20 +8,29 @@
 #include "SceneHandle.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
+#include "TypeRegistry.hpp"
 
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
 
+#define RIGEL_REGISTER_COMPONENT(Namespace, ClassName) \
+    friend class Rigel::GameObject; \
+    RIGEL_REGISTER_TYPE(Namespace, ClassName)
+
+#define RIGEL_REGISTER_COMPONENT_NO_NAMESPACE(ClassName) \
+    friend class Rigel::GameObject; \
+    RIGEL_REGISTER_TYPE_NO_NAMESPACE(ClassName)
+
 namespace Rigel
 {
-    class Component : public RigelObject, public ISerializable
+    class Component : public RigelObject, public ISerializable, public ITypeRegistrable
     {
     public:
         ~Component() override;
 
         // Returns the type of derived component represented as a string
-        NODISCARD virtual const char* GetTypeName() const = 0;
+        NODISCARD const char* GetTypeName() const override = 0;
 
         NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
         NODISCARD inline GOHandle GetGameObject() const { return m_GameObject; }

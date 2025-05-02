@@ -28,8 +28,7 @@ add_library(RigelEngine STATIC
     Source/Handles/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
-    Source/ECS/ComponentTypeRegistry.cpp
-    Source/Utils/Filesystem/File.cpp
+        Source/Utils/Filesystem/File.cpp
     Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
@@ -65,6 +64,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Editor.cpp
     Source/Subsystems/Renderer/Texture.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
+        Include/Utils/Reflection/TypeRegistry.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -137,6 +137,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Utils/Filesystem
     Include/Utils/Math
     Include/Utils/Threading
+    Include/Utils/Reflection
     Include/Subsystems
     Include/Subsystems/AssetManager
     Include/Subsystems/Renderer
