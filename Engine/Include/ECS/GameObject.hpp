@@ -70,7 +70,7 @@ namespace Rigel
         {
             if (HasComponent<T>())
             {
-                Debug::Error("Only one instance of a component of any type is allowed to be attached to a Game Object at a time!");
+                Debug::Error("Only one instance of a component of any type is allowed to be attached to a GameObject at a time!");
                 return ComponentHandle<T>::Null();
             }
 
@@ -106,7 +106,7 @@ namespace Rigel
             if (!HasComponent<T>())
             {
                 Debug::Error("Failed to remove a component of type {} from game object with ID {}, "
-                        "the component is not attached to this game object!", TYPE_NAME(T), GetID());
+                        "the component is not attached to this game object!", TypeUtility::GetTypeName<T>(), GetID());
                 return;
             }
 
@@ -133,7 +133,7 @@ namespace Rigel
                 return ComponentHandle<T>(static_cast<T*>(m_Components.at(index).get()),
                     m_Components.at(index)->GetID());
 
-            Debug::Error("Component of type {} is not attached to game object with ID {}!", TYPE_NAME(T), GetID());
+            Debug::Error("Component of type {} is not attached to game object with ID {}!", TypeUtility::GetTypeName<T>(), GetID());
             return ComponentHandle<T>::Null();
         }
 

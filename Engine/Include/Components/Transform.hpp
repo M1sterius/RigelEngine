@@ -11,7 +11,7 @@ namespace Rigel
     class Transform final : public Component
     {
     public:
-        RIGEL_REGISTER_COMPONENT(Rigel, Transform);
+        RIGEL_REGISTER_COMPONENT(Rigel::Transform);
 
         NODISCARD glm::vec3 GetPosition();
         NODISCARD glm::quat GetRotation();

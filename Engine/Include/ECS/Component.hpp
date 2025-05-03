@@ -14,13 +14,12 @@
 #include <typeindex>
 #include <unordered_map>
 
-#define RIGEL_REGISTER_COMPONENT(Namespace, ClassName) \
+/**
+ * @brief A Component specific version of RIGEL_REGISTER_TYPE macro, see it's description for more info.
+ */
+#define RIGEL_REGISTER_COMPONENT(Type) \
     friend class Rigel::GameObject; \
-    RIGEL_REGISTER_TYPE(Namespace, ClassName)
-
-#define RIGEL_REGISTER_COMPONENT_NO_NAMESPACE(ClassName) \
-    friend class Rigel::GameObject; \
-    RIGEL_REGISTER_TYPE_NO_NAMESPACE(ClassName)
+    RIGEL_REGISTER_TYPE(Type)
 
 namespace Rigel
 {
@@ -73,7 +72,7 @@ namespace Rigel
             if (m_EventsRegistry.contains(typeIndex))
             {
                 Debug::Error("Component with ID {} has already subscribed to an event of type {}!",
-                    this->GetID(), TYPE_NAME(EventType));
+                    this->GetID(), TypeUtility::GetTypeName<EventType>());
                 return;
             }
 

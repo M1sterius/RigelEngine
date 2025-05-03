@@ -29,8 +29,6 @@ int32_t main(const int32_t argc, char** argv)
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);
 
-    Rigel::Debug::Message(json.dump(4));
-
     auto nScene = sceneManager.CreateScene();
     nScene->Deserialize(json);
 

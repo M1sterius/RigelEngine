@@ -10,7 +10,7 @@ namespace Rigel
     class Camera final : public Component
     {
     public:
-        RIGEL_REGISTER_COMPONENT(Rigel, Camera);
+        RIGEL_REGISTER_COMPONENT(Rigel::Camera);
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;

@@ -13,7 +13,7 @@ namespace Rigel
     class ModelRenderer final : public Component
     {
     public:
-        RIGEL_REGISTER_COMPONENT(Rigel, ModelRenderer);
+        RIGEL_REGISTER_COMPONENT(Rigel::ModelRenderer);
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;

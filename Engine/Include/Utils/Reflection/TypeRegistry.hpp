@@ -6,17 +6,19 @@
 #include <memory>
 #include <functional>
 
-#define RIGEL_REGISTER_TYPE(Namespace, ClassName) \
-    NODISCARD const char* GetTypeName() const override { return #Namespace "::" #ClassName; } \
-    friend struct Rigel::TypeRegistry::Registrar<Namespace::ClassName>; \
-    inline static Rigel::TypeRegistry::Registrar<Namespace::ClassName> ClassName##_registrar = \
-        Rigel::TypeRegistry::Registrar<Namespace::ClassName>(#Namespace "::" #ClassName)
-
-#define RIGEL_REGISTER_TYPE_NO_NAMESPACE(ClassName) \
-    NODISCARD const char* GetTypeName() const override { return #ClassName; } \
-    friend struct Rigel::TypeRegistry::Registrar<ClassName>; \
-    inline static Rigel::TypeRegistry::Registrar<ClassName> ClassName##_registrar = \
-        Rigel::TypeRegistry::Registrar<ClassName>(#ClassName)
+/**
+ * @brief Registers a type with the Rigel type reflection system.
+ *
+ * This macro must be used inside the class declaration. Access qualifier doesn't matter.
+ * A class using this macro must have a default constructor and be derived from ITypeRegistrable interface.
+ *
+ * @param Type The fully qualified, including namespaces, type to register.
+ */
+#define RIGEL_REGISTER_TYPE(Type) \
+    NODISCARD const char* GetTypeName() const override { return #Type; } \
+    friend struct Rigel::TypeRegistry::Registrar<Type>; \
+    inline static Rigel::TypeRegistry::Registrar<Type> _type_registrar_ = \
+    Rigel::TypeRegistry::Registrar<Type>(#Type)
 
 namespace Rigel
 {

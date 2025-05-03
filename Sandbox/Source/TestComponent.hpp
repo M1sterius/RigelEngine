@@ -5,7 +5,7 @@
 class TestComponent final : public Rigel::Component
 {
 public:
-    RIGEL_REGISTER_COMPONENT_NO_NAMESPACE(TestComponent);
+    RIGEL_REGISTER_COMPONENT(TestComponent);
 
     NODISCARD nlohmann::json Serialize() const override;
     bool Deserialize(const nlohmann::json& json) override;
