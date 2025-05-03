@@ -1,17 +1,18 @@
-#include "Components/Transform.hpp"
+#include "Transform.hpp"
 #include "GLM_Serializer.hpp"
-#include "Engine.hpp"
-#include "EventManager.hpp"
 #include "InternalEvents.hpp"
 #include "Debug.hpp"
+
 #include "json.hpp"
+
+#include <ranges>
 
 namespace Rigel
 {
     Transform::Transform() : Component(),
-        m_Position(glm::vec3(0.0f)),
-        m_Rotation(glm::identity<glm::quat>()),
-        m_Scale(glm::vec3(1.0f)) { }
+         m_Position(glm::vec3(0.0f)),
+         m_Rotation(glm::identity<glm::quat>()),
+         m_Scale(glm::vec3(1.0f)) { }
 
     Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) : Component(),
         m_Position(position),
@@ -86,6 +87,54 @@ namespace Rigel
         m_UpdateRequiredFlag = false;
     }
 
+    void Transform::SetParent(ComponentHandle<Transform>& parent)
+    {
+        auto thisHandle = ComponentHandle(this, GetID());
+
+        if (parent.GetID() == GetID())
+        {
+            Debug::Error("Cannot make a Transform a child of itself!");
+            return;
+        }
+
+        if (!m_Parent.IsNull())
+            m_Parent->RemoveChild(thisHandle);
+
+        parent->AddChild(thisHandle);
+    }
+
+    void Transform::AddChild(ComponentHandle<Transform>& child)
+    {
+        if (child.GetID() == GetID())
+        {
+            Debug::Error("Cannot parent a Transform to itself!");
+            return;
+        }
+
+        if (auto parent = child->GetParent(); !parent.IsNull())
+            parent->RemoveChild(child);
+
+        m_Children.push_back(child);
+        child->m_Parent = ComponentHandle(this, GetID());
+    }
+
+    void Transform::RemoveChild(ComponentHandle<Transform>& child)
+    {
+        const auto it = std::ranges::find_if(m_Children, [child](const auto& curChild)
+        {
+            return child.GetID() == curChild.GetID();
+        });
+
+        if (it == m_Children.end())
+        {
+            Debug::Error("Child Transform with ID {} does not belong to Transform with ID {}!", child.GetID(), GetID());
+            return;
+        }
+
+        (*it)->m_Parent = ComponentHandle<Transform>::Null();
+        m_Children.erase(it);
+    }
+
     nlohmann::json Transform::Serialize() const
     {
         auto json = Component::Serialize();
@@ -93,6 +142,10 @@ namespace Rigel
         json["Position"] = GLM_Serializer::Serialize(m_Position);
         json["Rotation"] = GLM_Serializer::Serialize(m_Rotation);
         json["Scale"] = GLM_Serializer::Serialize(m_Scale);
+
+        json["Children"] = nlohmann::json::array(); // This insures that json always has 'Children' array field
+        for (const auto& child : m_Children)
+            json["Children"].push_back(child.GetID());
 
         return json;
     }
@@ -107,7 +160,8 @@ namespace Rigel
             return false;
         }
 
-        if (!json.contains("Position") || ! json.contains("Rotation") || !json.contains("Scale"))
+        if (!json.contains("Position") || ! json.contains("Rotation") || !json.contains("Scale") ||
+            !json.contains("Children"))
         {
             Debug::Error("Failed to deserialize Rigel::Transform. Some of the required data is missing!");
             return false;

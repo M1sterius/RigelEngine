@@ -16,27 +16,23 @@ int32_t main(const int32_t argc, char** argv)
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto model = scene->Instantiate("Model0");
-    model->GetTransform()->SetPosition({0, 0, -2.5});
-    model->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
-    model->AddComponent<TestComponent>();
+    auto cube = scene->Instantiate("Model0");
+    cube->GetTransform()->SetPosition({0, 0, -2.5});
+    cube->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
+    cube->AddComponent<TestComponent>();
 
-    auto model1 = scene->Instantiate("Model1");
-    model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
-    model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
-    auto h = model1->AddComponent<TestComponent>();
+    auto cone = scene->Instantiate("Model1");
+    cone->GetTransform()->SetPosition({-1.0, 0, -1.0});
+    cone->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    cone->AddComponent<TestComponent>();
 
-    Rigel::Debug::Message(model.GetTypeName());
-    Rigel::Debug::Message(h.GetTypeName());
-    Rigel::Debug::Message(scene.GetTypeName());
+    auto cubeTransform = cube->GetTransform();
+    cone->GetTransform()->SetParent(cubeTransform);
 
     const auto json = scene->Serialize();
-    sceneManager.DestroyScene(scene);
+    Rigel::Debug::Message(json.dump(4));
 
-    auto nScene = sceneManager.CreateScene();
-    nScene->Deserialize(json);
-
-    sceneManager.LoadScene(nScene);
+    sceneManager.LoadScene(scene);
 
     engine->Run();
 }

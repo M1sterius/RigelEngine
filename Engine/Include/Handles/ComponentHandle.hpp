@@ -8,17 +8,27 @@ namespace Rigel
 {
     class Component;
 
-    template<typename T> requires std::is_base_of_v<Component, T>
+    template<typename T>
     class ComponentHandle final : public RigelHandle<T>
     {
     public:
         NODISCARD const char* GetTypeName() const override
         {
-            return TypeUtility::GetTypeName<RigelHandle<T>>().c_str();
+            return TypeUtility::GetTypeName<ComponentHandle>().c_str();
         }
 
-        ComponentHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
-        ComponentHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id) { }
+        ComponentHandle() : RigelHandle<T>(nullptr, NULL_ID)
+        {
+            // we can't use 'requires std::is_base_of_v<Component, T>' because it would make using
+            // handles of type T inside T declaration impossible
+            static_assert(std::is_base_of_v<Component, T>, "T must derive from Rigel::Component");
+        }
+        ComponentHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id)
+        {
+            // we can't use 'requires std::is_base_of_v<Component, T>' because it would make using
+            // handles of type T inside T declaration impossible
+            static_assert(std::is_base_of_v<Component, T>, "T must derive from Rigel::Component");
+        }
 
         NODISCARD static ComponentHandle Null()
         {

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Component.hpp"
 #include "Math.hpp"
+#include "Component.hpp"
+#include "ComponentHandle.hpp"
 
-#include <iostream>
+#include <vector>
 
 namespace Rigel
 {
@@ -25,13 +26,21 @@ namespace Rigel
 
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
+
+        NODISCARD inline ComponentHandle<Transform> GetParent() const { return m_Parent; }
+
+        void SetParent(ComponentHandle<Transform>& parent);
+        void AddChild(ComponentHandle<Transform>& child);
+        void RemoveChild(ComponentHandle<Transform>& child);
     private:
         Transform();
         Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
         void OnStart() override;
-
         void Update();
+
+        ComponentHandle<Transform> m_Parent{};
+        std::vector<ComponentHandle<Transform>> m_Children{};
 
         glm::vec3 m_Position;
         glm::quat m_Rotation;

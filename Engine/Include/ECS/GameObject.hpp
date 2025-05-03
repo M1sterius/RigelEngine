@@ -53,7 +53,6 @@ namespace Rigel
             return GetComponent<Transform>();
         }
 
-
         /**
          * Adds a component of type T to the GameObject.
          *
@@ -107,6 +106,12 @@ namespace Rigel
             {
                 Debug::Error("Failed to remove a component of type {} from game object with ID {}, "
                         "the component is not attached to this game object!", TypeUtility::GetTypeName<T>(), GetID());
+                return;
+            }
+
+            if (TYPE_EQUAL(T, Transform))
+            {
+                Debug::Error("Transform component cannot be removed from a GameObject!");
                 return;
             }
 
