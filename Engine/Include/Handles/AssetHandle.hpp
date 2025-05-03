@@ -17,6 +17,11 @@ namespace Rigel
     class AssetHandle final : public RigelHandle<T>
     {
     public:
+        NODISCARD const char* GetTypeName() const override
+        {
+            return TypeUtility::GetTypeName<AssetHandle>().c_str();
+        }
+
         AssetHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
         AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id)
         {

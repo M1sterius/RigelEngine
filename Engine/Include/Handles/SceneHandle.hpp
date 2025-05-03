@@ -10,6 +10,11 @@ namespace Rigel
     class SceneHandle final : public RigelHandle<Scene>
     {
     public:
+        NODISCARD const char* GetTypeName() const override
+        {
+            return "Rigel::SceneHandle";
+        }
+
         SceneHandle() : RigelHandle(nullptr, NULL_ID) { }
         SceneHandle(Scene* ptr, const uid_t id);
 

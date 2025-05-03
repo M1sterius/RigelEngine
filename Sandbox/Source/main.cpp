@@ -24,7 +24,11 @@ int32_t main(const int32_t argc, char** argv)
     auto model1 = scene->Instantiate("Model1");
     model1->GetTransform()->SetPosition({-1.0, 0, -1.0});
     model1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
-    model1->AddComponent<TestComponent>();
+    auto h = model1->AddComponent<TestComponent>();
+
+    Rigel::Debug::Message(model.GetTypeName());
+    Rigel::Debug::Message(h.GetTypeName());
+    Rigel::Debug::Message(scene.GetTypeName());
 
     const auto json = scene->Serialize();
     sceneManager.DestroyScene(scene);

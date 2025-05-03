@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.hpp"
 #include "RigelHandle.hpp"
 
 namespace Rigel
@@ -9,6 +10,11 @@ namespace Rigel
     class GOHandle final : public RigelHandle<GameObject>
     {
     public:
+        NODISCARD const char* GetTypeName() const override
+        {
+            return "Rigel::GOHandle";
+        }
+
         GOHandle() : RigelHandle(nullptr, NULL_ID) { }
         GOHandle(GameObject* ptr, const uid_t id);
 

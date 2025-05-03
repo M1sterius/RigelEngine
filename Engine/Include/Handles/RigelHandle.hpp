@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "HandleValidator.hpp"
+#include "TypeRegistry.hpp"
 
 namespace Rigel
 {
@@ -10,9 +11,13 @@ namespace Rigel
      * @tparam T The type of underlying object pointer
      */
     template<typename T>
-    class RigelHandle
+    class RigelHandle : public ITypeRegistrable
     {
     public:
+        ~RigelHandle() override = default;
+
+        NODISCARD const char* GetTypeName() const override = 0;
+
         T* operator -> ()
         {
             CheckHandle();
@@ -26,8 +31,6 @@ namespace Rigel
         }
 
         NODISCARD uid_t GetID() const { return m_ID; }
-
-        virtual ~RigelHandle() = default;
     protected:
         RigelHandle(T* ptr, const uid_t id) : m_Ptr(ptr), m_ID(id) { }
 

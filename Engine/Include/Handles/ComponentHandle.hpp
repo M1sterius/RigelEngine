@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.hpp"
 #include "RigelHandle.hpp"
 #include "HandleValidator.hpp"
 
@@ -11,6 +12,11 @@ namespace Rigel
     class ComponentHandle final : public RigelHandle<T>
     {
     public:
+        NODISCARD const char* GetTypeName() const override
+        {
+            return TypeUtility::GetTypeName<RigelHandle<T>>().c_str();
+        }
+
         ComponentHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
         ComponentHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id) { }
 
