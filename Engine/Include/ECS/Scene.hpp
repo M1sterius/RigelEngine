@@ -30,8 +30,6 @@ namespace Rigel
 
         NODISCARD inline bool IsLoaded() const { return m_Loaded; }
 
-        NODISCARD GOHandle GetGameObjectByID(const uid_t id) const;
-
         GOHandle Instantiate(std::string name = "GameObject");
         void Destroy(const GOHandle& handle);
 
@@ -51,6 +49,8 @@ namespace Rigel
          */
         NODISCARD plf::colony<GOHandle> Search(const std::function<bool(GOHandle&)>& condition, const size_t depthLimit = std::numeric_limits<size_t>::max()) const;
 
+        NODISCARD GOHandle FindGameObjectByID(const uid_t id) const;
+
         /**
          * Finds and returns all components of the specified type in the scene.
          * This method searches through all active GameObjects and retrieves components
@@ -58,7 +58,7 @@ namespace Rigel
          * @tparam T The type of the components to find.
          * @return A list of components of the specified type found in the scene.
          */
-        template<typename T> requires std::is_base_of_v<Component, T>
+        template<ComponentConcept T>
         NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max())
         {
             auto components = std::vector<ComponentHandle<T>>();
@@ -76,6 +76,20 @@ namespace Rigel
             }
 
             return components;
+        }
+
+        NODISCARD GenericComponentHandle FindComponentByID(const uid_t id) const
+        {
+            for (const auto& go : m_GameObjects)
+            {
+                for (const auto& component : go->GetComponents())
+                {
+                    if (component.GetID() == id)
+                        return component;
+                }
+            }
+
+            return GenericComponentHandle::Null();
         }
     INTERNAL:
         ~Scene() override;

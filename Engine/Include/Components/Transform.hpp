@@ -24,19 +24,19 @@ namespace Rigel
 
         NODISCARD glm::mat4 GetModel();
 
-        NODISCARD nlohmann::json Serialize() const override;
-        bool Deserialize(const nlohmann::json& json) override;
-
         NODISCARD inline ComponentHandle<Transform> GetParent() const { return m_Parent; }
 
         void SetParent(ComponentHandle<Transform>& parent);
         void AddChild(ComponentHandle<Transform>& child);
         void RemoveChild(ComponentHandle<Transform>& child);
+
+        NODISCARD nlohmann::json Serialize() const override;
+        bool Deserialize(const nlohmann::json& json) override;
     private:
         Transform();
         Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 
-        void OnStart() override;
+        void OnLoad() override;
         void Update();
 
         ComponentHandle<Transform> m_Parent{};

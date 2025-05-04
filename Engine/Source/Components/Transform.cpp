@@ -2,6 +2,7 @@
 #include "GLM_Serializer.hpp"
 #include "InternalEvents.hpp"
 #include "Debug.hpp"
+#include "Scene.hpp"
 
 #include "json.hpp"
 
@@ -19,9 +20,23 @@ namespace Rigel
         m_Rotation(rotation),
         m_Scale(scale) { }
 
-    void Transform::OnStart()
+    void Transform::OnLoad()
     {
         SubscribeEvent<Backend::TransformUpdateEvent>(Update);
+
+        // Convert deserialized children IDs into actual handles
+        for (auto& child : m_Children)
+        {
+            const auto childGenericHandle = GetScene()->FindComponentByID(child.GetID());
+
+            if (childGenericHandle.IsNull())
+            {
+                Debug::Error("A child transform component with ID {} not found!", child.GetID());
+                continue;
+            }
+
+            child = childGenericHandle.Cast<Transform>();
+        }
     }
 
     glm::vec3 Transform::GetPosition()
@@ -170,6 +185,11 @@ namespace Rigel
         m_Position = GLM_Serializer::DeserializeVec3(json["Position"]);
         m_Rotation = GLM_Serializer::DeserializeQuaternion(json["Rotation"]);
         m_Scale = GLM_Serializer::DeserializeVec3(json["Scale"]);
+
+        // write IDs only because not all objects on the scene are fully deserialized,
+        // meaning we can't acquire actual handles yet
+        for (const auto& child : json["Children"])
+            m_Children.emplace_back(nullptr, child.get<uid_t>());
 
         return true;
     }

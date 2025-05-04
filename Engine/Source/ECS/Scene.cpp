@@ -109,7 +109,7 @@ namespace Rigel
         }
     }
 
-    GOHandle Scene::GetGameObjectByID(const uid_t id) const
+    GOHandle Scene::FindGameObjectByID(const uid_t id) const
     {
         for (const auto& go : m_GameObjects)
         {
@@ -192,10 +192,10 @@ namespace Rigel
             // Pass empty name and NULL_ID because they will be overridden during deserialization anyway
             auto go = std::unique_ptr<GameObject>(new GameObject(NULL_ID, ""));
 
+            go->m_Scene = SceneHandle(this, this->GetID());
+
             if (!go->Deserialize(goJson))
                 continue; // if deserialization failed, std::unique_ptr will automatically delete the object
-
-            go->m_Scene = SceneHandle(this, this->GetID());
 
             HandleValidator::AddHandle<HandleType::GOHandle>(go->GetID());
             m_GameObjects.emplace(std::move(go));

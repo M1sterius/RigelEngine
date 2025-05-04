@@ -16,23 +16,25 @@ int32_t main(const int32_t argc, char** argv)
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto cube = scene->Instantiate("Model0");
+    auto cube = scene->Instantiate("Cube");
     cube->GetTransform()->SetPosition({0, 0, -2.5});
     cube->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
     cube->AddComponent<TestComponent>();
 
-    auto cone = scene->Instantiate("Model1");
+    auto cone = scene->Instantiate("Cone");
     cone->GetTransform()->SetPosition({-1.0, 0, -1.0});
-    cone->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    auto m = cone->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
     cone->AddComponent<TestComponent>();
 
-    auto cubeTransform = cube->GetTransform();
-    cone->GetTransform()->SetParent(cubeTransform);
+    auto coneTransform = cone->GetTransform();
+    cube->GetTransform()->AddChild(coneTransform);
 
     const auto json = scene->Serialize();
-    Rigel::Debug::Message(json.dump(4));
 
-    sceneManager.LoadScene(scene);
+    auto nScene = sceneManager.CreateScene();
+    nScene->Deserialize(json);
+
+    sceneManager.LoadScene(nScene);
 
     engine->Run();
 }

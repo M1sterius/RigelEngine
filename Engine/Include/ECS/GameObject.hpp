@@ -154,6 +154,17 @@ namespace Rigel
         }
     INTERNAL:
         ~GameObject() override;
+
+        NODISCARD std::vector<ComponentHandle<Component>> GetComponents() const
+        {
+            auto vec = std::vector<GenericComponentHandle>();
+            vec.reserve(m_Components.size());
+
+            for (const auto& component : m_Components | std::views::values)
+                vec.emplace_back(component.get(), component->GetID());
+
+            return vec;
+        }
     private:
         explicit GameObject(const uid_t id, std::string name);
 

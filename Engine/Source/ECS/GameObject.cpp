@@ -94,16 +94,16 @@ namespace Rigel
             const auto typeString = componentJson["Type"].get<std::string>();
             auto typePtr = TypeRegistry::FindType(typeString);
 
-            if (auto component = std::unique_ptr<Component>(static_cast<Component*>(typePtr.release())))
+            if (auto component = std::unique_ptr<Component>(dynamic_cast<Component*>(typePtr.release())))
             {
-                if (!component->Deserialize(componentJson))
-                    continue; // if deserialization failed, std::unique_ptr will automatically delete the component
-
                 component->m_Scene = m_Scene;
                 component->m_GameObject = GOHandle(this, this->GetID());
 
-                // This weird line acquires type_index of derived class type from a base class instance
-                const auto derivedTypeIndex = std::type_index(typeid(*component));
+                if (!component->Deserialize(componentJson))
+                    continue; // if deserialization failed, std::unique_ptr will automatically delete the component
+
+                // This line acquires type_index of DERIVED class type from a BASE class instance
+                const auto derivedTypeIndex = TYPE_INDEX(*component);
 
                 HandleValidator::AddHandle<HandleType::ComponentHandle>(component->GetID());
                 m_Components[derivedTypeIndex] = std::move(component);
