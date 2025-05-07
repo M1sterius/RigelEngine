@@ -155,7 +155,7 @@ namespace Rigel::Backend::Vulkan
 
             for (const auto& model : models)
             {
-                const auto mvp = projView * model->GetGameObject()->GetTransform()->GetModel();
+                const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
 
                 vkCmdPushConstants(
                     vkCmdBuffer,

@@ -5,7 +5,7 @@
 int32_t main(const int32_t argc, char** argv)
 {
     const auto engine = Rigel::Engine::CreateInstance(argc, argv);
-    Rigel::Time::SetTargetFPS(120);
+    Rigel::Time::SetTargetFPS(240);
 
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
@@ -17,17 +17,25 @@ int32_t main(const int32_t argc, char** argv)
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
     auto cube = scene->Instantiate("Cube");
-    cube->GetTransform()->SetPosition({0, 0, -2.5});
+    cube->GetTransform()->SetLocalPosition({0, 0, -2.5});
     cube->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
     cube->AddComponent<TestComponent>();
 
-    auto cone = scene->Instantiate("Cone");
-    cone->GetTransform()->SetPosition({-1.0, 0, -1.0});
-    auto m = cone->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
-    cone->AddComponent<TestComponent>();
+    auto cone1 = scene->Instantiate("Cone1");
+    cone1->GetTransform()->SetLocalPosition({-1.0, 0, -1.0});
+    cone1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
 
-    auto coneTransform = cone->GetTransform();
-    cube->GetTransform()->AddChild(coneTransform);
+    auto cone2 = scene->Instantiate("Sphere");
+    cone2->GetTransform()->SetLocalPosition({1.0, 0, 1.0});
+    cone2->GetTransform()->SetLocalScale(glm::vec3(0.5));
+    cone2->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/sphere.obj");
+    cone2->AddComponent<TestComponent>();
+
+    auto cone1Transform = cone1->GetTransform();
+    auto cone2Transform = cone2->GetTransform();
+
+    cube->GetTransform()->AddChild(cone1Transform);
+    cube->GetTransform()->AddChild(cone2Transform);
 
     const auto json = scene->Serialize();
 

@@ -23,8 +23,8 @@ void TestComponent::OnDestroy()
 
 void TestComponent::OnGameUpdate()
 {
-    constexpr glm::vec3 angle = {0, 1, 1};
+    constexpr glm::vec3 angle = {0, 1, 0};
     const auto rot = glm::quat(angle * Rigel::Time::GetGlobalTimeF());
-    m_ModelRenderer->GetGameObject()->GetTransform()->SetRotation(rot);
+    m_ModelRenderer->GetGameObject()->GetTransform()->SetLocalRotation(rot);
 }
 

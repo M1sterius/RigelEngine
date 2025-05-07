@@ -11,18 +11,26 @@
 namespace Rigel
 {
     Transform::Transform() : Component(),
-         m_Position(glm::vec3(0.0f)),
-         m_Rotation(glm::identity<glm::quat>()),
-         m_Scale(glm::vec3(1.0f)) { }
+         m_LocalPosition(glm::vec3(0.0f)),
+         m_LocalRotation(glm::identity<glm::quat>()),
+         m_LocalScale(glm::vec3(1.0f)),
+         m_WorldPosition(m_LocalPosition),
+         m_WorldRotation(m_LocalRotation),
+         m_WorldScale(m_LocalScale) { }
 
     Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) : Component(),
-        m_Position(position),
-        m_Rotation(rotation),
-        m_Scale(scale) { }
+        m_LocalPosition(position),
+        m_LocalRotation(rotation),
+        m_LocalScale(scale),
+        m_WorldPosition(m_LocalPosition),
+        m_WorldRotation(m_LocalRotation),
+        m_WorldScale(m_LocalScale) { }
 
     void Transform::OnLoad()
     {
-        SubscribeEvent<Backend::TransformUpdateEvent>(Update);
+        SubscribeEvent<Backend::TransformUpdateEvent>(UpdateOnDemand);
+
+        const auto thisHandle = ComponentHandle(this, this->GetID());
 
         // Convert deserialized children IDs into actual handles
         for (auto& child : m_Children)
@@ -36,70 +44,98 @@ namespace Rigel
             }
 
             child = childGenericHandle.Cast<Transform>();
+            child->m_Parent = thisHandle;
         }
+    }
+
+    void Transform::SetLocalPosition(const glm::vec3& position)
+    {
+        m_LocalPosition = position;
+        m_UpdateRequiredFlag = true;
+    }
+
+    void Transform::SetLocalRotation(const glm::quat& rotation)
+    {
+        m_LocalRotation = rotation;
+        m_UpdateRequiredFlag = true;
+    }
+
+    void Transform::SetLocalScale(const glm::vec3& scale)
+    {
+        m_LocalScale = scale;
+        m_UpdateRequiredFlag = true;
     }
 
     glm::vec3 Transform::GetPosition()
     {
-        Update();
-        return m_Position;
+        UpdateOnDemand();
+        return m_LocalPosition;
     }
 
     glm::quat Transform::GetRotation()
     {
-        Update();
-        return m_Rotation;
+        UpdateOnDemand();
+        return m_LocalRotation;
     }
 
     glm::vec3 Transform::GetScale()
     {
-        Update();
-        return m_Scale;
+        UpdateOnDemand();
+        return m_LocalScale;
     }
 
-    void Transform::SetPosition(const glm::vec3& position)
+    glm::mat4 Transform::GetLocalMatrix()
     {
-        m_Position = position;
-        m_UpdateRequiredFlag = true;
+        UpdateOnDemand();
+        return m_LocalMatrix;
     }
 
-    void Transform::SetRotation(const glm::quat& rotation)
+    glm::mat4 Transform::GetWorldMatrix() // NOLINT(*-no-recursion)
     {
-        m_Rotation = rotation;
-        m_UpdateRequiredFlag = true;
+        UpdateOnDemand();
+        return m_WorldMatrix;
     }
 
-    void Transform::SetScale(const glm::vec3& scale)
+    void Transform::UpdateOnDemand() // NOLINT(*-no-recursion)
     {
-        m_Scale = scale;
-        m_UpdateRequiredFlag = true;
+        if (m_UpdateRequiredFlag)
+        {
+            UpdateImpl();
+            m_UpdateRequiredFlag = false;
+        }
     }
 
-    glm::mat4 Transform::GetModel()
+    void Transform::UpdateImpl() // NOLINT(*-no-recursion)
     {
-        Update();
-        return m_ModelMatrix;
-    }
+        m_LocalMatrix = glm::translate(glm::mat4(1.0f), m_LocalPosition);
+        m_LocalMatrix *= glm::mat4_cast(m_LocalRotation);
+        m_LocalMatrix = glm::scale(m_LocalMatrix, m_LocalScale);
 
-    void Transform::Update()
-    {
-        if (!m_UpdateRequiredFlag) return;
+        // this will force all transforms up the hierarchy to update, so that we can get an up-to-date world matrix
+        m_WorldMatrix = !m_Parent.IsNull() ? m_Parent->GetWorldMatrix() * m_LocalMatrix : m_LocalMatrix;
 
-        m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Position);
-        m_ModelMatrix *= glm::mat4_cast(m_Rotation);
-        m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
+        m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_WorldMatrix)));
 
-        m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_ModelMatrix)));
-
-        constexpr glm::vec4 UP = {0.0, 1.0, 0.0, 0.0};
-        constexpr glm::vec4 FORWARD = {0.0, 0.0, -1.0, 0.0};
-        constexpr glm::vec4 RIGHT = {1.0, 0.0, 0.0, 0.0};
+        constexpr static glm::vec4 UP = {0.0, 1.0, 0.0, 0.0};
+        constexpr static glm::vec4 FORWARD = {0.0, 0.0, -1.0, 0.0};
+        constexpr static glm::vec4 RIGHT = {1.0, 0.0, 0.0, 0.0};
 
         m_UpVector = glm::vec3(m_NormalMatrix * UP);
         m_ForwardVector = glm::vec3(m_NormalMatrix * FORWARD);
         m_RightVector = glm::vec3(m_NormalMatrix * RIGHT);
 
-        m_UpdateRequiredFlag = false;
+        // if parent component was updated, all it's children must be updated as well
+        for (auto& child : m_Children)
+            child->m_UpdateRequiredFlag = true;
+    }
+
+    glm::vec3 Transform::ExtractWorldScale(const glm::mat4& matrix)
+    {
+        glm::vec3 scale{};
+        scale.x = glm::length(glm::vec3(matrix[0]));
+        scale.y = glm::length(glm::vec3(matrix[1]));
+        scale.z = glm::length(glm::vec3(matrix[2]));
+        return scale;
     }
 
     void Transform::SetParent(ComponentHandle<Transform>& parent)
@@ -154,9 +190,9 @@ namespace Rigel
     {
         auto json = Component::Serialize();
 
-        json["Position"] = GLM_Serializer::Serialize(m_Position);
-        json["Rotation"] = GLM_Serializer::Serialize(m_Rotation);
-        json["Scale"] = GLM_Serializer::Serialize(m_Scale);
+        json["Position"] = GLM_Serializer::Serialize(m_LocalPosition);
+        json["Rotation"] = GLM_Serializer::Serialize(m_LocalRotation);
+        json["Scale"] = GLM_Serializer::Serialize(m_LocalScale);
 
         json["Children"] = nlohmann::json::array(); // This insures that json always has 'Children' array field
         for (const auto& child : m_Children)
@@ -182,9 +218,9 @@ namespace Rigel
             return false;
         }
 
-        m_Position = GLM_Serializer::DeserializeVec3(json["Position"]);
-        m_Rotation = GLM_Serializer::DeserializeQuaternion(json["Rotation"]);
-        m_Scale = GLM_Serializer::DeserializeVec3(json["Scale"]);
+        m_LocalPosition = GLM_Serializer::DeserializeVec3(json["Position"]);
+        m_LocalRotation = GLM_Serializer::DeserializeQuaternion(json["Rotation"]);
+        m_LocalScale = GLM_Serializer::DeserializeVec3(json["Scale"]);
 
         // write IDs only because not all objects on the scene are fully deserialized,
         // meaning we can't acquire actual handles yet
