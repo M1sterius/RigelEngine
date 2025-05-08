@@ -18,6 +18,10 @@ namespace Rigel
         NODISCARD glm::quat GetRotation();
         NODISCARD glm::vec3 GetScale();
 
+        NODISCARD glm::vec3 GetLocalPosition();
+        NODISCARD glm::quat GetLocalRotation();
+        NODISCARD glm::vec3 GetLocalScale();
+
         void SetLocalPosition(const glm::vec3& position);
         void SetLocalRotation(const glm::quat& rotation);
         void SetLocalScale(const glm::vec3& scale);

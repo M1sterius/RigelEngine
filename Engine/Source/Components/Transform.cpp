@@ -69,16 +69,34 @@ namespace Rigel
     glm::vec3 Transform::GetPosition()
     {
         UpdateOnDemand();
-        return m_LocalPosition;
+        return m_WorldPosition;
     }
 
     glm::quat Transform::GetRotation()
     {
         UpdateOnDemand();
-        return m_LocalRotation;
+        return m_WorldRotation;
     }
 
     glm::vec3 Transform::GetScale()
+    {
+        UpdateOnDemand();
+        return m_WorldScale;
+    }
+
+    glm::vec3 Transform::GetLocalPosition()
+    {
+        UpdateOnDemand();
+        return m_LocalPosition;
+    }
+
+    glm::quat Transform::GetLocalRotation()
+    {
+        UpdateOnDemand();
+        return m_LocalRotation;
+    }
+
+    glm::vec3 Transform::GetLocalScale()
     {
         UpdateOnDemand();
         return m_LocalScale;
@@ -113,6 +131,10 @@ namespace Rigel
 
         // this will force all transforms up the hierarchy to update, so that we can get an up-to-date world matrix
         m_WorldMatrix = !m_Parent.IsNull() ? m_Parent->GetWorldMatrix() * m_LocalMatrix : m_LocalMatrix;
+
+        m_WorldPosition = glm::vec3(m_WorldMatrix[3]);
+        m_WorldRotation = glm::quat_cast(m_WorldMatrix);
+        m_WorldScale = ExtractWorldScale(m_WorldMatrix);
 
         m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_WorldMatrix)));
 
