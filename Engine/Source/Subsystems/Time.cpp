@@ -5,6 +5,19 @@
 
 namespace Rigel
 {
+    Time::Time() { Startup(); }
+    Time::~Time() { Shutdown(); }
+
+    void Time::Startup()
+    {
+
+    }
+
+    void Time::Shutdown()
+    {
+
+    }
+
     float64_t Time::GetDeltaTime()
     {
         const auto& engine = Engine::Get();

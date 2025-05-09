@@ -61,6 +61,7 @@ namespace Rigel
         Debug::Trace("Starting up subsystems:");
 
         // Create subsystem instances, startup methods are called in constructors
+        m_TimeManager = std::make_unique<Time>();
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -100,6 +101,7 @@ namespace Rigel
         m_SceneManager.reset();
         m_EventManager.reset();
         m_AssetManager.reset();
+        m_TimeManager.reset();
 
         m_GlobalTimeStopwatch.Stop();
     }

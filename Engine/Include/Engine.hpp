@@ -13,6 +13,7 @@ namespace Rigel
         class Editor;
     }
 
+    class Time;
     class SceneManager;
     class Renderer;
     class EventManager;
@@ -61,17 +62,18 @@ namespace Rigel
         void EngineUpdate();
 
         bool m_Running = false;
-        Stopwatch m_GlobalTimeStopwatch;
-        Stopwatch m_DeltaTimeStopwatch;
-        uint64_t m_TargetFps = 240;
-        float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
-        float64_t m_PhysicsTickTime = 0.05;
-        uint64_t m_FrameCounter = 0;
+        // Stopwatch m_GlobalTimeStopwatch;
+        // Stopwatch m_DeltaTimeStopwatch;
+        // uint64_t m_TargetFps = 240;
+        // float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
+        // float64_t m_PhysicsTickTime = 0.05;
+        // uint64_t m_FrameCounter = 0;
 
         std::unique_ptr<ThreadPool> m_ThreadPool;
         std::unique_ptr<Backend::Editor::Editor> m_Editor; // this is probably temporary
 
         // Subsystem instances
+        std::unique_ptr<Time> m_TimeManager;
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<AssetManager> m_AssetManager;
         std::unique_ptr<SceneManager> m_SceneManager;

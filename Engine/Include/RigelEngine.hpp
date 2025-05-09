@@ -16,6 +16,7 @@
 // Core headers
 #include "Core.hpp"
 #include "Engine.hpp"
+#include "ProjectSettings.hpp"
 
 // Subsystems
 #include "EventManager.hpp"
