@@ -30,12 +30,9 @@ namespace Rigel
     }
 #pragma endregion
 
-    WindowManager::WindowManager() { Startup(); }
-    WindowManager::~WindowManager() { Shutdown(); }
-
     bool WindowManager::WindowShouldClose() const { return glfwWindowShouldClose(m_GLFWWindow); }
 
-    void WindowManager::Startup()
+    int32_t WindowManager::Startup()
     {
         Debug::Trace("Staring up window manager.");
 
@@ -64,14 +61,16 @@ namespace Rigel
         glfwSetWindowPosCallback(m_GLFWWindow, window_move_callback);
 
         m_Initialized = true;
+        return 0;
     }
 
-    void WindowManager::Shutdown()
+    int32_t WindowManager::Shutdown()
     {
         Debug::Trace("Shutting down window manager.");
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
+        return 0;
     }
 
     void WindowManager::SetScreenMode(const ScreenMode mode)

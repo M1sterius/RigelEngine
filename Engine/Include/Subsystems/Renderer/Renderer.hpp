@@ -30,6 +30,9 @@ namespace Rigel
         Renderer();
         ~Renderer() override;
 
+        int32_t Startup() override;
+        int32_t Shutdown() override;
+
         NODISCARD Backend::IRendererBackend& GetBackend() const;
         NODISCARD Backend::IImGuiBackend& GetImGuiBackend() const { return *m_ImGuiBackend; }
 
@@ -42,9 +45,6 @@ namespace Rigel
         // Blocks the calling thread until all rendering operation are done
         void WaitForFinish() const;
     private:
-        void Startup() override;
-        void Shutdown() override;
-
         Backend::SceneRenderInfo m_CurrentRenderInfo;
 
         NODISCARD static GraphicsApi SelectGraphicsAPI();

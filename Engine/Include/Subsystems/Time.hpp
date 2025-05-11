@@ -24,11 +24,11 @@ namespace Rigel
         static constexpr float64_t MIN_DELTA_TIME_SECONDS = 0.0001;
         static constexpr float64_t FALLBACK_DELTA_TIME_SECONDS = 0.016;
     INTERNAL:
-        Time();
-        ~Time() override;
+        Time() = default;
+        ~Time() override = default;
 
-        void Startup() override;
-        void Shutdown() override;
+        int32_t Startup() override;
+        int32_t Shutdown() override;
     private:
         NODISCARD static float64_t CorrectDeltaTime(float64_t deltaTime);
     };

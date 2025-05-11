@@ -11,19 +11,23 @@ namespace Rigel
 {
     using namespace Backend::HandleValidation;
 
-    SceneManager::SceneManager() { Startup(); }
-    SceneManager::~SceneManager() { Shutdown(); }
+    SceneManager::SceneManager() = default;
+    SceneManager::~SceneManager() = default;
 
-    void SceneManager::Startup()
+    int32_t SceneManager::Startup()
     {
         Debug::Trace("Starting up scene manager.");
 
         m_Initialized = true;
+        return 0;
     }
 
-    void SceneManager::Shutdown()
+    int32_t SceneManager::Shutdown()
     {
+        m_Scenes.clear();
+
         Debug::Trace("Shutting down scene manager.");
+        return 0;
     }
 
     void SceneManager::UnloadCurrentScene()

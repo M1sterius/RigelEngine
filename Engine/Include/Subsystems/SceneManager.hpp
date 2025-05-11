@@ -49,8 +49,8 @@ namespace Rigel
         SceneManager();
         ~SceneManager() override;
 
-        void Startup() override;
-        void Shutdown() override;
+        int32_t Startup() override;
+        int32_t Shutdown() override;
 
         void UnloadCurrentScene();
     private:

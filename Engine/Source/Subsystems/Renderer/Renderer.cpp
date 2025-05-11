@@ -13,10 +13,10 @@
 
 namespace Rigel
 {
-    Renderer::Renderer() { Startup(); }
-    Renderer::~Renderer() { Shutdown(); }
+    Renderer::Renderer() = default;
+    Renderer::~Renderer() = default;
 
-    void Renderer::Startup()
+    int32_t Renderer::Startup()
     {
         Debug::Trace("Starting up renderer.");
 
@@ -30,11 +30,13 @@ namespace Rigel
             dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get()));
 
         m_Initialized = true;
+        return 0;
     }
 
-    void Renderer::Shutdown()
+    int32_t Renderer::Shutdown()
     {
         Debug::Trace("Shutting down renderer.");
+        return 0;
     }
 
     Backend::IRendererBackend& Renderer::GetBackend() const

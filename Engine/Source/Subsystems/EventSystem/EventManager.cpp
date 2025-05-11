@@ -3,18 +3,17 @@
 
 namespace Rigel
 {
-    EventManager::EventManager() { Startup(); }
-    EventManager::~EventManager() { Shutdown(); }
-
-    void EventManager::Startup()
+    int32_t EventManager::Startup()
     {
         Debug::Trace("Starting up event manager.");
 
         m_Initialized = true;
+        return 0;
     }
 
-    void EventManager::Shutdown()
+    int32_t EventManager::Shutdown()
     {
         Debug::Trace("Shutting down event manager.");
+        return 0;
     }
 }

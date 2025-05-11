@@ -127,11 +127,11 @@ namespace Rigel
 
         NODISCARD uint32_t GetRefCount(const uid_t id);
     INTERNAL:
-        AssetManager();
-        ~AssetManager() override;
+        AssetManager() = default;
+        ~AssetManager() override = default;
 
-        void Startup() override;
-        void Shutdown() override;
+        int32_t Startup() override;
+        int32_t Shutdown() override;
 
         void IncrementRefCount(const uid_t id);
         void DecrementRefCount(const uid_t id);

@@ -17,8 +17,8 @@ namespace Rigel
         RigelSubsystem() = default;
         virtual ~RigelSubsystem() = default;
 
-        virtual void Startup() = 0;
-        virtual void Shutdown() = 0;
+        virtual int32_t Startup() = 0;
+        virtual int32_t Shutdown() = 0;
 
         bool m_Initialized = false;
     };

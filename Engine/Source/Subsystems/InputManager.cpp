@@ -77,10 +77,7 @@ namespace Rigel
     }
 #pragma endregion
 
-    InputManager::InputManager() { Startup(); }
-    InputManager::~InputManager() { Shutdown(); }
-
-    void InputManager::Startup()
+    int32_t InputManager::Startup()
     {
         Debug::Trace("Starting up input manager.");
 
@@ -102,6 +99,13 @@ namespace Rigel
         glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
 
         m_Initialized = true;
+        return 0;
+    }
+
+    int32_t InputManager::Shutdown()
+    {
+        Debug::Trace("Shutting down input manager");
+        return 0;
     }
 
     void InputManager::ResetInputState()
@@ -114,10 +118,5 @@ namespace Rigel
 
         m_MouseDelta = m_MousePosition - m_OldMousePosition;
         m_OldMousePosition = m_MousePosition;
-    }
-
-    void InputManager::Shutdown()
-    {
-        Debug::Trace("Shutting down input manager");
     }
 }

@@ -5,17 +5,14 @@
 
 namespace Rigel
 {
-    Time::Time() { Startup(); }
-    Time::~Time() { Shutdown(); }
-
-    void Time::Startup()
+    int32_t Time::Startup()
     {
-
+        return 0;
     }
 
-    void Time::Shutdown()
+    int32_t Time::Shutdown()
     {
-
+        return 0;
     }
 
     float64_t Time::GetDeltaTime()

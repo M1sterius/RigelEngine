@@ -15,14 +15,14 @@ namespace Rigel
     class InputManager final : public RigelSubsystem
     {
     INTERNAL:
-        InputManager();
-        ~InputManager() override;
+        InputManager() = default;
+        ~InputManager() override = default;
+
+        int32_t Startup() override;
+        int32_t Shutdown() override;
 
         void ResetInputState();
     private:
-        void Startup() override;
-        void Shutdown() override;
-
         NODISCARD inline bool InKeys(const KeyCode key) const { return m_KeyboardKeys.find(key) != m_KeyboardKeys.end(); }
         NODISCARD inline bool InOldKeys(const KeyCode key) const { return m_OldKeyboardKeys.find(key) != m_OldKeyboardKeys.end(); }
 

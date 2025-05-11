@@ -12,18 +12,19 @@ namespace fs = std::filesystem;
 
 namespace Rigel
 {
-    AssetManager::AssetManager() { Startup(); }
-    AssetManager::~AssetManager() { Shutdown(); }
-
-    void AssetManager::Startup()
+    int32_t AssetManager::Startup()
     {
         Debug::Trace("Starting up asset manager.");
         m_Initialized = true;
+
+        return 0;
     }
 
-    void AssetManager::Shutdown()
+    int32_t AssetManager::Shutdown()
     {
         Debug::Trace("Shutting down asset manager.");
+
+        return 0;
     }
 
     uid_t AssetManager::GetNextAssetID()

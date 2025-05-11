@@ -1,7 +1,8 @@
 #pragma once
 
-#include "json_fwd.hpp"
 #include "Core.hpp"
+
+#include "json_fwd.hpp"
 
 namespace Rigel
 {

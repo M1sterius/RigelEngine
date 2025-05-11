@@ -4,7 +4,13 @@
 
 int32_t main(const int32_t argc, char** argv)
 {
-    const auto engine = Rigel::Engine::CreateInstance(argc, argv);
+    auto settings = Rigel::ProjectSettings();
+    settings.argc = argc;
+    settings.argv = argv;
+    settings.TargetFPS = 165;
+    settings.WindowSize = glm::uvec2(1280, 720);
+
+    const auto engine = Rigel::Engine::CreateInstance(settings);
     Rigel::Time::SetTargetFPS(240);
 
     auto& sceneManager = engine->GetSceneManager();

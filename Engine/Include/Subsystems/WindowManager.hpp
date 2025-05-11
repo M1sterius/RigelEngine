@@ -44,8 +44,11 @@ namespace Rigel
         void SetScreenMode(const ScreenMode mode);
         NODISCARD inline ScreenMode GetScreenMode() const { return m_CurrentScreenMode; }
     INTERNAL:
-        WindowManager();
-        ~WindowManager() override;
+        WindowManager() = default;
+        ~WindowManager() override = default;
+
+        int32_t Startup() override;
+        int32_t Shutdown() override;
 
         void PollGLFWEvents() const;
         void WaitForFocus() const;
@@ -57,9 +60,6 @@ namespace Rigel
         NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
         inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
     private:
-        void Startup() override;
-        void Shutdown() override;
-
         void EnumerateMonitorInfo();
 
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
