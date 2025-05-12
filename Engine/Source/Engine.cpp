@@ -61,6 +61,7 @@ namespace Rigel
         s_Instance = nullptr; // Reset the global instance so that a new one can be properly created
     }
 
+    DEFINE_SUBSYSTEM_GETTER(Time);
     DEFINE_SUBSYSTEM_GETTER(EventManager)
     DEFINE_SUBSYSTEM_GETTER(AssetManager)
     DEFINE_SUBSYSTEM_GETTER(SceneManager)
@@ -71,7 +72,7 @@ namespace Rigel
 
     std::unique_ptr<Engine> Engine::CreateInstance()
     {
-        ASSERT(s_Instance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
+        ASSERT(!s_Instance, "Only a single instance of RigelEngine core class is allowed!")
         Debug::Trace("Creating Rigel engine instance.");
 
         const auto instance = new Engine();
@@ -90,7 +91,7 @@ namespace Rigel
         Debug::Trace("Starting up subsystems:");
 
         // Create subsystem instances, no startup logic in constructors
-        m_TimeManager = std::make_unique<Time>();
+        m_Time = std::make_unique<Time>();
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
         m_SceneManager = std::make_unique<SceneManager>();
@@ -100,7 +101,7 @@ namespace Rigel
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
         // Startup order matters A LOT!
-        if (!StartUpSubsystem(m_ProjectSettings, m_TimeManager, "Time manager")) return 11;
+        if (!StartUpSubsystem(m_ProjectSettings, m_Time, "Time manager")) return 11;
         if (!StartUpSubsystem(m_ProjectSettings, m_AssetManager, "Asset manager")) return 12;
         if (!StartUpSubsystem(m_ProjectSettings, m_EventManager, "Event manager")) return 13;
         if (!StartUpSubsystem(m_ProjectSettings, m_SceneManager, "Scene manager")) return 14;
@@ -116,9 +117,6 @@ namespace Rigel
         Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
 
         m_Editor = std::make_unique<Backend::Editor::Editor>();
-
-        m_Running = true;
-        m_GlobalTimeStopwatch.Start();
 
         Debug::Trace("Rigel engine initialization complete.");
 
@@ -143,15 +141,15 @@ namespace Rigel
         ShutDownSubsystem(m_SceneManager, "Scene manager");
         ShutDownSubsystem(m_EventManager, "Event manager");
         ShutDownSubsystem(m_AssetManager, "Asset manager");
-        ShutDownSubsystem(m_TimeManager, "Time manager");
-
-        m_GlobalTimeStopwatch.Stop();
+        ShutDownSubsystem(m_Time, "Time manager");
     }
 
     void Engine::Run()
     {
         auto fpsLimitStopwatch = Stopwatch();
-        m_DeltaTimeStopwatch.Start();
+        m_Time->m_DeltaTimeStopwatch.Start();
+        m_Time->m_GlobalTimeStopwatch.Start();
+        m_Running = true;
 
         if (!m_SceneManager->IsSceneLoaded())
             Debug::Warning("No scene is loaded before the engine enters the game loop!");
@@ -164,12 +162,17 @@ namespace Rigel
             EngineUpdate();
             SleepUtility::LimitFPS(fpsLimitStopwatch.Stop(), Time::GetTargetFPS());
 
-            m_DeltaTime = m_DeltaTimeStopwatch.Restart().AsSeconds();
-            m_FrameCounter++;
+            m_Time->m_DeltaTime = m_Time->m_DeltaTimeStopwatch.Restart().AsSeconds();
+            m_Time->m_FrameCounter++;
+
+            // for now the only condition for the engine to keep running is the window not being closed.
+            m_Running = !m_WindowManager->WindowShouldClose();
         }
+
+        m_Time->m_GlobalTimeStopwatch.Stop();
     }
 
-    void Engine::EngineUpdate()
+    void Engine::EngineUpdate() const
     {
         m_Editor->Draw();
 
@@ -183,8 +186,5 @@ namespace Rigel
 
         m_InputManager->ResetInputState();
         m_EventManager->Dispatch(Backend::EndOfFrameEvent());
-
-        // for now the only condition for the engine to keep running is the window not being closed.
-        m_Running = !m_WindowManager->WindowShouldClose();
     }
 }

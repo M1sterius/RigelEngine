@@ -41,7 +41,7 @@ namespace Rigel
         /**
          * Initializes Rigel engine, must be called right after the instance of the engine is created
          * @param settings Project settings
-         * @return 0 for success, any other value for error
+         * @return 0 for success, any other value for failure
          */
         int32_t Startup(const ProjectSettings& settings);
 
@@ -53,6 +53,7 @@ namespace Rigel
 
         NODISCARD bool Running() const { return m_Running; }
 
+        NODISCARD Time& GetTime() const;
         NODISCARD AssetManager& GetAssetManager() const;
         NODISCARD SceneManager& GetSceneManager() const;
         NODISCARD Renderer& GetRenderer() const;
@@ -67,17 +68,10 @@ namespace Rigel
     private:
         Engine();
         void Shutdown();
-        void EngineUpdate();
+        void EngineUpdate() const;
 
         bool m_Initialized = false;
         bool m_Running = false;
-
-        Stopwatch m_GlobalTimeStopwatch;
-        Stopwatch m_DeltaTimeStopwatch;
-        uint64_t m_TargetFps = 240;
-        float64_t m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFps);
-        float64_t m_PhysicsTickTime = 0.05;
-        uint64_t m_FrameCounter = 0;
 
         ProjectSettings m_ProjectSettings;
 
@@ -85,7 +79,7 @@ namespace Rigel
         std::unique_ptr<Backend::Editor::Editor> m_Editor; // this is probably temporary
 
         // Subsystem instances
-        std::unique_ptr<Time> m_TimeManager;
+        std::unique_ptr<Time> m_Time;
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<AssetManager> m_AssetManager;
         std::unique_ptr<SceneManager> m_SceneManager;

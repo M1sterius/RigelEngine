@@ -7,6 +7,8 @@ int32_t main(const int32_t argc, char** argv)
     auto settings = Rigel::ProjectSettings();
     settings.argc = argc;
     settings.argv = argv;
+    settings.GameName = "Sandbox";
+    settings.GameVersion = RIGEL_MAKE_VERSION(0, 0, 1);
     settings.TargetFPS = 165;
     settings.WindowSize = glm::uvec2(1280, 720);
 
@@ -16,8 +18,6 @@ int32_t main(const int32_t argc, char** argv)
         Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", errorCode);
         return 1;
     }
-
-    Rigel::Time::SetTargetFPS(240);
 
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
