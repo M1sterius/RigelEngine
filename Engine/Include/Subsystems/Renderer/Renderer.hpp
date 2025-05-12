@@ -8,6 +8,8 @@
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     namespace Backend
     {
         class IRendererBackend;
@@ -30,7 +32,7 @@ namespace Rigel
         Renderer();
         ~Renderer() override;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
         NODISCARD Backend::IRendererBackend& GetBackend() const;

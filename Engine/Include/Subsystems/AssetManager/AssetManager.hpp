@@ -16,6 +16,8 @@
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     template<typename T>
     concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;
 
@@ -130,7 +132,7 @@ namespace Rigel
         AssetManager() = default;
         ~AssetManager() override = default;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
         void IncrementRefCount(const uid_t id);

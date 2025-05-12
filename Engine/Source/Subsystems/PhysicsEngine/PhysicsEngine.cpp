@@ -7,7 +7,7 @@
 
 namespace Rigel
 {
-    int32_t PhysicsEngine::Startup()
+    int32_t PhysicsEngine::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up physics engine.");
         return 0;

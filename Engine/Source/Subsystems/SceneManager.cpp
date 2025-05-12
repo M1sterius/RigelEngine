@@ -14,7 +14,7 @@ namespace Rigel
     SceneManager::SceneManager() = default;
     SceneManager::~SceneManager() = default;
 
-    int32_t SceneManager::Startup()
+    int32_t SceneManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up scene manager.");
 

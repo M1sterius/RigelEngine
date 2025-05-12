@@ -16,6 +16,7 @@
 namespace Rigel
 {
     class Component;
+    class ProjectSettings;
 
     template<typename T>
     concept EventTypeConcept = std::is_base_of_v<Event, T>;
@@ -201,7 +202,7 @@ namespace Rigel
         EventManager() = default;
         ~EventManager() override = default;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
     private:
         std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers{};

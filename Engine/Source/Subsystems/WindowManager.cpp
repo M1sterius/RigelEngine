@@ -32,7 +32,7 @@ namespace Rigel
 
     bool WindowManager::WindowShouldClose() const { return glfwWindowShouldClose(m_GLFWWindow); }
 
-    int32_t WindowManager::Startup()
+    int32_t WindowManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Staring up window manager.");
 

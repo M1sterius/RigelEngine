@@ -6,6 +6,8 @@
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     class Time final : public RigelSubsystem
     {
     public:
@@ -27,7 +29,7 @@ namespace Rigel
         Time() = default;
         ~Time() override = default;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
     private:
         NODISCARD static float64_t CorrectDeltaTime(float64_t deltaTime);

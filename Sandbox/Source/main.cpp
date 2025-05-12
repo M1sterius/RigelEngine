@@ -10,7 +10,13 @@ int32_t main(const int32_t argc, char** argv)
     settings.TargetFPS = 165;
     settings.WindowSize = glm::uvec2(1280, 720);
 
-    const auto engine = Rigel::Engine::CreateInstance(settings);
+    const auto engine = Rigel::Engine::CreateInstance();
+    if (const auto errorCode = engine->Startup(settings); errorCode != 0)
+    {
+        Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", errorCode);
+        return 1;
+    }
+
     Rigel::Time::SetTargetFPS(240);
 
     auto& sceneManager = engine->GetSceneManager();

@@ -5,9 +5,9 @@
 
 namespace Rigel
 {
-    int32_t Time::Startup()
+    int32_t Time::Startup(const ProjectSettings& settings)
     {
-        return 0;
+        return 5;
     }
 
     int32_t Time::Shutdown()

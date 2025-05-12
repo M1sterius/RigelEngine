@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 namespace Rigel
 {
-    int32_t AssetManager::Startup()
+    int32_t AssetManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up asset manager.");
         m_Initialized = true;

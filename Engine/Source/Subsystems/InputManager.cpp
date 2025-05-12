@@ -77,7 +77,7 @@ namespace Rigel
     }
 #pragma endregion
 
-    int32_t InputManager::Startup()
+    int32_t InputManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up input manager.");
 

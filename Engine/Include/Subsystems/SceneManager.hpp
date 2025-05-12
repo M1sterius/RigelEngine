@@ -12,6 +12,8 @@
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     /**
     * Core subsystem for managing scenes, their creation, usage and lifetime
     *
@@ -49,7 +51,7 @@ namespace Rigel
         SceneManager();
         ~SceneManager() override;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
         void UnloadCurrentScene();

@@ -17,27 +17,41 @@
 #include "Directory.hpp"
 #include "Editor.hpp"
 
-/*
- * Helps avoid boilerplate when writing a dozen of identical getters for engine subsystems.
- * Use it only for that and nothing else!!!
- */
-#define DEFINE_SUBSYSTEM_GETTER(Subsystem) \
-    Subsystem& Engine::Get##Subsystem() const \
-    { \
-        ASSERT(m_##Subsystem, "Attempted to retrieve a Rigel::"#Subsystem" instance before it has been initialized"); \
-        return *m_##Subsystem; \
-    }
-
 namespace Rigel
 {
-#pragma region SubsystemGetters
-    DEFINE_SUBSYSTEM_GETTER(EventManager)
-    DEFINE_SUBSYSTEM_GETTER(AssetManager)
-    DEFINE_SUBSYSTEM_GETTER(SceneManager)
-    DEFINE_SUBSYSTEM_GETTER(WindowManager)
-    DEFINE_SUBSYSTEM_GETTER(InputManager)
-    DEFINE_SUBSYSTEM_GETTER(Renderer)
-    DEFINE_SUBSYSTEM_GETTER(PhysicsEngine)
+#pragma region Helpers
+    /*
+     * Helps to avoid boilerplate when writing a dozen of identical getters for engine subsystems.
+     * Use it only for that and nothing else!!!
+     */
+    #define DEFINE_SUBSYSTEM_GETTER(Subsystem) \
+        Subsystem& Engine::Get##Subsystem() const \
+        { \
+            ASSERT(m_##Subsystem, "Attempted to retrieve a Rigel::"#Subsystem" instance before it has been initialized"); \
+            return *m_##Subsystem; \
+        }
+
+    template<typename T>
+    static bool StartUpSubsystem(const ProjectSettings& settings, const std::unique_ptr<T>& subsystem, const std::string& name)
+    {
+        if (const auto result = subsystem->Startup(settings); result != 0)
+        {
+            Debug::Error("Rigel engine startup failed: {} subsystem failed to initialize! Error code: {}.", name, result);
+            return false;
+        }
+
+        return true;
+    }
+
+    template<typename T>
+    static void ShutDownSubsystem(const std::unique_ptr<T>& subsystem, const std::string& name)
+    {
+        if (subsystem->IsInitialized())
+        {
+            if (const auto result = subsystem->Shutdown(); result != 0)
+                Debug::Error("An error occurred during shutdown process of {} subsystem! Error code: {}.", name, result);
+        }
+    }
 #pragma endregion
 
     Engine::Engine() = default;
@@ -47,27 +61,35 @@ namespace Rigel
         s_Instance = nullptr; // Reset the global instance so that a new one can be properly created
     }
 
-    std::unique_ptr<Engine> Engine::CreateInstance(const ProjectSettings& settings)
+    DEFINE_SUBSYSTEM_GETTER(EventManager)
+    DEFINE_SUBSYSTEM_GETTER(AssetManager)
+    DEFINE_SUBSYSTEM_GETTER(SceneManager)
+    DEFINE_SUBSYSTEM_GETTER(WindowManager)
+    DEFINE_SUBSYSTEM_GETTER(InputManager)
+    DEFINE_SUBSYSTEM_GETTER(Renderer)
+    DEFINE_SUBSYSTEM_GETTER(PhysicsEngine)
+
+    std::unique_ptr<Engine> Engine::CreateInstance()
     {
         ASSERT(s_Instance == nullptr, "Only a single instance of RigelEngine core class is allowed!")
         Debug::Trace("Creating Rigel engine instance.");
 
         const auto instance = new Engine();
-        ASSERT(instance != nullptr, "Failed to create RigelEngine instance!");
+        ASSERT(instance, "Failed to create RigelEngine instance!");
         s_Instance = instance;
-        s_Instance->m_ProjectSettings = settings;
-        instance->Startup();
 
         return std::unique_ptr<Engine>(instance);
     }
 
-    void Engine::Startup()
+    int32_t Engine::Startup(const ProjectSettings& settings)
     {
+        m_ProjectSettings = settings;
+
         Debug::Trace("Starting up Rigel engine.");
         Debug::Trace("Engine working directory: {}", Directory::WorkingDirectory().string());
         Debug::Trace("Starting up subsystems:");
 
-        // Create subsystem instances
+        // Create subsystem instances, no startup logic in constructors
         m_TimeManager = std::make_unique<Time>();
         m_AssetManager = std::make_unique<AssetManager>();
         m_EventManager = std::make_unique<EventManager>();
@@ -77,18 +99,18 @@ namespace Rigel
         m_Renderer = std::make_unique<Renderer>();
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
-        // Start up subsystems
-        m_TimeManager->Startup();
-        m_AssetManager->Startup();
-        m_EventManager->Startup();
-        m_SceneManager->Startup();
-        m_WindowManager->Startup();
-        m_InputManager->Startup();
-        m_Renderer->Startup();
-        m_PhysicsEngine->Startup();
+        // Startup order matters A LOT!
+        if (!StartUpSubsystem(m_ProjectSettings, m_TimeManager, "Time manager")) return 11;
+        if (!StartUpSubsystem(m_ProjectSettings, m_AssetManager, "Asset manager")) return 12;
+        if (!StartUpSubsystem(m_ProjectSettings, m_EventManager, "Event manager")) return 13;
+        if (!StartUpSubsystem(m_ProjectSettings, m_SceneManager, "Scene manager")) return 14;
+        if (!StartUpSubsystem(m_ProjectSettings, m_WindowManager, "Window manager")) return 15;
+        if (!StartUpSubsystem(m_ProjectSettings, m_InputManager, "Input manager")) return 16;
+        if (!StartUpSubsystem(m_ProjectSettings, m_Renderer, "Renderer")) return 17;
+        if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return 18;
 
-        // Additional subsystem initialization methods
-        m_Renderer->LateInit();
+        // Additional subsystem initialization logic
+        m_Renderer->LateInit(); // no check for initialization because Engine::Startup would return early if renderer wasn't initialized up correctly
 
         m_ThreadPool = std::make_unique<ThreadPool>();
         Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
@@ -99,6 +121,9 @@ namespace Rigel
         m_GlobalTimeStopwatch.Start();
 
         Debug::Trace("Rigel engine initialization complete.");
+
+        m_Initialized = true;
+        return 0;
     }
 
     void Engine::Shutdown()
@@ -106,19 +131,19 @@ namespace Rigel
         Debug::Trace("Shutting down Rigel engine.");
 
         // Additional logic needed to shut down subsystems
-        m_Renderer->WaitForFinish();
-        m_SceneManager->UnloadCurrentScene();
-        m_AssetManager->UnloadAllAssets();
+        if (m_Renderer->IsInitialized()) m_Renderer->WaitForFinish();
+        if (m_SceneManager->IsInitialized()) m_SceneManager->UnloadCurrentScene();
+        if (m_AssetManager->IsInitialized()) m_AssetManager->UnloadAllAssets();
 
-        // Shut down subsystems
-        m_PhysicsEngine->Shutdown();
-        m_Renderer->Shutdown();
-        m_InputManager->Shutdown();
-        m_WindowManager->Shutdown();
-        m_SceneManager->Shutdown();
-        m_EventManager->Shutdown();
-        m_AssetManager->Shutdown();
-        m_TimeManager->Shutdown();
+        // Shutdown order matters A LOT!
+        ShutDownSubsystem(m_PhysicsEngine, "Physics engine");
+        ShutDownSubsystem(m_Renderer, "Renderer");
+        ShutDownSubsystem(m_InputManager, "Input manager");
+        ShutDownSubsystem(m_WindowManager, "Window manager");
+        ShutDownSubsystem(m_SceneManager, "Scene manager");
+        ShutDownSubsystem(m_EventManager, "Event manager");
+        ShutDownSubsystem(m_AssetManager, "Asset manager");
+        ShutDownSubsystem(m_TimeManager, "Time manager");
 
         m_GlobalTimeStopwatch.Stop();
     }

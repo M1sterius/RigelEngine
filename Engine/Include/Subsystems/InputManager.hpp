@@ -12,13 +12,15 @@ struct GLFWwindow;
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     class InputManager final : public RigelSubsystem
     {
     INTERNAL:
         InputManager() = default;
         ~InputManager() override = default;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
         void ResetInputState();

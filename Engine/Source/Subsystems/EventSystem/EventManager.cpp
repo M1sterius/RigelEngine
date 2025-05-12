@@ -3,7 +3,7 @@
 
 namespace Rigel
 {
-    int32_t EventManager::Startup()
+    int32_t EventManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up event manager.");
 

@@ -14,6 +14,8 @@ struct GLFWmonitor;
 
 namespace Rigel
 {
+    class ProjectSettings;
+
     struct MonitorVideoModInfo
     {
         glm::uvec2 Resolution = {0, 0};
@@ -47,7 +49,7 @@ namespace Rigel
         WindowManager() = default;
         ~WindowManager() override = default;
 
-        int32_t Startup() override;
+        int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
         void PollGLFWEvents() const;

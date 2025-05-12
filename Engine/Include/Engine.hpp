@@ -34,12 +34,22 @@ namespace Rigel
         Engine& operator = (const Engine&) = delete;
 
         /**
-        * Creates a single global instance of rigel engine.
-        * Must be the first call before any other engine api contents are accessed
+        * Creates a single, global instance of Rigel engine.
         */
-        static std::unique_ptr<Engine> CreateInstance(const ProjectSettings& settings);
+        static std::unique_ptr<Engine> CreateInstance();
 
-        NODISCARD inline static Engine& Get() { return *s_Instance; }
+        /**
+         * Initializes Rigel engine, must be called right after the instance of the engine is created
+         * @param settings Project settings
+         * @return 0 for success, any other value for error
+         */
+        int32_t Startup(const ProjectSettings& settings);
+
+        NODISCARD inline static Engine& Get()
+        {
+            ASSERT(s_Instance, "Attempted to retrieve Rigel engine instance before it has been instantiated!");
+            return *s_Instance;
+        }
 
         NODISCARD bool Running() const { return m_Running; }
 
@@ -56,13 +66,12 @@ namespace Rigel
         NODISCARD inline ThreadPool& GetThreadPool() const { return *m_ThreadPool; }
     private:
         Engine();
-
-        void Startup();
         void Shutdown();
-
         void EngineUpdate();
 
+        bool m_Initialized = false;
         bool m_Running = false;
+
         Stopwatch m_GlobalTimeStopwatch;
         Stopwatch m_DeltaTimeStopwatch;
         uint64_t m_TargetFps = 240;

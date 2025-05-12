@@ -16,7 +16,7 @@ namespace Rigel
     Renderer::Renderer() = default;
     Renderer::~Renderer() = default;
 
-    int32_t Renderer::Startup()
+    int32_t Renderer::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up renderer.");
 
