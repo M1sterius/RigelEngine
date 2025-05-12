@@ -1,11 +1,11 @@
 #include "Engine.hpp"
 
-#include "InputManager.hpp"
+#include "../Include/Subsystems/InputManager/InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
 #include "AssetManager.hpp"
-#include "WindowManager.hpp"
+#include "../Include/Subsystems/WindowManager/WindowManager.hpp"
 #include "Renderer.hpp"
 #include "PhysicsEngine.hpp"
 

@@ -1,5 +1,5 @@
-#include "Input.hpp"
-#include "InputManager.hpp"
+#include "../../../Include/Subsystems/InputManager/Input.hpp"
+#include "../../../Include/Subsystems/InputManager/InputManager.hpp"
 #include "Engine.hpp"
 
 namespace Rigel

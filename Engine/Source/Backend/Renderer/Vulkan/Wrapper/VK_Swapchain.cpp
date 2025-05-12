@@ -6,7 +6,7 @@
 
 #include "Time.hpp"
 #include "Engine.hpp"
-#include "WindowManager.hpp"
+#include "../../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {

@@ -3,10 +3,12 @@
 #include "Core.hpp"
 #include "Math.hpp"
 #include "ISerializable.hpp"
+#include "ScreenMode.hpp"
 
 #include "json.hpp"
 
 #include <string>
+#include <map>
 
 namespace Rigel
 {
@@ -16,7 +18,7 @@ namespace Rigel
     class ProjectSettings : public ISerializable
     {
     public:
-        // Arguments
+        // Console arguments
         int32_t argc = 0;
         char** argv = nullptr;
 
@@ -30,10 +32,17 @@ namespace Rigel
         float64_t TimeScale = 1.0;
 
         // Windowing
-        glm::uvec2 WindowSize = {1600, 900};
+        ScreenMode ScreenMode = ScreenMode::Windowed;
+        glm::uvec2 WindowSize = {1280, 720};
         std::string WindowTitle = "None";
+        bool WindowResizeable = true;
 
         // Tags and Layers
+        std::map<uid_t, std::string> TagsMap = {
+            {0, "Default"},
+            {0, "Main Camera"}
+        };
+
         // Assets
 
         NODISCARD nlohmann::json Serialize() const override

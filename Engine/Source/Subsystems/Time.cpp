@@ -1,8 +1,6 @@
 #include "Time.hpp"
 #include "Engine.hpp"
 
-#include <algorithm>
-
 namespace Rigel
 {
     int32_t Time::Startup(const ProjectSettings& settings)

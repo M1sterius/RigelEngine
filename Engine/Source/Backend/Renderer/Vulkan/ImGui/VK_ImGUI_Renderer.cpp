@@ -6,7 +6,7 @@
 #include "Debug.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
-#include "WindowManager.hpp"
+#include "../../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
 
 #include "vulkan.h"
 #include "imgui/imgui.h"

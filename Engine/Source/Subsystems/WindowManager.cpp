@@ -1,7 +1,7 @@
 #include "WindowManager.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
-#include "InternalEvents.hpp"
+#include "EngineEvents.hpp"
 #include "Debug.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -36,18 +36,35 @@ namespace Rigel
     {
         Debug::Trace("Staring up window manager.");
 
+        if (settings.WindowSize.x == 0 || settings.WindowSize.y == 0)
+            Debug::Warning("Project settings provided zeroed window size. Defaulted to 1280x720.");
+        else
+            m_WindowSize = settings.WindowSize;
+
+        m_WindowTitle = settings.WindowTitle;
+
         if (!glfwInit())
-            throw RigelException("Window manager initialization failed! glfw initialization failed.");
+        {
+            Debug::Error("WindowManager::Failed to initialize glfw!");
+            return 1;
+        }
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api for vulkan.
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api because we use vulkan.
+        glfwWindowHint(GLFW_RESIZABLE, settings.WindowResizeable);
 
-        EnumerateMonitorInfo();
+        if (EnumerateMonitorInfo() != 0)
+            return 1;
+
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_WindowSize.x), static_cast<int>(m_WindowSize.y),
             m_WindowTitle.c_str(), nullptr, nullptr);
 
         if (!m_GLFWWindow)
-            throw RigelException("Window manager initialization failed. Failed to create glfw window.");
+        {
+            Debug::Error("WindowManager::Failed to create glfw window!");
+            return 1;
+        }
+
+        SetScreenMode(settings.ScreenMode);
 
         int winPosX, winPosY;
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
@@ -81,26 +98,32 @@ namespace Rigel
         if (mode == ScreenMode::Fullscreen)
         {
             const auto& primaryMonitor = m_Monitors[m_PrimaryMonitorIndex];
+            const auto monitorRes = primaryMonitor.CurrentMod.Resolution;
 
             glfwSetWindowMonitor(m_GLFWWindow, primaryMonitor.GLFWmonitorPtr,
-                 0, 0, primaryMonitor.CurrentMod.Resolution.x,
-                 primaryMonitor.CurrentMod.Resolution.y, primaryMonitor.CurrentMod.RefreshRate);
+                 0, 0, monitorRes.x, monitorRes.y, primaryMonitor.CurrentMod.RefreshRate);
+
+            m_WindowSize = monitorRes;
         }
         else if (mode == ScreenMode::Windowed)
         {
             // Use arbitrary window size and position values because the correct ones always
             // get overridden when switching to fullscreen
             glfwSetWindowMonitor(m_GLFWWindow, nullptr, 100, 100, 1280, 720, 0);
+            m_WindowSize = {1280, 720};
         }
     }
 
-    void WindowManager::EnumerateMonitorInfo()
+    int32_t WindowManager::EnumerateMonitorInfo()
     {
         int monitorCount;
         const auto monitors = glfwGetMonitors(&monitorCount);
 
         if (monitorCount == 0)
-            throw RigelException("Failed to detect any connected monitors!");
+        {
+            Debug::Error("WindowManager::Failed to detect any connected monitors!");
+            return 1;
+        }
 
         m_Monitors.resize(monitorCount);
 
@@ -138,7 +161,10 @@ namespace Rigel
         }
 
         if (m_PrimaryMonitorIndex == -1)
-            throw RigelException("Failed to detect primary monitor!");
+        {
+            Debug::Error("WindowManager::Failed to detect primary monitor!");
+            return 1;
+        }
 
         Debug::Trace(std::format("Detected {} available monitors:", m_Monitors.size()));
         for (const auto& monitor : m_Monitors)
@@ -148,6 +174,8 @@ namespace Rigel
             if (monitor.Primary) text += "[PRIMARY]";
             Debug::Trace(text);
         }
+
+        return 0;
     }
 
     void WindowManager::PollGLFWEvents() const

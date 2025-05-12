@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
-#include "EngineEvents.hpp"
+#include "ScreenMode.hpp"
 
 #include "Math.hpp"
 
@@ -32,12 +32,6 @@ namespace Rigel
         std::vector<MonitorVideoModInfo> AvailableModes = {};
     };
 
-    enum class ScreenMode
-    {
-        Windowed,
-        Fullscreen,
-    };
-
     class WindowManager final : public RigelSubsystem
     {
     public:
@@ -62,9 +56,9 @@ namespace Rigel
         NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
         inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
     private:
-        void EnumerateMonitorInfo();
+        NODISCARD int32_t EnumerateMonitorInfo();
 
-        glm::uvec2 m_WindowSize = {1280, 720}; // Default window size, should be changed based on engine config file.
+        glm::uvec2 m_WindowSize = {1280, 720}; // Default window size should be changed based on an engine config file.
         glm::ivec2 m_WindowPosition = {};
         bool m_VsyncEnabled = false;
         std::string m_WindowTitle = "Rigel engine app.";

@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "Event.hpp"
-#include "KeysAndButtons.hpp"
+#include "../InputManager/KeysAndButtons.hpp"
 #include "Math.hpp"
 
 namespace Rigel

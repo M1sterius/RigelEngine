@@ -32,8 +32,8 @@ add_library(RigelEngine STATIC
     Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
-        Source/Subsystems/Input.cpp
-    Source/Subsystems/InputManager.cpp
+        Source/Subsystems/InputManager/Input.cpp
+        Source/Subsystems/InputManager/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
     Source/Debug/Exceptions.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
@@ -144,6 +144,8 @@ target_include_directories(RigelEngine PUBLIC
     Include/Subsystems/Renderer
     Include/Subsystems/EventSystem
     Include/Subsystems/PhysicsEngine
+    Include/Subsystems/InputManager
+    Include/Subsystems/WindowManager
     Include/Utils/HeaderUtils
     Include/Utils/Serialization
     Include/EngineTools

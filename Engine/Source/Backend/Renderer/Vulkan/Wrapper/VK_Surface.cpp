@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "VulkanException.hpp"
-#include "WindowManager.hpp"
+#include "../../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"

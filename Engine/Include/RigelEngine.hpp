@@ -24,14 +24,14 @@
 #include "Renderer.hpp"
 #include "InputManager.hpp"
 #include "AssetManager.hpp"
-#include "WindowManager.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
 #include "PhysicsEngine.hpp"
 
 // Subsystem-related classes
 #include "Event.hpp"
 #include "EngineEvents.hpp"
 #include "AssetHandle.hpp"
-#include "KeysAndButtons.hpp"
+#include "Subsystems/InputManager/KeysAndButtons.hpp"
 
 // Assets
 #include "RigelAsset.hpp"
@@ -44,7 +44,7 @@
 #include "Exceptions.hpp"
 
 // Tools
-#include "Input.hpp"
+#include "Subsystems/InputManager/Input.hpp"
 #include "Time.hpp"
 
 // ECS

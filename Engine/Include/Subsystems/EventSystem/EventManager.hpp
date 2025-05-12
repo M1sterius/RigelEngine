@@ -4,6 +4,7 @@
 #include "Debug.hpp"
 #include "RigelSubsystem.hpp"
 #include "Event.hpp"
+#include "EngineEvents.hpp"
 #include "Engine.hpp"
 #include "ThreadPool.hpp"
 

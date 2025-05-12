@@ -1,5 +1,5 @@
 #include "InputManager.hpp"
-#include "InternalEvents.hpp"
+#include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "WindowManager.hpp"
 #include "Engine.hpp"
@@ -85,7 +85,10 @@ namespace Rigel
 
         m_GLFWWindow = engine.GetWindowManager().GetGLFWWindowPtr();
         if (!m_GLFWWindow)
-            throw RigelException("Input manager failed to retrieve GLFWWindow instance. Input manager initialization failed!");
+        {
+            Debug::Error("InputManager::Failed to retrieve GLFWWindow instance!");
+            return 1;
+        }
 
         m_KeyboardKeys = std::unordered_set<KeyCode>();
         m_OldKeyboardKeys = std::unordered_set<KeyCode>();
