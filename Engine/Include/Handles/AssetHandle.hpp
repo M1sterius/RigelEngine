@@ -3,12 +3,13 @@
 #include "Core.hpp"
 #include "RigelHandle.hpp"
 
+#include <atomic>
+
 namespace Rigel
 {
-    namespace Backend::RefCountingImpl
+    namespace Backend::AssetHandleRefCounter
     {
-        void IncrementRefCount(const uid_t id);
-        void DecrementRefCount(const uid_t id);
+
     }
 
     class RigelAsset;
@@ -22,36 +23,59 @@ namespace Rigel
             return TypeUtility::GetTypeName<AssetHandle>().c_str();
         }
 
-        AssetHandle() : RigelHandle<T>(nullptr, NULL_ID) { }
-        AssetHandle(T* ptr, const uid_t id) : RigelHandle<T>(ptr, id)
+        AssetHandle() noexcept : RigelHandle<T>(nullptr, NULL_ID), m_RefCount(nullptr) { }
+
+        AssetHandle(T* ptr, const uid_t id, std::atomic<uint32_t>* refCounter) noexcept
+            : RigelHandle<T>(ptr, id), m_RefCount(refCounter) { }
+
+        AssetHandle(const AssetHandle& other) noexcept
+            : RigelHandle<T>(other)
         {
-            Backend::RefCountingImpl::IncrementRefCount(id);
+            m_RefCount = other.m_RefCount;
+            ++(*m_RefCount);
         }
 
-        AssetHandle(const AssetHandle& other) : RigelHandle<T>(other)
+        AssetHandle& operator = (const AssetHandle& other) noexcept
         {
-            Backend::RefCountingImpl::IncrementRefCount(other.m_ID);
-        }
-
-        AssetHandle& operator = (const AssetHandle& other)
-        {
-            if (this != &other) // checks that we are not trying to assign an object to itself
+            if (this != &other)
             {
-                Backend::RefCountingImpl::IncrementRefCount(other.GetID());
                 RigelHandle<T>::operator = (other);
+
+                m_RefCount = other.m_RefCount;
+                ++(*m_RefCount);
             }
+
             return *this;
         }
 
-        ~AssetHandle() override { Backend::RefCountingImpl::DecrementRefCount(this->GetID()); }
+        ~AssetHandle() override
+        {
+            if (m_RefCount && !IsNull())
+            {
+                if (--(*m_RefCount) == 0)
+                {
+                    Debug::Message("Should delete asset with ID {}!", this->GetID());
+                }
+            }
+        }
 
-        NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID}; }
+        NODISCARD uint32_t GetRefCount() const { return *m_RefCount; }
+
+        template<typename castT>
+        NODISCARD AssetHandle<castT> Cast() const
+        {
+            static_assert(std::is_base_of_v<RigelAsset, castT>, "T must derive from Rigel::RigelAsset");
+            return {static_cast<castT*>(this->m_Ptr), this->m_ID};
+        }
+
+        NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID, nullptr}; }
         NODISCARD bool IsNull() const override { return this->m_Ptr == nullptr || this->m_ID == NULL_ID;}
-
         NODISCARD bool IsValid() const override
         {
             using namespace Backend::HandleValidation;
             return HandleValidator::Validate<HandleType::AssetHandle>(this->GetID());
         }
+    private:
+        std::atomic<uint32_t>* m_RefCount;
     };
 }

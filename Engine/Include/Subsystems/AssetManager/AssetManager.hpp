@@ -7,11 +7,13 @@
 #include "AssetHandle.hpp"
 #include "Hash.hpp"
 #include "HandleValidator.hpp"
+
 #include "plf_colony.h"
 
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <atomic>
 #include <shared_mutex>
 
 namespace Rigel
@@ -24,9 +26,9 @@ namespace Rigel
     struct AssetRegistryRecord final
     {
         uid_t AssetID;
-        uint32_t RefCount;
         uint64_t PathHash;
         std::filesystem::path Path;
+        std::unique_ptr<std::atomic<uint32_t>> RefCounter;
         std::unique_ptr<RigelAsset> Asset;
     };
 
@@ -34,34 +36,16 @@ namespace Rigel
     {
     public:
         template<RigelAssetConcept T>
-        NODISCARD AssetHandle<T> Find(const std::filesystem::path& path) const
-        {
-            std::shared_lock lock(m_RegistryMutex);
-
-            for (const auto& record : m_AssetsRegistry)
-            {
-                if (const auto cast = dynamic_cast<T*>(record.Asset.get());
-                    cast && Hash(path.string()) == record.PathHash)
-                {
-                    return AssetHandle<T>(cast, record.AssetID);
-                }
-            }
-
-            return AssetHandle<T>::Null();
-        }
-
-        template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path)
         {
-            using namespace Backend::HandleValidation;
+            if (const auto existing = FindExisting<T>(path); !existing.IsNull())
+                return existing;
 
-            if (const auto found = Find<T>(path); !found.IsNull())
-                return found;
+            std::unique_ptr<RigelAsset> uniquePtr;
 
-            std::unique_ptr<RigelAsset> unqPtr;
-
-            try {
-                unqPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
+            try
+            {
+                uniquePtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
             }
             catch (const std::exception& e)
             {
@@ -69,24 +53,26 @@ namespace Rigel
                 return AssetHandle<T>::Null();
             }
 
-            const auto rawPtr = unqPtr.get();
+            const auto rawPtr = uniquePtr.get();
             const auto ID = AssignID(rawPtr);
 
-            HandleValidator::AddHandle<HandleType::AssetHandle>(ID);
+            // This insures that all AssetHandle instances holding the same asset share the same reference counter
+            auto refCounter = std::make_unique<std::atomic<uint32_t>>(1);
+            const auto refCounterRaw = refCounter.get();
 
             {
                 std::unique_lock lock(m_RegistryMutex);
 
                 m_AssetsRegistry.insert({
                     .AssetID = ID,
-                    .RefCount = 0,
-                    .PathHash = Hash(path.string()),
+                    .PathHash = Hash(path),
                     .Path = path,
-                    .Asset = std::move(unqPtr)
+                    .RefCounter = std::move(refCounter),
+                    .Asset = std::move(uniquePtr)
                 });
             }
 
-            return AssetHandle<T>(static_cast<T*>(rawPtr), ID);
+            return AssetHandle<T>(static_cast<T*>(rawPtr), ID, refCounterRaw);
         }
 
         template<RigelAssetConcept T>
@@ -127,7 +113,13 @@ namespace Rigel
             return "";
         }
 
-        NODISCARD uint32_t GetRefCount(const uid_t id);
+        inline void PrintRegistry()
+        {
+            for (const auto& record : m_AssetsRegistry)
+            {
+                Debug::Message("ID: {}; Path: {}.", record.AssetID, record.Path.string());
+            }
+        }
     INTERNAL:
         AssetManager() = default;
         ~AssetManager() override = default;
@@ -135,15 +127,28 @@ namespace Rigel
         int32_t Startup(const ProjectSettings& settings) override;
         int32_t Shutdown() override;
 
-        void IncrementRefCount(const uid_t id);
-        void DecrementRefCount(const uid_t id);
-
         void UnloadAllAssets();
     private:
+        template<RigelAssetConcept T>
+        NODISCARD AssetHandle<T> FindExisting(const std::filesystem::path& path) const
+        {
+            std::shared_lock lock(m_RegistryMutex);
+
+            for (const auto& record : m_AssetsRegistry)
+            {
+                if (const auto cast = dynamic_cast<T*>(record.Asset.get());
+                    cast && Hash(path.string()) == record.PathHash)
+                {
+                    return AssetHandle<T>(cast, record.AssetID, record.RefCounter.get());
+                }
+            }
+
+            return AssetHandle<T>::Null();
+        }
+
         uid_t AssignID(RigelAsset* ptr);
 
-        NODISCARD uid_t GetNextAssetID();
-        uid_t m_NextAssetID = 1;
+        std::atomic<uid_t> m_NextID = 1;
 
         mutable std::shared_mutex m_RegistryMutex;
         std::mutex m_IDMutex;

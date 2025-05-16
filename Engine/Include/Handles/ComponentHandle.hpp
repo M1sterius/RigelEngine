@@ -27,7 +27,12 @@ namespace Rigel
             static_assert(std::is_base_of_v<Component, T>, "T must derive from Rigel::Component");
         }
 
-        //
+        /**
+         * Returns a copy of this handle cast to castT underlying Component type.
+         *
+         * NOTE: This method can cause a lot of type confusion and errors, use it only
+         * to cast generic handles to a specific type!
+         */
         template<typename castT>
         NODISCARD ComponentHandle<castT> Cast() const
         {
