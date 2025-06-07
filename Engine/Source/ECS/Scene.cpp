@@ -79,7 +79,8 @@ namespace Rigel
             OnEndOfFrame();
         });
 
-        // Calls are intentionally split into two loops to insure proper loading logic
+        // Note that OnStart is called after ALL OnLoad invocations for all GOs,
+        // this is extremely critical for proper resource management
         for (const auto& go : m_GameObjects)
             go->OnLoad();
         for (const auto& go : m_GameObjects)

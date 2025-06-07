@@ -4,6 +4,8 @@
 #include "Internal.hpp"
 #include "Assert.hpp"
 #include "Exceptions.hpp"
+#include "ErrorCodes.hpp"
+#include "Result.hpp"
 #include "TypeUtility.hpp"
 
 #define RIGEL_ENGINE_NAME "RigelEngine"

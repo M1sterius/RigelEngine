@@ -13,9 +13,9 @@ int32_t main(const int32_t argc, char** argv)
     settings.WindowTitle = "Sandbox";
 
     const auto engine = Rigel::Engine::CreateInstance();
-    if (const auto errorCode = engine->Startup(settings); errorCode != 0)
+    if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::NONE)
     {
-        Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", errorCode);
+        Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", static_cast<int32_t>(errorCode));
         return 1;
     }
 
@@ -56,7 +56,6 @@ int32_t main(const int32_t argc, char** argv)
 
     sceneManager.LoadScene(nScene);
 
-    assetManager.PrintRegistry();
-
     engine->Run();
+    engine->Shutdown();
 }

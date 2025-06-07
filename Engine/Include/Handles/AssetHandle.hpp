@@ -7,9 +7,10 @@
 
 namespace Rigel
 {
-    namespace Backend::AssetHandleRefCounter
+    namespace Backend::AssetHandleUtilityImpl
     {
-
+        void OnRefCountReachZero(const uid_t id);
+        bool IsAssetReady(const uid_t id);
     }
 
     class RigelAsset;
@@ -23,16 +24,16 @@ namespace Rigel
             return TypeUtility::GetTypeName<AssetHandle>().c_str();
         }
 
-        AssetHandle() noexcept : RigelHandle<T>(nullptr, NULL_ID), m_RefCount(nullptr) { }
+        AssetHandle() noexcept : RigelHandle<T>(nullptr, NULL_ID), m_RefCounter(nullptr) { }
 
         AssetHandle(T* ptr, const uid_t id, std::atomic<uint32_t>* refCounter) noexcept
-            : RigelHandle<T>(ptr, id), m_RefCount(refCounter) { }
+            : RigelHandle<T>(ptr, id), m_RefCounter(refCounter) { }
 
         AssetHandle(const AssetHandle& other) noexcept
             : RigelHandle<T>(other)
         {
-            m_RefCount = other.m_RefCount;
-            ++(*m_RefCount);
+            m_RefCounter = other.m_RefCounter;
+            if (m_RefCounter) ++(*m_RefCounter);
         }
 
         AssetHandle& operator = (const AssetHandle& other) noexcept
@@ -41,8 +42,8 @@ namespace Rigel
             {
                 RigelHandle<T>::operator = (other);
 
-                m_RefCount = other.m_RefCount;
-                ++(*m_RefCount);
+                m_RefCounter = other.m_RefCounter;
+                if (m_RefCounter) ++(*m_RefCounter);
             }
 
             return *this;
@@ -50,22 +51,43 @@ namespace Rigel
 
         ~AssetHandle() override
         {
-            if (m_RefCount && !IsNull())
+            if (m_RefCounter && !IsNull())
             {
-                if (--(*m_RefCount) == 0)
+                if (--(*m_RefCounter) == 0)
                 {
-                    Debug::Message("Should delete asset with ID {}!", this->GetID());
+                    Backend::AssetHandleUtilityImpl::OnRefCountReachZero(this->GetID());
                 }
             }
         }
 
-        NODISCARD uint32_t GetRefCount() const { return *m_RefCount; }
+        T* operator -> () override
+        {
+            WaitReady();
+            this->CheckHandle();
+            return this->m_Ptr;
+        }
+
+        const T* operator -> () const override
+        {
+            WaitReady();
+            this->CheckHandle();
+            return this->m_Ptr;
+        }
+
+        // Blocks the calling thread until the asset is loaded and ready to be used
+        void WaitReady() const
+        {
+            // TODO: Implement normal sleep
+            while (!Backend::AssetHandleUtilityImpl::IsAssetReady(this->GetID()));
+        }
+
+        NODISCARD uint32_t GetRefCount() const { return *m_RefCounter; }
 
         template<typename castT>
         NODISCARD AssetHandle<castT> Cast() const
         {
             static_assert(std::is_base_of_v<RigelAsset, castT>, "T must derive from Rigel::RigelAsset");
-            return {static_cast<castT*>(this->m_Ptr), this->m_ID};
+            return {static_cast<castT*>(this->m_Ptr), this->m_ID, this->m_RefCounter};
         }
 
         NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID, nullptr}; }
@@ -76,6 +98,8 @@ namespace Rigel
             return HandleValidator::Validate<HandleType::AssetHandle>(this->GetID());
         }
     private:
-        std::atomic<uint32_t>* m_RefCount;
+        std::atomic<uint32_t>* m_RefCounter;
     };
+
+    using GenericAssetHandle = AssetHandle<RigelAsset>;
 }

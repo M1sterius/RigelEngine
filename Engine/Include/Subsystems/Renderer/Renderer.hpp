@@ -32,8 +32,8 @@ namespace Rigel
         Renderer();
         ~Renderer() override;
 
-        int32_t Startup(const ProjectSettings& settings) override;
-        int32_t Shutdown() override;
+        ErrorCode Startup(const ProjectSettings& settings) override;
+        ErrorCode Shutdown() override;
 
         NODISCARD Backend::IRendererBackend& GetBackend() const;
         NODISCARD Backend::IImGuiBackend& GetImGuiBackend() const { return *m_ImGuiBackend; }

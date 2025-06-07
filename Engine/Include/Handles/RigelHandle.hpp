@@ -18,13 +18,13 @@ namespace Rigel
 
         NODISCARD const char* GetTypeName() const override = 0;
 
-        T* operator -> ()
+        virtual T* operator -> ()
         {
             CheckHandle();
             return m_Ptr;
         }
 
-        const T* operator -> () const
+        virtual const T* operator -> () const
         {
             CheckHandle();
             return m_Ptr;
@@ -53,9 +53,6 @@ namespace Rigel
         */
         NODISCARD virtual bool IsValid() const = 0;
 
-        T* m_Ptr = nullptr;
-        uid_t m_ID = NULL_ID;
-    private:
         void CheckHandle() const
         {
             if (IsNull())
@@ -66,5 +63,8 @@ namespace Rigel
                 throw RigelException("Attempted to dereference an invalid Rigel handle!");
             #endif
         }
+
+        T* m_Ptr = nullptr;
+        uid_t m_ID = NULL_ID;
     };
 }

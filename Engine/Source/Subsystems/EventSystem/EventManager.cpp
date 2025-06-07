@@ -3,17 +3,17 @@
 
 namespace Rigel
 {
-    int32_t EventManager::Startup(const ProjectSettings& settings)
+    ErrorCode EventManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up event manager.");
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t EventManager::Shutdown()
+    ErrorCode EventManager::Shutdown()
     {
         Debug::Trace("Shutting down event manager.");
-        return 0;
+        return ErrorCode::NONE;
     }
 }

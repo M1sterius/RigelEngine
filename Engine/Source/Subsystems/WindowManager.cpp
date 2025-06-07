@@ -32,7 +32,7 @@ namespace Rigel
 
     bool WindowManager::WindowShouldClose() const { return glfwWindowShouldClose(m_GLFWWindow); }
 
-    int32_t WindowManager::Startup(const ProjectSettings& settings)
+    ErrorCode WindowManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Staring up window manager.");
 
@@ -46,14 +46,14 @@ namespace Rigel
         if (!glfwInit())
         {
             Debug::Error("WindowManager::Failed to initialize glfw!");
-            return 1;
+            return ErrorCode::UNKNOWN;
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api because we use vulkan.
         glfwWindowHint(GLFW_RESIZABLE, settings.WindowResizeable);
 
         if (EnumerateMonitorInfo() != 0)
-            return 1;
+            return ErrorCode::UNKNOWN;
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_WindowSize.x), static_cast<int>(m_WindowSize.y),
             m_WindowTitle.c_str(), nullptr, nullptr);
@@ -61,7 +61,7 @@ namespace Rigel
         if (!m_GLFWWindow)
         {
             Debug::Error("WindowManager::Failed to create glfw window!");
-            return 1;
+            return ErrorCode::UNKNOWN;
         }
 
         SetScreenMode(settings.ScreenMode);
@@ -78,16 +78,16 @@ namespace Rigel
         glfwSetWindowPosCallback(m_GLFWWindow, window_move_callback);
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t WindowManager::Shutdown()
+    ErrorCode WindowManager::Shutdown()
     {
         Debug::Trace("Shutting down window manager.");
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
-        return 0;
+        return ErrorCode::NONE;
     }
 
     void WindowManager::SetScreenMode(const ScreenMode mode)

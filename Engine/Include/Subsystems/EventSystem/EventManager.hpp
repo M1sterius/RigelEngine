@@ -203,8 +203,8 @@ namespace Rigel
         EventManager() = default;
         ~EventManager() override = default;
 
-        int32_t Startup(const ProjectSettings& settings) override;
-        int32_t Shutdown() override;
+        ErrorCode Startup(const ProjectSettings& settings) override;
+        ErrorCode Shutdown() override;
     private:
         std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers{};
         std::unordered_map<uid_t, bool> m_SuspendTable{}; // Ideally this should be optimized to use 1 bit per flag.

@@ -73,7 +73,8 @@ namespace Rigel::Backend::Vulkan
         layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
         const auto layout = layoutBuilder.BuildLayout();
 
-        const auto& defaultShader = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv")->GetBackend<VK_Shader>();
+        const auto shaderAsset = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
+        const auto& defaultShader = shaderAsset->GetBackend<VK_Shader>();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
         // After the pipeline is created, the descriptor layout is no longer needed

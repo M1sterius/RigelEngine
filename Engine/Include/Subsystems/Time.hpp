@@ -36,8 +36,8 @@ namespace Rigel
         Time() = default;
         ~Time() override = default;
 
-        int32_t Startup(const ProjectSettings& settings) override;
-        int32_t Shutdown() override;
+        ErrorCode Startup(const ProjectSettings& settings) override;
+        ErrorCode Shutdown() override;
     private:
         NODISCARD static float64_t CorrectDeltaTime(float64_t deltaTime);
 

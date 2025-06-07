@@ -14,20 +14,20 @@ namespace Rigel
     SceneManager::SceneManager() = default;
     SceneManager::~SceneManager() = default;
 
-    int32_t SceneManager::Startup(const ProjectSettings& settings)
+    ErrorCode SceneManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up scene manager.");
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t SceneManager::Shutdown()
+    ErrorCode SceneManager::Shutdown()
     {
         m_Scenes.clear();
 
         Debug::Trace("Shutting down scene manager.");
-        return 0;
+        return ErrorCode::NONE;
     }
 
     void SceneManager::UnloadCurrentScene()

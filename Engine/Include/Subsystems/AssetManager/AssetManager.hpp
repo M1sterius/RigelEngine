@@ -5,6 +5,7 @@
 #include "Debug.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
+#include "ThreadPool.hpp"
 #include "Hash.hpp"
 #include "HandleValidator.hpp"
 
@@ -36,12 +37,42 @@ namespace Rigel
     {
     public:
         template<RigelAssetConcept T>
+        AssetHandle<T> LoadAsync(const std::filesystem::path& path)
+        {
+            // Check if an asset has already been fully loaded
+            if (const auto existing = FindExisting<T>(path); !existing.IsNull())
+                return existing;
+
+            const auto pathHash = Hash(path);
+
+            // Check if an asset loading is in progress
+            {
+                std::shared_lock lock(m_LoadInProgressMutex);
+
+                if (m_LoadInProgressMap.contains(pathHash))
+                {
+                    const auto handle = m_LoadInProgressMap.at(pathHash).second;
+                    return handle.Cast<T>();
+                }
+            }
+
+
+        }
+
+        template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path)
         {
             if (const auto existing = FindExisting<T>(path); !existing.IsNull())
                 return existing;
 
+            const auto assetID = m_NextID++;
+
+            // TODO: Check if an asset is already being loaded
+
             std::unique_ptr<RigelAsset> uniquePtr;
+
+            if (m_EnableAssetLifetimeLogging)
+                Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
 
             try
             {
@@ -54,7 +85,7 @@ namespace Rigel
             }
 
             const auto rawPtr = uniquePtr.get();
-            const auto ID = AssignID(rawPtr);
+            AssignAssetID(rawPtr, assetID);
 
             // This insures that all AssetHandle instances holding the same asset share the same reference counter
             auto refCounter = std::make_unique<std::atomic<uint32_t>>(1);
@@ -64,7 +95,7 @@ namespace Rigel
                 std::unique_lock lock(m_RegistryMutex);
 
                 m_AssetsRegistry.insert({
-                    .AssetID = ID,
+                    .AssetID = assetID,
                     .PathHash = Hash(path),
                     .Path = path,
                     .RefCounter = std::move(refCounter),
@@ -72,32 +103,40 @@ namespace Rigel
                 });
             }
 
-            return AssetHandle<T>(static_cast<T*>(rawPtr), ID, refCounterRaw);
+            return AssetHandle<T>(static_cast<T*>(rawPtr), assetID, refCounterRaw);
         }
 
-        template<RigelAssetConcept T>
-        void Unload(const AssetHandle<T>& handle)
+        void Unload(const uid_t assetID)
         {
             using namespace Backend::HandleValidation;
 
-            std::unique_ptr<RigelAsset> ptr;
+            std::unique_ptr<RigelAsset> assetPtr;
+            std::unique_ptr<std::atomic<uint32_t>> refCounterPtr;
+            std::filesystem::path path;
 
             {
                 std::unique_lock lock(m_RegistryMutex);
 
                 for (auto it = m_AssetsRegistry.begin(); it != m_AssetsRegistry.end(); ++it)
                 {
-                    if (it->AssetID == handle.GetID())
+                    if (it->AssetID == assetID)
                     {
-                        ptr = std::move(it->Asset);
+                        assetPtr = std::move(it->Asset);
+                        refCounterPtr = std::move(it->RefCounter);
+                        path = std::move(it->Path);
+
                         m_AssetsRegistry.erase(it);
                         break;
                     }
                 }
             }
 
-            HandleValidator::RemoveHandle<HandleType::AssetHandle>(handle.GetID());
-            ptr.reset(); // explicitly delete the object just for clarity
+            if (m_EnableAssetLifetimeLogging)
+                Debug::Trace("AssetManager::Destroying an asset at path: {}.", path.string());
+
+            HandleValidator::RemoveHandle<HandleType::AssetHandle>(assetID);
+            assetPtr.reset(); // explicitly delete the object just for clarity
+            refCounterPtr.reset();
         }
 
         template<RigelAssetConcept T>
@@ -112,22 +151,27 @@ namespace Rigel
             Debug::Error("Failed to find an asset with ID: {}!", handle.GetID());
             return "";
         }
-
-        inline void PrintRegistry()
-        {
-            for (const auto& record : m_AssetsRegistry)
-            {
-                Debug::Message("ID: {}; Path: {}.", record.AssetID, record.Path.string());
-            }
-        }
     INTERNAL:
         AssetManager() = default;
         ~AssetManager() override = default;
 
-        int32_t Startup(const ProjectSettings& settings) override;
-        int32_t Shutdown() override;
+        ErrorCode Startup(const ProjectSettings& settings) override;
+        ErrorCode Shutdown() override;
 
         void UnloadAllAssets();
+
+        NODISCARD inline bool IsAssetReady(const uid_t id) const
+        {
+            std::shared_lock lock(m_LoadInProgressMutex);
+
+            for (const auto& [curID, _] : m_LoadInProgressMap | std::views::values)
+            {
+                if (curID == id)
+                    return false;
+            }
+
+            return true;
+        }
     private:
         template<RigelAssetConcept T>
         NODISCARD AssetHandle<T> FindExisting(const std::filesystem::path& path) const
@@ -146,13 +190,16 @@ namespace Rigel
             return AssetHandle<T>::Null();
         }
 
-        uid_t AssignID(RigelAsset* ptr);
+        void AssignAssetID(RigelAsset* ptr, const uid_t id);
 
         std::atomic<uid_t> m_NextID = 1;
+        bool m_EnableAssetLifetimeLogging = true;
+        std::unique_ptr<ThreadPool> m_ThreadPool;
 
-        mutable std::shared_mutex m_RegistryMutex;
-        std::mutex m_IDMutex;
+        std::unordered_map<uint64_t, std::pair<uid_t, GenericAssetHandle>> m_LoadInProgressMap;
+        mutable std::shared_mutex m_LoadInProgressMutex;
 
         plf::colony<AssetRegistryRecord> m_AssetsRegistry;
+        mutable std::shared_mutex m_RegistryMutex;
     };
 }

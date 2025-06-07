@@ -43,7 +43,9 @@ namespace Rigel
          * @param settings Project settings
          * @return 0 for success, any other value for failure
          */
-        int32_t Startup(const ProjectSettings& settings);
+        ErrorCode Startup(const ProjectSettings& settings);
+
+        void Shutdown();
 
         NODISCARD inline static Engine& Get()
         {
@@ -67,7 +69,6 @@ namespace Rigel
         NODISCARD inline ThreadPool& GetThreadPool() const { return *m_ThreadPool; }
     private:
         Engine();
-        void Shutdown();
         void EngineUpdate() const;
 
         bool m_Initialized = false;

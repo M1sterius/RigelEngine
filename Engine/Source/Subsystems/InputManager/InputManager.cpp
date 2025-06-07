@@ -77,7 +77,7 @@ namespace Rigel
     }
 #pragma endregion
 
-    int32_t InputManager::Startup(const ProjectSettings& settings)
+    ErrorCode InputManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up input manager.");
 
@@ -87,7 +87,7 @@ namespace Rigel
         if (!m_GLFWWindow)
         {
             Debug::Error("InputManager::Failed to retrieve GLFWWindow instance!");
-            return 1;
+            return ErrorCode::UNKNOWN;
         }
 
         m_KeyboardKeys = std::unordered_set<KeyCode>();
@@ -102,13 +102,13 @@ namespace Rigel
         glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t InputManager::Shutdown()
+    ErrorCode InputManager::Shutdown()
     {
         Debug::Trace("Shutting down input manager");
-        return 0;
+        return ErrorCode::NONE;
     }
 
     void InputManager::ResetInputState()

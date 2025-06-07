@@ -6,36 +6,34 @@
 #include "Hash.hpp"
 #include "json.hpp"
 
-#include <stdexcept>
-
-namespace fs = std::filesystem;
-
 namespace Rigel
 {
-    int32_t AssetManager::Startup(const ProjectSettings& settings)
+    ErrorCode AssetManager::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up asset manager.");
-        m_Initialized = true;
 
-        return 0;
+        m_EnableAssetLifetimeLogging = settings.EnableAssetLifetimeLogging;
+        m_ThreadPool = std::make_unique<ThreadPool>(settings.AssetManagerThreadPoolSize);
+
+        Debug::Trace("AssetManager::Created thread pool with {} threads.", m_ThreadPool->GetSize());
+
+        m_Initialized = true;
+        return ErrorCode::NONE;
     }
 
-    int32_t AssetManager::Shutdown()
+    ErrorCode AssetManager::Shutdown()
     {
         Debug::Trace("Shutting down asset manager.");
 
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    uid_t AssetManager::AssignID(RigelAsset* ptr)
+    void AssetManager::AssignAssetID(RigelAsset* ptr, const uid_t id)
     {
         using namespace Backend::HandleValidation;
 
-        const auto ID = m_NextID++;
-        ptr->OverrideID(ID);
-        HandleValidator::AddHandle<HandleType::AssetHandle>(ID);
-
-        return ID;
+        ptr->OverrideID(id);
+        HandleValidator::AddHandle<HandleType::AssetHandle>(id);
     }
 
     void AssetManager::UnloadAllAssets()

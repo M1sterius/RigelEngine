@@ -7,16 +7,16 @@
 
 namespace Rigel
 {
-    int32_t PhysicsEngine::Startup(const ProjectSettings& settings)
+    ErrorCode PhysicsEngine::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up physics engine.");
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t PhysicsEngine::Shutdown()
+    ErrorCode PhysicsEngine::Shutdown()
     {
         Debug::Trace("Shutting down physics engine.");
-        return 0;
+        return ErrorCode::NONE;
     }
 
     void PhysicsEngine::Tick()

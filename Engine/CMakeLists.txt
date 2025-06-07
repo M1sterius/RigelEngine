@@ -65,6 +65,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
         Include/Utils/Reflection/TypeRegistry.hpp
         Source/Utils/Reflection/TypeUtility.cpp
+        Source/Handles/AssetHandle.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

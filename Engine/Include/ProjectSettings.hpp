@@ -43,7 +43,9 @@ namespace Rigel
             {0, "Main Camera"}
         };
 
-        // Assets
+        // Assets and asset manager
+        uint32_t AssetManagerThreadPoolSize = 4; // zero for std::thread::hardware_concurrency()
+        bool EnableAssetLifetimeLogging = true;
 
         NODISCARD nlohmann::json Serialize() const override
         {

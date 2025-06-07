@@ -14,8 +14,8 @@ namespace Rigel
         RigelSubsystem(const RigelSubsystem&) = delete;
         RigelSubsystem& operator = (const RigelSubsystem&) = delete;
 
-        virtual int32_t Startup(const ProjectSettings& settings) = 0;
-        virtual int32_t Shutdown() = 0;
+        virtual ErrorCode Startup(const ProjectSettings& settings) = 0;
+        virtual ErrorCode Shutdown() = 0;
 
         NODISCARD bool IsInitialized() const { return m_Initialized; }
     protected:

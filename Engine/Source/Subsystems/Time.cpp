@@ -3,7 +3,7 @@
 
 namespace Rigel
 {
-    int32_t Time::Startup(const ProjectSettings& settings)
+    ErrorCode Time::Startup(const ProjectSettings& settings)
     {
         ASSERT(settings.TargetFPS, "Target framerate cannot be equal to 0!");
         ASSERT(settings.PhysicsTickrate, "Physics tickrate cannot be equal to 0!");
@@ -15,12 +15,12 @@ namespace Rigel
         m_PhysicsTickTime = 1.0 / static_cast<float64_t>(m_TargetTickrate);
         m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFPS);
 
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t Time::Shutdown()
+    ErrorCode Time::Shutdown()
     {
-        return 0;
+        return ErrorCode::NONE;
     }
 
     float64_t Time::GetDeltaTime()

@@ -51,8 +51,8 @@ namespace Rigel
         SceneManager();
         ~SceneManager() override;
 
-        int32_t Startup(const ProjectSettings& settings) override;
-        int32_t Shutdown() override;
+        ErrorCode Startup(const ProjectSettings& settings) override;
+        ErrorCode Shutdown() override;
 
         void UnloadCurrentScene();
     private:

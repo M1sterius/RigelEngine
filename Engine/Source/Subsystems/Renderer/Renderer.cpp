@@ -16,7 +16,7 @@ namespace Rigel
     Renderer::Renderer() = default;
     Renderer::~Renderer() = default;
 
-    int32_t Renderer::Startup(const ProjectSettings& settings)
+    ErrorCode Renderer::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up renderer.");
 
@@ -26,17 +26,19 @@ namespace Rigel
         m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
         m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer));
 
-        dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer).SetImGuiBackend(
-            dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get()));
+        auto& rendererBackend = dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer);
+        const auto ImGuiBackend = dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get());
+
+        rendererBackend.SetImGuiBackend(ImGuiBackend);
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
-    int32_t Renderer::Shutdown()
+    ErrorCode Renderer::Shutdown()
     {
         Debug::Trace("Shutting down renderer.");
-        return 0;
+        return ErrorCode::NONE;
     }
 
     Backend::IRendererBackend& Renderer::GetBackend() const

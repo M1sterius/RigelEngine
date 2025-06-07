@@ -34,9 +34,9 @@ namespace Rigel
     template<typename T>
     static bool StartUpSubsystem(const ProjectSettings& settings, const std::unique_ptr<T>& subsystem, const std::string& name)
     {
-        if (const auto result = subsystem->Startup(settings); result != 0)
+        if (const auto result = subsystem->Startup(settings); result != ErrorCode::NONE)
         {
-            Debug::Error("Rigel engine startup failed: {} subsystem failed to initialize! Error code: {}.", name, result);
+            Debug::Error("Rigel engine startup failed: {} subsystem failed to initialize! Error code: {}.", name, static_cast<int32_t>(result));
             return false;
         }
 
@@ -48,8 +48,8 @@ namespace Rigel
     {
         if (subsystem->IsInitialized())
         {
-            if (const auto result = subsystem->Shutdown(); result != 0)
-                Debug::Error("An error occurred during shutdown process of {} subsystem! Error code: {}.", name, result);
+            if (const auto result = subsystem->Shutdown(); result != ErrorCode::NONE)
+                Debug::Error("An error occurred during shutdown process of {} subsystem! Error code: {}.", name, static_cast<int32_t>(result));
         }
     }
 #pragma endregion
@@ -57,7 +57,13 @@ namespace Rigel
     Engine::Engine() = default;
     Engine::~Engine()
     {
-        Shutdown();
+        if (m_Initialized)
+        {
+            Debug::Warning("Rigel::Engine::Shutdown was not called before the engine instance went out of "
+                           "scope. Shutdown called automatically before deleting the instance!");
+            Shutdown();
+        }
+
         s_Instance = nullptr; // Reset the global instance so that a new one can be properly created
     }
 
@@ -82,7 +88,7 @@ namespace Rigel
         return std::unique_ptr<Engine>(instance);
     }
 
-    int32_t Engine::Startup(const ProjectSettings& settings)
+    ErrorCode Engine::Startup(const ProjectSettings& settings)
     {
         m_ProjectSettings = settings;
 
@@ -101,14 +107,14 @@ namespace Rigel
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
         // Startup order matters A LOT!
-        if (!StartUpSubsystem(m_ProjectSettings, m_Time, "Time manager")) return 11;
-        if (!StartUpSubsystem(m_ProjectSettings, m_AssetManager, "Asset manager")) return 12;
-        if (!StartUpSubsystem(m_ProjectSettings, m_EventManager, "Event manager")) return 13;
-        if (!StartUpSubsystem(m_ProjectSettings, m_SceneManager, "Scene manager")) return 14;
-        if (!StartUpSubsystem(m_ProjectSettings, m_WindowManager, "Window manager")) return 15;
-        if (!StartUpSubsystem(m_ProjectSettings, m_InputManager, "Input manager")) return 16;
-        if (!StartUpSubsystem(m_ProjectSettings, m_Renderer, "Renderer")) return 17;
-        if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return 18;
+        if (!StartUpSubsystem(m_ProjectSettings, m_Time, "Time manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_AssetManager, "Asset manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_EventManager, "Event manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_SceneManager, "Scene manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_WindowManager, "Window manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_InputManager, "Input manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_Renderer, "Renderer")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
+        if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
 
         // Additional subsystem initialization logic
         m_Renderer->LateInit(); // no check for initialization because Engine::Startup would return early if renderer wasn't initialized up correctly
@@ -121,7 +127,7 @@ namespace Rigel
         Debug::Trace("Rigel engine initialization complete.");
 
         m_Initialized = true;
-        return 0;
+        return ErrorCode::NONE;
     }
 
     void Engine::Shutdown()
@@ -142,6 +148,8 @@ namespace Rigel
         ShutDownSubsystem(m_EventManager, "Event manager");
         ShutDownSubsystem(m_AssetManager, "Asset manager");
         ShutDownSubsystem(m_Time, "Time manager");
+
+        m_Initialized = false;
     }
 
     void Engine::Run()
