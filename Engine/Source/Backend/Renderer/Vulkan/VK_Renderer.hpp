@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.hpp"
-#include "IRendererBackend.hpp"
 
 #include "vulkan.h"
 
@@ -34,15 +33,18 @@ namespace Rigel::Backend::Vulkan
 
     struct AcquireImageInfo;
 
-    class VK_Renderer final : public IRendererBackend
+    class VK_Renderer final
     {
     public:
         VK_Renderer();
-        ~VK_Renderer() override;
+        ~VK_Renderer();
 
-        void LateInit() override;
-        void Render() override;
-        void WaitForFinish() const override;
+        ErrorCode Startup();
+        ErrorCode Shutdown();
+        ErrorCode LateStartup();
+
+        void Render();
+        void WaitForFinish() const;
 
         inline void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
@@ -50,9 +52,6 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
     private:
-        void Startup() override;
-        void Shutdown() override;
-
         void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);

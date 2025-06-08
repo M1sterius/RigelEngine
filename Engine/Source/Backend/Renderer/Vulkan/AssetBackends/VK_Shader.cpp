@@ -25,7 +25,7 @@ namespace Rigel::Backend::Vulkan
         fragInfo.pCode = reinterpret_cast<const uint32_t*>(fragBytes.data());
 
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = dynamic_cast<const VK_Renderer&>(renderer.GetBackend());
+        const auto& backend = renderer.GetBackend();
         const auto& device = backend.GetDevice();
 
         if (const auto result = vkCreateShaderModule(device.Get(), &vertInfo, nullptr, &m_VertexModule); result != VK_SUCCESS)
@@ -47,7 +47,7 @@ namespace Rigel::Backend::Vulkan
     VK_Shader::~VK_Shader()
     {
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = dynamic_cast<const VK_Renderer&>(renderer.GetBackend());
+        const auto& backend = renderer.GetBackend();
         const auto& device = backend.GetDevice();
 
         vkDestroyShaderModule(device.Get(), m_VertexModule, nullptr);

@@ -36,7 +36,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = dynamic_cast<const VK_Renderer&>(renderer.GetBackend());
+        const auto& backend = renderer.GetBackend();
         auto& device = backend.GetDevice();
 
         m_VertexBuffer = std::make_unique<VK_VertexBuffer>(device, vertices);

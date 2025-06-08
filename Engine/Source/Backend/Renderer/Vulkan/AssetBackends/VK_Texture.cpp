@@ -16,7 +16,7 @@ namespace Rigel::Backend::Vulkan
     VK_Texture::VK_Texture(std::filesystem::path path) : ITextureBackend(std::move(path))
     {
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = dynamic_cast<const VK_Renderer&>(renderer.GetBackend());
+        const auto& backend = renderer.GetBackend();
         auto& device = backend.GetDevice();
 
         stbi_set_flip_vertically_on_load(true);
@@ -54,7 +54,7 @@ namespace Rigel::Backend::Vulkan
     VK_Texture::~VK_Texture()
     {
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = dynamic_cast<const VK_Renderer&>(renderer.GetBackend());
+        const auto& backend = renderer.GetBackend();
         auto& device = backend.GetDevice();
     }
 }

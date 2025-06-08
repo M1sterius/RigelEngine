@@ -117,7 +117,11 @@ namespace Rigel
         if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
 
         // Additional subsystem initialization logic
-        m_Renderer->LateInit(); // no check for initialization because Engine::Startup would return early if renderer wasn't initialized up correctly
+        if (const auto result = m_Renderer->LateStartup(); result != ErrorCode::NONE)
+        {
+            Debug::Error("Failed to perform deferred startup logic for Renderer subsystem. Error code: {}", static_cast<int32_t>(result));
+            return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
+        }
 
         m_ThreadPool = std::make_unique<ThreadPool>();
         Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());

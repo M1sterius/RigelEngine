@@ -6,7 +6,7 @@
 #include "Debug.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
-#include "../../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
+#include "WindowManager.hpp"
 
 #include "vulkan.h"
 #include "imgui/imgui.h"
@@ -18,7 +18,10 @@
 namespace Rigel::Backend::Vulkan
 {
     VK_ImGUI_Renderer::VK_ImGUI_Renderer(VK_Renderer& renderer)
-        : m_Renderer(renderer)
+        : m_Renderer(renderer) { }
+    VK_ImGUI_Renderer::~VK_ImGUI_Renderer() = default;
+
+    ErrorCode VK_ImGUI_Renderer::Startup()
     {
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
@@ -62,13 +65,17 @@ namespace Rigel::Backend::Vulkan
 
         ImGui_ImplVulkan_Init(&init_info);
         ImGui_ImplVulkan_CreateFontsTexture();
+
+        return ErrorCode::NONE;
     }
 
-    VK_ImGUI_Renderer::~VK_ImGUI_Renderer()
+    ErrorCode VK_ImGUI_Renderer::Shutdown()
     {
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
+
+        return ErrorCode::NONE;
     }
 
     void VK_ImGUI_Renderer::BeginNewFrame()

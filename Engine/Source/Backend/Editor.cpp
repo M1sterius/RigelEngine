@@ -2,7 +2,7 @@
 #include "imgui/imgui.h"
 #include "Engine.hpp"
 #include "Renderer.hpp"
-#include "IImGuiBackend.hpp"
+#include "ImGui/VK_ImGUI_Renderer.hpp"
 
 namespace Rigel::Backend::Editor
 {

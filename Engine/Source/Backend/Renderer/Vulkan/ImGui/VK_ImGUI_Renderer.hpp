@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IImGuiBackend.hpp"
+#include "Core.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -9,14 +9,17 @@ namespace Rigel::Backend::Vulkan
     class VK_CmdBuffer;
     class VK_Image;
 
-    class VK_ImGUI_Renderer final : public IImGuiBackend
+    class VK_ImGUI_Renderer final
     {
     public:
         explicit VK_ImGUI_Renderer(VK_Renderer& renderer);
-        ~VK_ImGUI_Renderer() override;
+        ~VK_ImGUI_Renderer();
 
-        void BeginNewFrame() override;
-        void RenderFrame(void* optData) override;
+        ErrorCode Startup();
+        ErrorCode Shutdown();
+
+        void BeginNewFrame();
+        void RenderFrame(void* optData);
     private:
         VK_Renderer& m_Renderer;
 

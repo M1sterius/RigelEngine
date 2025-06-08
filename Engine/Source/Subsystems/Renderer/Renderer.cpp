@@ -20,16 +20,22 @@ namespace Rigel
     {
         Debug::Trace("Starting up renderer.");
 
-        m_SelectedGraphicsAPI = SelectGraphicsAPI();
-
-        // For now only Vulkan is supported
         m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
-        m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer));
+        m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(*m_BackendRenderer);
 
-        auto& rendererBackend = dynamic_cast<Backend::Vulkan::VK_Renderer&>(*m_BackendRenderer);
-        const auto ImGuiBackend = dynamic_cast<Backend::Vulkan::VK_ImGUI_Renderer*>(m_ImGuiBackend.get());
+        if (const auto result = m_BackendRenderer->Startup(); result != ErrorCode::NONE)
+        {
+            Debug::Error("Failed to start up vulkan rendering backend! Error code: {}.", static_cast<int32_t>(result));
+            return ErrorCode::RENDERER_BACKEND_START_UP_FAILURE;
+        }
 
-        rendererBackend.SetImGuiBackend(ImGuiBackend);
+        if (const auto result = m_ImGuiBackend->Startup(); result != ErrorCode::NONE)
+        {
+            Debug::Error("Failed to start up imgui backend for vulkan! Error code: {}.", static_cast<int32_t>(result));
+            return ErrorCode::IMGUI_BACKEND_STARTUP_FAILURE;
+        }
+
+        m_BackendRenderer->SetImGuiBackend(m_ImGuiBackend.get());
 
         m_Initialized = true;
         return ErrorCode::NONE;
@@ -38,18 +44,22 @@ namespace Rigel
     ErrorCode Renderer::Shutdown()
     {
         Debug::Trace("Shutting down renderer.");
+
+        m_ImGuiBackend->Shutdown();
+        m_BackendRenderer->Shutdown();
+
         return ErrorCode::NONE;
     }
 
-    Backend::IRendererBackend& Renderer::GetBackend() const
+    Backend::Vulkan::VK_Renderer& Renderer::GetBackend() const
     {
         ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
         return *m_BackendRenderer;
     }
 
-    void Renderer::LateInit() const
+    ErrorCode Renderer::LateStartup() const
     {
-        m_BackendRenderer->LateInit();
+        return m_BackendRenderer->LateStartup();
     }
 
     void Renderer::Prepare()
@@ -91,21 +101,5 @@ namespace Rigel
     void Renderer::WaitForFinish() const
     {
         m_BackendRenderer->WaitForFinish();
-    }
-
-    GraphicsApi Renderer::SelectGraphicsAPI()
-    {
-        // For now only vulkan is supported
-        return GraphicsApi::Vulkan;
-    }
-
-    std::string Renderer::GetGraphicsAPIString(const GraphicsApi api)
-    {
-        switch (api)
-        {
-            case GraphicsApi::Vulkan: return "Vulkan";
-            case GraphicsApi::OpenGL: return "OpenGL";
-            default: return "None";
-        }
     }
 }

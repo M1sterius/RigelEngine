@@ -10,24 +10,15 @@ namespace Rigel
 {
     class ProjectSettings;
 
-    namespace Backend
+    namespace Backend::Vulkan
     {
-        class IRendererBackend;
-        class IImGuiBackend;
+        class VK_Renderer;
+        class VK_ImGUI_Renderer;
     }
-
-    enum class GraphicsApi : uint8_t
-    {
-        None,
-        Vulkan,
-        OpenGL
-    };
 
     class Renderer final : public RigelSubsystem
     {
     public:
-        NODISCARD GraphicsApi GetSelectedGraphicsAPI() const { return m_SelectedGraphicsAPI; }
-        NODISCARD static std::string GetGraphicsAPIString(const GraphicsApi api);
     INTERNAL:
         Renderer();
         ~Renderer() override;
@@ -35,12 +26,12 @@ namespace Rigel
         ErrorCode Startup(const ProjectSettings& settings) override;
         ErrorCode Shutdown() override;
 
-        NODISCARD Backend::IRendererBackend& GetBackend() const;
-        NODISCARD Backend::IImGuiBackend& GetImGuiBackend() const { return *m_ImGuiBackend; }
+        NODISCARD Backend::Vulkan::VK_Renderer& GetBackend() const;
+        NODISCARD Backend::Vulkan::VK_ImGUI_Renderer& GetImGuiBackend() const { return *m_ImGuiBackend; }
 
         NODISCARD Backend::SceneRenderInfo& GetSceneRenderInfo() { return m_CurrentRenderInfo; }
 
-        void LateInit() const;
+        ErrorCode LateStartup() const;
         void Prepare();
         void Render() const;
 
@@ -49,10 +40,7 @@ namespace Rigel
     private:
         Backend::SceneRenderInfo m_CurrentRenderInfo;
 
-        NODISCARD static GraphicsApi SelectGraphicsAPI();
-        GraphicsApi m_SelectedGraphicsAPI = GraphicsApi::None;
-
-        std::unique_ptr<Backend::IRendererBackend> m_BackendRenderer;
-        std::unique_ptr<Backend::IImGuiBackend> m_ImGuiBackend;
+        std::unique_ptr<Backend::Vulkan::VK_Renderer> m_BackendRenderer;
+        std::unique_ptr<Backend::Vulkan::VK_ImGUI_Renderer> m_ImGuiBackend;
     };
 }

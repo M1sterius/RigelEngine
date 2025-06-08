@@ -1,6 +1,6 @@
 #include "VK_Renderer.hpp"
 
-#include <ImGui/VK_ImGUI_Renderer.hpp>
+#include "ImGui/VK_ImGUI_Renderer.hpp"
 
 #include "Shader.hpp"
 #include "VulkanWrapper.hpp"
@@ -11,9 +11,10 @@
 #include "Time.hpp"
 #include "AssetManager.hpp"
 #include "Engine.hpp"
-#include "../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
+#include "WindowManager.hpp"
 #include "GameObject.hpp"
 #include "Model.hpp"
+#include "Renderer.hpp"
 #include "Transform.hpp"
 
 #include "vulkan.h"
@@ -30,10 +31,10 @@ NODISCARD static Rigel::AssetManager& GetAssetManager()
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Renderer::VK_Renderer() { Startup(); }
-    VK_Renderer::~VK_Renderer() { Shutdown(); }
+    VK_Renderer::VK_Renderer() = default;
+    VK_Renderer::~VK_Renderer() = default;
 
-    void VK_Renderer::Startup()
+    ErrorCode VK_Renderer::Startup()
     {
         Debug::Trace("Starting up Vulkan renderer.");
 
@@ -64,9 +65,11 @@ namespace Rigel::Backend::Vulkan
 
             m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
         }
+
+        return ErrorCode::NONE;
     }
 
-    void VK_Renderer::LateInit()
+    ErrorCode VK_Renderer::LateStartup()
     {
         // We do this to give info about descriptor layout to the rendering pipeline
         auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
@@ -79,13 +82,17 @@ namespace Rigel::Backend::Vulkan
 
         // After the pipeline is created, the descriptor layout is no longer needed
         vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
+
+        return ErrorCode::NONE;
     }
 
-    void VK_Renderer::Shutdown()
+    ErrorCode VK_Renderer::Shutdown()
     {
         m_Device->WaitIdle();
 
         Debug::Trace("Shutting down Vulkan renderer.");
+
+        return ErrorCode::NONE;
     }
 
     void VK_Renderer::RecreateSwapchain()
