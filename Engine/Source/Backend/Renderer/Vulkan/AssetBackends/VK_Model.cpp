@@ -1,4 +1,6 @@
 #include "VK_Model.hpp"
+
+#include <utility>
 #include "obj_loader/obj_loader.h"
 #include "Debug.hpp"
 
@@ -11,7 +13,8 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Model::VK_Model(const std::filesystem::path& path) : IModelBackend(path)
+    VK_Model::VK_Model(std::filesystem::path  path)
+        : m_Path(std::move(path))
     {
         if (!IsFormatSupported(m_Path.extension().string()))
             throw RigelException("Attempted to a load a model in an unsupported format!");

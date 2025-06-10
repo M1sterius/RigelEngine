@@ -8,12 +8,12 @@ namespace Rigel
         Debug::Trace("Starting up event manager.");
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode EventManager::Shutdown()
     {
         Debug::Trace("Shutting down event manager.");
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 }

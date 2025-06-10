@@ -18,14 +18,14 @@ namespace Rigel
         Debug::Trace("AssetManager::Created thread pool with {} threads.", m_ThreadPool->GetSize());
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode AssetManager::Shutdown()
     {
         Debug::Trace("Shutting down asset manager.");
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void AssetManager::AssignAssetID(RigelAsset* ptr, const uid_t id)

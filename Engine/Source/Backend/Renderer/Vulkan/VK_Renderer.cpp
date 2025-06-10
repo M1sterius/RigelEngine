@@ -66,7 +66,7 @@ namespace Rigel::Backend::Vulkan
             m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
         }
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode VK_Renderer::LateStartup()
@@ -77,13 +77,13 @@ namespace Rigel::Backend::Vulkan
         const auto layout = layoutBuilder.BuildLayout();
 
         const auto shaderAsset = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
-        const auto& defaultShader = shaderAsset->GetBackend<VK_Shader>();
+        const auto& defaultShader = shaderAsset->GetBackend();
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
         // After the pipeline is created, the descriptor layout is no longer needed
         vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode VK_Renderer::Shutdown()
@@ -92,7 +92,7 @@ namespace Rigel::Backend::Vulkan
 
         Debug::Trace("Shutting down Vulkan renderer.");
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void VK_Renderer::RecreateSwapchain()
@@ -174,7 +174,7 @@ namespace Rigel::Backend::Vulkan
                     &mvp
                 );
 
-                const auto& vkModel = model->GetModel()->GetBackend<VK_Model>();
+                const auto& vkModel = model->GetModel()->GetBackend();
 
                 const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
                 constexpr VkDeviceSize offsets[] = {0};

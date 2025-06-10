@@ -10,13 +10,13 @@ namespace Rigel
     ErrorCode PhysicsEngine::Startup(const ProjectSettings& settings)
     {
         Debug::Trace("Starting up physics engine.");
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode PhysicsEngine::Shutdown()
     {
         Debug::Trace("Shutting down physics engine.");
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void PhysicsEngine::Tick()

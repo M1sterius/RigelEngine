@@ -13,7 +13,7 @@ int32_t main(const int32_t argc, char** argv)
     settings.WindowTitle = "Sandbox";
 
     const auto engine = Rigel::Engine::CreateInstance();
-    if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::NONE)
+    if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
     {
         Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", static_cast<int32_t>(errorCode));
         return 1;

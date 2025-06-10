@@ -11,7 +11,6 @@
 namespace Rigel::Backend::Vulkan
 {
     VK_Shader::VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
-        : IShaderBackend(vertPath, fragPath)
     {
         const auto vertBytes = File::ReadBinary(vertPath);
         const auto fragBytes = File::ReadBinary(fragPath);

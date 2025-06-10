@@ -15,12 +15,12 @@ namespace Rigel
         m_PhysicsTickTime = 1.0 / static_cast<float64_t>(m_TargetTickrate);
         m_DeltaTime = 1.0 / static_cast<float64_t>(m_TargetFPS);
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode Time::Shutdown()
     {
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     float64_t Time::GetDeltaTime()

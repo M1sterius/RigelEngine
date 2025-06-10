@@ -13,7 +13,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Texture::VK_Texture(std::filesystem::path path) : ITextureBackend(std::move(path))
+    VK_Texture::VK_Texture(std::filesystem::path path) : m_Path(std::move(path))
     {
         const auto& renderer = Engine::Get().GetRenderer();
         const auto& backend = renderer.GetBackend();

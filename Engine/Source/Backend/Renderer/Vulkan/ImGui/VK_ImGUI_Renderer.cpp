@@ -66,7 +66,7 @@ namespace Rigel::Backend::Vulkan
         ImGui_ImplVulkan_Init(&init_info);
         ImGui_ImplVulkan_CreateFontsTexture();
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode VK_ImGUI_Renderer::Shutdown()
@@ -75,7 +75,7 @@ namespace Rigel::Backend::Vulkan
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void VK_ImGUI_Renderer::BeginNewFrame()

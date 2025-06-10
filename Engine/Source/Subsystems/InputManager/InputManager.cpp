@@ -102,13 +102,13 @@ namespace Rigel
         glfwSetScrollCallback(m_GLFWWindow, mouse_scroll_callback);
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode InputManager::Shutdown()
     {
         Debug::Trace("Shutting down input manager");
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void InputManager::ResetInputState()

@@ -34,7 +34,7 @@ namespace Rigel
     template<typename T>
     static bool StartUpSubsystem(const ProjectSettings& settings, const std::unique_ptr<T>& subsystem, const std::string& name)
     {
-        if (const auto result = subsystem->Startup(settings); result != ErrorCode::NONE)
+        if (const auto result = subsystem->Startup(settings); result != ErrorCode::OK)
         {
             Debug::Error("Rigel engine startup failed: {} subsystem failed to initialize! Error code: {}.", name, static_cast<int32_t>(result));
             return false;
@@ -48,7 +48,7 @@ namespace Rigel
     {
         if (subsystem->IsInitialized())
         {
-            if (const auto result = subsystem->Shutdown(); result != ErrorCode::NONE)
+            if (const auto result = subsystem->Shutdown(); result != ErrorCode::OK)
                 Debug::Error("An error occurred during shutdown process of {} subsystem! Error code: {}.", name, static_cast<int32_t>(result));
         }
     }
@@ -117,7 +117,7 @@ namespace Rigel
         if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
 
         // Additional subsystem initialization logic
-        if (const auto result = m_Renderer->LateStartup(); result != ErrorCode::NONE)
+        if (const auto result = m_Renderer->LateStartup(); result != ErrorCode::OK)
         {
             Debug::Error("Failed to perform deferred startup logic for Renderer subsystem. Error code: {}", static_cast<int32_t>(result));
             return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
@@ -131,7 +131,7 @@ namespace Rigel
         Debug::Trace("Rigel engine initialization complete.");
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void Engine::Shutdown()

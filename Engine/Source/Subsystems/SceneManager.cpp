@@ -19,7 +19,7 @@ namespace Rigel
         Debug::Trace("Starting up scene manager.");
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode SceneManager::Shutdown()
@@ -27,7 +27,7 @@ namespace Rigel
         m_Scenes.clear();
 
         Debug::Trace("Shutting down scene manager.");
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void SceneManager::UnloadCurrentScene()

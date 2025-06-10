@@ -78,7 +78,7 @@ namespace Rigel
         glfwSetWindowPosCallback(m_GLFWWindow, window_move_callback);
 
         m_Initialized = true;
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     ErrorCode WindowManager::Shutdown()
@@ -87,7 +87,7 @@ namespace Rigel
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
-        return ErrorCode::NONE;
+        return ErrorCode::OK;
     }
 
     void WindowManager::SetScreenMode(const ScreenMode mode)

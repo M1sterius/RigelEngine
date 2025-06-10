@@ -14,7 +14,7 @@ namespace Rigel
     public:
         static Result Ok(T value)
         {
-            return Result(std::move(value), ErrorCode::NONE);
+            return Result(std::move(value), ErrorCode::OK);
         }
 
         static Result Error(const ErrorCode errorCode)
@@ -22,8 +22,8 @@ namespace Rigel
             return Result(std::nullopt, errorCode);
         }
 
-        [[nodiscard]] bool IsOk() const { return m_ErrorCode == ErrorCode::NONE; }
-        [[nodiscard]] bool IsError() const { return m_ErrorCode != ErrorCode::NONE; }
+        [[nodiscard]] bool IsOk() const { return m_ErrorCode == ErrorCode::OK; }
+        [[nodiscard]] bool IsError() const { return m_ErrorCode != ErrorCode::OK; }
 
         [[nodiscard]] ErrorCode Error() const { return m_ErrorCode; }
 

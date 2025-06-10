@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.hpp"
-#include "IShaderBackend.hpp"
 
 #include "vulkan.h"
 
@@ -9,11 +8,11 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    class VK_Shader final : public IShaderBackend
+    class VK_Shader final
     {
     public:
         VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
-        ~VK_Shader() override;
+        ~VK_Shader();
 
         VK_Shader(const VK_Shader& other) = delete;
         VK_Shader& operator = (const VK_Shader&) = delete;

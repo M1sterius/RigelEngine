@@ -8,9 +8,9 @@
 
 namespace Rigel
 {
-    namespace Backend
+    namespace Backend::Vulkan
     {
-        class ITextureBackend;
+        class VK_Texture;
     }
 
     class Texture final : public RigelAsset
@@ -18,15 +18,11 @@ namespace Rigel
     public:
         ~Texture() override;
     INTERNAL:
-        template<typename T> requires std::is_base_of_v<Backend::ITextureBackend, T>
-        NODISCARD T& GetBackend() const
-        {
-            return static_cast<T&>(*m_BackendTexture);
-        }
+        NODISCARD Backend::Vulkan::VK_Texture& GetBackend() const { return *m_BackendTexture; }
     private:
         explicit Texture(const std::filesystem::path& path);
 
-        std::unique_ptr<Backend::ITextureBackend> m_BackendTexture;
+        std::unique_ptr<Backend::Vulkan::VK_Texture> m_BackendTexture;
 
         friend class AssetManager;
     };
