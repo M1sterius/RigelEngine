@@ -26,4 +26,13 @@ namespace Rigel
         const auto& logger = Logger::Get();
         logger.Log(error, LogType::Error);
     }
+
+    void Debug::Crash(const ErrorCode code, const std::string& message, const char* file, const int line)
+    {
+        const auto codeCast = static_cast<int32_t>(code);
+
+        Error("Hard crash on line {} in file {}. Crash message: {}. Crash code: {}",
+            line, file, message, codeCast);
+        std::exit(codeCast);
+    }
 }

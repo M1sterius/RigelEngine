@@ -8,6 +8,7 @@
 
 namespace Rigel::Backend
 {
+    // Used to pass info about the scene to vulkan rendering backend
     struct SceneRenderInfo
     {
         ComponentHandle<Camera> MainCamera;

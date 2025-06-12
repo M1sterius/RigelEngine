@@ -20,7 +20,8 @@ namespace Rigel
     INTERNAL:
         NODISCARD Backend::Vulkan::VK_Texture& GetBackend() const { return *m_BackendTexture; }
     private:
-        explicit Texture(const std::filesystem::path& path);
+        explicit Texture(const std::filesystem::path& path) noexcept;
+        ErrorCode Init() override;
 
         std::unique_ptr<Backend::Vulkan::VK_Texture> m_BackendTexture;
 

@@ -163,6 +163,9 @@ namespace Rigel::Backend::Vulkan
 
             for (const auto& model : models)
             {
+                if (model->GetModelAsset().IsNull())
+                    continue;
+
                 const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
 
                 vkCmdPushConstants(
@@ -174,7 +177,7 @@ namespace Rigel::Backend::Vulkan
                     &mvp
                 );
 
-                const auto& vkModel = model->GetModel()->GetBackend();
+                const auto& vkModel = model->GetModelAsset()->GetBackend();
 
                 const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
                 constexpr VkDeviceSize offsets[] = {0};

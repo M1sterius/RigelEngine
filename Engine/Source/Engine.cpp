@@ -106,7 +106,7 @@ namespace Rigel
         m_Renderer = std::make_unique<Renderer>();
         m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
-        // Startup order matters A LOT!
+        // Real startup logic happens here, the order matters A LOT!
         if (!StartUpSubsystem(m_ProjectSettings, m_Time, "Time manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
         if (!StartUpSubsystem(m_ProjectSettings, m_AssetManager, "Asset manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
         if (!StartUpSubsystem(m_ProjectSettings, m_EventManager, "Event manager")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;

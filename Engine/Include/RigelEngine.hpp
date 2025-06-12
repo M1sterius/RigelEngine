@@ -71,5 +71,6 @@
 #include "Math.hpp"
 #include "Random.hpp"
 #include "json.hpp"
+#include "ScopeGuard.hpp"
 
 #endif

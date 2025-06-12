@@ -42,6 +42,8 @@ namespace Rigel
             Error(fmtString);
         }
 
+        static void Crash(const ErrorCode code, const std::string& message, const char* file, const int line);
+
         static void Trace(const std::string& message);
         static void Message(const std::string& message);
         static void Warning(const std::string& warning);

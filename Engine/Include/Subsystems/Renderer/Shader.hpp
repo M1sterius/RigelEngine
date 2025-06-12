@@ -20,7 +20,8 @@ namespace Rigel
     INTERNAL:
         NODISCARD Backend::Vulkan::VK_Shader& GetBackend() const { return *m_BackendShader; }
     private:
-        explicit Shader(const std::filesystem::path& path);
+        explicit Shader(const std::filesystem::path& path) noexcept;
+        ErrorCode Init() override;
 
         std::unique_ptr<Backend::Vulkan::VK_Shader> m_BackendShader;
 

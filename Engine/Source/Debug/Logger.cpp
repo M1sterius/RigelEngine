@@ -20,12 +20,20 @@ namespace Rigel
 
         const auto logsFile = std::filesystem::path(logsDir).concat("/Logs.log");
 
-        // If an old logs file exists, delete it so that the old logs won't be mixed with new logs
+        // If an old logs file exists, delete it so that the old logs won't be mixed with the new logs
         if (std::filesystem::exists(logsFile))
             std::filesystem::remove(logsFile);
 
-        // TODO: Rework the way writing logs is handled
-        m_LogsFile = std::make_unique<File>(logsFile, std::ios::out | std::ios::app);
+        m_LogsFile = std::ofstream(logsFile);
+
+        if (!m_LogsFile)
+            Debug::Error("Failed to open engine logs file! The logs will be displayed in console but will not be saved.");
+    }
+
+    Logger::~Logger()
+    {
+        if (m_LogsFile.is_open())
+            m_LogsFile.close();
     }
 
     void Logger::Log(const std::string& log, const LogType type) const
@@ -35,10 +43,14 @@ namespace Rigel
         const auto logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
 
         std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
-        m_LogsFile->WriteText(logTxt + '\n');
 
-        if (type == LogType::Error)
-            m_LogsFile->Flush();
+        if (m_LogsFile.is_open())
+        {
+            m_LogsFile << (logTxt + '\n');
+
+            if (type == LogType::Error)
+                m_LogsFile.flush();
+        }
     }
 
     void Logger::ChangeLogsVisibilityMask(const LogType type, const bool visibility)

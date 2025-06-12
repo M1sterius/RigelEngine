@@ -10,7 +10,6 @@ namespace Rigel
     namespace Backend::AssetHandleUtilityImpl
     {
         void OnRefCountReachZero(const uid_t id);
-        bool IsAssetReady(const uid_t id);
     }
 
     class RigelAsset;
@@ -62,23 +61,14 @@ namespace Rigel
 
         T* operator -> () override
         {
-            WaitReady();
             this->CheckHandle();
             return this->m_Ptr;
         }
 
         const T* operator -> () const override
         {
-            WaitReady();
             this->CheckHandle();
             return this->m_Ptr;
-        }
-
-        // Blocks the calling thread until the asset is loaded and ready to be used
-        void WaitReady() const
-        {
-            // TODO: Implement normal sleep
-            while (!Backend::AssetHandleUtilityImpl::IsAssetReady(this->GetID()));
         }
 
         NODISCARD uint32_t GetRefCount() const { return *m_RefCounter; }

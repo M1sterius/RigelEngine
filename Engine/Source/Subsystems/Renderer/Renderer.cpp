@@ -91,6 +91,7 @@ namespace Rigel
         auto cameraGO = *cameras.begin();
         m_CurrentRenderInfo.MainCamera = cameraGO->GetComponent<Camera>();
         m_CurrentRenderInfo.Models = scene->FindComponentsOfType<ModelRenderer>();
+        // m_CurrentRenderInfo.Models = {};
     }
 
     void Renderer::Render() const

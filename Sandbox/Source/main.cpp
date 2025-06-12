@@ -38,16 +38,16 @@ int32_t main(const int32_t argc, char** argv)
     cone1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
 
     auto cone2 = scene->Instantiate("Sphere");
-    cone2->GetTransform()->SetLocalPosition({1.0, 0, 1.0});
+    cone2->GetTransform()->SetLocalPosition({1.0, 0, -1.0});
     cone2->GetTransform()->SetLocalScale(glm::vec3(0.5));
-    cone2->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    cone2->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/sphere.obj");
     cone2->AddComponent<TestComponent>();
 
-    auto cone1Transform = cone1->GetTransform();
-    auto cone2Transform = cone2->GetTransform();
-
-    cube->GetTransform()->AddChild(cone1Transform);
-    cube->GetTransform()->AddChild(cone2Transform);
+    // auto cone1Transform = cone1->GetTransform();
+    // auto cone2Transform = cone2->GetTransform();
+    //
+    // cube->GetTransform()->AddChild(cone1Transform);
+    // cube->GetTransform()->AddChild(cone2Transform);
 
     const auto json = scene->Serialize();
 

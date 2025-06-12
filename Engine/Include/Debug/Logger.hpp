@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core.hpp"
-#include "File.hpp"
 
 #include <cstdint>
 #include <string>
 #include <stdexcept>
+#include <fstream>
 
 namespace Rigel
 {
@@ -40,10 +40,10 @@ namespace Rigel
         NODISCARD inline uint8_t GetVisibilityMask() const { return m_VisibilityMask; }
     private:
         Logger();
-        ~Logger() = default;
+        ~Logger();
 
         uint8_t m_VisibilityMask;
-        std::unique_ptr<File> m_LogsFile;
+        mutable std::ofstream m_LogsFile;
 
         NODISCARD static std::string GetFormattedTime();
         NODISCARD static const char* GetColorCode(const ConsoleColor color);

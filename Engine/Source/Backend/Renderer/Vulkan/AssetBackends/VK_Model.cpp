@@ -46,10 +46,7 @@ namespace Rigel::Backend::Vulkan
         m_IndexBuffer = std::make_unique<VK_IndexBuffer>(device, loader.LoadedIndices);
     }
 
-    VK_Model::~VK_Model()
-    {
-
-    }
+    VK_Model::~VK_Model() = default;
 
     bool VK_Model::IsFormatSupported(const std::string_view& extension)
     {

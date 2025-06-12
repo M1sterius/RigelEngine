@@ -13,7 +13,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Model final
     {
     public:
-        explicit VK_Model(std::filesystem::path  path);
+        explicit VK_Model(std::filesystem::path path);
         ~VK_Model();
 
         NODISCARD inline VK_VertexBuffer& GetVertexBuffer() const { return *m_VertexBuffer; }

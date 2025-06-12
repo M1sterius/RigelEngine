@@ -9,10 +9,4 @@ namespace Rigel::Backend::AssetHandleUtilityImpl
         auto& manager = Engine::Get().GetAssetManager();
         manager.Unload(id);
     }
-
-    bool IsAssetReady(const uid_t id)
-    {
-        const auto& manager = Engine::Get().GetAssetManager();
-        return manager.IsAssetReady(id);
-    }
 }

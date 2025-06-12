@@ -9,43 +9,24 @@
 
 namespace Rigel
 {
-    std::string File::ReadText(const std::filesystem::path& path)
+    Result<std::string> File::ReadText(const std::filesystem::path& path)
     {
         auto file = std::ifstream(path);
         if (!file.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
+            return Result<std::string>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
 
         const auto content = std::string(std::istreambuf_iterator<char>(file),  std::istreambuf_iterator<char>());
         file.close();
 
-        return content;
+        return Result<std::string>::Ok(content);
     }
 
-    void File::WriteText(const std::filesystem::path& path, const std::string& text)
-    {
-        auto file = std::ofstream(path);
-        if (!file.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
-
-        file << text;
-        file.close();
-    }
-
-    void File::WriteBinary(const std::filesystem::path& path, const std::vector<char>& data)
-    {
-        auto file = std::ofstream(path, std::ios::out | std::ios::binary);
-        if (!file.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
-
-        file.write(data.data(), data.size());
-        file.close();
-    }
-
-    nlohmann::json File::ReadJSON(const std::filesystem::path& path)
+    Result<nlohmann::json> File::ReadJSON(const std::filesystem::path& path)
     {
         auto file = std::ifstream(path, std::ios::in | std::ios::binary);
+
         if (!file.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
+            return Result<nlohmann::json>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
 
         try
         {
@@ -64,22 +45,23 @@ namespace Rigel
             // Parse JSON directly from the stream
             nlohmann::json json;
             file >> json;
-            return json;
+
+            return Result<nlohmann::json>::Ok(json);
         }
-        catch (const nlohmann::json::parse_error& e) {
-            throw std::runtime_error("Failed to parse JSON from file: " + std::string(e.what()));
+        catch (const nlohmann::json::parse_error&) {
+            return Result<nlohmann::json>::Error(ErrorCode::NLOHMANN_JSON_PARSING_ERROR);
         }
-        catch (const std::exception& e) {
-            throw std::runtime_error("Error reading JSON file: " + std::string(e.what()));
+        catch (const std::exception&) {
+            return Result<nlohmann::json>::Error(ErrorCode::NLOHMANN_JSON_READING_ERROR);
         }
     }
 
-    std::vector<char> File::ReadBinary(const std::filesystem::path& path)
+    Result<std::vector<char>> File::ReadBinary(const std::filesystem::path& path)
     {
         auto file = std::ifstream(path, std::ios::ate | std::ios::binary);
 
         if (!file.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", path.string()));
+            return Result<std::vector<char>>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
 
         const auto fileSize = static_cast<size_t>(file.tellg());
         auto buffer = std::vector<char>(fileSize);
@@ -89,97 +71,46 @@ namespace Rigel
 
         file.close();
 
-        return buffer;
+        return Result<std::vector<char>>::Ok(buffer);
     }
 
-    std::future<std::string> File::ReadTextAsync(const std::filesystem::path& path)
+    Result<void> File::WriteText(const std::filesystem::path& path, const std::string& text)
     {
-        // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
-        // So it confuses static and non-static function with the same name
-        const auto asyncFuncCast = static_cast<std::string(*)(const std::filesystem::path&)>(&File::ReadText);
-        return std::async(std::launch::async, asyncFuncCast, path);
+        auto file = std::ofstream(path);
+        if (!file.is_open())
+            return Result<void>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
+
+        file << text;
+        file.close();
+
+        return Result<void>::Error(ErrorCode::OK);
     }
 
-    std::future<std::vector<char>> File::ReadBinaryAsync(const std::filesystem::path& path)
+    Result<void> File::WriteBinary(const std::filesystem::path& path, const std::vector<char>& data)
     {
-        // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
-        // So it confuses static and non-static function with the same name
-        const auto asyncFuncCast = static_cast<std::vector<char>(*)(const std::filesystem::path&)>(&File::ReadBinary);
-        return std::async(std::launch::async, asyncFuncCast, path);
+        auto file = std::ofstream(path, std::ios::out | std::ios::binary);
+        if (!file.is_open())
+            return Result<void>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
+
+        file.write(data.data(), data.size());
+        file.close();
+
+        return Result<void>::Error(ErrorCode::OK);
     }
 
-#pragma region FileNonStaticImpl
-    File::File(std::filesystem::path path, const std::ios::openmode mode)
-        :   m_Path(std::move(path)), m_CurrentOpenMode(mode)
-    {
-        OpenInMode(mode);
-    }
-
-    File::~File()
-    {
-        m_File.close();
-    }
-
-    void File::OpenInMode(const std::ios::openmode mode)
-    {
-        if (m_File.is_open() && (mode & m_CurrentOpenMode)) return;
-
-        if (m_File.is_open())
-        {
-            m_File.clear();
-            m_File.close();
-        }
-
-        m_File.open(m_Path, mode);
-
-        if (!m_File.is_open())
-            throw RigelException(std::format("Cannot open file at path: {}", m_Path.string()));
-
-        m_CurrentOpenMode = mode;
-    }
-
-    std::string File::ReadText()
-    {
-        OpenInMode(std::ios::in);
-        m_File.seekg(0, std::ios::beg);
-        return {std::istreambuf_iterator<char>(m_File),  std::istreambuf_iterator<char>()};
-    }
-
-    void File::WriteText(const std::string& text)
-    {
-        OpenInMode(std::ios::out);
-        m_File.seekp(0, std::ios::end);
-        m_File << text;
-    }
-
-    std::vector<char> File::ReadBinary()
-    {
-        // Maybe there is an issue with type conversion when reading bytes,
-        // but generally it seems to be working. Check this function for errors in the future.
-
-        OpenInMode(std::ios::in | std::ios::binary);
-        m_File.seekg(0, std::ios::end);
-
-        const size_t size = m_File.tellg();
-        auto buffer = std::vector<char>(size, 0);
-
-        m_File.seekg(0, std::ios::beg);
-        m_File.read(buffer.data(), static_cast<std::streamsize>(size));
-
-        return buffer;
-    }
-
-    void File::WriteBinary(const std::vector<char>& data)
-    {
-        OpenInMode(std::ios::out | std::ios::binary);
-        m_File.seekp(0, std::ios::end);
-
-        m_File.write(data.data(), static_cast<std::streamsize>(data.size()));
-    }
-
-    void File::Flush()
-    {
-        m_File.flush();
-    }
-#pragma endregion
+    // std::future<std::string> File::ReadTextAsync(const std::filesystem::path& path)
+    // {
+    //     // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
+    //     // So it confuses static and non-static function with the same name
+    //     const auto asyncFuncCast = static_cast<std::string(*)(const std::filesystem::path&)>(&File::ReadText);
+    //     return std::async(std::launch::async, asyncFuncCast, path);
+    // }
+    //
+    // std::future<std::vector<char>> File::ReadBinaryAsync(const std::filesystem::path& path)
+    // {
+    //     // We have to do this ridiculous cast because the compiler cannot handle overloads in std::async,
+    //     // So it confuses static and non-static function with the same name
+    //     const auto asyncFuncCast = static_cast<std::vector<char>(*)(const std::filesystem::path&)>(&File::ReadBinary);
+    //     return std::async(std::launch::async, asyncFuncCast, path);
+    // }
 }

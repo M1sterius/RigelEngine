@@ -32,7 +32,7 @@ namespace Rigel
 
         const auto thisHandle = ComponentHandle(this, this->GetID());
 
-        // Convert deserialized children IDs into actual handles
+        // Convert deserialized children IDs into handles
         for (auto& child : m_Children)
         {
             const auto childGenericHandle = GetScene()->FindComponentByID(child.GetID());

@@ -25,7 +25,7 @@ namespace Rigel
         [[nodiscard]] bool IsOk() const { return m_ErrorCode == ErrorCode::OK; }
         [[nodiscard]] bool IsError() const { return m_ErrorCode != ErrorCode::OK; }
 
-        [[nodiscard]] ErrorCode Error() const { return m_ErrorCode; }
+        [[nodiscard]] ErrorCode GetError() const { return m_ErrorCode; }
 
         T& Value()
         {
@@ -50,4 +50,30 @@ namespace Rigel
         Result(std::optional<T> value, const ErrorCode errorCode)
             : m_Value(std::move(value)), m_ErrorCode(errorCode) { }
     };
+
+    // explicit specialization for void makes it possible to return an error code withput any real data
+    template <>
+    class Result<void>
+    {
+    public:
+        static Result Ok()
+        {
+            return Result(ErrorCode::OK);
+        }
+
+        static Result Error(const ErrorCode errorCode)
+        {
+            return Result(errorCode);
+        }
+
+        [[nodiscard]] bool IsOk() const { return m_ErrorCode == ErrorCode::OK; }
+        [[nodiscard]] bool IsError() const { return m_ErrorCode != ErrorCode::OK; }
+        [[nodiscard]] ErrorCode GetError() const { return m_ErrorCode; }
+    private:
+        explicit Result(const ErrorCode errorCode)
+            : m_ErrorCode(errorCode) { }
+
+        ErrorCode m_ErrorCode;
+    };
+
 }
