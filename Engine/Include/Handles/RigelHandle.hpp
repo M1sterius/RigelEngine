@@ -56,11 +56,15 @@ namespace Rigel
         void CheckHandle() const
         {
             if (IsNull())
-                throw RigelException("Attempted to dereference a null Rigel handle!");
+            {
+                Debug::Crash(ErrorCode::NULL_HANDLE_DEREFERENCE, "Attempted to dereference a null Rigel handle!", __FILE__, __LINE__);
+            }
 
             #ifdef RIGEL_ENABLE_HANDLE_VALIDATION
             if (!IsValid())
-                throw RigelException("Attempted to dereference an invalid Rigel handle!");
+            {
+                Debug::Crash(ErrorCode::INVALID_HANDLE_DEREFERENCE, "Attempted to dereference an invalid Rigel handle!", __FILE__, __LINE__);
+            }
             #endif
         }
 

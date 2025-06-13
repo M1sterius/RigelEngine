@@ -64,7 +64,6 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
         std::unique_ptr<VK_Image> m_DepthBufferImage;
 
-        std::vector<std::unique_ptr<VK_UniformBuffer>> m_UniformBuffers;
         std::vector<std::unique_ptr<VK_DescriptorSet>> m_DescriptorSets;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;

@@ -2,7 +2,6 @@
 #include "VK_Semaphore.hpp"
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
-#include "VulkanException.hpp"
 
 #include "Time.hpp"
 #include "Engine.hpp"
@@ -56,7 +55,10 @@ namespace Rigel::Backend::Vulkan
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
             else if (result != VK_SUBOPTIMAL_KHR)
-                throw VulkanException("Failed to acquire next vulkan swapchain image!", result);
+            {
+                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to acquire next vulkan swapchain image!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+            }
         }
 
         return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex], m_ImageAvailableSemaphores[frameIndex]->Get()};
@@ -76,7 +78,10 @@ namespace Rigel::Backend::Vulkan
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
             else
-                throw VulkanException("Failed to present Vulkan image!", result);
+            {
+                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to present Vulkan image! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+            }
         }
     }
 
@@ -135,7 +140,10 @@ namespace Rigel::Backend::Vulkan
         createInfo.oldSwapchain = oldSwapchain;
 
         if (const auto result = vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_Swapchain); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan swapchain!", result);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create Vulkan swapchain!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
 
         // Clean up old swapchain and associated resources if needed
         if (oldSwapchain != VK_NULL_HANDLE)
@@ -170,7 +178,10 @@ namespace Rigel::Backend::Vulkan
             imageViewCreateInfo.subresourceRange.layerCount = 1;
 
             if (const auto result = vkCreateImageView(m_Device.Get(), &imageViewCreateInfo, nullptr, &m_ImageViews[i]); result != VK_SUCCESS)
-                throw VulkanException("Failed to create swapchain image view!", result);
+            {
+                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan swapchain image view! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+            }
         }
     }
 
@@ -180,7 +191,9 @@ namespace Rigel::Backend::Vulkan
         vkGetSwapchainImagesKHR(m_Device.Get(), m_Swapchain, &imageCount, nullptr);
 
         if (imageCount == 0)
-            throw VulkanException("Swapchain image count is 0!", UNKNOWN_VK_RESULT);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Vulkan swapchain image count is 0!", __FILE__, __LINE__);
+        }
 
         auto images = std::vector<VkImage>(imageCount);
         vkGetSwapchainImagesKHR(m_Device.Get(), m_Swapchain, &imageCount, images.data());

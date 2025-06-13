@@ -76,7 +76,11 @@ namespace Rigel
         template<typename castT>
         NODISCARD AssetHandle<castT> Cast() const
         {
+            // this method creates a new handle instance bypassing all copy constructors,
+            // so we increment the ref counter by hand to keep it accurate
+
             static_assert(std::is_base_of_v<RigelAsset, castT>, "T must derive from Rigel::RigelAsset");
+            if (m_RefCounter) ++(*m_RefCounter);
             return {static_cast<castT*>(this->m_Ptr), this->m_ID, this->m_RefCounter};
         }
 

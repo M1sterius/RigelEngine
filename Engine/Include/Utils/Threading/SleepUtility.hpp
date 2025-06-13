@@ -15,6 +15,16 @@ namespace Rigel
         static void PreciseSleep(const ElapsedTime& time);
 
         /**
+         * Sleeps until the predicate condition becomes true
+         */
+        template<typename F>
+        static void ConditionalSleep(F&& predicate)
+        {
+            while (!predicate())
+                PreciseSleep(ElapsedTime::FromMilliseconds(1));
+        }
+
+        /**
          * Spins in a tight loop until the specified amount of time has elapsed.
          * @param time Time to wait
          */

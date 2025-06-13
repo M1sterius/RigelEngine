@@ -31,6 +31,12 @@ NODISCARD static Rigel::AssetManager& GetAssetManager()
 
 namespace Rigel::Backend::Vulkan
 {
+    struct PushConstantData
+    {
+        glm::mat4 MVP;
+        uint32_t DrawIndex;
+    };
+
     VK_Renderer::VK_Renderer() = default;
     VK_Renderer::~VK_Renderer() = default;
 
@@ -58,10 +64,7 @@ namespace Rigel::Backend::Vulkan
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
 
-            m_UniformBuffers.emplace_back(std::make_unique<VK_UniformBuffer>(*m_Device, sizeof(DefaultUBO)));
-
             auto setBuilder = VK_DescriptorSetBuilder(*m_Device);
-            setBuilder.AddUniformBuffer(*m_UniformBuffers[i], 0);
 
             m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
         }
@@ -71,9 +74,11 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::LateStartup()
     {
-        // We do this to give info about descriptor layout to the rendering pipeline
+        ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
+
+        // This is done to give info about descriptor layout to the rendering pipeline
         auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
-        layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
+        // layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
         const auto layout = layoutBuilder.BuildLayout();
 
         const auto shaderAsset = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
@@ -161,6 +166,7 @@ namespace Rigel::Backend::Vulkan
         {
             const auto projView = camera->GetProjection() * camera->GetView();
 
+            uint32_t index = 0;
             for (const auto& model : models)
             {
                 if (model->GetModelAsset().IsNull())
@@ -168,13 +174,17 @@ namespace Rigel::Backend::Vulkan
 
                 const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
 
+                auto pushConstant = PushConstantData();
+                pushConstant.MVP = mvp;
+                pushConstant.DrawIndex = index++;
+
                 vkCmdPushConstants(
                     vkCmdBuffer,
                     m_GraphicsPipeline->GetLayout(),
                     VK_SHADER_STAGE_VERTEX_BIT,
                     0,
-                    sizeof(glm::mat4),
-                    &mvp
+                    sizeof(pushConstant),
+                    &pushConstant
                 );
 
                 const auto& vkModel = model->GetModelAsset()->GetBackend();

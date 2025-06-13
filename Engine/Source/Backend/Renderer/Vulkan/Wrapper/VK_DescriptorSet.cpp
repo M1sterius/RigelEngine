@@ -58,9 +58,6 @@ namespace Rigel::Backend::Vulkan
         const VK_DescriptorSetBuilder& descriptorBuild)
         : m_Device(device), m_Pool(pool)
     {
-        ASSERT(!descriptorBuild.m_DescriptorWrites.empty(), "Cannot create an empty descriptor set");
-        ASSERT(!descriptorBuild.m_LayoutBindings.empty(), "Cannot create an empty descriptor set");
-
         m_DescriptorSetLayout = descriptorBuild.BuildLayout();
 
         auto allocInfo = MakeInfo<VkDescriptorSetAllocateInfo>();

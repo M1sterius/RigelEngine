@@ -59,7 +59,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
-        NODISCARD inline VkCommandPool GetCommandPool() const { return m_CommandPool; }
+        NODISCARD VkCommandPool GetCommandPool() const;
 
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
@@ -77,7 +77,8 @@ namespace Rigel::Backend::Vulkan
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
 
-        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        // VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        std::unordered_map<std::thread::id, VkCommandPool> m_CommandPools;
 
         void CreateLogicalDevice();
         void CreateCommandPool();

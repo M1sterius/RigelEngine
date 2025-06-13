@@ -12,7 +12,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Fence
     {
     public:
-        explicit VK_Fence(VK_Device& device, const bool signalBit = false);
+        explicit VK_Fence(const VK_Device& device, const bool signalBit = false);
         ~VK_Fence();
 
         VK_Fence(const VK_Fence&) = delete;
@@ -23,7 +23,7 @@ namespace Rigel::Backend::Vulkan
         void Reset();
         void Wait(const uint64_t timeout = std::numeric_limits<uint64_t>::max());
     private:
-        VK_Device& m_Device;
+        const VK_Device& m_Device;
         VkFence m_Fence = VK_NULL_HANDLE;
     };
 }

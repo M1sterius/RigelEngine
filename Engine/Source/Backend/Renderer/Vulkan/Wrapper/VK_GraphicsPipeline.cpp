@@ -99,12 +99,12 @@ namespace Rigel::Backend::Vulkan
         VkPushConstantRange pushConstantRange = {};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(glm::mat4);
+        pushConstantRange.size = sizeof(glm::mat4) + sizeof(uint32_t);
 
         // Pipeline Layout (Add descriptors and push constants here)
         auto pipelineLayoutInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
         pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = & pushConstantRange;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
         // pipelineLayoutInfo.setLayoutCount = 1;
         // pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 

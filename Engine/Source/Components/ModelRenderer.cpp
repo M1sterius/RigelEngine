@@ -14,12 +14,19 @@ namespace Rigel
     ModelRenderer::ModelRenderer(const std::filesystem::path& modelPath)
         : m_ModelPath(modelPath) { }
 
+    AssetHandle<Model> ModelRenderer::GetModelAsset() const
+    {
+        if (!m_Model.IsNull())
+            m_Model->WaitReady();
+        return m_Model;
+    }
+
     void ModelRenderer::OnLoad()
     {
         if (m_Model.IsNull() && m_ModelPath.has_value())
         {
             auto& assetManager = Engine::Get().GetAssetManager();
-            m_Model = assetManager.Load<Model>(m_ModelPath.value());
+            m_Model = assetManager.LoadAsync<Model>(m_ModelPath.value());
         }
     }
 

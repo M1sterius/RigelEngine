@@ -5,14 +5,14 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Fence::VK_Fence(VK_Device& device, const bool signalBit)
+    VK_Fence::VK_Fence(const VK_Device& device, const bool signalBit)
             :   m_Device(device)
     {
         auto fenceInfo = MakeInfo<VkFenceCreateInfo>();
         if (signalBit) fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         if (const auto result = vkCreateFence(m_Device.Get(), &fenceInfo, nullptr, &m_Fence); result != VK_SUCCESS)
-            throw VulkanException("Failed to Vulkan create fence!", result);
+            throw VulkanException("Failed to create Vulkan fence!", result);
     }
 
     VK_Fence::~VK_Fence()

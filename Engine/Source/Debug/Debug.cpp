@@ -27,6 +27,13 @@ namespace Rigel
         logger.Log(error, LogType::Error);
     }
 
+    /**
+     * Calls std::exit after logging the error message
+     * @param code
+     * @param message
+     * @param file
+     * @param line
+     */
     void Debug::Crash(const ErrorCode code, const std::string& message, const char* file, const int line)
     {
         const auto codeCast = static_cast<int32_t>(code);

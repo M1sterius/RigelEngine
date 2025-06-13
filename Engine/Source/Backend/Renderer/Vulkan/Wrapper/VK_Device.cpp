@@ -1,6 +1,8 @@
 #include "VK_Device.hpp"
 #include "VK_Config.hpp"
 #include "VulkanException.hpp"
+#include "Engine.hpp"
+#include "AssetManager.hpp"
 #include "MakeInfo.hpp"
 
 #include <format>
@@ -12,18 +14,21 @@ namespace Rigel::Backend::Vulkan
         : m_Instance(instance), m_Surface(surface)
     {
         Debug::Trace("Searching for GPUs with Vulkan support.");
-        auto availableDevices = FindPhysicalDevices(m_Instance);
+        const auto availableDevices = FindPhysicalDevices(m_Instance);
         Debug::Trace("Detected GPUs:");
         for (const auto& device : availableDevices)
             Debug::Trace(std::format("    {}", device.Properties.deviceName));
 
         m_SelectedPhysicalDevice = PickBestPhysicalDevice(availableDevices, m_Surface);
         if (m_SelectedPhysicalDevice.IsNull())
-            throw RigelException("Failed to find any GPUs with adequate support of required features!");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Failed to find any GPUs with adequate support of required vulkan features!", __FILE__, __LINE__);
+        }
 
-        // Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
-        // Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
-        // Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
+        Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
+        Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
+        Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
@@ -35,7 +40,9 @@ namespace Rigel::Backend::Vulkan
 
     VK_Device::~VK_Device()
     {
-        vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+        for (const auto pool : m_CommandPools | std::views::values)
+            vkDestroyCommandPool(m_Device, pool, nullptr);
+
         vkDestroyDevice(m_Device, nullptr);
 
         Debug::Trace("Vulkan device destroyed.");
@@ -100,7 +107,10 @@ namespace Rigel::Backend::Vulkan
         }
 
         if (const auto result = vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan logical device", result);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create Vulkan logical device. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
 
         vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
         vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
@@ -108,14 +118,42 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Device::CreateCommandPool()
     {
-        // TODO: Implement creating command pool for each thread or for each queue family
+        VkCommandPool commandPool = VK_NULL_HANDLE;
 
         auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
         poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();
 
-        if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &m_CommandPool); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan command pool!", result);
+        if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create Vulkan command pool!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
+
+        m_CommandPools[std::this_thread::get_id()] = commandPool;
+
+        for (const auto& id : Engine::Get().GetAssetManager().GetLoadingThreadIDs())
+        {
+            if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool); result != VK_SUCCESS)
+            {
+                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                    std::format("Failed to create Vulkan command pool!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+            }
+
+            m_CommandPools[id] = commandPool;
+        }
+    }
+
+    VkCommandPool VK_Device::GetCommandPool() const
+    {
+        const auto thisThreadID = std::this_thread::get_id();
+        if (!m_CommandPools.contains(thisThreadID))
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Command pool can only be retrived for one of the asset manager's loading thraeds", __FILE__, __LINE__);
+        }
+
+        return m_CommandPools.at(thisThreadID);
     }
 
     uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const
@@ -128,7 +166,9 @@ namespace Rigel::Backend::Vulkan
                 return i;
         }
 
-        throw VulkanException("Failed to find suitable memory type supported by a Vulkan physical device!", VK_ERROR_UNKNOWN);
+        Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Failed to find suitable memory type supported by a Vulkan physical device!", __FILE__, __LINE__);
+        return -1;
     }
 
     void VK_Device::WaitIdle() const
@@ -144,7 +184,10 @@ namespace Rigel::Backend::Vulkan
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
         if (deviceCount == 0)
-            throw RigelException("Failed to find GPUs with Vulkan support!");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Failed to find GPUs with Vulkan support!", __FILE__, __LINE__);
+        }
 
         devices.resize(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());

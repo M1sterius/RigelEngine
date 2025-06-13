@@ -9,6 +9,9 @@ namespace Rigel
         OK = 0,
         UNKNOWN = 1,
 
+        NULL_HANDLE_DEREFERENCE = 2,
+        INVALID_HANDLE_DEREFERENCE = 3,
+
         // Subsystems
         SUBSYSTEM_STARTUP_FAILURE = 11,
         SUBSYSTEM_SHUTDOWN_FAILURE = 12,
@@ -27,6 +30,9 @@ namespace Rigel
         FAILED_TO_LOAD_ASSET = 201,
         FAILED_TO_CREATE_ASSET_BACKEND = 202,
         ASSET_FILE_FORMAT_NOT_SUPPORTED = 203,
+
+        // Vulkan
+        VULKAN_UNRECOVERABLE_ERROR = 501,
 
         MAX_VALUE = 0x0FFFFFFF
     };

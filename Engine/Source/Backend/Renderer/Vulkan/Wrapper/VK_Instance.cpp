@@ -2,7 +2,6 @@
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
-#include "VulkanException.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
@@ -54,14 +53,23 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Creating Vulkan instance.");
 
         if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredAPIVersion))
-            throw RigelException("Minimal required vulkan version is not supported on this device!");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Minimal required vulkan version is not supported on this device!", __FILE__, __LINE__);
+        }
 
         if (VK_Config::EnableValidationLayers && !CheckValidationLayersSupport())
-            throw RigelException("Validation layers requested, but not available!");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Vulkan validation layers requested, but not available!", __FILE__, __LINE__);
+        }
 
         auto extensionsToEnable = std::vector<const char*>();
         if (!CheckExtensionsSupport(extensionsToEnable))
-            throw RigelException("Not all requested vulkan instance extensions are supported on this device!");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Not all requested vulkan instance extensions are supported on this device!", __FILE__, __LINE__);
+        }
 
         auto appInfo = MakeInfo<VkApplicationInfo>();
         appInfo.pApplicationName = "Application";
@@ -91,7 +99,10 @@ namespace Rigel::Backend::Vulkan
         }
 
         if (const auto result = vkCreateInstance(&createInfo, nullptr, &m_Instance); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan instance!", result);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan instance. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
 
         if (VK_Config::EnableValidationLayers)
             CreateDebugMessenger();
@@ -128,7 +139,10 @@ namespace Rigel::Backend::Vulkan
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
         if (extensionCount == 0)
-            throw RigelException("Failed to find any supported instance extensions.");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Failed to find any supported vulkan instance extensions.", __FILE__, __LINE__);
+        }
 
         supportedExtensions.resize(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
@@ -138,7 +152,10 @@ namespace Rigel::Backend::Vulkan
         const auto glfwRequiredExtensions = glfwGetRequiredInstanceExtensions(&glfwRequiredExtensionsCount);
 
         if (glfwRequiredExtensionsCount == 0)
-            throw RigelException("glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.");
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "glfwGetRequiredInstanceExtensions results 0 as number of required instance extensions.", __FILE__, __LINE__);
+        }
 
         // Combine all requested extensions into one vector
         auto requiredExtensions = VK_Config::RequiredInstanceExtensions;
@@ -217,7 +234,10 @@ namespace Rigel::Backend::Vulkan
         PopulateDebugMessengerCreateInfo(createInfo);
 
         if (const auto result = CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger); result != VK_SUCCESS)
-            throw VulkanException("Failed to set up Vulkan debug messenger!", result);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to set up vulkan debug messanger. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
     }
 
     void VK_Instance::DestroyDebugMessenger()

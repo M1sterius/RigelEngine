@@ -18,7 +18,7 @@ namespace Rigel
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
-        NODISCARD AssetHandle<Model> GetModelAsset() const { return m_Model; }
+        NODISCARD AssetHandle<Model> GetModelAsset() const;
     private:
         ModelRenderer();
         explicit ModelRenderer(AssetHandle<Model> model);

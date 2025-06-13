@@ -37,11 +37,10 @@ namespace Rigel
     class AssetManager final : public RigelSubsystem
     {
     public:
-    #if 0
         template<RigelAssetConcept T>
         AssetHandle<T> LoadAsync(const std::filesystem::path& path)
         {
-            // Returns handle if the asset is already FULLY loaded.
+            // Returns handle if the asset is already FULLY LOADED.
             if (const auto existing = FindExisting<T>(path); !existing.IsNull())
                 return existing;
 
@@ -50,6 +49,9 @@ namespace Rigel
             // Returns handle if an asset is BEING LOADED at the moment
             if (m_LoadInProgressMap.contains(pathHash))
                 return m_LoadInProgressMap.at(pathHash).Cast<T>();
+
+            if (m_EnableAssetLifetimeLogging)
+                Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
 
             auto assetPtr = static_cast<RigelAsset*>(new T(path));
 
@@ -61,19 +63,18 @@ namespace Rigel
 
             const auto handle = AssetHandle<T>(static_cast<T*>(assetPtr), assetID, refCounterRaw);
 
-            // Add to in progress map
+            // Add to in-progress map
             {
                 std::unique_lock lock(m_LoadInProgressMutex);
                 m_LoadInProgressMap[pathHash] = handle.template Cast<RigelAsset>();
             }
 
-            // TODO: Implement load finished scope guard
-
             auto future = m_ThreadPool->Enqueue([this, assetPtr, path, pathHash]()
             {
+                auto guard = ScopeGuard([assetPtr] { assetPtr->m_LoadFinished = true; });
+
                 if (const auto result = assetPtr->Init(); result != ErrorCode::OK)
                 {
-                    assetPtr->m_LoadFinished = true;
                     Debug::Error("Failed to load an asset at path: {}! Error code: {}.", path.string(), static_cast<int32_t>(result));
                     return;
                 }
@@ -82,8 +83,6 @@ namespace Rigel
                     std::unique_lock lock(m_LoadInProgressMutex);
                     m_LoadInProgressMap.erase(pathHash);
                 }
-
-                assetPtr->m_LoadFinished = true;
             });
 
             {
@@ -100,7 +99,6 @@ namespace Rigel
 
             return handle;
         }
-    #endif
 
         template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path)
@@ -152,7 +150,6 @@ namespace Rigel
             using namespace Backend::HandleValidation;
 
             std::unique_ptr<RigelAsset> assetPtr;
-            std::unique_ptr<std::atomic<uint32_t>> refCounterPtr;
             std::filesystem::path path;
 
             {
@@ -163,7 +160,6 @@ namespace Rigel
                     if (it->AssetID == assetID)
                     {
                         assetPtr = std::move(it->Asset);
-                        refCounterPtr = std::move(it->RefCounter);
                         path = std::move(it->Path);
 
                         m_AssetsRegistry.erase(it);
@@ -177,7 +173,6 @@ namespace Rigel
 
             HandleValidator::RemoveHandle<HandleType::AssetHandle>(assetID);
             assetPtr.reset(); // explicitly delete the object just for clarity
-            refCounterPtr.reset();
         }
 
         template<RigelAssetConcept T>
@@ -198,6 +193,8 @@ namespace Rigel
 
         ErrorCode Startup(const ProjectSettings& settings) override;
         ErrorCode Shutdown() override;
+
+        NODISCARD const std::vector<std::thread::id>& GetLoadingThreadIDs() const { return m_ThreadPool->GetThreadIDs(); }
 
         void UnloadAllAssets();
     private:

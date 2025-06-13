@@ -2,6 +2,12 @@
 #include "Debug.hpp"
 #include "SleepUtility.hpp"
 
+uint64_t GetThisThreadID()
+{
+    const auto id = std::this_thread::get_id();
+    return std::hash<std::thread::id>{}(id);
+}
+
 namespace Rigel
 {
     ThreadPool::ThreadPool(const size_t numThreads)
@@ -9,7 +15,7 @@ namespace Rigel
         const auto _numThreads = numThreads == 0 ? std::thread::hardware_concurrency() : numThreads;
 
         for (size_t i = 0; i < _numThreads; ++i)
-            m_WorkerThreads.emplace_back(std::thread(ThreadLoop, this));
+            m_WorkerThreads.emplace_back(std::thread([this] { this->ThreadLoop(); }));
     }
 
     ThreadPool::~ThreadPool()
@@ -22,6 +28,19 @@ namespace Rigel
             if (thread.joinable())
                 thread.join();
         }
+    }
+
+    const std::vector<std::thread::id>& ThreadPool::GetThreadIDs() const
+    {
+        while (true)
+        {
+            {
+                std::unique_lock lock(m_ThreadIdMutex);
+                if (m_ThreadIDs.size() == m_WorkerThreads.size())
+                    break;
+            }
+        }
+        return m_ThreadIDs;
     }
 
     size_t ThreadPool::GetQueueSize() const
@@ -42,6 +61,11 @@ namespace Rigel
 
     void ThreadPool::ThreadLoop()
     {
+        {
+            std::unique_lock lock(m_ThreadIdMutex);
+            m_ThreadIDs.push_back(std::this_thread::get_id());
+        }
+
         while (true)
         {
             std::function<void()> task;

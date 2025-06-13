@@ -1,5 +1,6 @@
 #include "VK_CmdBuffer.hpp"
 #include "VK_Device.hpp"
+#include "VK_Fence.hpp"
 #include "MakeInfo.hpp"
 #include "VulkanException.hpp"
 
@@ -21,8 +22,11 @@ namespace Rigel::Backend::Vulkan
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &buff;
 
-        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(device.GetGraphicsQueue());
+        // This avoids stalling the entire queue (so don't use vkQueueWaitIdle)
+        const auto fence = std::make_unique<VK_Fence>(device);
+
+        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, fence->Get());
+        fence->Wait();
     }
 
     void VK_CmdBuffer::CmdSetScissor(VkCommandBuffer cmdBuffer, const glm::ivec2 offset, const VkExtent2D extent)

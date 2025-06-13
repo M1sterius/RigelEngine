@@ -1,10 +1,9 @@
 #include "VK_Image.hpp"
-
-#include <VK_MemoryBuffer.hpp>
-
+#include "VK_MemoryBuffer.hpp"
 #include "VK_CmdBuffer.hpp"
 #include "VulkanException.hpp"
 #include "VK_Device.hpp"
+#include "VK_Fence.hpp"
 #include "MakeInfo.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -104,8 +103,11 @@ namespace Rigel::Backend::Vulkan
         const auto buff = commandBuffer.Get();
         submitInfo.pCommandBuffers = &buff;
 
-        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(device.GetGraphicsQueue());
+        // This avoids stalling the entire queue (so don't use vkQueueWaitIdle)
+        const auto fence = std::make_unique<VK_Fence>(device);
+
+        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, fence->Get());
+        fence->Wait();
     }
 
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,

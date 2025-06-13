@@ -27,6 +27,11 @@ namespace Rigel
         ThreadPool(const ThreadPool& other) = delete;
         ThreadPool& operator = (const ThreadPool&) = delete;
 
+        /**
+         * Returns unique std::thread::id of all threads in the pool
+         */
+        NODISCARD const std::vector<std::thread::id>& GetThreadIDs() const;
+
         NODISCARD inline size_t GetSize() const { return m_WorkerThreads.size(); }
         NODISCARD size_t GetQueueSize() const;
         NODISCARD inline size_t GetActiveTasksCount() const { return m_ActiveTasks; }
@@ -67,6 +72,9 @@ namespace Rigel
         }
     private:
         void ThreadLoop();
+
+        std::vector<std::thread::id> m_ThreadIDs;
+        mutable std::mutex m_ThreadIdMutex;
 
         std::vector<std::thread> m_WorkerThreads;
         std::queue<std::function<void()>> m_Tasks;
