@@ -145,34 +145,9 @@ namespace Rigel
             return AssetHandle<T>(static_cast<T*>(rawAssetPtr), assetID, refCounterRaw);
         }
 
-        void Unload(const uid_t assetID)
+        inline void Unload(const uid_t assetID)
         {
-            using namespace Backend::HandleValidation;
-
-            std::unique_ptr<RigelAsset> assetPtr;
-            std::filesystem::path path;
-
-            {
-                std::unique_lock lock(m_RegistryMutex);
-
-                for (auto it = m_AssetsRegistry.begin(); it != m_AssetsRegistry.end(); ++it)
-                {
-                    if (it->AssetID == assetID)
-                    {
-                        assetPtr = std::move(it->Asset);
-                        path = std::move(it->Path);
-
-                        m_AssetsRegistry.erase(it);
-                        break;
-                    }
-                }
-            }
-
-            if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Destroying an asset at path: {}.", path.string());
-
-            HandleValidator::RemoveHandle<HandleType::AssetHandle>(assetID);
-            assetPtr.reset(); // explicitly delete the object just for clarity
+            m_ThreadPool->Enqueue([this, assetID] { this->UnloadImpl(assetID); });
         }
 
         template<RigelAssetConcept T>
@@ -214,6 +189,8 @@ namespace Rigel
 
             return AssetHandle<T>::Null();
         }
+
+        void UnloadImpl(const uid_t assetID);
 
         void AssignAssetID(RigelAsset* ptr, const uid_t id);
 

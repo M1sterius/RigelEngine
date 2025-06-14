@@ -4,6 +4,7 @@
 #include "vulkan.h"
 
 #include <utility>
+#include <mutex>
 
 namespace Rigel::Backend::Vulkan
 {
@@ -61,6 +62,9 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD VkCommandPool GetCommandPool() const;
 
+        // thread safe way to submit work to the graphics queue, always prefer it to raw vkQueueSubmit
+        void SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
+
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
 
@@ -73,6 +77,8 @@ namespace Rigel::Backend::Vulkan
         VkDevice m_Device = VK_NULL_HANDLE;
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         QueueFamilyIndices m_QueueFamilyIndices = {};
+
+        mutable std::mutex m_GraphicsQueueMutex;
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;

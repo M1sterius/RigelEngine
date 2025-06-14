@@ -25,9 +25,6 @@ int32_t main(const int32_t argc, char** argv)
 
     auto scene = sceneManager.CreateScene();
 
-    // auto h = assetManager.LoadAsync<Rigel::Model>("Assets/EngineAssets/Models/sphere.obj");
-    // h->WaitReady();
-
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 

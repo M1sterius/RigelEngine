@@ -105,8 +105,7 @@ namespace Rigel::Backend::Vulkan
 
         // This avoids stalling the entire queue (so don't use vkQueueWaitIdle)
         const auto fence = std::make_unique<VK_Fence>(device);
-
-        vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, fence->Get());
+        device.SubmitGraphicsQueue(1, &submitInfo, fence->Get());
         fence->Wait();
     }
 

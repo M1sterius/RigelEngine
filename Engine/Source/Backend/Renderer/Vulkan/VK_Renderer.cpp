@@ -260,7 +260,7 @@ namespace Rigel::Backend::Vulkan
         const auto& fence = m_InFlightFences[frameIndex];
         fence->Reset();
 
-        vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, fence->Get());
+        m_Device->SubmitGraphicsQueue(1, &submitInfo, fence->Get());
 
         m_Swapchain->Present(image.imageIndex, signalSemaphores[0]);
     }

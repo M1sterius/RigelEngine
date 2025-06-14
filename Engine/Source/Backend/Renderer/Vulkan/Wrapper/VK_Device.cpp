@@ -26,9 +26,9 @@ namespace Rigel::Backend::Vulkan
                 "Failed to find any GPUs with adequate support of required vulkan features!", __FILE__, __LINE__);
         }
 
-        Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
-        Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
-        Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
+        // Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
+        // Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
+        // Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
@@ -154,6 +154,12 @@ namespace Rigel::Backend::Vulkan
         }
 
         return m_CommandPools.at(thisThreadID);
+    }
+
+    void VK_Device::SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
+    {
+        std::unique_lock lock(m_GraphicsQueueMutex);
+        vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence);
     }
 
     uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const
