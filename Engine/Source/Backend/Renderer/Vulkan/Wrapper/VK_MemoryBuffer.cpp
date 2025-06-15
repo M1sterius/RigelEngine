@@ -20,61 +20,51 @@ namespace Rigel::Backend::Vulkan
         VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
     }
 
-    VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags usage,
-                                     VkMemoryPropertyFlags properties)
-        : m_Device(device), m_Size(size)
+    VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage, VmaMemoryUsage memUsage)
+        : m_Device(device), m_Size(size), m_BufferUsage(buffUsage), m_MemoryUsage(memUsage)
     {
-        ASSERT(size > 0, "Vulkan buffer size must be greater than zero!");
-
-        auto bufferInfo = MakeInfo<VkBufferCreateInfo>();
-        bufferInfo.size = size;
-        bufferInfo.usage = usage;
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-        if (const auto result = vkCreateBuffer(m_Device.Get(), &bufferInfo, nullptr, &m_Buffer); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan GPU memory buffer!", result);
-
-        VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(m_Device.Get(), m_Buffer, &memRequirements);
-
-        auto allocInfo = MakeInfo<VkMemoryAllocateInfo>();
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = m_Device.FindMemoryType(memRequirements.memoryTypeBits, properties);
-
-        if (const auto result = vkAllocateMemory(m_Device.Get(), &allocInfo, nullptr, &m_BufferMemory); result != VK_SUCCESS)
-            throw VulkanException("Failed to allocate Vulkan memory for a GPU buffer!", result);
-
-        if (const auto result = vkBindBufferMemory(m_Device.Get(), m_Buffer, m_BufferMemory, 0); result != VK_SUCCESS)
-            throw VulkanException("Failed to bind allocated memory to Vulkan GPU buffer!", result);
+        CreateBuffer();
     }
 
     VK_MemoryBuffer::~VK_MemoryBuffer()
     {
-        vkDestroyBuffer(m_Device.Get(), m_Buffer, nullptr);
-        vkFreeMemory(m_Device.Get(), m_BufferMemory, nullptr);
+        vmaDestroyBuffer(m_Device.GetVmaAllocator(), m_Buffer, m_Allocation);
     }
 
-    void* VK_MemoryBuffer::Map(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size) const
+    void VK_MemoryBuffer::CreateBuffer()
     {
-        void* map;
+        ASSERT(m_Size > 0, "Vulkan buffer size must be greater than zero!");
 
-        if (const auto result = vkMapMemory(m_Device.Get(), m_BufferMemory, offset, m_Size, flags, &map); result != VK_SUCCESS)
-            throw VulkanException("Failed to map Vulkan GPU buffer memory to host memory!", result);
+        auto bufferInfo = MakeInfo<VkBufferCreateInfo>();
+        bufferInfo.size = m_Size;
+        bufferInfo.usage = m_BufferUsage;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        return map;
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage = m_MemoryUsage;
+
+        if (const auto result = vmaCreateBuffer(m_Device.GetVmaAllocator(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to allocate VMA buffer. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
     }
 
-    void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkMemoryMapFlags flags, const VkDeviceSize size, const void* data) const
+    void VK_MemoryBuffer::Resize(const VkDeviceSize newSize)
+    {
+        ASSERT(m_Size > 0, "Vulkan buffer size must be greater than zero!");
+
+        vmaDestroyBuffer(m_Device.GetVmaAllocator(), m_Buffer, m_Allocation);
+
+        m_Size = newSize;
+        CreateBuffer();
+    }
+
+    void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkDeviceSize size, const void* data)
     {
         ASSERT(size > 0, "Attempted to upload data of zero size!")
         ASSERT(size <= m_Size, "Attempted to upload more data than the buffer is capable of storing!")
 
-        void* map;
-
-        if (const auto result = vkMapMemory(m_Device.Get(), m_BufferMemory, offset, m_Size, flags, &map); result != VK_SUCCESS)
-            throw VulkanException("Failed to map Vulkan GPU buffer memory to host memory!", result);
-
-        memcpy(map, data, m_Size);
-        vkUnmapMemory(m_Device.Get(), m_BufferMemory);
+        vmaCopyMemoryToAllocation(m_Device.GetVmaAllocator(), data, m_Allocation, offset, size);
     }
 }

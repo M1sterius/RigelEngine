@@ -157,8 +157,8 @@ namespace Rigel::Backend::Vulkan
         }
 
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
-        allocatorCreateInfo.flags = extensionFlags | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
-        allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+        allocatorCreateInfo.flags = extensionFlags;
+        allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_4;
         allocatorCreateInfo.physicalDevice = m_SelectedPhysicalDevice.PhysicalDevice;
         allocatorCreateInfo.device = m_Device;
         allocatorCreateInfo.instance = m_Instance;

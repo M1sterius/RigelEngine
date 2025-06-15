@@ -33,7 +33,7 @@ namespace Rigel::Backend::Vulkan
             throw RigelException(std::format("Failed to load a texture at path: {}!", m_Path.string()));
 
         const auto stagingBuffer = std::make_unique<VK_MemoryBuffer>(device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+               VMA_MEMORY_USAGE_CPU_TO_GPU);
 
         stbi_image_free(pixels);
 

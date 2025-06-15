@@ -34,6 +34,5 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_MemoryBuffer> m_MemoryBuffer;
         const size_t m_Size;
-        void* m_MapPtr = nullptr;
     };
 }

@@ -10,8 +10,7 @@ namespace Rigel::Backend::Vulkan
         ASSERT(size > 0, "Uniform buffer size cannot be zero");
 
         m_MemoryBuffer = std::make_unique<VK_MemoryBuffer>(m_Device, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        m_MapPtr = m_MemoryBuffer->Map(0, 0, m_Size);
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
     }
 
     VK_UniformBuffer::~VK_UniformBuffer() = default;
@@ -21,8 +20,7 @@ namespace Rigel::Backend::Vulkan
         ASSERT(size <= m_Size, "Attempted to upload too much data into a uniform buffer");
         ASSERT(offset < m_Size, "UBO data upload offset cannot be greater or equal to the buffer size");
 
-        const auto cpyAddr = static_cast<uint8_t*>(m_MapPtr) + offset;
-        memcpy(cpyAddr, data, size);
+        m_MemoryBuffer->UploadData(offset, size, data);
     }
 
     void VK_UniformBuffer::UploadData(const void* data) const

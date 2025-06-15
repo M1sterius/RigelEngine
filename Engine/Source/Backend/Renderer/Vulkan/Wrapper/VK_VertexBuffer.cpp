@@ -11,11 +11,11 @@ namespace Rigel::Backend::Vulkan
         ASSERT(bufferSize > 0, "Vertex buffer size cannot be zero");
 
         const auto stagingBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        stagingBuffer->UploadData(0, 0, bufferSize, vertices.data());
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
+        stagingBuffer->UploadData(0, bufferSize, vertices.data());
 
         m_MemoryBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
 
         VK_MemoryBuffer::Copy(device, *stagingBuffer, *m_MemoryBuffer, bufferSize);
     }
