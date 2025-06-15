@@ -9,11 +9,14 @@ file(GLOB_RECURSE IMGUI_SOURCES
     "${DEPENDENCIES_DIR}/imgui/*.cpp"
 )
 
+set(VMA_SOURCES "${DEPENDENCIES_DIR}/vma/vma.cpp")
+
 add_library(RigelEngine STATIC
     ${IMGUI_SOURCES}
+    ${VMA_SOURCES}
 
     Source/Engine.cpp
-        Source/Subsystems/Time.cpp
+    Source/Subsystems/Time.cpp
     Source/Subsystems/SceneManager.cpp
     Source/Subsystems/Renderer/Renderer.cpp
     Source/Debug/Debug.cpp
@@ -121,6 +124,7 @@ target_include_directories(RigelEngine PRIVATE
     ${DEPENDENCIES_DIR}/glfw/include/GLFW
 
     ${DEPENDENCIES_DIR}/imgui
+    ${DEPENDENCIES_DIR}/vma
 )
 
 # Include paths that should be available outside to the projects linking the engine
@@ -155,11 +159,10 @@ target_include_directories(RigelEngine PUBLIC
 add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
 find_package(Vulkan REQUIRED)
-find_package(OpenGL REQUIRED)
 find_package(Python3 REQUIRED)
 
 target_link_libraries(RigelEngine PUBLIC
-    ${LINK_LIBRARIES} glfw Vulkan::Vulkan OpenGL::GL
+    ${LINK_LIBRARIES} glfw Vulkan::Vulkan
 )
 
 add_custom_target(RunBuildAssets ALL

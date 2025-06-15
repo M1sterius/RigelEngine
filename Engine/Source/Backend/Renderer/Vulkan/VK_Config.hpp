@@ -4,9 +4,7 @@
 #include "Exceptions.hpp"
 #include "vulkan.h"
 
-#include <format>
 #include <vector>
-#include <array>
 
 namespace Rigel::Backend::Vulkan
 {
@@ -35,6 +33,17 @@ namespace Rigel::Backend::Vulkan
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
             VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+        };
+
+        inline static const std::vector<const char*> OptionalPhysicalDeviceExtensions = {
+            VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+            VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+            VK_KHR_MAINTENANCE_5_EXTENSION_NAME,
+            VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+            VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME,
+            VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME,
+            VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
         };
 
         inline static VkPresentModeKHR PrioritySwapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;

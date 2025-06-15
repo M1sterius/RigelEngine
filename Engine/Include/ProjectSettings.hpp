@@ -40,7 +40,7 @@ namespace Rigel
         // Tags and Layers
         std::map<uid_t, std::string> TagsMap = {
             {0, "Default"},
-            {0, "Main Camera"}
+            {1, "Main Camera"}
         };
 
         // Assets and asset manager

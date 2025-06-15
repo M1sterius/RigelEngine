@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "vulkan.h"
+#include "vk_mem_alloc.h"
 
 #include <utility>
 #include <mutex>
@@ -13,6 +14,8 @@ namespace Rigel::Backend::Vulkan
         VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
         VkPhysicalDeviceProperties Properties = {};
         VkPhysicalDeviceMemoryProperties MemoryProperties {};
+        VkDeviceSize DedicatedMemorySize;
+        std::vector<VkExtensionProperties> SupportedExtensions;
 
         NODISCARD bool IsNull() const
         {
@@ -57,6 +60,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VkDevice Get() const { return m_Device; }
 
         NODISCARD inline VkPhysicalDevice GetPhysicalDevice() const { return m_SelectedPhysicalDevice.PhysicalDevice; }
+        NODISCARD inline VmaAllocator GetVmaAllocator() const { return m_VmaAllocator; }
         NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
@@ -77,23 +81,26 @@ namespace Rigel::Backend::Vulkan
         VkDevice m_Device = VK_NULL_HANDLE;
         PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
         QueueFamilyIndices m_QueueFamilyIndices = {};
+        VmaAllocator m_VmaAllocator = VK_NULL_HANDLE;
 
         mutable std::mutex m_GraphicsQueueMutex;
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
 
-        // VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        std::vector<const char*> m_EnabledExtensions;
         std::unordered_map<std::thread::id, VkCommandPool> m_CommandPools;
 
         void CreateLogicalDevice();
         void CreateCommandPool();
+        void CreateVmaAllocator();
 
         NODISCARD static std::vector<PhysicalDeviceInfo> FindPhysicalDevices(VkInstance instance);
         NODISCARD static PhysicalDeviceInfo PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface);
 
-        NODISCARD static bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
-        NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device, const std::vector<const char*>& extensions);
+        NODISCARD static bool IsDeviceSuitable(const PhysicalDeviceInfo& device, VkSurfaceKHR surface);
+        NODISCARD static bool IsPhysicalDeviceExtensionSupported(const PhysicalDeviceInfo& device, const char* extName);
+        NODISCARD static bool CheckPhysicalDeviceExtensionsSupport(const PhysicalDeviceInfo& device, const std::vector<const char*>& extensions);
         NODISCARD static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
         NODISCARD static SwapchainSupportDetails QuerySwapchainSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface);
     };

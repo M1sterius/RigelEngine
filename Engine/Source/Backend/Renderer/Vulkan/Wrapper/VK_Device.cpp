@@ -32,14 +32,18 @@ namespace Rigel::Backend::Vulkan
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
-        Debug::Trace(std::format("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName));
+        Debug::Trace("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName);
+        Debug::Trace("Available dedicated VRAM: {}mb.", m_SelectedPhysicalDevice.DedicatedMemorySize / (1024 * 1024));
 
         CreateLogicalDevice();
         CreateCommandPool();
+        CreateVmaAllocator();
     }
 
     VK_Device::~VK_Device()
     {
+        vmaDestroyAllocator(m_VmaAllocator);
+
         for (const auto pool : m_CommandPools | std::views::values)
             vkDestroyCommandPool(m_Device, pool, nullptr);
 
@@ -88,12 +92,27 @@ namespace Rigel::Backend::Vulkan
 
         indexingFeatures.pNext = &dynamicRenderingFeature;
 
+        m_EnabledExtensions = VK_Config::RequiredPhysicalDeviceExtensions;
+
+        // Add supported optional extensions to be enabled
+        for (const auto ext : VK_Config::OptionalPhysicalDeviceExtensions)
+        {
+            if (IsPhysicalDeviceExtensionSupported(m_SelectedPhysicalDevice, ext))
+                m_EnabledExtensions.push_back(ext);
+            else
+                Debug::Warning("Optional vulkan physical device extension {} is not supported.", ext);
+        }
+
+        Debug::Trace("Enabled vulkan physical device extensions:");
+        for (const auto ext : m_EnabledExtensions)
+            Debug::Trace("    {}", ext);
+
         auto createInfo = MakeInfo<VkDeviceCreateInfo>();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(VK_Config::RequiredPhysicalDeviceExtensions.size());
-        createInfo.ppEnabledExtensionNames = VK_Config::RequiredPhysicalDeviceExtensions.data();
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(m_EnabledExtensions.size());
+        createInfo.ppEnabledExtensionNames = m_EnabledExtensions.data();
         createInfo.pNext = &indexingFeatures;
 
         if (VK_Config::EnableValidationLayers)
@@ -114,6 +133,41 @@ namespace Rigel::Backend::Vulkan
 
         vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
         vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
+    }
+
+    void VK_Device::CreateVmaAllocator()
+    {
+        static const std::unordered_map<std::string, VmaAllocatorCreateFlags> extensionToFlagMap = {
+            {"VK_KHR_dedicated_allocation",       VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT},
+            {"VK_KHR_bind_memory2",               VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT},
+            {"VK_KHR_maintenance4",               VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT},
+            {"VK_KHR_maintenance5",               VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT},
+            {"VK_EXT_memory_budget",              VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT},
+            {"VK_KHR_buffer_device_address",      VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT},
+            {"VK_EXT_memory_priority",            VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT},
+            {"VK_AMD_device_coherent_memory",     VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT},
+            {"VK_KHR_external_memory_win32",      VMA_ALLOCATOR_CREATE_KHR_EXTERNAL_MEMORY_WIN32_BIT}
+        };
+
+        VmaAllocatorCreateFlags extensionFlags = 0;
+        for (const auto ext : m_EnabledExtensions)
+        {
+            if (extensionToFlagMap.contains(ext))
+                extensionFlags |= extensionToFlagMap.at(ext);
+        }
+
+        VmaAllocatorCreateInfo allocatorCreateInfo = {};
+        allocatorCreateInfo.flags = extensionFlags | VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+        allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+        allocatorCreateInfo.physicalDevice = m_SelectedPhysicalDevice.PhysicalDevice;
+        allocatorCreateInfo.device = m_Device;
+        allocatorCreateInfo.instance = m_Instance;
+
+        if (const auto result = vmaCreateAllocator(&allocatorCreateInfo, &m_VmaAllocator); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan memory allocator. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
     }
 
     void VK_Device::CreateCommandPool()
@@ -150,7 +204,7 @@ namespace Rigel::Backend::Vulkan
         if (!m_CommandPools.contains(thisThreadID))
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Command pool can only be retrived for one of the asset manager's loading thraeds", __FILE__, __LINE__);
+                "Command pool can only be retrieved for one of the asset manager's loading threads", __FILE__, __LINE__);
         }
 
         return m_CommandPools.at(thisThreadID);
@@ -204,10 +258,26 @@ namespace Rigel::Backend::Vulkan
         for (size_t i = 0; i < devices.size(); i++)
         {
             const auto device = devices[i];
-            devicesInfo[i].PhysicalDevice = device;
+            auto& deviceInfo = devicesInfo[i];
 
-            vkGetPhysicalDeviceProperties(device, &devicesInfo[i].Properties);
-            vkGetPhysicalDeviceMemoryProperties(device, &devicesInfo[i].MemoryProperties);
+            deviceInfo.PhysicalDevice = device;
+
+            vkGetPhysicalDeviceProperties(device, &deviceInfo.Properties);
+            vkGetPhysicalDeviceMemoryProperties(device, &deviceInfo.MemoryProperties);
+
+            // Get all extensions supported by a device
+            uint32_t extensionCount;
+            vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+            deviceInfo.SupportedExtensions.resize(extensionCount);
+            vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, deviceInfo.SupportedExtensions.data());
+
+            // Query total device VRAM
+            for (const auto memoryHeap : deviceInfo.MemoryProperties.memoryHeaps)
+            {
+                if (memoryHeap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+                    deviceInfo.DedicatedMemorySize += memoryHeap.size;
+            }
         }
 
         return devicesInfo;
@@ -217,7 +287,7 @@ namespace Rigel::Backend::Vulkan
     {
         // If there is only one GPU we don't have to do anything besides checking it for minimal requirements
         if (availableDevices.size() == 1)
-            return IsDeviceSuitable(availableDevices[0].PhysicalDevice, surface) ? availableDevices[0] : PhysicalDeviceInfo();
+            return IsDeviceSuitable(availableDevices[0], surface) ? availableDevices[0] : PhysicalDeviceInfo();
 
         PhysicalDeviceInfo chosenDevice {};
         int32_t maxScore = -1000;
@@ -231,22 +301,23 @@ namespace Rigel::Backend::Vulkan
         };
 
         // Choosing a GPU based on its features, GPUs with RT pipeline are favoured the most
-        for (const auto& dev : availableDevices)
+        for (const auto& device : availableDevices)
         {
-            if (!IsDeviceSuitable(dev.PhysicalDevice, surface)) continue;
+            if (!IsDeviceSuitable(device, surface))
+                continue;
 
             int32_t currentScore = 0;
 
-            if (dev.Properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+            if (device.Properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                 currentScore += 1000;
 
-            if (CheckPhysicalDeviceExtensionsSupport(dev.PhysicalDevice, RTPipelineExtensions))
+            if (CheckPhysicalDeviceExtensionsSupport(device, RTPipelineExtensions))
                 currentScore += 10000;
 
             if (currentScore > maxScore)
             {
                 maxScore = currentScore;
-                chosenDevice = dev;
+                chosenDevice = device;
             }
         }
 
@@ -254,32 +325,37 @@ namespace Rigel::Backend::Vulkan
     }
 
 #pragma region PhysicalDeviceChecks
-    bool VK_Device::IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
+    bool VK_Device::IsDeviceSuitable(const PhysicalDeviceInfo& device, VkSurfaceKHR surface)
     {
         // Checks if all minimal requirements are satisfied by a device
 
-        const auto indices = FindQueueFamilies(device, surface);
+        const auto indices = FindQueueFamilies(device.PhysicalDevice, surface);
         const auto areExtensionsSupported = CheckPhysicalDeviceExtensionsSupport(device, VK_Config::RequiredPhysicalDeviceExtensions);
-        const auto swapchainSupportDetails = QuerySwapchainSupportDetails(device, surface);
+        const auto swapchainSupportDetails = QuerySwapchainSupportDetails(device.PhysicalDevice, surface);
 
         return indices.IsComplete() && areExtensionsSupported && swapchainSupportDetails.IsSupportAdequate();
     }
 
-    bool VK_Device::CheckPhysicalDeviceExtensionsSupport(VkPhysicalDevice device, const std::vector<const char*>& extensions)
+    bool VK_Device::IsPhysicalDeviceExtensionSupported(const PhysicalDeviceInfo& device, const char* extName)
+    {
+        for (const auto& [name, _] : device.SupportedExtensions)
+        {
+            if (name == extName)
+                return true;
+        }
+
+        return false;
+    }
+
+    bool VK_Device::CheckPhysicalDeviceExtensionsSupport(const PhysicalDeviceInfo& device, const std::vector<const char*>& extensions)
     {
         // Checks if all specified extensions are supported by a device
         // returns false if at least one extension is not supported
 
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-        auto availableExtensions = std::vector<VkExtensionProperties>(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
         std::set<std::string> requiredExtensions(extensions.begin(), extensions.end());
 
-        for (const auto& extension : availableExtensions)
-            requiredExtensions.erase(extension.extensionName);
+        for (const auto& [extensionName, _] : device.SupportedExtensions)
+            requiredExtensions.erase(extensionName);
 
         return requiredExtensions.empty();
     }

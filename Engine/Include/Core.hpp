@@ -20,6 +20,10 @@
 
 #define SET_BIT(n) (1 << n)
 
+#define KB(n) (n * 1024)
+#define MB(n) (n * 1024 * 1024)
+#define GB(n) (n * 1024 * 1024)
+
 #ifdef RIGEL_INTERNAL
     #define RIGEL_API __declspec(dllexport)
 #else
