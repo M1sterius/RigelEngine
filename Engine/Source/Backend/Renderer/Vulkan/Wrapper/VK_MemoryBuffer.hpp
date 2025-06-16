@@ -14,6 +14,8 @@ namespace Rigel::Backend::Vulkan
     public:
         static void Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size);
 
+        inline static bool EnableAutoResizeOnUpload = true;
+
         VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage,
                         VmaMemoryUsage memUsage);
         ~VK_MemoryBuffer();

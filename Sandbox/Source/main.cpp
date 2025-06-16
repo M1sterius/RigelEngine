@@ -23,7 +23,7 @@ int32_t main(const int32_t argc, char** argv)
     auto& assetManager = engine->GetAssetManager();
     auto& windowManager = engine->GetWindowManager();
 
-    auto h = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
+    auto h = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Bruh.png");
 
     auto scene = sceneManager.CreateScene();
 

@@ -63,7 +63,12 @@ namespace Rigel::Backend::Vulkan
     void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkDeviceSize size, const void* data)
     {
         ASSERT(size > 0, "Attempted to upload data of zero size!")
-        ASSERT(size <= m_Size, "Attempted to upload more data than the buffer is capable of storing!")
+
+        if (EnableAutoResizeOnUpload)
+        {
+            if (offset + size > m_Size)
+                Resize(offset + size);
+        }
 
         vmaCopyMemoryToAllocation(m_Device.GetVmaAllocator(), data, m_Allocation, offset, size);
     }

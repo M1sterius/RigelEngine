@@ -8,6 +8,8 @@
 #include <format>
 #include <set>
 
+#include "VK_MemoryBuffer.hpp"
+
 namespace Rigel::Backend::Vulkan
 {
     VK_Device::VK_Device(VkInstance instance, VkSurfaceKHR surface)
@@ -36,12 +38,15 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Available dedicated VRAM: {}mb.", m_SelectedPhysicalDevice.DedicatedMemorySize / (1024 * 1024));
 
         CreateLogicalDevice();
-        CreateCommandPool();
         CreateVmaAllocator();
+        CreateCommandPools();
+        CreateStagingBuffers();
     }
 
     VK_Device::~VK_Device()
     {
+        m_StagingBuffers.clear();
+
         vmaDestroyAllocator(m_VmaAllocator);
 
         for (const auto pool : m_CommandPools | std::views::values)
@@ -180,7 +185,7 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    void VK_Device::CreateCommandPool()
+    void VK_Device::CreateCommandPools()
     {
         VkCommandPool commandPool = VK_NULL_HANDLE;
 
@@ -208,6 +213,18 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
+    void VK_Device::CreateStagingBuffers()
+    {
+        m_StagingBuffers[std::this_thread::get_id()] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+        for (const auto& id : Engine::Get().GetAssetManager().GetLoadingThreadIDs())
+        {
+            m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
+        }
+    }
+
     VkCommandPool VK_Device::GetCommandPool() const
     {
         const auto thisThreadID = std::this_thread::get_id();
@@ -218,6 +235,18 @@ namespace Rigel::Backend::Vulkan
         }
 
         return m_CommandPools.at(thisThreadID);
+    }
+
+    VK_MemoryBuffer& VK_Device::GetStagingBuffer() const
+    {
+        const auto thisThreadID = std::this_thread::get_id();
+        if (!m_StagingBuffers.contains(thisThreadID))
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Staging buffer can only be retrieved for one of the asset manager's loading threads", __FILE__, __LINE__);
+        }
+
+        return *m_StagingBuffers.at(thisThreadID);
     }
 
     void VK_Device::SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const

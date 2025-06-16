@@ -27,13 +27,13 @@ namespace Rigel::Backend::Vulkan
         m_Size.x = static_cast<uint32_t>(texWidth);
         m_Size.y = static_cast<uint32_t>(texHeight);
 
-        VkDeviceSize imageSize = m_Size.x * m_Size.y * 4; // 4 bytes for 8-bit RGBA
+        const VkDeviceSize imageSize = m_Size.x * m_Size.y * 4; // 4 bytes for 8-bit RGBA
 
         if (!pixels)
             throw RigelException(std::format("Failed to load a texture at path: {}!", m_Path.string()));
 
-        const auto stagingBuffer = std::make_unique<VK_MemoryBuffer>(device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-               VMA_MEMORY_USAGE_CPU_TO_GPU);
+        auto& stagingBuffer = device.GetStagingBuffer();
+        stagingBuffer.UploadData(0, imageSize, pixels);
 
         stbi_image_free(pixels);
 
@@ -43,7 +43,7 @@ namespace Rigel::Backend::Vulkan
         VK_Image::TransitionLayout(device, *m_Image, VK_FORMAT_R8G8B8A8_SRGB,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-        m_Image->CopyFromBuffer(*stagingBuffer);
+        m_Image->CopyFromBuffer(stagingBuffer);
 
         VK_Image::TransitionLayout(device, *m_Image, VK_FORMAT_R8G8B8A8_SRGB,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

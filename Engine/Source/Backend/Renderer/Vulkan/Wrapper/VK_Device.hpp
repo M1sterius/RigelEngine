@@ -9,6 +9,8 @@
 
 namespace Rigel::Backend::Vulkan
 {
+    class VK_MemoryBuffer;
+
     struct PhysicalDeviceInfo
     {
         VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
@@ -65,6 +67,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
         NODISCARD VkCommandPool GetCommandPool() const;
+        NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
 
         // thread safe way to submit work to the graphics queue, always prefer it to raw vkQueueSubmit
         void SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
@@ -90,10 +93,12 @@ namespace Rigel::Backend::Vulkan
 
         std::vector<const char*> m_EnabledExtensions;
         std::unordered_map<std::thread::id, VkCommandPool> m_CommandPools;
+        std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
 
         void CreateLogicalDevice();
-        void CreateCommandPool();
         void CreateVmaAllocator();
+        void CreateCommandPools();
+        void CreateStagingBuffers();
 
         NODISCARD static std::vector<PhysicalDeviceInfo> FindPhysicalDevices(VkInstance instance);
         NODISCARD static PhysicalDeviceInfo PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface);
