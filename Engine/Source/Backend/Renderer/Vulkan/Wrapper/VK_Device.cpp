@@ -73,11 +73,26 @@ namespace Rigel::Backend::Vulkan
             queueCreateInfos.push_back(queueCreateInfo);
         }
 
+        m_EnabledExtensions = VK_Config::RequiredPhysicalDeviceExtensions;
+
+        // Add supported optional extensions to be enabled
+        for (const auto extName : VK_Config::OptionalPhysicalDeviceExtensions)
+        {
+            if (IsPhysicalDeviceExtensionSupported(m_SelectedPhysicalDevice, extName))
+                m_EnabledExtensions.push_back(extName);
+            else
+                Debug::Warning("Optional vulkan physical device extension {} is not supported.", extName);
+        }
+
+        Debug::Trace("Enabled vulkan physical device extensions:");
+        for (const auto ext : m_EnabledExtensions)
+            Debug::Trace("    {}", ext);
+
         // Put physical device features you want to be enabled here
         VkPhysicalDeviceFeatures deviceFeatures {};
         deviceFeatures.samplerAnisotropy = true;
 
-        // Enable bindless descriptors
+        // Enable bindless descriptors (REQUIRED)
         VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures = {};
         indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
         indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
@@ -85,27 +100,22 @@ namespace Rigel::Backend::Vulkan
         indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
         indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
-        // Enable dynamic rendering
+        // Enable dynamic rendering (REQUIRED)
         VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature {};
         dynamicRenderingFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
         dynamicRenderingFeature.dynamicRendering = VK_TRUE;
 
-        indexingFeatures.pNext = &dynamicRenderingFeature;
-
-        m_EnabledExtensions = VK_Config::RequiredPhysicalDeviceExtensions;
-
-        // Add supported optional extensions to be enabled
-        for (const auto ext : VK_Config::OptionalPhysicalDeviceExtensions)
+        // Enable buffer device address (OPTIONAL)
+        if (IsPhysicalDeviceExtensionSupported(m_SelectedPhysicalDevice, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
         {
-            if (IsPhysicalDeviceExtensionSupported(m_SelectedPhysicalDevice, ext))
-                m_EnabledExtensions.push_back(ext);
-            else
-                Debug::Warning("Optional vulkan physical device extension {} is not supported.", ext);
+            VkPhysicalDeviceBufferDeviceAddressFeatures bufferAddressFeatures {};
+            bufferAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+            bufferAddressFeatures.bufferDeviceAddress = VK_TRUE;
+
+            dynamicRenderingFeature.pNext = &bufferAddressFeatures;
         }
 
-        Debug::Trace("Enabled vulkan physical device extensions:");
-        for (const auto ext : m_EnabledExtensions)
-            Debug::Trace("    {}", ext);
+        indexingFeatures.pNext = &dynamicRenderingFeature;
 
         auto createInfo = MakeInfo<VkDeviceCreateInfo>();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -338,9 +348,9 @@ namespace Rigel::Backend::Vulkan
 
     bool VK_Device::IsPhysicalDeviceExtensionSupported(const PhysicalDeviceInfo& device, const char* extName)
     {
-        for (const auto& [name, _] : device.SupportedExtensions)
+        for (const auto [curExtName, _] : device.SupportedExtensions)
         {
-            if (name == extName)
+            if (strcmp(curExtName, extName) == 0)
                 return true;
         }
 

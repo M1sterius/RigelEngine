@@ -34,6 +34,10 @@ namespace Rigel
         // Vulkan
         VULKAN_UNRECOVERABLE_ERROR = 501,
 
+        // Window manager
+        MONITOR_INFO_ENUMERATION_FAILURE = 701,
+        GLFW_INIT_FAILURE = 702,
+
         MAX_VALUE = 0x0FFFFFFF
     };
 }

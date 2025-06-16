@@ -13,7 +13,7 @@
 #define RIGEL_MAKE_VERSION(major, minor, patch) \
     ((((uint32_t)(major)) << 22U) | (((uint32_t)(minor)) << 12U) | ((uint32_t)(patch)))
 
-#define RGE_API_CURRENT_VERSION RIGEL_MAKE_VERSION(0, 1, 0)
+#define RIGEL_API_CURRENT_VERSION RIGEL_MAKE_VERSION(0, 1, 0)
 
 #define NODISCARD [[nodiscard]]
 #define MAYBE_UNUSED [[maybe_unused]]

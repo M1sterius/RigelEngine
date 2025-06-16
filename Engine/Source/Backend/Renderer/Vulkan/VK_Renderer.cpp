@@ -42,7 +42,7 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::Startup()
     {
-        Debug::Trace("Starting up Vulkan renderer.");
+        Debug::Trace("Starting up Vulkan renderer backend.");
 
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());

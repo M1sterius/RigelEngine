@@ -52,11 +52,17 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Creating Vulkan instance.");
 
-        if (!CheckVulkanVersionSupport(VK_Config::MinimalRequiredAPIVersion))
+        constexpr auto requiredVersion = VK_Config::MinimalRequiredAPIVersion;
+        const auto supportedVersion = GetVulkanVersion();
+
+        if (supportedVersion < requiredVersion)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Minimal required vulkan version is not supported on this device!", __FILE__, __LINE__);
+                std::format("Minimal required vulkan version ({}.{}.{}) is not supported on this device!",
+                    VK_VERSION_MAJOR(requiredVersion), VK_VERSION_MINOR(requiredVersion), VK_VERSION_PATCH(requiredVersion)), __FILE__, __LINE__);
         }
+
+        Debug::Trace("Vulkan version: {}.{}.{}", VK_VERSION_MAJOR(supportedVersion), VK_VERSION_MINOR(supportedVersion), VK_VERSION_PATCH(supportedVersion));
 
         if (VK_Config::EnableValidationLayers && !CheckValidationLayersSupport())
         {
@@ -71,11 +77,15 @@ namespace Rigel::Backend::Vulkan
                 "Not all requested vulkan instance extensions are supported on this device!", __FILE__, __LINE__);
         }
 
+        Debug::Trace("Enabled vulkan instance extensions:");
+        for (const auto ext : extensionsToEnable)
+            Debug::Trace("    {}", ext);
+
         auto appInfo = MakeInfo<VkApplicationInfo>();
         appInfo.pApplicationName = "Application";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.pEngineName = RIGEL_ENGINE_NAME;
-        appInfo.engineVersion = RGE_API_CURRENT_VERSION;
+        appInfo.engineVersion = RIGEL_API_CURRENT_VERSION;
         appInfo.apiVersion = VK_Config::MinimalRequiredAPIVersion;
 
         auto createInfo = MakeInfo<VkInstanceCreateInfo>();
@@ -91,9 +101,15 @@ namespace Rigel::Backend::Vulkan
 
             PopulateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+
+            Debug::Trace("Enabled vulkan validation layers:");
+            for (const auto layer : VK_Config::ValidationLayers)
+                Debug::Trace("    {}", layer);
         }
         else
         {
+            Debug::Trace("Vulkan validation layers are disabled!");
+
             createInfo.enabledLayerCount = 0;
             createInfo.pNext = nullptr;
         }
@@ -117,17 +133,14 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan instance destroyed.");
     }
 
-    bool VK_Instance::CheckVulkanVersionSupport(const uint32_t version)
+    uint32_t VK_Instance::GetVulkanVersion()
     {
         uint32_t supportedVersion = 0;
 
         if (vkEnumerateInstanceVersion)
             vkEnumerateInstanceVersion(&supportedVersion);
 
-        if (supportedVersion < version)
-            return false;
-
-        return true;
+        return supportedVersion;
     }
 
     bool VK_Instance::CheckExtensionsSupport(std::vector<const char*>& extensionsToEnable)

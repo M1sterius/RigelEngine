@@ -46,14 +46,16 @@ namespace Rigel
         if (!glfwInit())
         {
             Debug::Error("WindowManager::Failed to initialize glfw!");
-            return ErrorCode::UNKNOWN;
+            return ErrorCode::GLFW_INIT_FAILURE;
         }
+
+        Debug::Trace("GLFW successfully initialized.");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Disable opengl api because we use vulkan.
         glfwWindowHint(GLFW_RESIZABLE, settings.WindowResizeable);
 
-        if (EnumerateMonitorInfo() != 0)
-            return ErrorCode::UNKNOWN;
+        if (EnumerateMonitorInfo() != ErrorCode::OK)
+            return ErrorCode::MONITOR_INFO_ENUMERATION_FAILURE;
 
         m_GLFWWindow = glfwCreateWindow(static_cast<int>(m_WindowSize.x), static_cast<int>(m_WindowSize.y),
             m_WindowTitle.c_str(), nullptr, nullptr);
@@ -64,13 +66,13 @@ namespace Rigel
             return ErrorCode::UNKNOWN;
         }
 
+        Debug::Trace("Created window of size {}x{}.", m_WindowSize.x, m_WindowSize.y);
+
         SetScreenMode(settings.ScreenMode);
 
         int winPosX, winPosY;
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
         m_WindowPosition = glm::ivec2(winPosX, winPosY);
-
-        Debug::Trace("GLFW window instance successfully created.");
 
         glfwSetWindowUserPointer(m_GLFWWindow, this);
 
@@ -87,6 +89,7 @@ namespace Rigel
 
         glfwDestroyWindow(m_GLFWWindow);
         glfwTerminate();
+
         return ErrorCode::OK;
     }
 
@@ -114,7 +117,7 @@ namespace Rigel
         }
     }
 
-    int32_t WindowManager::EnumerateMonitorInfo()
+    ErrorCode WindowManager::EnumerateMonitorInfo()
     {
         int monitorCount;
         const auto monitors = glfwGetMonitors(&monitorCount);
@@ -122,7 +125,7 @@ namespace Rigel
         if (monitorCount == 0)
         {
             Debug::Error("WindowManager::Failed to detect any connected monitors!");
-            return 1;
+            return ErrorCode::MONITOR_INFO_ENUMERATION_FAILURE;
         }
 
         m_Monitors.resize(monitorCount);
@@ -163,7 +166,7 @@ namespace Rigel
         if (m_PrimaryMonitorIndex == -1)
         {
             Debug::Error("WindowManager::Failed to detect primary monitor!");
-            return 1;
+            return ErrorCode::MONITOR_INFO_ENUMERATION_FAILURE;
         }
 
         Debug::Trace(std::format("Detected {} available monitors:", m_Monitors.size()));
@@ -175,7 +178,7 @@ namespace Rigel
             Debug::Trace(text);
         }
 
-        return 0;
+        return ErrorCode::OK;
     }
 
     void WindowManager::PollGLFWEvents() const

@@ -56,7 +56,7 @@ namespace Rigel
         NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
         inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
     private:
-        NODISCARD int32_t EnumerateMonitorInfo();
+        NODISCARD ErrorCode EnumerateMonitorInfo();
 
         glm::uvec2 m_WindowSize = {1280, 720}; // Default window size should be changed based on an engine config file.
         glm::ivec2 m_WindowPosition = {};
