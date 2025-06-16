@@ -38,7 +38,7 @@ namespace Rigel::Backend::Vulkan
 
         VkImage m_Image = VK_NULL_HANDLE;
         VkImageView m_ImageView = VK_NULL_HANDLE;
-        VkDeviceMemory m_ImageMemory = VK_NULL_HANDLE;
+        VmaAllocation m_Allocation = VK_NULL_HANDLE;
 
         const glm::uvec2 m_Size;
         const VkFormat m_Format;

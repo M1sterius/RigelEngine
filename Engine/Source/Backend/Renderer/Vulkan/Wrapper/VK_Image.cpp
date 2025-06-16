@@ -129,20 +129,14 @@ namespace Rigel::Backend::Vulkan
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (const auto result = vkCreateImage(m_Device.Get(), &imageInfo, nullptr, &m_Image); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan image!", result);
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-        VkMemoryRequirements memoryRequirements;
-        vkGetImageMemoryRequirements(m_Device.Get(), m_Image, &memoryRequirements);
-
-        auto allocateInfo = MakeInfo<VkMemoryAllocateInfo>();
-        allocateInfo.allocationSize = memoryRequirements.size;
-        allocateInfo.memoryTypeIndex = m_Device.FindMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-        if (const auto result = vkAllocateMemory(m_Device.Get(), &allocateInfo, nullptr, &m_ImageMemory); result != VK_SUCCESS)
-            throw VulkanException("Failed to allocate memory for a Vulkan image!", result);
-
-        vkBindImageMemory(m_Device.Get(), m_Image, m_ImageMemory, 0);
+        if (const auto result = vmaCreateImage(m_Device.GetVmaAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan image. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
 
         auto viewInfo = MakeInfo<VkImageViewCreateInfo>();
         viewInfo.image = m_Image;
@@ -155,14 +149,16 @@ namespace Rigel::Backend::Vulkan
         viewInfo.subresourceRange.layerCount = 1;
 
         if (const auto result = vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_ImageView); result != VK_SUCCESS)
-            throw VulkanException("Failed to create a Vulkan image view!", result);
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan image view. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
     }
 
     VK_Image::~VK_Image()
     {
         vkDestroyImageView(m_Device.Get(), m_ImageView, nullptr);
-        vkDestroyImage(m_Device.Get(), m_Image, nullptr);
-        vkFreeMemory(m_Device.Get(), m_ImageMemory, nullptr);
+        vmaDestroyImage(m_Device.GetVmaAllocator(), m_Image, m_Allocation);
     }
 
     void VK_Image::CopyFromBuffer(const VK_MemoryBuffer& buffer)
