@@ -71,8 +71,7 @@ namespace Rigel::Backend::Vulkan
                 std::format("Failed to create vulkan texture sampler! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
         }
 
-        m_BindlessIndex = backend.GetTextureRegistry().AddTexture(this); // Add to registry
-        Debug::Message("Bindless index: {}.", m_BindlessIndex);
+        m_BindlessIndex = backend.GetTextureRegistry().AddTexture(this);
     }
 
     VK_Texture::~VK_Texture()

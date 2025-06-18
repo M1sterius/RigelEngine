@@ -104,6 +104,7 @@ namespace Rigel::Backend::Vulkan
         indexingFeatures.runtimeDescriptorArray = VK_TRUE;
         indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
         indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+        indexingFeatures.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
 
         // Enable dynamic rendering (REQUIRED)
         VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature {};

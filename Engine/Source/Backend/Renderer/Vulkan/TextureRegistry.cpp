@@ -141,7 +141,36 @@ namespace Rigel::Backend::Vulkan
 
     void TextureRegistry::RemoveTexture(const uint32_t textureIndex)
     {
+        ASSERT(textureIndex < m_Registry.size(), "Bindless texture index was out of bound of the registry vector!");
 
+        {
+            std::unique_lock lock(m_RegistryMutex);
+
+            if (const auto texture = m_Registry.at(textureIndex); !texture)
+            {
+                Debug::Error("Failed to remove a bindless texture from the registry! Texture index {} is not occupied in the registry.");
+                return;
+            }
+
+            m_Registry[textureIndex] = nullptr;
+        }
+
+        // Reset the texture in the descriptor set
+        VkDescriptorImageInfo imageInfo {};
+        imageInfo.imageView = VK_NULL_HANDLE;
+        imageInfo.sampler = VK_NULL_HANDLE;
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        VkWriteDescriptorSet write {};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = 0;
+        write.dstArrayElement = textureIndex;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        write.descriptorCount = 1;
+        write.pImageInfo = &imageInfo;
+
+        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
     VkDescriptorSet TextureRegistry::GetDescriptorSet() const

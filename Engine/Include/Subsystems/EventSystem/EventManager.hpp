@@ -207,7 +207,7 @@ namespace Rigel
         ErrorCode Shutdown() override;
     private:
         std::unordered_map<std::type_index, std::vector<std::pair<CallbackID, std::function<void(const Event&)>>>> m_Subscribers{};
-        std::unordered_map<uid_t, bool> m_SuspendTable{}; // Ideally this should be optimized to use 1 bit per flag.
+        std::unordered_map<uid_t, bool> m_SuspendTable {}; // Ideally this should be optimized to use 1 bit per flag.
         CallbackID m_NextCallbackID = 0;
     };
 }
