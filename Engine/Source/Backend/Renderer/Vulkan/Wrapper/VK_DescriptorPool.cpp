@@ -5,7 +5,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_DescriptorPool::VK_DescriptorPool(VK_Device& device, const std::vector<VkDescriptorPoolSize> poolSizes,
+    VK_DescriptorPool::VK_DescriptorPool(VK_Device& device, const std::vector<VkDescriptorPoolSize>& poolSizes,
         const size_t maxSets) : m_Device(device)
     {
         ASSERT(!poolSizes.empty(), "Attempted to create an empty descriptor pool");

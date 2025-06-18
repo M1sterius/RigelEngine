@@ -19,7 +19,7 @@ namespace Rigel::Backend::Vulkan
         if (!IsFormatSupported(m_Path.extension().string()))
             throw RigelException("Attempted to a load a model in an unsupported format!");
 
-        // TODO: Rework to use assimp. Add support for multimesh models with materials
+        // TODO: Add support for multimesh models with materials
 
         auto loader = objl::Loader();
 

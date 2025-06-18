@@ -48,6 +48,9 @@ namespace Rigel
         m_ImGuiBackend->Shutdown();
         m_BackendRenderer->Shutdown();
 
+        m_ImGuiBackend.reset();
+        m_BackendRenderer.reset();
+
         return ErrorCode::OK;
     }
 

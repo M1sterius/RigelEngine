@@ -50,7 +50,7 @@ namespace Rigel::Backend::Vulkan
         ImGui_ImplVulkan_InitInfo init_info = {};
         init_info.ApiVersion = VK_Config::MinimalRequiredAPIVersion;
         init_info.Instance = m_Renderer.GetInstance().Get();
-        init_info.PhysicalDevice = device.GetPhysicalDevice();
+        init_info.PhysicalDevice = device.GetPhysicalDevice().PhysicalDevice;
         init_info.Device = device.Get();
         init_info.QueueFamily = device.GetQueueFamilyIndices().GraphicsFamily.value();
         init_info.Queue = device.GetGraphicsQueue();

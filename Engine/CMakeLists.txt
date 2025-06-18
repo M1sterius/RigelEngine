@@ -9,7 +9,9 @@ file(GLOB_RECURSE IMGUI_SOURCES
     "${DEPENDENCIES_DIR}/imgui/*.cpp"
 )
 
-set(VMA_SOURCES "${DEPENDENCIES_DIR}/vma/vma.cpp")
+set(VMA_SOURCES "${DEPENDENCIES_DIR}/vma/vma.cpp"
+        Source/Backend/Renderer/Vulkan/TextureRegistry.cpp
+        Source/Backend/Renderer/Vulkan/TextureRegistry.hpp)
 
 add_library(RigelEngine STATIC
     ${IMGUI_SOURCES}

@@ -24,7 +24,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
 
         NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat swapchainImageFormat,
-            const VK_Shader& shader, VkDescriptorSetLayout descriptorSetLayout);
+            const VK_Shader& shader, const std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
     private:
         VK_Device& m_Device;
 

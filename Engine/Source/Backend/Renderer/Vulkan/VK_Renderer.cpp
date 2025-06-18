@@ -3,6 +3,8 @@
 #include "ImGui/VK_ImGUI_Renderer.hpp"
 
 #include "Shader.hpp"
+#include "ShaderStructs.hpp"
+#include "TextureRegistry.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
 #include "VK_Model.hpp"
@@ -31,12 +33,6 @@ NODISCARD static Rigel::AssetManager& GetAssetManager()
 
 namespace Rigel::Backend::Vulkan
 {
-    struct PushConstantData
-    {
-        glm::mat4 MVP;
-        uint32_t DrawIndex;
-    };
-
     VK_Renderer::VK_Renderer() = default;
     VK_Renderer::~VK_Renderer() = default;
 
@@ -48,6 +44,8 @@ namespace Rigel::Backend::Vulkan
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
+        m_TextureRegistry = std::make_unique<TextureRegistry>(*this);
+
         CreateDepthBufferImage(GetWindowManager().GetSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
@@ -63,10 +61,6 @@ namespace Rigel::Backend::Vulkan
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
-
-            auto setBuilder = VK_DescriptorSetBuilder(*m_Device);
-
-            m_DescriptorSets.emplace_back(std::make_unique<VK_DescriptorSet>(*m_Device, *m_DescriptorPool, setBuilder));
         }
 
         return ErrorCode::OK;
@@ -76,17 +70,12 @@ namespace Rigel::Backend::Vulkan
     {
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
-        // This is done to give info about descriptor layout to the rendering pipeline
-        auto layoutBuilder = VK_DescriptorSetBuilder(*m_Device);
-        // layoutBuilder.AddUniformBuffer(*m_UniformBuffers.back(), 0);
-        const auto layout = layoutBuilder.BuildLayout();
-
         const auto shaderAsset = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
         const auto& defaultShader = shaderAsset->GetBackend();
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layout);
 
-        // After the pipeline is created, the descriptor layout is no longer needed
-        vkDestroyDescriptorSetLayout(m_Device->Get(), layout, nullptr);
+        const std::vector<VkDescriptorSetLayout> layouts = { m_TextureRegistry->GetDescriptorSetLayout() };
+
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layouts);
 
         return ErrorCode::OK;
     }
@@ -153,8 +142,10 @@ namespace Rigel::Backend::Vulkan
         renderingInfo.pDepthAttachment = &depthAttachment;
 
         vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
-
         vkCmdBindPipeline(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
+
+        const VkDescriptorSet sets[] = { m_TextureRegistry->GetDescriptorSet() };
+        vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
 
         const auto viewportSize = glm::vec2(static_cast<float>(m_Swapchain->GetExtent().width), static_cast<float>(m_Swapchain->GetExtent().height));
         VK_CmdBuffer::CmdSetViewport(vkCmdBuffer, {0.0, 0.0}, viewportSize, {0.0, 1.0});

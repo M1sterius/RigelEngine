@@ -154,6 +154,8 @@ namespace Rigel
         ShutDownSubsystem(m_Time, "Time manager");
 
         m_Initialized = false;
+
+        Debug::Trace("Rigel engine successfully shut down.");
     }
 
     void Engine::Run()

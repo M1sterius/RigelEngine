@@ -33,6 +33,7 @@ namespace Rigel
 
         // Vulkan
         VULKAN_UNRECOVERABLE_ERROR = 501,
+        VULKAN_BINDLESS_TEXTURE_REGISTRY_OVERFLOW = 502,
 
         // Window manager
         MONITOR_INFO_ENUMERATION_FAILURE = 701,

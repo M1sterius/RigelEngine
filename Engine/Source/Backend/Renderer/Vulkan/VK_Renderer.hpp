@@ -30,6 +30,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Image;
 
     class VK_ImGUI_Renderer;
+    class TextureRegistry;
 
     struct AcquireImageInfo;
 
@@ -51,6 +52,8 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
+
+        NODISCARD inline TextureRegistry& GetTextureRegistry() const { return *m_TextureRegistry; }
     private:
         void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const;
         void RecreateSwapchain();
@@ -63,8 +66,7 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
         std::unique_ptr<VK_Image> m_DepthBufferImage;
-
-        std::vector<std::unique_ptr<VK_DescriptorSet>> m_DescriptorSets;
+        std::unique_ptr<TextureRegistry> m_TextureRegistry;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;

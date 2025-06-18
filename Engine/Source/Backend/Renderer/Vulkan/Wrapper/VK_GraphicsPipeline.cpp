@@ -4,6 +4,7 @@
 #include "VulkanException.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_DescriptorSet.hpp"
+#include "ShaderStructs.hpp"
 #include "MakeInfo.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -27,7 +28,7 @@ namespace Rigel::Backend::Vulkan
     }
 
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat swapchainImageFormat, const VK_Shader& shader, VkDescriptorSetLayout descriptorSetLayout)
+        const VkFormat swapchainImageFormat, const VK_Shader& shader, const std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
     {
         const auto shaderStagesInfo = shader.GetShaderStagesInfo();
 
@@ -99,14 +100,14 @@ namespace Rigel::Backend::Vulkan
         VkPushConstantRange pushConstantRange = {};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(glm::mat4) + sizeof(uint32_t);
+        pushConstantRange.size = sizeof(PushConstantData);
 
         // Pipeline Layout (Add descriptors and push constants here)
         auto pipelineLayoutInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
         pipelineLayoutInfo.pushConstantRangeCount = 1;
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-        // pipelineLayoutInfo.setLayoutCount = 1;
-        // pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
         auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
         pipelineInfo.stageCount = 2;

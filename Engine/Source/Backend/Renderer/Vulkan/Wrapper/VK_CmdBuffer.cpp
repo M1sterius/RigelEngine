@@ -56,8 +56,6 @@ namespace Rigel::Backend::Vulkan
     VK_CmdBuffer::VK_CmdBuffer(VK_Device& device)
         : m_Device(device)
     {
-        // TODO: Implement allocating command buffers from pool created per thread or per queue family
-
         auto allocInfo = MakeInfo<VkCommandBufferAllocateInfo>();
         allocInfo.commandPool = m_Device.GetCommandPool();
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
