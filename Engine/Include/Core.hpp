@@ -7,6 +7,7 @@
 #include "ErrorCodes.hpp"
 #include "Result.hpp"
 #include "TypeUtility.hpp"
+#include "Ref.hpp"
 
 #define RIGEL_ENGINE_NAME "RigelEngine"
 

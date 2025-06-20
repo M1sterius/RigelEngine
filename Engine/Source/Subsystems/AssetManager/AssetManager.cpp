@@ -54,8 +54,6 @@ namespace Rigel
 
     void AssetManager::UnloadImpl(const uid_t assetID)
     {
-        using namespace Backend::HandleValidation;
-
         std::unique_ptr<RigelAsset> assetPtr;
         std::filesystem::path path;
 
@@ -85,7 +83,6 @@ namespace Rigel
         if (m_EnableAssetLifetimeLogging)
             Debug::Trace("AssetManager::Destroying an asset at path: {}. ", path.string());
 
-        HandleValidator::RemoveHandle<HandleType::AssetHandle>(assetID);
         assetPtr.reset(); // explicitly delete the object just for clarity
     }
 }

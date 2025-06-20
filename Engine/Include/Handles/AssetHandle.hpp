@@ -83,6 +83,11 @@ namespace Rigel
             return {static_cast<castT*>(this->m_Ptr), this->m_ID, this->m_RefCounter};
         }
 
+        NODISCARD AssetHandle<RigelAsset> ToGeneric() const
+        {
+            return this->Cast<RigelAsset>();
+        }
+
         NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID, nullptr}; }
         NODISCARD bool IsNull() const override { return this->m_Ptr == nullptr || this->m_ID == NULL_ID;}
         NODISCARD bool IsValid() const override
