@@ -116,11 +116,16 @@ namespace Rigel
         if (!StartUpSubsystem(m_ProjectSettings, m_Renderer, "Renderer")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
         if (!StartUpSubsystem(m_ProjectSettings, m_PhysicsEngine, "Physics engine")) return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
 
-        // Additional subsystem initialization logic
         if (const auto result = m_Renderer->LateStartup(); result != ErrorCode::OK)
         {
             Debug::Error("Failed to perform deferred startup logic for Renderer subsystem. Error code: {}", static_cast<int32_t>(result));
             return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
+        }
+
+        if (const auto result = m_AssetManager->PreloadAssets(); result != ErrorCode::OK)
+        {
+            Debug::Error("Failed to load built-in engine assets!");
+            return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
         }
 
         m_ThreadPool = std::make_unique<ThreadPool>();

@@ -5,7 +5,8 @@
 
 namespace Rigel
 {
-    Shader::Shader(const std::filesystem::path& path) noexcept : RigelAsset(path) { }
+    Shader::Shader(const std::filesystem::path& path, const uid_t id) noexcept
+        : RigelAsset(path, id) { }
     Shader::~Shader() = default;
 
     ErrorCode Shader::Init()

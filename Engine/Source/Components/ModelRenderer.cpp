@@ -26,7 +26,7 @@ namespace Rigel
         if (m_Model.IsNull() && m_ModelPath.has_value())
         {
             auto& assetManager = Engine::Get().GetAssetManager();
-            m_Model = assetManager.LoadAsync<Model>(m_ModelPath.value());
+            m_Model = assetManager.Load<Model>(m_ModelPath.value());
         }
     }
 
@@ -38,7 +38,7 @@ namespace Rigel
         if (m_ModelPath.has_value())
             json["ModelPath"] = m_ModelPath;
         else if (!m_Model.IsNull())
-            json["ModelPath"] = assetManager.GetAssetPath(m_Model);
+            json["ModelPath"] = assetManager.GetAssetPath(m_Model.GetID());
         else
         {
             json["ModelPath"] = "";

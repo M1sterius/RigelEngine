@@ -28,6 +28,12 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
+    ErrorCode AssetManager::PreloadAssets()
+    {
+        Debug::Trace("Loading built-in engine assets.");
+        return ErrorCode::OK;
+    }
+
     void AssetManager::UnloadAllAssets()
     {
         auto vec = std::vector<uid_t>();
@@ -81,13 +87,5 @@ namespace Rigel
 
         HandleValidator::RemoveHandle<HandleType::AssetHandle>(assetID);
         assetPtr.reset(); // explicitly delete the object just for clarity
-    }
-
-    void AssetManager::AssignAssetID(RigelAsset* ptr, const uid_t id)
-    {
-        using namespace Backend::HandleValidation;
-
-        ptr->OverrideID(id);
-        HandleValidator::AddHandle<HandleType::AssetHandle>(id);
     }
 }

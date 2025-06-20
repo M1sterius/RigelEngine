@@ -3,7 +3,8 @@
 
 namespace Rigel
 {
-    Texture::Texture(const std::filesystem::path& path) noexcept : RigelAsset(path) { }
+    Texture::Texture(const std::filesystem::path& path, const uid_t id) noexcept
+        : RigelAsset(path, id) { }
     Texture::~Texture() = default;
 
     ErrorCode Texture::Init()

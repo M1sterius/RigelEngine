@@ -28,13 +28,23 @@ namespace Rigel
         AssetHandle(T* ptr, const uid_t id, std::atomic<uint32_t>* refCounter) noexcept
             : RigelHandle<T>(ptr, id), m_RefCounter(refCounter) { }
 
+        ~AssetHandle() override
+        {
+            if (m_RefCounter && !IsNull())
+            {
+                if (--(*m_RefCounter) == 0)
+                {
+                    Backend::AssetHandleUtilityImpl::OnRefCountReachZero(this->GetID());
+                }
+            }
+        }
+
         AssetHandle(const AssetHandle& other) noexcept
             : RigelHandle<T>(other)
         {
             m_RefCounter = other.m_RefCounter;
             if (m_RefCounter) ++(*m_RefCounter);
         }
-
         AssetHandle& operator = (const AssetHandle& other) noexcept
         {
             if (this != &other)
@@ -46,17 +56,6 @@ namespace Rigel
             }
 
             return *this;
-        }
-
-        ~AssetHandle() override
-        {
-            if (m_RefCounter && !IsNull())
-            {
-                if (--(*m_RefCounter) == 0)
-                {
-                    Backend::AssetHandleUtilityImpl::OnRefCountReachZero(this->GetID());
-                }
-            }
         }
 
         T* operator -> () override

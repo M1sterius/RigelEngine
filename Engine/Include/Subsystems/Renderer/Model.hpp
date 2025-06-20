@@ -20,7 +20,7 @@ namespace Rigel
     INTERNAL:
         NODISCARD Backend::Vulkan::VK_Model& GetBackend() const { return *m_BackendModel; }
     private:
-        explicit Model(const std::filesystem::path& path) noexcept;
+        explicit Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
         std::unique_ptr<Backend::Vulkan::VK_Model> m_BackendModel;

@@ -3,6 +3,7 @@
 #include "Core.hpp"
 #include "RigelObject.hpp"
 #include "SleepUtility.hpp"
+#include "HandleValidator.hpp"
 
 #include <filesystem>
 #include <utility>
@@ -15,21 +16,26 @@ namespace Rigel
     class RigelAsset : public RigelObject
     {
     public:
-        ~RigelAsset() override = default;
+        ~RigelAsset() noexcept override
+        {
+            using namespace Backend::HandleValidation;
+            HandleValidator::RemoveHandle<HandleType::AssetHandle>(this->GetID());
+        }
 
         NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
 
         NODISCARD inline bool IsReady() const { return m_LoadFinished; }
         NODISCARD inline bool IsInitialized() const { return m_Initialized; }
 
-        /**
-         * Blocks the calling thread until the asset has been fully loaded
-         */
+        // Blocks the calling thread until the asset has been fully loaded
         inline void WaitReady() const { SleepUtility::ConditionalSleep([this]() -> bool { return m_LoadFinished; }); }
     protected:
-        // The object is always initialized with NULL ID because the asset manager always overrides it
-        explicit RigelAsset(std::filesystem::path path) noexcept
-            : RigelObject(NULL_ID), m_Path(std::move(path)) { }
+        explicit RigelAsset(std::filesystem::path path, const uid_t id) noexcept
+            : RigelObject(id), m_Path(std::move(path))
+        {
+            using namespace Backend::HandleValidation;
+            HandleValidator::AddHandle<HandleType::AssetHandle>(this->GetID());
+        }
 
         virtual ErrorCode Init() = 0;
 

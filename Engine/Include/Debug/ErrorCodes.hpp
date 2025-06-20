@@ -15,6 +15,7 @@ namespace Rigel
         // Subsystems
         SUBSYSTEM_STARTUP_FAILURE = 11,
         SUBSYSTEM_SHUTDOWN_FAILURE = 12,
+        FAILED_TO_LOAD_BUILTIN_ENGINE_ASSETS = 14,
 
         // Renderer
         RENDERER_BACKEND_START_UP_FAILURE = 31,

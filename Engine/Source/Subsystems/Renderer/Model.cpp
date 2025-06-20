@@ -5,7 +5,8 @@
 
 namespace Rigel
 {
-    Model::Model(const std::filesystem::path& path) noexcept : RigelAsset(path) { }
+    Model::Model(const std::filesystem::path& path, const uid_t id) noexcept
+        : RigelAsset(path, id) { }
     Model::~Model() = default;
 
     ErrorCode Model::Init()

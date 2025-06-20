@@ -25,7 +25,7 @@ namespace Rigel
     template<typename T>
     concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;
 
-    struct AssetRegistryRecord final
+    struct AssetRegistryEntry final
     {
         uid_t AssetID;
         uint64_t PathHash;
@@ -37,18 +37,23 @@ namespace Rigel
     class AssetManager final : public RigelSubsystem
     {
     public:
+#if 0
         template<RigelAssetConcept T>
-        AssetHandle<T> LoadAsync(const std::filesystem::path& path)
+        AssetHandle<T> LoadAsync(const std::filesystem::path& path, const bool persistent = false)
         {
-            // Returns handle if the asset is already FULLY LOADED.
-            if (const auto existing = FindExisting<T>(path); !existing.IsNull())
-                return existing;
-
             const auto pathHash = Hash(path);
 
-            // Returns handle if an asset is BEING LOADED at the moment
-            if (m_LoadInProgressMap.contains(pathHash))
-                return m_LoadInProgressMap.at(pathHash).Cast<T>();
+            // Already loaded
+            if (const auto existing = FindExisting<T>(pathHash); !existing.IsNull())
+                return existing;
+
+            // Load in-progress
+            {
+                std::unique_lock lock(m_LoadInProgressMutex);
+
+                if (m_LoadInProgressMap.contains(pathHash))
+                    return m_LoadInProgressMap.at(pathHash).Cast<T>();
+            }
 
             if (m_EnableAssetLifetimeLogging)
                 Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
@@ -58,7 +63,7 @@ namespace Rigel
             const auto assetID = ++m_NextID;
             AssignAssetID(assetPtr, assetID);
 
-            auto refCounter = std::make_unique<std::atomic<uint32_t>>(1);
+            auto refCounter = std::make_unique<std::atomic<uint32_t>>(persistent ? 2 : 1);
             const auto refCounterRaw = refCounter.get();
 
             const auto handle = AssetHandle<T>(static_cast<T*>(assetPtr), assetID, refCounterRaw);
@@ -79,10 +84,8 @@ namespace Rigel
                     return;
                 }
 
-                {
-                    std::unique_lock lock(m_LoadInProgressMutex);
-                    m_LoadInProgressMap.erase(pathHash);
-                }
+                std::unique_lock lock(m_LoadInProgressMutex);
+                m_LoadInProgressMap.erase(pathHash);
             });
 
             {
@@ -99,50 +102,44 @@ namespace Rigel
 
             return handle;
         }
+#endif
 
         template<RigelAssetConcept T>
-        AssetHandle<T> Load(const std::filesystem::path& path)
+        AssetHandle<T> Load(const std::filesystem::path& path, const bool persistent = false)
         {
-            // Returns handle if the asset is already FULLY loaded.
-            if (const auto existing = FindExisting<T>(path); !existing.IsNull())
+            const auto pathHash = Hash(path);
+
+            // Check if already loaded
+            if (const auto existing = FindExisting<T>(pathHash); !existing.IsNull())
                 return existing;
 
             if (m_EnableAssetLifetimeLogging)
                 Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
 
-            const auto pathHash = Hash(path);
-            const auto assetID = ++m_NextID;
+            auto entry = AssetRegistryEntry{
+                .AssetID = ++m_NextID,
+                .PathHash = pathHash,
+                .Path = path,
+                .RefCounter = std::make_unique<std::atomic<uint32_t>>(persistent ? 2 : 1),
+                .Asset = MakeAsset<T>(path, m_NextID)
+            };
 
-            auto assetPtr = std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path)));
-            const auto rawAssetPtr = assetPtr.get();
-
-            auto loadFinishedGuard = ScopeGuard([rawAssetPtr]() { rawAssetPtr->m_LoadFinished = true; });
-
-            if (const auto result = assetPtr->Init(); result != ErrorCode::OK)
-            {
-                Debug::Error("Failed to load an asset at path: {}! Error code: {}.", path.string(), static_cast<int32_t>(result));
-                return AssetHandle<T>::Null();
-            }
-
-            AssignAssetID(rawAssetPtr, assetID);
-
-            // This insures that all AssetHandle instances holding the same asset share the same reference counter
-            auto refCounter = std::make_unique<std::atomic<uint32_t>>(1);
-            const auto refCounterRaw = refCounter.get();
+            const auto rawPtr = entry.Asset.get();
+            auto loadFinishedGuard = ScopeGuard([rawPtr]() { rawPtr->m_LoadFinished = true; });
+            const auto handle = MakeHandle<T>(entry);
 
             {
                 std::unique_lock lock(m_RegistryMutex);
-
-                m_AssetsRegistry.insert({
-                    .AssetID = assetID,
-                    .PathHash = pathHash,
-                    .Path = path,
-                    .RefCounter = std::move(refCounter),
-                    .Asset = std::move(assetPtr)
-                });
+                m_AssetsRegistry.insert(std::move(entry));
             }
 
-            return AssetHandle<T>(static_cast<T*>(rawAssetPtr), assetID, refCounterRaw);
+            if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
+            {
+                Debug::Error("Failed to load an asset at path: {}! Error code: {}.",
+                    path.string(), static_cast<int32_t>(result));
+            }
+
+            return handle;
         }
 
         inline void Unload(const uid_t assetID)
@@ -150,16 +147,15 @@ namespace Rigel
             m_ThreadPool->Enqueue([this, assetID] { this->UnloadImpl(assetID); });
         }
 
-        template<RigelAssetConcept T>
-        NODISCARD std::filesystem::path GetAssetPath(const AssetHandle<T>& handle) const
+        NODISCARD std::filesystem::path GetAssetPath(const uid_t id) const
         {
             for (const auto& record : m_AssetsRegistry)
             {
-                if (record.AssetID == handle.GetID())
+                if (record.AssetID == id)
                     return record.Path;
             }
 
-            Debug::Error("Failed to find an asset with ID: {}!", handle.GetID());
+            Debug::Error("Failed to find an asset with ID: {}!", id);
             return "";
         }
     INTERNAL:
@@ -171,28 +167,39 @@ namespace Rigel
 
         NODISCARD const std::vector<std::thread::id>& GetLoadingThreadIDs() const { return m_ThreadPool->GetThreadIDs(); }
 
+        ErrorCode PreloadAssets();
         void UnloadAllAssets();
     private:
         template<RigelAssetConcept T>
-        NODISCARD AssetHandle<T> FindExisting(const std::filesystem::path& path) const
+        NODISCARD AssetHandle<T> FindExisting(const uint64_t pathHash) const
         {
             std::shared_lock lock(m_RegistryMutex);
 
-            for (const auto& record : m_AssetsRegistry)
+            for (const auto& entry : m_AssetsRegistry)
             {
-                if (const auto cast = dynamic_cast<T*>(record.Asset.get());
-                    cast && Hash(path.string()) == record.PathHash)
+                if (const auto cast = dynamic_cast<T*>(entry.Asset.get());
+                    cast && pathHash == entry.PathHash)
                 {
-                    return AssetHandle<T>(cast, record.AssetID, record.RefCounter.get());
+                    return MakeHandle<T>(entry);
                 }
             }
 
             return AssetHandle<T>::Null();
         }
 
-        void UnloadImpl(const uid_t assetID);
+        template<RigelAssetConcept T>
+        static AssetHandle<T> MakeHandle(const AssetRegistryEntry& entry)
+        {
+            return AssetHandle<T>(static_cast<T*>(entry.Asset.get()), entry.AssetID, entry.RefCounter.get());
+        }
 
-        void AssignAssetID(RigelAsset* ptr, const uid_t id);
+        template<RigelAssetConcept T>
+        static std::unique_ptr<RigelAsset> MakeAsset(const std::filesystem::path& path, const uid_t id)
+        {
+            return std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path, id)));
+        }
+
+        void UnloadImpl(const uid_t assetID);
 
         std::atomic<uid_t> m_NextID = 0;
         bool m_EnableAssetLifetimeLogging = true;
@@ -201,7 +208,7 @@ namespace Rigel
         std::unordered_map<uint64_t, GenericAssetHandle> m_LoadInProgressMap;
         mutable std::shared_mutex m_LoadInProgressMutex;
 
-        plf::colony<AssetRegistryRecord> m_AssetsRegistry;
+        plf::colony<AssetRegistryEntry> m_AssetsRegistry;
         mutable std::shared_mutex m_RegistryMutex;
     };
 }
