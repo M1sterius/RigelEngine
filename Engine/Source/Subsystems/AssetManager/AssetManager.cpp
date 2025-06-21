@@ -3,7 +3,10 @@
 #include "Debug.hpp"
 #include "Directory.hpp"
 #include "Shader.hpp"
-#include "Hash.hpp"
+#include "Model.hpp"
+#include "Texture.hpp"
+#include "BuiltInAssets.hpp"
+
 #include "json.hpp"
 
 namespace Rigel
@@ -31,6 +34,27 @@ namespace Rigel
     ErrorCode AssetManager::PreloadAssets()
     {
         Debug::Trace("Loading built-in engine assets.");
+
+        auto handles = std::vector<GenericAssetHandle>();
+
+        handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelCube, true).ToGeneric());
+        handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelCone, true).ToGeneric());
+        handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelSphere, true).ToGeneric());
+
+        handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureError, true).ToGeneric());
+        handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
+        handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
+
+        for (const auto& handle : handles)
+        {
+            handle->WaitReady();
+            if (!handle->IsOK())
+            {
+                Debug::Error("Failed to preload built-in Rigel engine asset at path: {}!", handle->GetPath().string());
+                return ErrorCode::BUILT_IN_ASSET_NOT_LOADED;
+            }
+        }
+
         return ErrorCode::OK;
     }
 

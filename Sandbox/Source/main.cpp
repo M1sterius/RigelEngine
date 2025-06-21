@@ -24,9 +24,9 @@ int32_t main(const int32_t argc, char** argv)
     auto& assetManager = engine->GetAssetManager();
     auto& windowManager = engine->GetWindowManager();
 
-    auto h2 = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Bruhlogo5.png");
-    auto h0 = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Bruh.png");
-    auto h1 = assetManager.Load<Rigel::Texture>("Assets/EngineAssets/Textures/Texture-Error.png");
+    auto h2 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureBruh);
+    auto h0 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureWhite);
+    auto h1 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureError);
 
     auto scene = sceneManager.CreateScene();
 
@@ -35,24 +35,24 @@ int32_t main(const int32_t argc, char** argv)
 
     auto cube = scene->Instantiate("Cube");
     cube->GetTransform()->SetLocalPosition({0, 0, -2.5});
-    cube->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cube.obj");
+    cube->AddComponent<Rigel::ModelRenderer>(Rigel::BuiltInAssets::ModelCube);
     cube->AddComponent<TestComponent>();
 
     auto cone1 = scene->Instantiate("Cone1");
     cone1->GetTransform()->SetLocalPosition({-1.0, 0, -1.0});
-    cone1->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    cone1->AddComponent<Rigel::ModelRenderer>(Rigel::BuiltInAssets::ModelCone);
 
     auto cone2 = scene->Instantiate("Sphere");
     cone2->GetTransform()->SetLocalPosition({1.0, 0, -1.0});
     cone2->GetTransform()->SetLocalScale(glm::vec3(0.5));
-    cone2->AddComponent<Rigel::ModelRenderer>("Assets/EngineAssets/Models/cone.obj");
+    cone2->AddComponent<Rigel::ModelRenderer>(Rigel::BuiltInAssets::ModelCone);
     cone2->AddComponent<TestComponent>();
 
-    // auto cone1Transform = cone1->GetTransform();
-    // auto cone2Transform = cone2->GetTransform();
-    //
-    // cube->GetTransform()->AddChild(cone1Transform);
-    // cube->GetTransform()->AddChild(cone2Transform);
+    auto cone1Transform = cone1->GetTransform();
+    auto cone2Transform = cone2->GetTransform();
+
+    cube->GetTransform()->AddChild(cone1Transform);
+    cube->GetTransform()->AddChild(cone2Transform);
 
     const auto json = scene->Serialize();
 

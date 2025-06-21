@@ -24,6 +24,7 @@ namespace Rigel
 
         NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
 
+        NODISCARD inline bool IsOK() const { return m_LoadFinished && m_Initialized; }
         NODISCARD inline bool IsReady() const { return m_LoadFinished; }
         NODISCARD inline bool IsInitialized() const { return m_Initialized; }
 

@@ -37,6 +37,20 @@ namespace Rigel
     class AssetManager final : public RigelSubsystem
     {
     public:
+        /**
+         * @brief Asynchronously loads an asset of type T from disk using the thread pool.
+         *
+         * This function constructs the asset and queues its `Init()` call on a background thread.
+         * It immediately returns an AssetHandle, which will point to the asset, even if initialization is not yet complete.
+         *
+         * If the asset is already loaded or is currently being loaded, the existing handle is returned.
+         *
+         * @tparam T Type of the asset to load. Must satisfy the RigelAssetConcept.
+         * @param path Filesystem path to the asset.
+         * @param persistent If true, the asset will not be automatically deleted when its reference count reaches 0.
+         * @return AssetHandle<T> Handle to the asset. You can check `.IsReady()` to check if the asset is loaded.
+         * You can use `.WaitReady()` to stall until the loading is finished.
+         */
         template<RigelAssetConcept T>
         AssetHandle<T> LoadAsync(const std::filesystem::path& path, const bool persistent = false)
         {
@@ -94,6 +108,17 @@ namespace Rigel
             return handle;
         }
 
+        /**
+         * @brief Synchronously loads an asset of type T from disk.
+         *
+         * This function will immediately load the asset by constructing it, initializing it via `Init()`,
+         * and registering it in the asset registry. If the asset is already loaded, it returns the existing handle.
+         *
+         * @tparam T Type of the asset to load. Must satisfy the RigelAssetConcept.
+         * @param path Filesystem path to the asset.
+         * @param persistent If true, the asset will not be automatically deleted when its reference count reaches 0.
+         * @return AssetHandle<T> Handle to the loaded asset. May point to an uninitialized asset if loading failed.
+         */
         template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path, const bool persistent = false)
         {

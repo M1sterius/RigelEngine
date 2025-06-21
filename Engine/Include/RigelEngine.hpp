@@ -24,14 +24,15 @@
 #include "Renderer.hpp"
 #include "InputManager.hpp"
 #include "AssetManager.hpp"
-#include "Subsystems/WindowManager/WindowManager.hpp"
+#include "WindowManager.hpp"
 #include "PhysicsEngine.hpp"
 
 // Subsystem-related classes
 #include "Event.hpp"
 #include "EngineEvents.hpp"
 #include "AssetHandle.hpp"
-#include "Subsystems/InputManager/KeysAndButtons.hpp"
+#include "KeysAndButtons.hpp"
+#include "BuiltInAssets.hpp"
 
 // Assets
 #include "RigelAsset.hpp"
@@ -72,5 +73,6 @@
 #include "Random.hpp"
 #include "json.hpp"
 #include "ScopeGuard.hpp"
+#include "Ref.hpp"
 
 #endif
