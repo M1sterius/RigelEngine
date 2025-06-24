@@ -1,11 +1,11 @@
 #include "Engine.hpp"
 
-#include "../Include/Subsystems/InputManager/InputManager.hpp"
+#include "InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
 #include "AssetManager.hpp"
-#include "../Include/Subsystems/WindowManager/WindowManager.hpp"
+#include "WindowManager.hpp"
 #include "Renderer.hpp"
 #include "PhysicsEngine.hpp"
 
@@ -128,9 +128,6 @@ namespace Rigel
             return ErrorCode::SUBSYSTEM_STARTUP_FAILURE;
         }
 
-        m_ThreadPool = std::make_unique<ThreadPool>();
-        Debug::Trace("Creating global thread pool with {} threads.", m_ThreadPool->GetSize());
-
         m_Editor = std::make_unique<Backend::Editor::Editor>();
 
         Debug::Trace("Rigel engine initialization complete.");
@@ -198,7 +195,6 @@ namespace Rigel
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
-        // m_EventManager->DispatchThreaded(Backend::TransformUpdateEvent(), *m_ThreadPool, m_ThreadPool->GetSize());
         m_EventManager->Dispatch(Backend::TransformUpdateEvent());
         m_Renderer->Prepare();
         m_Renderer->Render();

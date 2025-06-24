@@ -1,6 +1,8 @@
 #include "TextureRegistry.hpp"
-
-#include "Time.hpp"
+#include "AssetManager.hpp"
+#include "BuiltInAssets.hpp"
+#include "Engine.hpp"
+#include "Texture.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Swapchain.hpp"
 #include "VK_DescriptorPool.hpp"
@@ -24,7 +26,8 @@ namespace Rigel::Backend::Vulkan
         m_Registry = std::vector<VK_Texture*>(MAX_TEXTURES);
 
         CreateDescriptorSetLayout();
-        m_DescriptorSet = CreateDescriptorSet();
+        CreateDescriptorSet();
+        CreateDefaultSampler();
     }
 
     TextureRegistry::~TextureRegistry()
@@ -33,6 +36,7 @@ namespace Rigel::Backend::Vulkan
 
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
         vkFreeDescriptorSets(m_Device.Get(), m_DescriptorPool->Get(), 1, &m_DescriptorSet);
+        vkDestroySampler(m_Device.Get(), m_DefaultSampler, nullptr);
 
         m_DescriptorPool.reset();
     }
@@ -69,7 +73,7 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    VkDescriptorSet TextureRegistry::CreateDescriptorSet() const
+    void TextureRegistry::CreateDescriptorSet()
     {
         VkDescriptorSetVariableDescriptorCountAllocateInfo countInfo {};
         countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
@@ -85,13 +89,54 @@ namespace Rigel::Backend::Vulkan
 
         VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
-        if (const auto result = vkAllocateDescriptorSets(m_Device.Get(), &allocInfo, &descriptorSet); result != VK_SUCCESS)
+        if (const auto result = vkAllocateDescriptorSets(m_Device.Get(), &allocInfo, &m_DescriptorSet); result != VK_SUCCESS)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
                 std::format("Failed to create descriptor set for vulkan texture registry! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
         }
+    }
 
-        return descriptorSet;
+    void TextureRegistry::CreateDefaultSampler()
+    {
+        VkSamplerCreateInfo samplerInfo {};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = m_Device.GetPhysicalDevice().Properties.limits.maxSamplerAnisotropy;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+        if (const auto result = vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &m_DefaultSampler); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan texture sampler! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
+    }
+
+    void TextureRegistry::UpdateDescriptorSet(const VK_Image& image, const uint32_t slotIndex) const
+    {
+        VkDescriptorImageInfo imageInfo {};
+        imageInfo.imageView = image.GetView();
+        imageInfo.sampler = m_DefaultSampler;
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet write {};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = 0;
+        write.dstArrayElement = slotIndex;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        write.descriptorCount = 1;
+        write.pImageInfo = &imageInfo;
+
+        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
     uint32_t TextureRegistry::AddTexture(VK_Texture* texture)
@@ -119,22 +164,7 @@ namespace Rigel::Backend::Vulkan
             m_Registry[slotIndex] = texture;
         }
 
-        // put the new texture at the selected slot via vkUpdateDescriptorSets
-        VkDescriptorImageInfo imageInfo {};
-        imageInfo.imageView = texture->GetImage().GetView();
-        imageInfo.sampler = texture->GetSampler();
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-        VkWriteDescriptorSet write {};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write.dstSet = m_DescriptorSet;
-        write.dstBinding = 0;
-        write.dstArrayElement = slotIndex;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write.descriptorCount = 1;
-        write.pImageInfo = &imageInfo;
-
-        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
+        UpdateDescriptorSet(texture->GetImage(), slotIndex);
 
         return slotIndex;
     }
@@ -142,6 +172,10 @@ namespace Rigel::Backend::Vulkan
     void TextureRegistry::RemoveTexture(const uint32_t textureIndex)
     {
         ASSERT(textureIndex < m_Registry.size(), "Bindless texture index was out of bound of the registry vector!");
+
+        // if the engine is shutting down then we don't need to maintain the registry anymore
+        if (!Engine::Get().Running())
+            return;
 
         {
             std::unique_lock lock(m_RegistryMutex);
@@ -155,22 +189,14 @@ namespace Rigel::Backend::Vulkan
             m_Registry[textureIndex] = nullptr;
         }
 
-        // Reset the texture in the descriptor set
-        VkDescriptorImageInfo imageInfo {};
-        imageInfo.imageView = VK_NULL_HANDLE;
-        imageInfo.sampler = VK_NULL_HANDLE;
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        if (m_DefaultTexture.IsNull())
+        {
+            auto& manager = Engine::Get().GetAssetManager();
+            m_DefaultTexture = manager.Load<Texture>(BuiltInAssets::TextureError);
+        }
 
-        VkWriteDescriptorSet write {};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write.dstSet = m_DescriptorSet;
-        write.dstBinding = 0;
-        write.dstArrayElement = textureIndex;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write.descriptorCount = 1;
-        write.pImageInfo = &imageInfo;
-
-        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
+        const auto& vkTexture = m_DefaultTexture->GetBackend();
+        UpdateDescriptorSet(vkTexture.GetImage(), textureIndex);
     }
 
     VkDescriptorSet TextureRegistry::GetDescriptorSet() const

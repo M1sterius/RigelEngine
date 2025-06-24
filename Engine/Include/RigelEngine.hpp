@@ -7,8 +7,8 @@
 /*
  * Define any of the settings below before including this header
  *
- * RGE_USE_64_BIT_ID_TYPE - to make uid_t 64-bit wide
- * RGE_ENABLE_HANDLE_VALIDATION - to enable handle validation for each handle access attempt
+ * RIGEL_USE_64_BIT_ID_TYPE - to make uid_t 64-bit wide
+ * RIGEL_ENABLE_HANDLE_VALIDATION - to enable handle validation for each handle access attempt
  */
 
 #ifdef RIGEL_ENGINE

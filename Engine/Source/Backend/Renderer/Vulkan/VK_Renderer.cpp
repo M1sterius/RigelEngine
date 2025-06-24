@@ -44,17 +44,12 @@ namespace Rigel::Backend::Vulkan
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
+
         m_TextureRegistry = std::make_unique<TextureRegistry>(*this);
 
         CreateDepthBufferImage(GetWindowManager().GetSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
-
-        std::vector<VkDescriptorPoolSize> poolSizes(1);
-        poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        poolSizes[0].descriptorCount = framesInFlight;
-
-        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(*m_Device, poolSizes, framesInFlight);
 
         for (uint32_t i = 0; i < framesInFlight; i++)
         {
@@ -82,6 +77,7 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::Shutdown()
     {
+        // this shutdown method is called inside Renderer::Shutdown()!
         m_Device->WaitIdle();
 
         Debug::Trace("Shutting down Vulkan renderer.");

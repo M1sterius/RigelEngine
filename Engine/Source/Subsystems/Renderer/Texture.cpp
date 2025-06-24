@@ -11,7 +11,7 @@ namespace Rigel
     {
         try
         {
-            m_BackendTexture = std::make_unique<Backend::Vulkan::VK_Texture>(m_Path);
+            m_BackendTexture = std::make_unique<Backend::Vulkan::VK_Texture>(this);
         }
         catch (const std::exception&)
         {
@@ -21,4 +21,10 @@ namespace Rigel
         m_Initialized = true;
         return ErrorCode::OK;
     }
+
+    glm::uvec2 Texture::GetSize() const
+    {
+        return m_BackendTexture->GetSize();
+    }
+
 }

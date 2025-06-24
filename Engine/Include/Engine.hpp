@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Stopwatch.hpp"
 #include "ProjectSettings.hpp"
 
 #include <memory>
@@ -65,8 +64,6 @@ namespace Rigel
         NODISCARD PhysicsEngine& GetPhysicsEngine() const;
 
         void Run();
-    INTERNAL:
-        NODISCARD inline ThreadPool& GetThreadPool() const { return *m_ThreadPool; }
     private:
         Engine();
         void EngineUpdate() const;
@@ -76,7 +73,6 @@ namespace Rigel
 
         ProjectSettings m_ProjectSettings;
 
-        std::unique_ptr<ThreadPool> m_ThreadPool;
         std::unique_ptr<Backend::Editor::Editor> m_Editor; // this is probably temporary
 
         // Subsystem instances

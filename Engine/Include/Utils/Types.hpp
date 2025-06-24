@@ -4,7 +4,7 @@
 #include <cstdint>
 
 // Unique ID type
-#ifdef RGE_USE_64_BIT_ID_TYPE
+#ifdef RIGEL_USE_64_BIT_ID_TYPE
     typedef uint64_t uid_t;
 #else
     typedef uint32_t uid_t;
@@ -12,9 +12,8 @@
 
 #define NULL_ID 0
 
-static_assert(sizeof(float) == 4, "Rigel engine does not support systems with sizeof(float) not equal to 32 bits");
-static_assert(sizeof(double) == 8, "Rigel engine does not support systems with sizeof(double) not equal to 64 bits");
-
 typedef float float32_t;
 typedef double float64_t;
-typedef long double float128_t;
+
+static_assert(sizeof(float32_t) == 4, "sizeof(float32_t) is not equal to 4");
+static_assert(sizeof(float64_t) == 8, "sizeof(float64_t) is not equal to 8");

@@ -64,7 +64,6 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
-        std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
         std::unique_ptr<VK_Image> m_DepthBufferImage;
         std::unique_ptr<TextureRegistry> m_TextureRegistry;
 
