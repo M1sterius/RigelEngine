@@ -3,6 +3,7 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Device.hpp"
+#include "VulkanUtility.hpp"
 #include "Engine.hpp"
 #include "Renderer.hpp"
 #include "TextureRegistry.hpp"
@@ -13,10 +14,6 @@
 #include <stb_image/stb_image.h>
 
 #include <format>
-
-static constexpr uint8_t DefaultTextureBytes[] = {
-
-};
 
 namespace Rigel::Backend::Vulkan
 {

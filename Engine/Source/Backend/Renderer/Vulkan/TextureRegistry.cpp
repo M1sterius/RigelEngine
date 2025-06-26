@@ -2,6 +2,8 @@
 #include "AssetManager.hpp"
 #include "BuiltInAssets.hpp"
 #include "Engine.hpp"
+#include "MakeInfo.hpp"
+#include "Texture.hpp"
 #include "Texture.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Swapchain.hpp"
@@ -27,7 +29,7 @@ namespace Rigel::Backend::Vulkan
 
         CreateDescriptorSetLayout();
         CreateDescriptorSet();
-        CreateDefaultSampler();
+        m_Samplers.emplace_back(CreateSampler(Texture::SamplerProperties()));
     }
 
     TextureRegistry::~TextureRegistry()
@@ -36,7 +38,9 @@ namespace Rigel::Backend::Vulkan
 
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
         vkFreeDescriptorSets(m_Device.Get(), m_DescriptorPool->Get(), 1, &m_DescriptorSet);
-        vkDestroySampler(m_Device.Get(), m_DefaultSampler, nullptr);
+
+        for (auto& [sampler, _] : m_Samplers)
+            vkDestroySampler(m_Device.Get(), sampler, nullptr);
 
         m_DescriptorPool.reset();
     }
@@ -87,8 +91,6 @@ namespace Rigel::Backend::Vulkan
         allocInfo.pSetLayouts = &m_DescriptorSetLayout;
         allocInfo.pNext = &countInfo;
 
-        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-
         if (const auto result = vkAllocateDescriptorSets(m_Device.Get(), &allocInfo, &m_DescriptorSet); result != VK_SUCCESS)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
@@ -96,35 +98,11 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    void TextureRegistry::CreateDefaultSampler()
-    {
-        VkSamplerCreateInfo samplerInfo {};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.anisotropyEnable = VK_TRUE;
-        samplerInfo.maxAnisotropy = m_Device.GetPhysicalDevice().Properties.limits.maxSamplerAnisotropy;
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerInfo.compareEnable = VK_FALSE;
-        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-        if (const auto result = vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &m_DefaultSampler); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan texture sampler! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
-    }
-
     void TextureRegistry::UpdateDescriptorSet(const VK_Image& image, const uint32_t slotIndex) const
     {
         VkDescriptorImageInfo imageInfo {};
         imageInfo.imageView = image.GetView();
-        imageInfo.sampler = m_DefaultSampler;
+        imageInfo.sampler = m_Samplers[0].Sampler;
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkWriteDescriptorSet write {};
@@ -137,6 +115,33 @@ namespace Rigel::Backend::Vulkan
         write.pImageInfo = &imageInfo;
 
         vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
+    }
+
+    TextureRegistry::SamplerInfo TextureRegistry::CreateSampler(const Texture::SamplerProperties& properties) const
+    {
+        auto samplerInfo = MakeInfo<VkSamplerCreateInfo>();
+        samplerInfo.magFilter = static_cast<VkFilter>(properties.MagFilter);
+        samplerInfo.minFilter = static_cast<VkFilter>(properties.MinFilter);
+        samplerInfo.addressModeU = static_cast<VkSamplerAddressMode>(properties.AddressModeU);
+        samplerInfo.addressModeV = static_cast<VkSamplerAddressMode>(properties.AddressModeV);
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = m_Device.GetPhysicalDevice().Properties.limits.maxSamplerAnisotropy;
+        samplerInfo.borderColor = static_cast<VkBorderColor>(properties.BorderColor);
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+        VkSampler sampler = VK_NULL_HANDLE;
+
+        if (const auto result = vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &sampler); result != VK_SUCCESS)
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                std::format("Failed to create vulkan texture sampler! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+        }
+
+        return {sampler, properties};
     }
 
     uint32_t TextureRegistry::AddTexture(VK_Texture* texture)
@@ -182,20 +187,21 @@ namespace Rigel::Backend::Vulkan
 
             if (const auto texture = m_Registry.at(textureIndex); !texture)
             {
-                Debug::Error("Failed to remove a bindless texture from the registry! Texture index {} is not occupied in the registry.");
+                Debug::Error("Failed to remove a bindless texture from the registry! Texture index {} is not occupied.");
                 return;
             }
 
             m_Registry[textureIndex] = nullptr;
         }
 
-        if (m_DefaultTexture.IsNull())
+        static AssetHandle<Texture> defaultTexture = {};
+        if (defaultTexture.IsNull())
         {
             auto& manager = Engine::Get().GetAssetManager();
-            m_DefaultTexture = manager.Load<Texture>(BuiltInAssets::TextureError);
+            defaultTexture = manager.Load<Texture>(BuiltInAssets::TextureError);
         }
 
-        const auto& vkTexture = m_DefaultTexture->GetBackend();
+        const auto& vkTexture = defaultTexture->GetBackend();
         UpdateDescriptorSet(vkTexture.GetImage(), textureIndex);
     }
 

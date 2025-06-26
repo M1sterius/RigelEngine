@@ -12,14 +12,26 @@ namespace Rigel
     class Ref
     {
     public:
-        Ref(T* ptr) : m_Ptr(ptr)
+        Ref(T* ptr) : m_Ptr(ptr) { }
+        Ref() : m_Ptr(nullptr) { }
+
+        T* operator -> ()
         {
-            ASSERT(m_Ptr, "Rigel::Ref cannot contain nullptr!");
+            ASSERT(m_Ptr, "Ref pointer was a nullptr!");
+            return m_Ptr;
         }
 
-        T* operator -> () { return m_Ptr; }
-        const T* operator -> () const { return m_Ptr; }
-        T& operator * () const { return *m_Ptr; }
+        const T* operator -> () const
+        {
+            ASSERT(m_Ptr, "Ref pointer was a nullptr!");
+            return m_Ptr;
+        }
+
+        T& operator * () const
+        {
+            ASSERT(m_Ptr, "Ref pointer was a nullptr!");
+            return *m_Ptr;
+        }
     private:
         T* m_Ptr = nullptr;
     };

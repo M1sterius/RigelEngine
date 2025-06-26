@@ -22,7 +22,6 @@ namespace Rigel
             Linear = 1,
             Cubic = 1000015000
         };
-
         enum class AddressMode : int32_t
         {
             Repeat = 0,
@@ -31,7 +30,6 @@ namespace Rigel
             ClampToBorder = 3,
             MirroredClampToEdge = 4
         };
-
         enum class BorderColor : int32_t
         {
             OpaqueBlack = 3,
