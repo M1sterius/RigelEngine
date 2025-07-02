@@ -32,6 +32,8 @@ namespace Rigel
             ASSERT(m_Ptr, "Ref pointer was a nullptr!");
             return *m_Ptr;
         }
+
+        [[nodiscard]] inline bool IsNull() const { return !m_Ptr; }
     private:
         T* m_Ptr = nullptr;
     };

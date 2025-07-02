@@ -25,7 +25,7 @@ namespace Rigel::Backend::Vulkan
         poolSizes[0].descriptorCount = MAX_TEXTURES;
 
         m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, 1);
-        m_Registry = std::vector<VK_Texture*>(MAX_TEXTURES);
+        m_Registry = std::vector<Ref<VK_Texture>>(MAX_TEXTURES);
 
         CreateDescriptorSetLayout();
         CreateDescriptorSet();
@@ -98,11 +98,11 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    void TextureRegistry::UpdateDescriptorSet(const VK_Image& image, const uint32_t slotIndex) const
+    void TextureRegistry::UpdateDescriptorSet(VkImageView imageView, VkSampler sampler, const uint32_t slotIndex) const
     {
         VkDescriptorImageInfo imageInfo {};
-        imageInfo.imageView = image.GetView();
-        imageInfo.sampler = m_Samplers[0].Sampler;
+        imageInfo.imageView = imageView;
+        imageInfo.sampler = sampler;
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkWriteDescriptorSet write {};
@@ -144,7 +144,7 @@ namespace Rigel::Backend::Vulkan
         return {sampler, properties};
     }
 
-    uint32_t TextureRegistry::AddTexture(VK_Texture* texture)
+    uint32_t TextureRegistry::AddTexture(const Ref<VK_Texture> texture)
     {
         uint32_t slotIndex = -1;
 
@@ -153,7 +153,7 @@ namespace Rigel::Backend::Vulkan
 
             for (uint32_t i = 0; i < m_Registry.size(); ++i)
             {
-                if (m_Registry.at(i) == nullptr)
+                if (m_Registry.at(i).IsNull())
                 {
                     slotIndex = i;
                     break;
@@ -169,7 +169,7 @@ namespace Rigel::Backend::Vulkan
             m_Registry[slotIndex] = texture;
         }
 
-        UpdateDescriptorSet(texture->GetImage(), slotIndex);
+        UpdateDescriptorSet(texture->GetImage().GetView(), m_Samplers[0].Sampler, slotIndex);
 
         return slotIndex;
     }
@@ -185,7 +185,7 @@ namespace Rigel::Backend::Vulkan
         {
             std::unique_lock lock(m_RegistryMutex);
 
-            if (const auto texture = m_Registry.at(textureIndex); !texture)
+            if (const auto texture = m_Registry.at(textureIndex); texture.IsNull())
             {
                 Debug::Error("Failed to remove a bindless texture from the registry! Texture index {} is not occupied.");
                 return;
@@ -194,19 +194,14 @@ namespace Rigel::Backend::Vulkan
             m_Registry[textureIndex] = nullptr;
         }
 
-        static AssetHandle<Texture> defaultTexture = {};
+        static Ref<VK_Texture> defaultTexture = {};
         if (defaultTexture.IsNull())
         {
             auto& manager = Engine::Get().GetAssetManager();
-            defaultTexture = manager.Load<Texture>(BuiltInAssets::TextureError);
+            const auto hTex = manager.Load<Texture>(BuiltInAssets::TextureError);
+            defaultTexture = hTex->GetImpl();
         }
 
-        const auto& vkTexture = defaultTexture->GetBackend();
-        UpdateDescriptorSet(vkTexture.GetImage(), textureIndex);
-    }
-
-    VkDescriptorSet TextureRegistry::GetDescriptorSet() const
-    {
-        return m_DescriptorSet;
+        UpdateDescriptorSet(defaultTexture->GetImage().GetView(), m_Samplers[0].Sampler, textureIndex);
     }
 }

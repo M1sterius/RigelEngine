@@ -21,11 +21,11 @@ namespace Rigel::Backend::Vulkan
         explicit TextureRegistry(VK_Renderer& renderer);
         ~TextureRegistry();
 
-        NODISCARD uint32_t AddTexture(VK_Texture* texture);
+        NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(uint32_t textureIndex);
 
-        NODISCARD VkDescriptorSet GetDescriptorSet() const;
-        NODISCARD VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+        NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
+        NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
     private:
         struct SamplerInfo
         {
@@ -41,10 +41,10 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
         std::vector<SamplerInfo> m_Samplers;
-        std::vector<VK_Texture*> m_Registry;
+        std::vector<Ref<VK_Texture>> m_Registry;
         mutable std::mutex m_RegistryMutex;
 
-        void UpdateDescriptorSet(const VK_Image& image, const uint32_t slotIndex) const;
+        void UpdateDescriptorSet(VkImageView imageView, VkSampler sampler, const uint32_t slotIndex) const;
 
         SamplerInfo CreateSampler(const Texture::SamplerProperties& properties) const;
         void CreateDescriptorSetLayout();

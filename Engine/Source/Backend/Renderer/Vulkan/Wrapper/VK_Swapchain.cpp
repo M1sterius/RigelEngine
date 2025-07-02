@@ -2,10 +2,10 @@
 #include "VK_Semaphore.hpp"
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
-
+#include "VulkanUtility.hpp"
 #include "Time.hpp"
 #include "Engine.hpp"
-#include "../../../../../Include/Subsystems/WindowManager/WindowManager.hpp"
+#include "WindowManager.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {
@@ -139,11 +139,8 @@ namespace Rigel::Backend::Vulkan
         const auto oldSwapchain = m_Swapchain;
         createInfo.oldSwapchain = oldSwapchain;
 
-        if (const auto result = vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_Swapchain); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create Vulkan swapchain!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_Swapchain),
+            "Failed to create Vulkan swapchain!");
 
         // Clean up old swapchain and associated resources if needed
         if (oldSwapchain != VK_NULL_HANDLE)

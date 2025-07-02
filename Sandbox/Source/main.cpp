@@ -11,7 +11,7 @@ int32_t main(int32_t argc, char** argv)
     settings.GameVersion = RIGEL_MAKE_VERSION(0, 0, 1);
     settings.TargetFPS = 165;
     settings.WindowTitle = "Sandbox";
-    settings.WindowSize = glm::vec2(1280, 720);
+    settings.WindowSize = glm::vec2(1920, 1080);
 
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
@@ -26,7 +26,10 @@ int32_t main(int32_t argc, char** argv)
 
     auto h2 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureBruh);
     auto h0 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureWhite);
-    auto h1 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureError);
+
+    {
+        auto h1 = assetManager.Load<Rigel::Texture>(Rigel::BuiltInAssets::TextureBlack);
+    }
 
     auto scene = sceneManager.CreateScene();
 

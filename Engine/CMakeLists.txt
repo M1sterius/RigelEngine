@@ -9,13 +9,13 @@ file(GLOB_RECURSE IMGUI_SOURCES
     "${DEPENDENCIES_DIR}/imgui/*.cpp"
 )
 
-set(VMA_SOURCES "${DEPENDENCIES_DIR}/vma/vma.cpp"
-        Source/Backend/Renderer/Vulkan/TextureRegistry.cpp
-        Source/Backend/Renderer/Vulkan/TextureRegistry.hpp)
+set(VMA_SOURCES "${DEPENDENCIES_DIR}/vma/vma.cpp")
+set(TINY_GLTF_SOURCES "${DEPENDENCIES_DIR}/tiny_gltf/tiny_gltf.cpp")
 
 add_library(RigelEngine STATIC
     ${IMGUI_SOURCES}
     ${VMA_SOURCES}
+    ${TINY_GLTF_SOURCES}
 
     Source/Engine.cpp
     Source/Subsystems/Time.cpp
@@ -33,12 +33,12 @@ add_library(RigelEngine STATIC
     Source/Handles/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
-        Source/Utils/Filesystem/File.cpp
+    Source/Utils/Filesystem/File.cpp
     Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
-        Source/Subsystems/InputManager/Input.cpp
-        Source/Subsystems/InputManager/InputManager.cpp
+    Source/Subsystems/InputManager/Input.cpp
+    Source/Subsystems/InputManager/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
     Source/Debug/Exceptions.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
@@ -61,16 +61,17 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_UniformBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
     Source/Subsystems/Renderer/Model.cpp
     Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
     Source/Backend/Editor.cpp
     Source/Subsystems/Renderer/Texture.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
-        Include/Utils/Reflection/TypeRegistry.hpp
-        Source/Utils/Reflection/TypeUtility.cpp
-        Source/Handles/AssetHandle.cpp
+    Include/Utils/Reflection/TypeRegistry.hpp
+    Source/Utils/Reflection/TypeUtility.cpp
+    Source/Handles/AssetHandle.cpp
+    Source/Backend/Renderer/Vulkan/TextureRegistry.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -127,6 +128,7 @@ target_include_directories(RigelEngine PRIVATE
 
     ${DEPENDENCIES_DIR}/imgui
     ${DEPENDENCIES_DIR}/vma
+    ${DEPENDENCIES_DIR}/tiny_gltf
 )
 
 # Include paths that should be available outside to the projects linking the engine

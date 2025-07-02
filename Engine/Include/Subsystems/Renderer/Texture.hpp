@@ -35,7 +35,6 @@ namespace Rigel
             OpaqueBlack = 3,
             OpaqueWhite = 5
         };
-
         struct SamplerProperties
         {
             Filter MinFilter = Filter::Linear;
@@ -65,12 +64,12 @@ namespace Rigel
 
         NODISCARD glm::uvec2 GetSize() const;
     INTERNAL:
-        NODISCARD Backend::Vulkan::VK_Texture& GetBackend() const { return *m_BackendTexture; }
+        NODISCARD inline Ref<Backend::Vulkan::VK_Texture> GetImpl() const { return m_Impl.get(); }
     private:
         explicit Texture(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
-        std::unique_ptr<Backend::Vulkan::VK_Texture> m_BackendTexture;
+        std::unique_ptr<Backend::Vulkan::VK_Texture> m_Impl;
 
         friend class AssetManager;
     };

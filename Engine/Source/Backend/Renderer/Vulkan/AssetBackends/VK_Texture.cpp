@@ -3,7 +3,6 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Device.hpp"
-#include "VulkanUtility.hpp"
 #include "Engine.hpp"
 #include "Renderer.hpp"
 #include "TextureRegistry.hpp"
@@ -17,11 +16,9 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Texture::VK_Texture(const Ref<Texture>& baseAsset)
-        : m_BaseAsset(baseAsset)
+    VK_Texture::VK_Texture(const std::filesystem::path& path)
+        : m_Path(path)
     {
-        const auto path = m_BaseAsset->GetPath();
-
         const auto& renderer = Engine::Get().GetRenderer();
         const auto& backend = renderer.GetBackend();
         auto& device = backend.GetDevice();
@@ -30,7 +27,7 @@ namespace Rigel::Backend::Vulkan
 
         // Load a texture from file into a CPU side buffer
         int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load(path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        stbi_uc* pixels = stbi_load(m_Path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
         const auto size = glm::uvec2(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
         const VkDeviceSize imageSize = size.x * size.y * 4; // 4 bytes for 8-bit RGBA
