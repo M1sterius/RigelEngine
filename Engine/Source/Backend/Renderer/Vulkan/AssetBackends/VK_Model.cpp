@@ -1,15 +1,11 @@
 #include "VK_Model.hpp"
-
-#include <utility>
-#include "obj_loader/obj_loader.h"
-#include "Debug.hpp"
-
-#include "Engine.hpp"
-#include "Renderer.hpp"
-#include "VK_Device.hpp"
-#include "VK_Renderer.hpp"
+#include "VulkanUtility.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
+
+#include "obj_loader/obj_loader.h"
+
+#include <utility>
 
 namespace Rigel::Backend::Vulkan
 {
@@ -38,9 +34,7 @@ namespace Rigel::Backend::Vulkan
             vertices[i] = Vertex(position, texCoords);
         }
 
-        const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = renderer.GetBackend();
-        auto& device = backend.GetDevice();
+        auto& device = GetDevice();
 
         m_VertexBuffer = std::make_unique<VK_VertexBuffer>(device, vertices);
         m_IndexBuffer = std::make_unique<VK_IndexBuffer>(device, loader.LoadedIndices);

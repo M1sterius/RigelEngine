@@ -1,13 +1,10 @@
 #include "VK_Texture.hpp"
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
-#include "VK_Renderer.hpp"
-#include "VK_Device.hpp"
-#include "Engine.hpp"
-#include "Renderer.hpp"
 #include "TextureRegistry.hpp"
 #include "Texture.hpp"
 #include "BuiltInAssets.hpp"
+#include "VulkanUtility.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
@@ -19,9 +16,7 @@ namespace Rigel::Backend::Vulkan
     VK_Texture::VK_Texture(const std::filesystem::path& path)
         : m_Path(path)
     {
-        const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = renderer.GetBackend();
-        auto& device = backend.GetDevice();
+        auto& device = GetDevice();
 
         stbi_set_flip_vertically_on_load(true);
 
@@ -51,15 +46,15 @@ namespace Rigel::Backend::Vulkan
         VK_Image::TransitionLayout(device, *m_Image, VK_FORMAT_R8G8B8A8_SRGB,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        m_BindlessIndex = backend.GetTextureRegistry().AddTexture(this);
+        m_BindlessIndex = GetRenderer().GetTextureRegistry().AddTexture(this);
     }
 
     VK_Texture::~VK_Texture()
     {
         const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = renderer.GetBackend();
+        const auto& backend = renderer.GetImpl();
 
-        backend.GetTextureRegistry().RemoveTexture(m_BindlessIndex); // remove from registry
+        GetRenderer().GetTextureRegistry().RemoveTexture(m_BindlessIndex); // remove from registry
     }
 
     glm::uvec2 VK_Texture::GetSize() const

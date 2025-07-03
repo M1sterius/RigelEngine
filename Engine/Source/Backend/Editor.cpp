@@ -18,7 +18,7 @@ namespace Rigel::Backend::Editor
 
     void Editor::Draw()
     {
-        Engine::Get().GetRenderer().GetImGuiBackend().BeginNewFrame();
+        Engine::Get().GetRenderer().GetImGuiImpl().BeginNewFrame();
 
         ImGui::Begin("Hello, Vulkan!");
         ImGui::Text("This is a simple text");

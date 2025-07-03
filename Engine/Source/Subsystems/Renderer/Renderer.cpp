@@ -20,22 +20,22 @@ namespace Rigel
     {
         Debug::Trace("Starting up renderer.");
 
-        m_BackendRenderer = std::make_unique<Backend::Vulkan::VK_Renderer>();
-        m_ImGuiBackend = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(*m_BackendRenderer);
+        m_Impl = std::make_unique<Backend::Vulkan::VK_Renderer>();
+        m_ImGuiImpl = std::make_unique<Backend::Vulkan::VK_ImGUI_Renderer>(*m_Impl);
 
-        if (const auto result = m_BackendRenderer->Startup(); result != ErrorCode::OK)
+        if (const auto result = m_Impl->Startup(); result != ErrorCode::OK)
         {
             Debug::Error("Failed to start up vulkan rendering backend! Error code: {}.", static_cast<int32_t>(result));
             return ErrorCode::RENDERER_BACKEND_START_UP_FAILURE;
         }
 
-        if (const auto result = m_ImGuiBackend->Startup(); result != ErrorCode::OK)
+        if (const auto result = m_ImGuiImpl->Startup(); result != ErrorCode::OK)
         {
             Debug::Error("Failed to start up imgui backend for vulkan! Error code: {}.", static_cast<int32_t>(result));
             return ErrorCode::IMGUI_BACKEND_STARTUP_FAILURE;
         }
 
-        m_BackendRenderer->SetImGuiBackend(m_ImGuiBackend.get());
+        m_Impl->SetImGuiBackend(m_ImGuiImpl.get());
 
         m_Initialized = true;
         return ErrorCode::OK;
@@ -45,24 +45,18 @@ namespace Rigel
     {
         Debug::Trace("Shutting down renderer.");
 
-        m_ImGuiBackend->Shutdown();
-        m_BackendRenderer->Shutdown();
+        m_ImGuiImpl->Shutdown();
+        m_Impl->Shutdown();
 
-        m_ImGuiBackend.reset();
-        m_BackendRenderer.reset();
+        m_ImGuiImpl.reset();
+        m_Impl.reset();
 
         return ErrorCode::OK;
     }
 
-    Backend::Vulkan::VK_Renderer& Renderer::GetBackend() const
-    {
-        ASSERT(m_BackendRenderer, "Attempted to retrieve a null reference of a rendering backend!");
-        return *m_BackendRenderer;
-    }
-
     ErrorCode Renderer::LateStartup() const
     {
-        return m_BackendRenderer->LateStartup();
+        return m_Impl->LateStartup();
     }
 
     void Renderer::Prepare()
@@ -99,11 +93,11 @@ namespace Rigel
 
     void Renderer::Render() const
     {
-        m_BackendRenderer->Render();
+        m_Impl->Render();
     }
 
     void Renderer::WaitForFinish() const
     {
-        m_BackendRenderer->WaitForFinish();
+        m_Impl->WaitForFinish();
     }
 }

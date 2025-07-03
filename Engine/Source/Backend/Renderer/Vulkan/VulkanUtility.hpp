@@ -18,9 +18,14 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    NODISCARD inline Ref<VK_Renderer> GetRenderer()
+    NODISCARD inline VK_Renderer& GetRenderer()
     {
         const auto& renderer = Engine::Get().GetRenderer();
-        return nullptr;
+        return renderer.GetImpl();
+    }
+
+    NODISCARD inline VK_Device& GetDevice()
+    {
+        return GetRenderer().GetDevice();
     }
 }

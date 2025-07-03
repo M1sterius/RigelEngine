@@ -1,12 +1,7 @@
 #include "VK_Shader.hpp"
 #include "File.hpp"
-#include "MakeInfo.hpp"
+#include "VulkanUtility.hpp"
 #include "VulkanException.hpp"
-
-#include "Engine.hpp"
-#include "Renderer.hpp"
-#include "VK_Device.hpp"
-#include "VK_Renderer.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -30,9 +25,7 @@ namespace Rigel::Backend::Vulkan
         fragInfo.codeSize = fragBytes.size();
         fragInfo.pCode = reinterpret_cast<const uint32_t*>(fragBytes.data());
 
-        const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = renderer.GetBackend();
-        const auto& device = backend.GetDevice();
+        const auto& device = GetDevice();
 
         if (const auto result = vkCreateShaderModule(device.Get(), &vertInfo, nullptr, &m_VertexModule); result != VK_SUCCESS)
             throw VulkanException("Failed to create Vulkan vertex shader module!", result);
@@ -52,9 +45,7 @@ namespace Rigel::Backend::Vulkan
 
     VK_Shader::~VK_Shader()
     {
-        const auto& renderer = Engine::Get().GetRenderer();
-        const auto& backend = renderer.GetBackend();
-        const auto& device = backend.GetDevice();
+        const auto& device = GetDevice();
 
         vkDestroyShaderModule(device.Get(), m_VertexModule, nullptr);
         vkDestroyShaderModule(device.Get(), m_FragmentModule, nullptr);
