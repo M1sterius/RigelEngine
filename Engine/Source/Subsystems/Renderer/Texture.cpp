@@ -1,5 +1,9 @@
 #include "Texture.hpp"
 #include "VK_Texture.hpp"
+#include "ScopeGuard.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
 
 namespace Rigel
 {
@@ -9,14 +13,18 @@ namespace Rigel
 
     ErrorCode Texture::Init()
     {
-        try
-        {
-            m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(m_Path);
-        }
-        catch (const std::exception&)
-        {
-            return ErrorCode::FAILED_TO_CREATE_ASSET_BACKEND;
-        }
+        stbi_set_flip_vertically_on_load(true);
+
+        int texWidth, texHeight, texChannels;
+        auto pixels = stbi_load(m_Path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        const auto size = glm::uvec2(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+
+        auto freeGuard = ScopeGuard([pixels] { stbi_image_free(pixels); });
+
+        if (!pixels)
+            return ErrorCode::FAILED_TO_OPEN_FILE;
+
+        m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(pixels, size);
 
         m_Initialized = true;
         return ErrorCode::OK;

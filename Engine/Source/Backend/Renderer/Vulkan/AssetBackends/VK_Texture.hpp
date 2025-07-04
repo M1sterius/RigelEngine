@@ -20,13 +20,12 @@ namespace Rigel::Backend::Vulkan
     class VK_Texture final
     {
     public:
-        explicit VK_Texture(const std::filesystem::path& path);
+        explicit VK_Texture(const void* pixelData, const glm::uvec2 size);
         ~VK_Texture();
 
         NODISCARD VK_Image& GetImage() const { return *m_Image; }
         NODISCARD glm::uvec2 GetSize() const;
     private:
-        std::filesystem::path m_Path;
         std::unique_ptr<VK_Image> m_Image;
 
         uint32_t m_BindlessIndex = -1;

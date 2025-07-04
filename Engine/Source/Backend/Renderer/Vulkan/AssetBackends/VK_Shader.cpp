@@ -1,21 +1,10 @@
 #include "VK_Shader.hpp"
-#include "File.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Shader::VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
+    VK_Shader::VK_Shader(const std::vector<char>& vertBytes, const std::vector<char>& fragBytes)
     {
-        // TODO: implement proper error handling
-        const auto vertBytesR = File::ReadBinary(vertPath);
-        const auto fragBytesR = File::ReadBinary(fragPath);
-
-        if (vertBytesR.IsError() || fragBytesR.IsError())
-            throw RigelException("Failed to load vulkan shader! This exception should be refactored ASAP!!");
-
-        const auto vertBytes = vertBytesR.Value();
-        const auto fragBytes = fragBytesR.Value();
-
         auto vertInfo = MakeInfo<VkShaderModuleCreateInfo>();
         vertInfo.codeSize = vertBytes.size();
         vertInfo.pCode = reinterpret_cast<const uint32_t*>(vertBytes.data());

@@ -1,7 +1,7 @@
 #include "Shader.hpp"
-
 #include "Renderer.hpp"
 #include "VK_Shader.hpp"
+#include "File.hpp"
 
 namespace Rigel
 {
@@ -11,22 +11,20 @@ namespace Rigel
 
     ErrorCode Shader::Init()
     {
-        try
-        {
-            // Loading code assumes the following naming convention for shader files:
-            // <shader_name>.<vert/frag>.spv
+        const auto shaderName = std::filesystem::path(m_Path).replace_extension("");
 
-            const auto shaderName = std::filesystem::path(m_Path).replace_extension("");
+        const auto vertPath = std::filesystem::path(shaderName).concat(".vert.spv");
+        const auto fragPath = std::filesystem::path(shaderName).concat(".frag.spv");
 
-            const auto vertPath = std::filesystem::path(shaderName).concat(".vert.spv");
-            const auto fragPath = std::filesystem::path(shaderName).concat(".frag.spv");
+        const auto vertBytes = File::ReadBinary(vertPath);
+        const auto fragBytes = File::ReadBinary(fragPath);
 
-            m_BackendShader = std::make_unique<Backend::Vulkan::VK_Shader>(vertPath, fragPath);
-        }
-        catch (const std::exception&)
-        {
-            return ErrorCode::FAILED_TO_CREATE_ASSET_BACKEND;
-        }
+        if (vertBytes.IsError())
+            return vertBytes.GetError();
+        if (fragBytes.IsError())
+            return fragBytes.GetError();
+
+        m_Impl = std::make_unique<Backend::Vulkan::VK_Shader>(vertBytes.Value(), fragBytes.Value());
 
         m_Initialized = true;
         return ErrorCode::OK;

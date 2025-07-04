@@ -11,10 +11,12 @@ namespace Rigel
 
     ErrorCode Model::Init()
     {
-        try {
+        try
+        {
             m_BackendModel = std::make_unique<Backend::Vulkan::VK_Model>(m_Path);
         }
-        catch (const std::exception&) {
+        catch (const std::exception&)
+        {
             return ErrorCode::FAILED_TO_CREATE_ASSET_BACKEND;
         }
 

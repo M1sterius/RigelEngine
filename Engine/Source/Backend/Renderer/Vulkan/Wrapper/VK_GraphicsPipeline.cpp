@@ -24,9 +24,9 @@ namespace Rigel::Backend::Vulkan
     }
 
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat swapchainImageFormat, const VK_Shader& shader, const std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
+        const VkFormat swapchainImageFormat, const Ref<VK_Shader> shader, const std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
     {
-        const auto shaderStagesInfo = shader.GetShaderStagesInfo();
+        const auto shaderStagesInfo = shader->GetShaderStagesInfo();
 
         // Dynamic rendering attachments info
         auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();

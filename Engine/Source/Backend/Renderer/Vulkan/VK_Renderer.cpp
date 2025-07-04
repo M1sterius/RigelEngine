@@ -1,7 +1,5 @@
 #include "VK_Renderer.hpp"
-
 #include "ImGui/VK_ImGUI_Renderer.hpp"
-
 #include "Shader.hpp"
 #include "ShaderStructs.hpp"
 #include "TextureRegistry.hpp"
@@ -12,6 +10,7 @@
 #include "Debug.hpp"
 #include "Time.hpp"
 #include "AssetManager.hpp"
+#include "BuiltInAssets.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 #include "GameObject.hpp"
@@ -65,10 +64,13 @@ namespace Rigel::Backend::Vulkan
     {
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
-        const auto shaderAsset = GetAssetManager().Load<Shader>("Assets/EngineAssets/Shaders/DefaultShader.spv");
-        const auto& defaultShader = shaderAsset->GetBackend();
+        const auto shaderAsset = GetAssetManager().Load<Shader>(BuiltInAssets::ShaderDefault);
+        const auto defaultShader = shaderAsset->GetImpl();
 
-        const std::vector<VkDescriptorSetLayout> layouts = { m_TextureRegistry->GetDescriptorSetLayout() };
+        if (defaultShader.IsNull())
+            return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
+
+        const std::vector layouts = { m_TextureRegistry->GetDescriptorSetLayout() };
 
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layouts);
 

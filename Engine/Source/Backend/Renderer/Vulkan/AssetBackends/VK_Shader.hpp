@@ -11,7 +11,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Shader final
     {
     public:
-        VK_Shader(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
+        VK_Shader(const std::vector<char>& vertBytes, const std::vector<char>& fragBytes);
         ~VK_Shader();
 
         VK_Shader(const VK_Shader& other) = delete;

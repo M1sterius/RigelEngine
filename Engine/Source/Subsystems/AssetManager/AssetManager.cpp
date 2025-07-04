@@ -45,6 +45,8 @@ namespace Rigel
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
 
+        handles.emplace_back(LoadAsync<Shader>(BuiltInAssets::ShaderDefault, true).ToGeneric());
+
         for (const auto& handle : handles)
         {
             handle->WaitReady();

@@ -9,7 +9,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Model::VK_Model(std::filesystem::path  path)
+    VK_Model::VK_Model(std::filesystem::path path)
         : m_Path(std::move(path))
     {
         if (!IsFormatSupported(m_Path.extension().string()))
