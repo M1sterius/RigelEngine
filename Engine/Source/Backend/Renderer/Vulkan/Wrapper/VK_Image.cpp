@@ -1,10 +1,8 @@
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VK_CmdBuffer.hpp"
-#include "VulkanException.hpp"
-#include "VK_Device.hpp"
+#include "VulkanUtility.hpp"
 #include "VK_Fence.hpp"
-#include "MakeInfo.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -76,7 +74,7 @@ namespace Rigel::Backend::Vulkan
         }
         else
         {
-            throw VulkanException("Unsupported Vulkan image layout transition!", VK_ERROR_UNKNOWN);
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Unsupported vulkan image layout transition!", __FILE__, __LINE__);
         }
 
         vkCmdPipelineBarrier(
@@ -132,11 +130,7 @@ namespace Rigel::Backend::Vulkan
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
-        if (const auto result = vmaCreateImage(m_Device.GetVmaAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan image. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vmaCreateImage(m_Device.GetVmaAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr), "Failed to create vma image!");
 
         auto viewInfo = MakeInfo<VkImageViewCreateInfo>();
         viewInfo.image = m_Image;
@@ -148,11 +142,7 @@ namespace Rigel::Backend::Vulkan
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        if (const auto result = vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_ImageView); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan image view. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_ImageView), "Failed to create image view!");
     }
 
     VK_Image::~VK_Image()

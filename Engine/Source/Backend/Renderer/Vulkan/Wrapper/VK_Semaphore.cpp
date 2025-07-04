@@ -1,17 +1,14 @@
 #include "VK_Semaphore.hpp"
-#include "VK_Device.hpp"
-#include "MakeInfo.hpp"
-#include "VulkanException.hpp"
+#include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
     VK_Semaphore::VK_Semaphore(VK_Device& device)
-            :   m_Device(device)
+        : m_Device(device)
     {
         auto semaphoreInfo = MakeInfo<VkSemaphoreCreateInfo>();
 
-        if (const auto result = vkCreateSemaphore(m_Device.Get(), &semaphoreInfo, nullptr, &m_Semaphore); result != VK_SUCCESS)
-            throw VulkanException("Failed to Vulkan create semaphore!", result);
+        VK_CHECK_RESULT(vkCreateSemaphore(m_Device.Get(), &semaphoreInfo, nullptr, &m_Semaphore), "Failed to create semaphore!");
     }
 
     VK_Semaphore::~VK_Semaphore()

@@ -20,8 +20,8 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkFence Get() const { return m_Fence; }
 
-        void Reset();
-        void Wait(const uint64_t timeout = std::numeric_limits<uint64_t>::max());
+        void Reset() const;
+        void Wait(const uint64_t timeout = std::numeric_limits<uint64_t>::max()) const;
     private:
         const VK_Device& m_Device;
         VkFence m_Fence = VK_NULL_HANDLE;

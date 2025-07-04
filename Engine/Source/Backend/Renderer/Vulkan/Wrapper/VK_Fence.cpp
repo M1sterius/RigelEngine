@@ -1,7 +1,5 @@
 #include "VK_Fence.hpp"
-#include "VK_Device.hpp"
-#include "MakeInfo.hpp"
-#include "VulkanException.hpp"
+#include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -11,8 +9,7 @@ namespace Rigel::Backend::Vulkan
         auto fenceInfo = MakeInfo<VkFenceCreateInfo>();
         if (signalBit) fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        if (const auto result = vkCreateFence(m_Device.Get(), &fenceInfo, nullptr, &m_Fence); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan fence!", result);
+        VK_CHECK_RESULT(vkCreateFence(m_Device.Get(), &fenceInfo, nullptr, &m_Fence), "Failed to create fence!");
     }
 
     VK_Fence::~VK_Fence()
@@ -20,15 +17,13 @@ namespace Rigel::Backend::Vulkan
         vkDestroyFence(m_Device.Get(), m_Fence, nullptr);
     }
 
-    void VK_Fence::Reset()
+    void VK_Fence::Reset() const
     {
-        if (const auto result = vkResetFences(m_Device.Get(), 1, &m_Fence); result != VK_SUCCESS)
-            throw VulkanException("Failed to reset Vulkan fence!", result);
+        VK_CHECK_RESULT(vkResetFences(m_Device.Get(), 1, &m_Fence), "Failed to reset fence!");
     }
 
-    void VK_Fence::Wait(const uint64_t timeout)
+    void VK_Fence::Wait(const uint64_t timeout) const
     {
-        if (const auto result = vkWaitForFences(m_Device.Get(), 1, &m_Fence, VK_TRUE, timeout); result != VK_SUCCESS)
-            throw VulkanException("Failed to wait for Vulkan fence!", result);
+        VK_CHECK_RESULT(vkWaitForFences(m_Device.Get(), 1, &m_Fence, VK_TRUE, timeout), "Failed to wait for fence!");
     }
 }

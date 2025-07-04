@@ -1,7 +1,6 @@
 #include "VK_Shader.hpp"
 #include "File.hpp"
 #include "VulkanUtility.hpp"
-#include "VulkanException.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -27,10 +26,8 @@ namespace Rigel::Backend::Vulkan
 
         const auto& device = GetDevice();
 
-        if (const auto result = vkCreateShaderModule(device.Get(), &vertInfo, nullptr, &m_VertexModule); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan vertex shader module!", result);
-        if (const auto result = vkCreateShaderModule(device.Get(), &fragInfo, nullptr, &m_FragmentModule); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan fragment shader module!", result);
+        VK_CHECK_RESULT(vkCreateShaderModule(device.Get(), &vertInfo, nullptr, &m_VertexModule), "Failed to create vertex shader module!");
+        VK_CHECK_RESULT(vkCreateShaderModule(device.Get(), &fragInfo, nullptr, &m_FragmentModule), "Failed to create fragment shader module!");
 
         m_ShaderStagesInfo[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         m_ShaderStagesInfo[0].stage = VK_SHADER_STAGE_VERTEX_BIT;

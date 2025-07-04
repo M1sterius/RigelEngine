@@ -2,8 +2,6 @@
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "TextureRegistry.hpp"
-#include "Texture.hpp"
-#include "BuiltInAssets.hpp"
 #include "VulkanUtility.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION

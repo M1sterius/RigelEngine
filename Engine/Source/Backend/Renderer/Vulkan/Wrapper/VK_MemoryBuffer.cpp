@@ -1,8 +1,6 @@
 #include "VK_MemoryBuffer.hpp"
-#include "VK_Device.hpp"
 #include "VK_CmdBuffer.hpp"
-#include "VulkanException.hpp"
-#include "MakeInfo.hpp"
+#include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -43,11 +41,7 @@ namespace Rigel::Backend::Vulkan
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = m_MemoryUsage;
 
-        if (const auto result = vmaCreateBuffer(m_Device.GetVmaAllocator(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to allocate VMA buffer. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vmaCreateBuffer(m_Device.GetVmaAllocator(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr), "Failed to create vma memory buffer!");
     }
 
     void VK_MemoryBuffer::Resize(const VkDeviceSize newSize)
@@ -70,6 +64,6 @@ namespace Rigel::Backend::Vulkan
                 Resize(offset + size);
         }
 
-        vmaCopyMemoryToAllocation(m_Device.GetVmaAllocator(), data, m_Allocation, offset, size);
+        VK_CHECK_RESULT(vmaCopyMemoryToAllocation(m_Device.GetVmaAllocator(), data, m_Allocation, offset, size), "Failed to copy data to vma allocation!");
     }
 }

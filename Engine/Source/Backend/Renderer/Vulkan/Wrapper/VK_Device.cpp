@@ -1,14 +1,10 @@
 #include "VK_Device.hpp"
-#include "VK_Config.hpp"
-#include "VulkanException.hpp"
-#include "Engine.hpp"
+#include "VulkanUtility.hpp"
 #include "AssetManager.hpp"
-#include "MakeInfo.hpp"
+#include "VK_MemoryBuffer.hpp"
 
 #include <format>
 #include <set>
-
-#include "VK_MemoryBuffer.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -141,11 +137,7 @@ namespace Rigel::Backend::Vulkan
             createInfo.enabledLayerCount = 0;
         }
 
-        if (const auto result = vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create Vulkan logical device. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device), "Failed to create logical device!");
 
         vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
         vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
@@ -179,11 +171,7 @@ namespace Rigel::Backend::Vulkan
         allocatorCreateInfo.device = m_Device;
         allocatorCreateInfo.instance = m_Instance;
 
-        if (const auto result = vmaCreateAllocator(&allocatorCreateInfo, &m_VmaAllocator); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan memory allocator. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vmaCreateAllocator(&allocatorCreateInfo, &m_VmaAllocator), "Failed to create VMA allocator object!");
     }
 
     void VK_Device::CreateCommandPools()
@@ -200,16 +188,13 @@ namespace Rigel::Backend::Vulkan
                 std::format("Failed to create Vulkan command pool!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
         }
 
+        VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
         m_CommandPools[std::this_thread::get_id()] = commandPool;
 
         for (const auto& id : Engine::Get().GetAssetManager().GetLoadingThreadIDs())
         {
-            if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool); result != VK_SUCCESS)
-            {
-                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                    std::format("Failed to create Vulkan command pool!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-            }
 
+            VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
             m_CommandPools[id] = commandPool;
         }
     }
@@ -253,7 +238,7 @@ namespace Rigel::Backend::Vulkan
     void VK_Device::SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
     {
         std::unique_lock lock(m_GraphicsQueueMutex);
-        vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence);
+        VK_CHECK_RESULT(vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
     }
 
     uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const

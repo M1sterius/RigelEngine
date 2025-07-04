@@ -1,6 +1,6 @@
 #include "VK_Instance.hpp"
 #include "VK_Config.hpp"
-#include "MakeInfo.hpp"
+#include "VulkanUtility.hpp"
 #include "Debug.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -114,11 +114,7 @@ namespace Rigel::Backend::Vulkan
             createInfo.pNext = nullptr;
         }
 
-        if (const auto result = vkCreateInstance(&createInfo, nullptr, &m_Instance); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan instance. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(vkCreateInstance(&createInfo, nullptr, &m_Instance), "Failed to create vulkan instance!");
 
         if (VK_Config::EnableValidationLayers)
             CreateDebugMessenger();

@@ -2,9 +2,7 @@
 #include "VK_DescriptorPool.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VK_UniformBuffer.hpp"
-#include "VK_Device.hpp"
-#include "MakeInfo.hpp"
-#include "VulkanException.hpp"
+#include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -19,9 +17,8 @@ namespace Rigel::Backend::Vulkan
         layoutInfo.bindingCount = m_LayoutBindings.size();
         layoutInfo.pBindings = m_LayoutBindings.data();
 
-        VkDescriptorSetLayout layout;
-        if (const auto result = vkCreateDescriptorSetLayout(m_Device.Get(), &layoutInfo, nullptr, &layout); result != VK_SUCCESS)
-            throw VulkanException("Failed to create descriptor set layout!", result);
+        VkDescriptorSetLayout layout = VK_NULL_HANDLE;
+        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &layoutInfo, nullptr, &layout), "Failed to create descriptor set layout!");
 
         return layout;
     }
@@ -65,8 +62,7 @@ namespace Rigel::Backend::Vulkan
         allocInfo.descriptorSetCount = 1;
         allocInfo.pSetLayouts = &m_DescriptorSetLayout;
 
-        if (const auto result = vkAllocateDescriptorSets(m_Device.Get(), &allocInfo, &m_DescriptorSet); result != VK_SUCCESS)
-            throw VulkanException("Failed to allocate descriptor set!", result);
+        VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.Get(), &allocInfo, &m_DescriptorSet), "Failed to allocate descriptor set!");
 
         auto descriptorWrites = descriptorBuild.m_DescriptorWrites;
         for (auto& write : descriptorWrites)

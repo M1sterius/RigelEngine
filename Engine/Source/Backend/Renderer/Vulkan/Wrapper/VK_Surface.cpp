@@ -1,6 +1,5 @@
 #include "VK_Surface.hpp"
-#include "Engine.hpp"
-#include "Debug.hpp"
+#include "VulkanUtility.hpp"
 #include "WindowManager.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -16,11 +15,7 @@ namespace Rigel::Backend::Vulkan
 
         const auto glfwWindow = Engine::Get().GetWindowManager().GetGLFWWindowPtr();
 
-        if (const auto result = glfwCreateWindowSurface(instance, glfwWindow, nullptr, &m_Surface); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan window surface. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(glfwCreateWindowSurface(instance, glfwWindow, nullptr, &m_Surface), "Failed to create window surface!");
     }
 
     VK_Surface::~VK_Surface()

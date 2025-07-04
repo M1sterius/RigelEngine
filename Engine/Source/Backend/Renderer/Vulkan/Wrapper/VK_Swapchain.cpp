@@ -1,10 +1,7 @@
 #include "VK_Swapchain.hpp"
 #include "VK_Semaphore.hpp"
-#include "VK_Config.hpp"
-#include "MakeInfo.hpp"
 #include "VulkanUtility.hpp"
 #include "Time.hpp"
-#include "Engine.hpp"
 #include "WindowManager.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
@@ -117,7 +114,7 @@ namespace Rigel::Backend::Vulkan
         if (graphicsFamily != presentFamily)
         {
             // If graphics and present queues are not in the same family, we want
-            // resources to be freely shared between them, so VK_SHARING_MODE_CONCURRENT is chosen oin that case
+            // resources to be freely shared between them, so VK_SHARING_MODE_CONCURRENT is chosen in that case
 
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
@@ -174,11 +171,7 @@ namespace Rigel::Backend::Vulkan
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
 
-            if (const auto result = vkCreateImageView(m_Device.Get(), &imageViewCreateInfo, nullptr, &m_ImageViews[i]); result != VK_SUCCESS)
-            {
-                Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create vulkan swapchain image view! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-            }
+            VK_CHECK_RESULT(vkCreateImageView(m_Device.Get(), &imageViewCreateInfo, nullptr, &m_ImageViews[i]), "Failed to create swapchain image view!");
         }
     }
 

@@ -1,8 +1,7 @@
 #include "VK_CmdBuffer.hpp"
 #include "VK_Device.hpp"
 #include "VK_Fence.hpp"
-#include "MakeInfo.hpp"
-#include "VulkanException.hpp"
+#include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -61,8 +60,7 @@ namespace Rigel::Backend::Vulkan
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
 
-        if (const auto result = vkAllocateCommandBuffers(m_Device.Get(), &allocInfo, &m_CmdBuffer); result != VK_SUCCESS)
-            throw VulkanException("Failed to allocate vulkan command buffer!", result);
+        VK_CHECK_RESULT(vkAllocateCommandBuffers(m_Device.Get(), &allocInfo, &m_CmdBuffer), "Failed to allocate command buffer!");
     }
 
     VK_CmdBuffer::~VK_CmdBuffer()
@@ -75,19 +73,16 @@ namespace Rigel::Backend::Vulkan
         auto beginInfo = MakeInfo<VkCommandBufferBeginInfo>();
         beginInfo.flags = flags;
 
-        if (const auto result = vkBeginCommandBuffer(m_CmdBuffer, &beginInfo); result != VK_SUCCESS)
-            throw VulkanException("Failed to begin recording Vulkan command buffer!", result);
+        VK_CHECK_RESULT(vkBeginCommandBuffer(m_CmdBuffer, &beginInfo), "Failed to begin recording command buffer!");
     }
 
     void VK_CmdBuffer::EndRecording() const
     {
-        if (const auto result = vkEndCommandBuffer(m_CmdBuffer); result != VK_SUCCESS)
-            throw VulkanException("Failed to end recording Vulkan command buffer!", result);
+        VK_CHECK_RESULT(vkEndCommandBuffer(m_CmdBuffer), "Failed to end recording command buffer!");
     }
 
     void VK_CmdBuffer::Reset(VkCommandBufferResetFlags flags) const
     {
-        if (const auto result = vkResetCommandBuffer(m_CmdBuffer, flags); result != VK_SUCCESS)
-            throw VulkanException("Failed to reset Vulkan command buffer!", result);
+        VK_CHECK_RESULT(vkResetCommandBuffer(m_CmdBuffer, flags), "Failed to reset command buffer!");
     }
 }

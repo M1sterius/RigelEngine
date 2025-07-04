@@ -1,24 +1,20 @@
 #include "VK_GraphicsPipeline.hpp"
-#include "VK_Device.hpp"
 #include "VK_Shader.hpp"
-#include "VulkanException.hpp"
+#include "VulkanUtility.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_DescriptorSet.hpp"
 #include "ShaderStructs.hpp"
-#include "MakeInfo.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
     VK_GraphicsPipeline::VK_GraphicsPipeline(VK_Device& device, const VkPipelineLayoutCreateInfo& layoutInfo, VkGraphicsPipelineCreateInfo& pipelineInfo)
         : m_Device(device)
     {
-        if (const auto result = vkCreatePipelineLayout(m_Device.Get(), &layoutInfo, nullptr, &m_PipelineLayout); result != VK_SUCCESS)
-            throw VulkanException("Failed to create Vulkan graphics pipeline layout!", result);
+        VK_CHECK_RESULT(vkCreatePipelineLayout(m_Device.Get(), &layoutInfo, nullptr, &m_PipelineLayout), "Failed to create graphics pipeline layout!");
 
         pipelineInfo.layout = m_PipelineLayout;
 
-        if (const auto result = vkCreateGraphicsPipelines(m_Device.Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline); result != VK_SUCCESS)
-            throw VulkanException("Failed to create graphics pipeline!", result);
+        VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_Device.Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline), "Failed to create graphics pipeline!");
     }
 
     VK_GraphicsPipeline::~VK_GraphicsPipeline()
