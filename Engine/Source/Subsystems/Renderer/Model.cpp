@@ -1,7 +1,10 @@
 #include "Model.hpp"
-#include "Engine.hpp"
 #include "Renderer.hpp"
 #include "VK_Model.hpp"
+
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 namespace Rigel
 {
@@ -11,13 +14,13 @@ namespace Rigel
 
     ErrorCode Model::Init()
     {
-        try
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(m_Path.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
+
+        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            m_BackendModel = std::make_unique<Backend::Vulkan::VK_Model>(m_Path);
-        }
-        catch (const std::exception&)
-        {
-            return ErrorCode::FAILED_TO_CREATE_ASSET_BACKEND;
+            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << '\n';
+            return ErrorCode::FAILED_TO_OPEN_FILE;
         }
 
         m_Initialized = true;

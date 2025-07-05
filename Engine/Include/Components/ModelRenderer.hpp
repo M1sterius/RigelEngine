@@ -21,7 +21,7 @@ namespace Rigel
         NODISCARD AssetHandle<Model> GetModelAsset() const;
     private:
         ModelRenderer();
-        explicit ModelRenderer(AssetHandle<Model> model);
+        explicit ModelRenderer(const AssetHandle<Model>& model);
         explicit ModelRenderer(const std::filesystem::path& modelPath);
 
         void OnLoad() override;

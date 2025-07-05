@@ -18,7 +18,7 @@ namespace Rigel
     public:
         ~Model() override;
     INTERNAL:
-        NODISCARD Backend::Vulkan::VK_Model& GetBackend() const { return *m_BackendModel; }
+        NODISCARD Backend::Vulkan::VK_Model& GetImpl() const { return *m_BackendModel; }
     private:
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;

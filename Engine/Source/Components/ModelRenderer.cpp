@@ -8,8 +8,8 @@ namespace Rigel
     ModelRenderer::ModelRenderer()
         : m_Model(AssetHandle<Model>::Null()) { }
 
-    ModelRenderer::ModelRenderer(AssetHandle<Model> model)
-        : m_Model(std::move(model)) { }
+    ModelRenderer::ModelRenderer(const AssetHandle<Model>& model)
+        : m_Model(model) { }
 
     ModelRenderer::ModelRenderer(const std::filesystem::path& modelPath)
         : m_ModelPath(modelPath) { }

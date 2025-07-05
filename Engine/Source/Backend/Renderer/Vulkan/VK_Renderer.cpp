@@ -176,7 +176,7 @@ namespace Rigel::Backend::Vulkan
                     &pushConstant
                 );
 
-                const auto& vkModel = model->GetModelAsset()->GetBackend();
+                const auto& vkModel = model->GetModelAsset()->GetImpl();
 
                 const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
                 constexpr VkDeviceSize offsets[] = {0};
