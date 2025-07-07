@@ -11,7 +11,7 @@ int32_t main(int32_t argc, char** argv)
     settings.GameVersion = RIGEL_MAKE_VERSION(0, 0, 1);
     settings.TargetFPS = 165;
     settings.WindowTitle = "Sandbox";
-    settings.WindowSize = glm::vec2(1920, 1080);
+    settings.WindowSize = glm::vec2(1280, 720);
 
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
@@ -28,7 +28,7 @@ int32_t main(int32_t argc, char** argv)
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto hM = assetManager.Load<Rigel::Model>("Assets/Models/scene.gltf");
+    auto hM = assetManager.Load<Rigel::Model>("Assets/Models/Sponza/Sponza.gltf");
 
     // auto cube = scene->Instantiate("Model");
     // cube->GetTransform()->SetLocalPosition({0, 0, -2.5});

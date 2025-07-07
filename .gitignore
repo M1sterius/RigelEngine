@@ -1,5 +1,7 @@
 Bin/
 CMakeBuild/
+CMakeBuild-Debug/
+CMakeBuild-Release/
 .vscode/
 .vs/
 .idea/

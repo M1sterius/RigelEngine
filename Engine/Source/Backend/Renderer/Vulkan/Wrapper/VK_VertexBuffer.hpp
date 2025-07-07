@@ -17,10 +17,11 @@ namespace Rigel::Backend::Vulkan
     {
         glm::vec3 position;
         glm::vec2 texCoords;
+        glm::vec3 normal;
 
         Vertex() = default;
-        Vertex(const glm::vec3& position, const glm::vec2& texCoords)
-            :   position(position), texCoords(texCoords) { }
+        Vertex(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normal)
+            :   position(position), texCoords(texCoords), normal(normal) { }
 
         NODISCARD inline static VkVertexInputBindingDescription GetBindingDescription()
         {
@@ -38,9 +39,9 @@ namespace Rigel::Backend::Vulkan
             return bindingDescription;
         }
 
-        NODISCARD inline static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+        NODISCARD inline static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
+            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions {};
 
             // a_Position (location = 0)
             attributeDescriptions[0].binding = 0;
@@ -53,6 +54,12 @@ namespace Rigel::Backend::Vulkan
             attributeDescriptions[1].location = 1;
             attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
             attributeDescriptions[1].offset = offsetof(Vertex, texCoords);
+
+            // a_Normal (location = 2)
+            attributeDescriptions[2].binding = 0;
+            attributeDescriptions[2].location = 2;
+            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[2].offset = offsetof(Vertex, normal);
 
             return attributeDescriptions;
         }

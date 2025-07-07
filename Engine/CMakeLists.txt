@@ -60,8 +60,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
-    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Model.cpp
-    Source/Subsystems/Renderer/Model.cpp
+        Source/Subsystems/Renderer/Model.cpp
     Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
     Source/Backend/Editor.cpp
     Source/Subsystems/Renderer/Texture.cpp

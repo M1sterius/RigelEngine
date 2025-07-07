@@ -5,7 +5,6 @@
 #include "TextureRegistry.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
-#include "VK_Model.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
@@ -153,39 +152,39 @@ namespace Rigel::Backend::Vulkan
 
         if (!camera.IsNull())
         {
-            const auto projView = camera->GetProjection() * camera->GetView();
-
-            uint32_t index = 0;
-            for (const auto& model : models)
-            {
-                if (model->GetModelAsset().IsNull())
-                    continue;
-
-                const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
-
-                auto pushConstant = PushConstantData();
-                pushConstant.MVP = mvp;
-                pushConstant.DrawIndex = index++;
-
-                vkCmdPushConstants(
-                    vkCmdBuffer,
-                    m_GraphicsPipeline->GetLayout(),
-                    VK_SHADER_STAGE_VERTEX_BIT,
-                    0,
-                    sizeof(pushConstant),
-                    &pushConstant
-                );
-
-                const auto& vkModel = model->GetModelAsset()->GetImpl();
-
-                const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
-                constexpr VkDeviceSize offsets[] = {0};
-
-                vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, vertexBuffers, offsets);
-                vkCmdBindIndexBuffer(vkCmdBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
-
-                vkCmdDrawIndexed(vkCmdBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
-            }
+            // const auto projView = camera->GetProjection() * camera->GetView();
+            //
+            // uint32_t index = 0;
+            // for (const auto& model : models)
+            // {
+            //     if (model->GetModelAsset().IsNull())
+            //         continue;
+            //
+            //     const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
+            //
+            //     auto pushConstant = PushConstantData();
+            //     pushConstant.MVP = mvp;
+            //     pushConstant.DrawIndex = index++;
+            //
+            //     vkCmdPushConstants(
+            //         vkCmdBuffer,
+            //         m_GraphicsPipeline->GetLayout(),
+            //         VK_SHADER_STAGE_VERTEX_BIT,
+            //         0,
+            //         sizeof(pushConstant),
+            //         &pushConstant
+            //     );
+            //
+            //     const auto& vkModel = model->GetModelAsset()->GetImpl();
+            //
+            //     const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
+            //     constexpr VkDeviceSize offsets[] = {0};
+            //
+            //     vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, vertexBuffers, offsets);
+            //     vkCmdBindIndexBuffer(vkCmdBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+            //
+            //     vkCmdDrawIndexed(vkCmdBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
+            // }
         }
 
         vkCmdEndRendering(vkCmdBuffer);
