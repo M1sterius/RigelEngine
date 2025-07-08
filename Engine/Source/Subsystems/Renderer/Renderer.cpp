@@ -70,25 +70,27 @@ namespace Rigel
         m_CurrentRenderInfo.Reset();
 
         auto scene = Engine::Get().GetSceneManager().GetLoadedScene();
-        if (scene.IsNull()) return;
+        if (scene.IsNull())
+            return;
 
-        auto cameras = scene->Search([](GOHandle& go) -> bool
-        {
-            if (go->HasComponent<Camera>())
-                return true;
-            return false;
-        });
-
+        auto cameras = scene->FindComponentsOfType<Camera>();
         if (cameras.empty())
         {
             Debug::Warning("No main camera present on the scene. Rendering will not be performed!");
             return;
         }
 
-        auto cameraGO = *cameras.begin();
-        m_CurrentRenderInfo.MainCamera = cameraGO->GetComponent<Camera>();
-        m_CurrentRenderInfo.Models = scene->FindComponentsOfType<ModelRenderer>();
-        // m_CurrentRenderInfo.Models = {};
+        m_CurrentRenderInfo.CameraPresent = true;
+        m_CurrentRenderInfo.ProjView = cameras[0]->GetProjection() * cameras[0]->GetView();
+
+        for (const auto& mr : scene->FindComponentsOfType<ModelRenderer>())
+        {
+            if (const auto asset = mr->GetModelAsset(); !asset.IsNull() && asset->IsOK())
+            {
+                m_CurrentRenderInfo.Models.push_back(asset);
+                m_CurrentRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
+            }
+        }
     }
 
     void Renderer::Render() const

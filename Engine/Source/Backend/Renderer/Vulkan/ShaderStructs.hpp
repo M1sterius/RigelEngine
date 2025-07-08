@@ -7,6 +7,6 @@ namespace Rigel::Backend::Vulkan
     struct PushConstantData
     {
         glm::mat4 MVP;
-        uint32_t DrawIndex;
+        uint32_t MeshIndex;
     };
 }

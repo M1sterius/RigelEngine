@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <utility>
 
 struct aiNode;
 struct aiScene;
@@ -59,8 +60,47 @@ namespace Rigel
     class Model final : public RigelAsset
     {
     public:
+        class NodeIterator
+        {
+        public:
+            explicit NodeIterator(std::shared_ptr<Backend::Node> node)
+                : m_RootNode(std::move(node))
+            {
+                TraverseNode(m_RootNode);
+            }
+
+            const Backend::Node* operator -> () const { return m_Nodes[m_CurrentIndex].get(); }
+
+            NodeIterator& operator ++ ()
+            {
+                ++m_CurrentIndex;
+                return *this;
+            }
+
+            NODISCARD bool Valid() const
+            {
+                return m_CurrentIndex < m_Nodes.size();
+            }
+        private:
+            void TraverseNode(const std::shared_ptr<Backend::Node>& node)
+            {
+                m_Nodes.push_back(node);
+
+                for (const auto& child : node->Children)
+                    TraverseNode(child);
+            }
+
+            uint32_t m_CurrentIndex = 0;
+            std::shared_ptr<Backend::Node> m_RootNode;
+            std::vector<std::shared_ptr<Backend::Node>> m_Nodes;
+        };
+
         ~Model() override;
+
+        NODISCARD NodeIterator GetNodeIterator() const { return NodeIterator(m_RootNode); }
     INTERNAL:
+        NODISCARD Ref<Backend::Vulkan::VK_VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer.get(); }
+        NODISCARD Ref<Backend::Vulkan::VK_IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer.get(); }
     private:
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;

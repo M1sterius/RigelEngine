@@ -109,7 +109,64 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
-    void VK_Renderer::RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const
+    void VK_Renderer::RenderScene(VkCommandBuffer cmdBuffer)
+    {
+        const auto& renderInfo = Engine::Get().GetRenderer().GetSceneRenderInfo();
+
+        if (!renderInfo.CameraPresent)
+            return;
+
+        for (uint32_t i = 0; i < renderInfo.Models.size(); ++i)
+        {
+            const auto& model = renderInfo.Models[i];
+            const auto& modelTransform = renderInfo.Transforms[i];
+
+            const auto vertexBuffer = model->GetVertexBuffer();
+            const auto indexBuffer = model->GetIndexBuffer();
+
+            const VkBuffer pVertexBuffers[] = {vertexBuffer->GetMemoryBuffer().Get()};
+            const VkDeviceSize pOffsets[] = {0};
+
+            vkCmdBindVertexBuffers(cmdBuffer, 0, 1, pVertexBuffers, pOffsets);
+            vkCmdBindIndexBuffer(cmdBuffer, indexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+
+            int32_t vertexOffset = 0;
+            for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
+            {
+                const auto mvp = renderInfo.ProjView * modelTransform * node->Transform;
+
+                for (const auto& mesh : node->Meshes)
+                {
+                    auto pc = PushConstantData{
+                        .MVP = mvp,
+                        .MeshIndex = 0
+                    };
+
+                    vkCmdPushConstants(
+                        cmdBuffer,
+                        m_GraphicsPipeline->GetLayout(),
+                        VK_SHADER_STAGE_VERTEX_BIT,
+                        0,
+                        sizeof(pc),
+                        &pc
+                    );
+
+                    vkCmdDrawIndexed(
+                        cmdBuffer,
+                        mesh.IndexCount,
+                        1,
+                        mesh.FirstIndex,
+                        vertexOffset,
+                        0
+                    );
+
+                    vertexOffset = mesh.FirstVertex + mesh.VertexCount;
+                }
+            }
+        }
+    }
+
+    void VK_Renderer::RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image)
     {
         commandBuffer.BeginRecording(0);
         const auto vkCmdBuffer = commandBuffer.Get();
@@ -148,44 +205,7 @@ namespace Rigel::Backend::Vulkan
         VK_CmdBuffer::CmdSetViewport(vkCmdBuffer, {0.0, 0.0}, viewportSize, {0.0, 1.0});
         VK_CmdBuffer::CmdSetScissor(vkCmdBuffer, {0.0, 0.0}, m_Swapchain->GetExtent());
 
-        auto& [camera, models] = Engine::Get().GetRenderer().GetSceneRenderInfo();
-
-        if (!camera.IsNull())
-        {
-            // const auto projView = camera->GetProjection() * camera->GetView();
-            //
-            // uint32_t index = 0;
-            // for (const auto& model : models)
-            // {
-            //     if (model->GetModelAsset().IsNull())
-            //         continue;
-            //
-            //     const auto mvp = projView * model->GetGameObject()->GetTransform()->GetWorldMatrix();
-            //
-            //     auto pushConstant = PushConstantData();
-            //     pushConstant.MVP = mvp;
-            //     pushConstant.DrawIndex = index++;
-            //
-            //     vkCmdPushConstants(
-            //         vkCmdBuffer,
-            //         m_GraphicsPipeline->GetLayout(),
-            //         VK_SHADER_STAGE_VERTEX_BIT,
-            //         0,
-            //         sizeof(pushConstant),
-            //         &pushConstant
-            //     );
-            //
-            //     const auto& vkModel = model->GetModelAsset()->GetImpl();
-            //
-            //     const VkBuffer vertexBuffers[] = {vkModel.GetVertexBuffer().GetMemoryBuffer().Get()};
-            //     constexpr VkDeviceSize offsets[] = {0};
-            //
-            //     vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, vertexBuffers, offsets);
-            //     vkCmdBindIndexBuffer(vkCmdBuffer, vkModel.GetIndexBuffer().GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
-            //
-            //     vkCmdDrawIndexed(vkCmdBuffer, vkModel.GetIndexBuffer().GetIndexCount(), 1, 0, 0, 0);
-            // }
-        }
+        RenderScene(vkCmdBuffer);
 
         vkCmdEndRendering(vkCmdBuffer);
 

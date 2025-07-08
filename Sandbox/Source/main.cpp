@@ -28,12 +28,13 @@ int32_t main(int32_t argc, char** argv)
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    auto hM = assetManager.Load<Rigel::Model>("Assets/Models/Sponza/Sponza.gltf");
+    // auto hM = assetManager.Load<Rigel::Model>("Assets/Models/TestNodes/TestNodes.gltf");
 
-    // auto cube = scene->Instantiate("Model");
-    // cube->GetTransform()->SetLocalPosition({0, 0, -2.5});
-    // cube->AddComponent<Rigel::ModelRenderer>(Rigel::BuiltInAssets::ModelCube);
-    // cube->AddComponent<TestComponent>();
+    auto model = scene->Instantiate("Model");
+    model->GetTransform()->SetLocalPosition({0, 0, -5.5});
+    model->GetTransform()->SetLocalScale({0.1, 0.1, 0.1});
+    model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
+    // model->AddComponent<TestComponent>();
 
     sceneManager.LoadScene(scene);
 

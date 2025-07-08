@@ -55,9 +55,11 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline TextureRegistry& GetTextureRegistry() const { return *m_TextureRegistry; }
     private:
-        void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image) const;
+        void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image);
         void RecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
+
+        void RenderScene(VkCommandBuffer cmdBuffer);
 
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
