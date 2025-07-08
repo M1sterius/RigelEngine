@@ -1,8 +1,10 @@
 #include "Model.hpp"
-#include "Renderer.hpp"
+#include "AssetManager.hpp"
+#include "BuiltInAssets.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
+
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -36,6 +38,17 @@ inline glm::vec2 ConvertVec2(const aiVector2D& vec)
 namespace Rigel
 {
     using namespace Backend::Vulkan;
+
+    inline Backend::Material GetDefaultMaterial()
+    {
+        auto& assetManager = Engine::Get().GetAssetManager();
+
+        return Backend::Material{
+            .Diffuse = assetManager.Load<Texture>(BuiltInAssets::TextureError),
+            .Specular = assetManager.Load<Texture>(BuiltInAssets::TextureBlack),
+            .Normal = assetManager.Load<Texture>(BuiltInAssets::TextureBlack)
+        };
+    }
 
     Model::Model(const std::filesystem::path& path, const uid_t id) noexcept
         : RigelAsset(path, id) { }
@@ -95,6 +108,7 @@ namespace Rigel
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
 
         auto resMesh = Backend::Mesh();
+        resMesh.Name = mesh->mName.C_Str();
         resMesh.FirstVertex = m_Vertices.size();
         resMesh.VertexCount = numVertices;
         resMesh.FirstIndex = m_Indices.size();
@@ -133,6 +147,48 @@ namespace Rigel
                 m_Indices.push_back(face.mIndices[j]);
         }
 
+        resMesh.Material = ProcessMaterial(mesh->mMaterialIndex, scene);
+
         return resMesh;
+    }
+
+    Backend::Material Model::ProcessMaterial(const uint32_t aiMaterialIndex, const aiScene* scene) const
+    {
+        const auto aiMaterial = scene->mMaterials[aiMaterialIndex];
+        ASSERT(aiMaterial, "aiMaterial was a nullptr!");
+
+        const auto texturesDir = m_Path.parent_path(); // trim to the last '/'
+        auto& assetManager = Engine::Get().GetAssetManager();
+
+        auto resMaterial = GetDefaultMaterial();
+
+        if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+        {
+            aiString diffuseTextureName;
+            aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &diffuseTextureName);
+
+            const auto path = texturesDir / diffuseTextureName.C_Str();
+            resMaterial.Diffuse = assetManager.LoadAsync<Texture>(path);
+        }
+
+        if (aiMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
+        {
+            aiString specularTextureName;
+            aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &specularTextureName);
+
+            const auto path = texturesDir / specularTextureName.C_Str();
+            resMaterial.Specular = assetManager.LoadAsync<Texture>(path);
+        }
+
+        if (aiMaterial->GetTextureCount(aiTextureType_NORMALS) > 0)
+        {
+            aiString normalsTextureName;
+            aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &normalsTextureName);
+
+            const auto path = texturesDir / normalsTextureName.C_Str();
+            resMaterial.Normal = assetManager.LoadAsync<Texture>(path);
+        }
+
+        return resMaterial;
     }
 }

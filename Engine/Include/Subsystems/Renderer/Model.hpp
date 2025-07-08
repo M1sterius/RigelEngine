@@ -33,11 +33,13 @@ namespace Rigel
 
         struct Mesh
         {
-            uint32_t FirstVertex;
-            uint32_t VertexCount;
+            std::string Name;
 
-            uint32_t FirstIndex;
-            uint32_t IndexCount;
+            uint32_t FirstVertex{0};
+            uint32_t VertexCount{0};
+
+            uint32_t FirstIndex{0};
+            uint32_t IndexCount{0};
 
             Material Material;
         };
@@ -65,6 +67,7 @@ namespace Rigel
 
         void ProcessAiNode(const aiNode* node, const aiScene* scene, std::shared_ptr<Backend::Node> curNode);
         Backend::Mesh ProcessMesh(const aiMesh* mesh, const aiScene* scene);
+        Backend::Material ProcessMaterial(const uint32_t aiMaterialIndex, const aiScene* scene) const;
 
         std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;

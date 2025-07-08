@@ -7,7 +7,6 @@
 #include "AssetHandle.hpp"
 #include "ThreadPool.hpp"
 #include "Hash.hpp"
-#include "HandleValidator.hpp"
 #include "ScopeGuard.hpp"
 
 #include "plf_colony.h"
