@@ -55,23 +55,24 @@ namespace Rigel::Backend::Vulkan
         binding.pImmutableSamplers = nullptr;
 
         // Enable runtime descriptor array & partial binding
-        constexpr VkDescriptorBindingFlagsEXT bindingFlags =
+        constexpr VkDescriptorBindingFlags bindingFlags =
             VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
             VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT |
             VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
 
-        VkDescriptorSetLayoutBindingFlagsCreateInfoEXT bindingFlagsInfo {};
+        VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo {};
         bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
         bindingFlagsInfo.bindingCount = 1;
         bindingFlagsInfo.pBindingFlags = &bindingFlags;
 
-        VkDescriptorSetLayoutCreateInfo layoutInfo {};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &binding;
-        layoutInfo.pNext = &bindingFlagsInfo;
+        VkDescriptorSetLayoutCreateInfo createInfo {};
+        createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        createInfo.bindingCount = 1;
+        createInfo.pBindings = &binding;
+        createInfo.pNext = &bindingFlagsInfo;
+        createInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
-        if (const auto result = vkCreateDescriptorSetLayout(m_Device.Get(), &layoutInfo, nullptr, &m_DescriptorSetLayout); result != VK_SUCCESS)
+        if (const auto result = vkCreateDescriptorSetLayout(m_Device.Get(), &createInfo, nullptr, &m_DescriptorSetLayout); result != VK_SUCCESS)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
                 std::format("Failed to create descriptor set layout for vulkan texture registry! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);

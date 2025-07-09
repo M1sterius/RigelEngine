@@ -10,6 +10,6 @@ layout(set = 0, binding = 0) uniform sampler2D textures[];
 
 void main()
 {
-//    outColor = vec4(v_TexCoords, 0.0, 1.0);
-    outColor =  texture(textures[nonuniformEXT(v_DrawIndex)], v_TexCoords);
+    outColor = vec4(v_TexCoords, 0.0, 1.0);
+//    outColor =  texture(textures[nonuniformEXT(v_DrawIndex)], v_TexCoords);
 }

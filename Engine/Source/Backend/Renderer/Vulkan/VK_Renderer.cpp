@@ -43,7 +43,7 @@ namespace Rigel::Backend::Vulkan
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
 
-        m_TextureRegistry = std::make_unique<TextureRegistry>(*this);
+        // m_TextureRegistry = std::make_unique<TextureRegistry>(*this);
 
         CreateDepthBufferImage(GetWindowManager().GetSize());
 
@@ -69,7 +69,7 @@ namespace Rigel::Backend::Vulkan
         if (defaultShader.IsNull())
             return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
 
-        const std::vector layouts = { m_TextureRegistry->GetDescriptorSetLayout() };
+        const std::vector<VkDescriptorSetLayout> layouts = { };
 
         m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layouts);
 
@@ -198,8 +198,8 @@ namespace Rigel::Backend::Vulkan
         vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
         vkCmdBindPipeline(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
 
-        const VkDescriptorSet sets[] = { m_TextureRegistry->GetDescriptorSet() };
-        vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
+        // const VkDescriptorSet sets[] = { m_TextureRegistry->GetDescriptorSet() };
+        // vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
 
         const auto viewportSize = glm::vec2(static_cast<float>(m_Swapchain->GetExtent().width), static_cast<float>(m_Swapchain->GetExtent().height));
         VK_CmdBuffer::CmdSetViewport(vkCmdBuffer, {0.0, 0.0}, viewportSize, {0.0, 1.0});

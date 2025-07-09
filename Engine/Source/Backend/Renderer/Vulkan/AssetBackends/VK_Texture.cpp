@@ -26,12 +26,12 @@ namespace Rigel::Backend::Vulkan
         VK_Image::TransitionLayout(device, *m_Image, VK_FORMAT_R8G8B8A8_SRGB,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        m_BindlessIndex = GetRenderer().GetTextureRegistry().AddTexture(this);
+        // m_BindlessIndex = GetRenderer().GetTextureRegistry().AddTexture(this);
     }
 
     VK_Texture::~VK_Texture()
     {
-        GetRenderer().GetTextureRegistry().RemoveTexture(m_BindlessIndex); // remove from registry
+        // GetRenderer().GetTextureRegistry().RemoveTexture(m_BindlessIndex); // remove from registry
     }
 
     glm::uvec2 VK_Texture::GetSize() const
