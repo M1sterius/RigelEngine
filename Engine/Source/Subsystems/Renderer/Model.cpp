@@ -5,7 +5,6 @@
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
 
-
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"

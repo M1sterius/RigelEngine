@@ -7,7 +7,7 @@
 
 namespace Rigel
 {
-    namespace Backend::AssetHandleUtilityImpl
+    namespace Backend::AssetHandleRefCountingImpl
     {
         void OnRefCountReachZero(const uid_t id);
     }
@@ -23,21 +23,11 @@ namespace Rigel
             return TypeUtility::GetTypeName<AssetHandle>().c_str();
         }
 
-        AssetHandle() noexcept : RigelHandle<T>(nullptr, NULL_ID), m_RefCounter(nullptr) { }
+        AssetHandle() noexcept
+            : RigelHandle<T>(nullptr, NULL_ID), m_RefCounter(nullptr) { }
 
         AssetHandle(T* ptr, const uid_t id, std::atomic<uint32_t>* refCounter) noexcept
             : RigelHandle<T>(ptr, id), m_RefCounter(refCounter) { }
-
-        ~AssetHandle() override
-        {
-            if (m_RefCounter && !IsNull())
-            {
-                if (--(*m_RefCounter) == 0)
-                {
-                    Backend::AssetHandleUtilityImpl::OnRefCountReachZero(this->GetID());
-                }
-            }
-        }
 
         AssetHandle(const AssetHandle& other) noexcept
             : RigelHandle<T>(other)
@@ -45,6 +35,7 @@ namespace Rigel
             m_RefCounter = other.m_RefCounter;
             if (m_RefCounter) ++(*m_RefCounter);
         }
+
         AssetHandle& operator = (const AssetHandle& other) noexcept
         {
             if (this != &other)
@@ -58,6 +49,17 @@ namespace Rigel
             return *this;
         }
 
+        ~AssetHandle() override
+        {
+            if (m_RefCounter && !IsNull())
+            {
+                if (--(*m_RefCounter) == 0 && this->IsValid())
+                {
+                    Backend::AssetHandleRefCountingImpl::OnRefCountReachZero(this->GetID());
+                }
+            }
+        }
+
         T* operator -> () override
         {
             this->CheckHandle();
@@ -69,8 +71,6 @@ namespace Rigel
             this->CheckHandle();
             return this->m_Ptr;
         }
-
-        NODISCARD uint32_t GetRefCount() const { return *m_RefCounter; }
 
         template<typename castT>
         NODISCARD AssetHandle<castT> Cast() const
@@ -89,7 +89,7 @@ namespace Rigel
         }
 
         NODISCARD static AssetHandle Null() { return {nullptr, NULL_ID, nullptr}; }
-        NODISCARD bool IsNull() const override { return this->m_Ptr == nullptr || this->m_ID == NULL_ID;}
+        NODISCARD bool IsNull() const override { return this->m_Ptr == nullptr || this->m_ID == NULL_ID || this->m_RefCounter == nullptr; }
         NODISCARD bool IsValid() const override
         {
             using namespace Backend::HandleValidation;

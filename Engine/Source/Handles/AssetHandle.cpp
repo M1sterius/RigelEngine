@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include "AssetManager.hpp"
 
-namespace Rigel::Backend::AssetHandleUtilityImpl
+namespace Rigel::Backend::AssetHandleRefCountingImpl
 {
     void OnRefCountReachZero(const uid_t id)
     {
