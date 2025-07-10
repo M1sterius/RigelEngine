@@ -4,7 +4,6 @@
 #include "Engine.hpp"
 #include "MakeInfo.hpp"
 #include "Texture.hpp"
-#include "Texture.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Swapchain.hpp"
 #include "VK_DescriptorPool.hpp"

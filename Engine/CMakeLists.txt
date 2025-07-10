@@ -38,8 +38,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/InputManager/Input.cpp
     Source/Subsystems/InputManager/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
-    Source/Debug/Exceptions.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp

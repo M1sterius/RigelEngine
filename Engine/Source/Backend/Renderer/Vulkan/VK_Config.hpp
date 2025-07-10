@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Exceptions.hpp"
+
 #include "vulkan.h"
 
 #include <vector>

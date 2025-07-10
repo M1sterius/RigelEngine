@@ -3,7 +3,6 @@
 #include "Core.hpp"
 #include "Assert.hpp"
 #include "Stopwatch.hpp"
-#include "Exceptions.hpp"
 #include "Logger.hpp"
 
 #include <string>
