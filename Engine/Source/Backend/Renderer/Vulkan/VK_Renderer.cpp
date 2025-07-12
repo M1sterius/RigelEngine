@@ -2,7 +2,7 @@
 #include "ImGui/VK_ImGUI_Renderer.hpp"
 #include "Shader.hpp"
 #include "ShaderStructs.hpp"
-#include "TextureRegistry.hpp"
+#include "VK_BindlessManager.hpp"
 #include "VulkanWrapper.hpp"
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
@@ -43,7 +43,7 @@ namespace Rigel::Backend::Vulkan
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
 
-        // m_TextureRegistry = std::make_unique<TextureRegistry>(*this);
+        m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
 
         CreateDepthBufferImage(GetWindowManager().GetSize());
 

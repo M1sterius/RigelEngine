@@ -38,7 +38,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/InputManager/Input.cpp
     Source/Subsystems/InputManager/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp
@@ -59,7 +59,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
-        Source/Subsystems/Renderer/Model.cpp
+    Source/Subsystems/Renderer/Model.cpp
     Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
     Source/Backend/Editor.cpp
     Source/Subsystems/Renderer/Texture.cpp
@@ -67,7 +67,7 @@ add_library(RigelEngine STATIC
     Include/Utils/Reflection/TypeRegistry.hpp
     Source/Utils/Reflection/TypeUtility.cpp
     Source/Handles/AssetHandle.cpp
-    Source/Backend/Renderer/Vulkan/TextureRegistry.cpp
+    Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

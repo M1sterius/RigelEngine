@@ -13,7 +13,7 @@ namespace Rigel::Backend::Vulkan
     class VK_DescriptorPool
     {
     public:
-        VK_DescriptorPool(VK_Device& device, const std::vector<VkDescriptorPoolSize>& poolSizes, const size_t maxSets);
+        VK_DescriptorPool(VK_Device& device, const std::vector<VkDescriptorPoolSize>& poolSizes, const size_t maxSets, const VkDescriptorPoolCreateFlags flags);
         ~VK_DescriptorPool();
 
         NODISCARD VkDescriptorPool Get() const { return m_DescriptorPool; }

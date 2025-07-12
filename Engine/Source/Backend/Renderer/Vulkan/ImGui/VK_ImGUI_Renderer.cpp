@@ -37,7 +37,7 @@ namespace Rigel::Backend::Vulkan
         };
 
         auto& device = m_Renderer.GetDevice();
-        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(device, poolSizes, 1);
+        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(device, poolSizes, 1, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 
         const auto imageFormat = m_Renderer.GetSwapchain().GetSwapchainImageFormat();
 

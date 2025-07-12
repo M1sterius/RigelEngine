@@ -11,6 +11,7 @@ namespace Rigel
 
         NULL_HANDLE_DEREFERENCE = 2,
         INVALID_HANDLE_DEREFERENCE = 3,
+        LIMIT_EXCEEDED,
 
         // Subsystems
         SUBSYSTEM_STARTUP_FAILURE = 11,

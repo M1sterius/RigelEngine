@@ -1,7 +1,6 @@
 #include "VK_Texture.hpp"
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
-#include "TextureRegistry.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
