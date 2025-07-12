@@ -41,6 +41,8 @@ namespace Rigel::Backend::Vulkan
 
     VK_Device::~VK_Device()
     {
+        Debug::Trace("Destroying vulkan device.");
+
         m_StagingBuffers.clear();
 
         vmaDestroyAllocator(m_VmaAllocator);
@@ -49,8 +51,6 @@ namespace Rigel::Backend::Vulkan
             vkDestroyCommandPool(m_Device, pool, nullptr);
 
         vkDestroyDevice(m_Device, nullptr);
-
-        Debug::Trace("Vulkan device destroyed.");
     }
 
     void VK_Device::CreateLogicalDevice()
@@ -182,12 +182,6 @@ namespace Rigel::Backend::Vulkan
         auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
         poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();
-
-        if (const auto result = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to create Vulkan command pool!. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
 
         VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
         m_CommandPools[std::this_thread::get_id()] = commandPool;

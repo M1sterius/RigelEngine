@@ -33,11 +33,11 @@ namespace Rigel::Backend::Vulkan
 
     VK_Swapchain::~VK_Swapchain()
     {
+        Debug::Trace("Destroying vulkan swapchain.");
+
         for (const auto& view : m_ImageViews)
             vkDestroyImageView(m_Device.Get(), view, nullptr);
         vkDestroySwapchainKHR(m_Device.Get(), m_Swapchain, nullptr);
-
-        Debug::Trace("Vulkan swapchain destroyed.");
     }
 
     AcquireImageInfo VK_Swapchain::AcquireNextImage()

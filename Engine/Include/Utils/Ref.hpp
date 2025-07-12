@@ -33,6 +33,16 @@ namespace Rigel
             return *m_Ptr;
         }
 
+        [[nodiscard]] inline bool operator == (const Ref other) const
+        {
+            return this->m_Ptr == other.m_Ptr;
+        }
+
+        [[nodiscard]] inline bool operator != (const Ref other) const
+        {
+            return this->m_Ptr != other.m_Ptr;
+        }
+
         [[nodiscard]] inline bool IsNull() const { return !m_Ptr; }
     private:
         T* m_Ptr = nullptr;

@@ -53,7 +53,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
 
-
+        NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
         void RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image);
         void RecreateSwapchain();

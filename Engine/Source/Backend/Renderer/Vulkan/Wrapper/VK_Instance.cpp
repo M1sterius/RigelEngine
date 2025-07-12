@@ -122,11 +122,11 @@ namespace Rigel::Backend::Vulkan
 
     VK_Instance::~VK_Instance()
     {
+        Debug::Trace("Destroying vulkan instance.");
+
         if (VK_Config::EnableValidationLayers)
             DestroyDebugMessenger();
         vkDestroyInstance(m_Instance, nullptr);
-
-        Debug::Trace("Vulkan instance destroyed.");
     }
 
     uint32_t VK_Instance::GetVulkanVersion()

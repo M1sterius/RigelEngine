@@ -63,6 +63,7 @@ namespace Rigel
         ~Texture() override;
 
         NODISCARD glm::uvec2 GetSize() const;
+        NODISCARD const SamplerProperties& GetSamplerProperties() const;
     INTERNAL:
         NODISCARD inline Ref<Backend::Vulkan::VK_Texture> GetImpl() const { return m_Impl.get(); }
     private:

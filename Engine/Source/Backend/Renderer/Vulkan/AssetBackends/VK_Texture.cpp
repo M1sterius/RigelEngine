@@ -2,6 +2,7 @@
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VulkanUtility.hpp"
+#include "VK_BindlessManager.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -25,12 +26,12 @@ namespace Rigel::Backend::Vulkan
         VK_Image::TransitionLayout(device, *m_Image, VK_FORMAT_R8G8B8A8_SRGB,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        // m_BindlessIndex = GetRenderer().GetTextureRegistry().AddTexture(this);
+        m_BindlessIndex = GetRenderer().GetBindlessManager().AddTexture(this, m_SamplerProperties);
     }
 
     VK_Texture::~VK_Texture()
     {
-        // GetRenderer().GetTextureRegistry().RemoveTexture(m_BindlessIndex); // remove from registry
+        GetRenderer().GetBindlessManager().RemoveTexture(m_BindlessIndex);
     }
 
     glm::uvec2 VK_Texture::GetSize() const

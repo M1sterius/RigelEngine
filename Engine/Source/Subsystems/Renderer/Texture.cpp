@@ -35,4 +35,8 @@ namespace Rigel
         return m_Impl->GetSize();
     }
 
+    const Texture::SamplerProperties& Texture::GetSamplerProperties() const
+    {
+        return m_Impl->GetSamplerProperties();
+    }
 }

@@ -20,8 +20,8 @@ namespace Rigel::Backend::Vulkan
 
     VK_Surface::~VK_Surface()
     {
-        vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+        Debug::Trace("Destroying window surface.");
 
-        Debug::Trace("Window surface destroyed.");
+        vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     }
 }
