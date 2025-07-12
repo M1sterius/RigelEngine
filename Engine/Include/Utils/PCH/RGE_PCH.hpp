@@ -8,6 +8,6 @@
 #include "Stopwatch.hpp"
 #include "SleepUtility.hpp"
 
-#ifdef RGE_PLATFORM_WINDOWS
+#ifdef RIGEL_PLATFORM_WINDOWS
     #include "Windows.h"
 #endif

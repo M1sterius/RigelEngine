@@ -1,6 +1,6 @@
 #include "SleepUtility.hpp"
 
-#ifdef RGE_PLATFORM_WINDOWS
+#ifdef RIGEL_PLATFORM_WINDOWS
 #include "Windows.h"
 #else
 #include <chrono>
@@ -11,20 +11,10 @@ namespace Rigel
 {
     void SleepUtility::PreciseSleep(const ElapsedTime& time)
     {
-        #ifdef RGE_PLATFORM_WINDOWS
-        static const UINT periodMin = []
-        {
-            TIMECAPS tc;
-            timeGetDevCaps(&tc, sizeof(TIMECAPS));
-            return tc.wPeriodMin;
-        }();
-
-        timeBeginPeriod(periodMin);
-        Sleep(time.AsMilliseconds());
-        timeEndPeriod(periodMin);
-
+        #ifdef RIGEL_PLATFORM_WINDOWS
+            Sleep(time.AsMilliseconds());
         #else
-        std::this_thread::sleep_for(std::chrono::milliseconds(time.AsMilliseconds()));
+            std::this_thread::sleep_for(std::chrono::milliseconds(time.AsMilliseconds()));
         #endif
     }
 

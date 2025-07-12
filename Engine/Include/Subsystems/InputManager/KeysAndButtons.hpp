@@ -4,7 +4,7 @@
  * Undefine DELETE macro from Windows API because it conflicts
  * with KEY_CODE::Delete
  */
-#ifdef RGE_PLATFORM_WINDOWS
+#ifdef RIGEL_PLATFORM_WINDOWS
     #undef DELETE
 #endif
 

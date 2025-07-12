@@ -1,5 +1,4 @@
 #include "Engine.hpp"
-
 #include "InputManager.hpp"
 #include "SceneManager.hpp"
 #include "EventManager.hpp"
@@ -8,8 +7,6 @@
 #include "WindowManager.hpp"
 #include "Renderer.hpp"
 #include "PhysicsEngine.hpp"
-
-#include "ThreadPool.hpp"
 #include "InternalEvents.hpp"
 #include "SleepUtility.hpp"
 #include "Debug.hpp"

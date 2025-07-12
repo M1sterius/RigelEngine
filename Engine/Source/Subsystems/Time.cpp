@@ -1,12 +1,27 @@
 #include "Time.hpp"
 #include "Engine.hpp"
 
+#ifdef RIGEL_PLATFORM_WINDOWS
+    #include "Windows.h"
+#endif
+
 namespace Rigel
 {
     ErrorCode Time::Startup(const ProjectSettings& settings)
     {
         ASSERT(settings.TargetFPS, "Target framerate cannot be equal to 0!");
         ASSERT(settings.PhysicsTickrate, "Physics tickrate cannot be equal to 0!");
+
+        #ifdef RIGEL_PLATFORM_WINDOWS
+            static const UINT periodMin = []
+            {
+                TIMECAPS tc;
+                timeGetDevCaps(&tc, sizeof(TIMECAPS));
+                return tc.wPeriodMin;
+            }();
+
+            timeBeginPeriod(periodMin);
+        #endif
 
         m_TargetFPS = settings.TargetFPS;
         m_TargetTickrate = settings.PhysicsTickrate;
@@ -20,6 +35,17 @@ namespace Rigel
 
     ErrorCode Time::Shutdown()
     {
+        #ifdef RIGEL_PLATFORM_WINDOWS
+            static const UINT periodMin = []
+            {
+                TIMECAPS tc;
+                timeGetDevCaps(&tc, sizeof(TIMECAPS));
+                return tc.wPeriodMin;
+            }();
+
+            timeEndPeriod(periodMin);
+        #endif
+
         return ErrorCode::OK;
     }
 
