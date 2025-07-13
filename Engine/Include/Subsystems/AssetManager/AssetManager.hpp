@@ -3,6 +3,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "Debug.hpp"
+#include "AssetRegistryEntry.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "ThreadPool.hpp"
@@ -23,15 +24,6 @@ namespace Rigel
 
     template<typename T>
     concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;
-
-    struct AssetRegistryEntry final
-    {
-        uid_t AssetID;
-        uint64_t PathHash;
-        std::filesystem::path Path;
-        std::unique_ptr<std::atomic<uint32_t>> RefCounter;
-        std::unique_ptr<RigelAsset> Asset;
-    };
 
     class AssetManager final : public RigelSubsystem
     {
@@ -92,7 +84,15 @@ namespace Rigel
 
             m_ThreadPool->Enqueue([this, rawPtr, path, pathHash]
             {
-                auto loadFinishedGuard = ScopeGuard([rawPtr]() { rawPtr->m_LoadFinished = true; });
+                auto loadFinishedGuard = ScopeGuard([rawPtr]
+                {
+                    {
+                        std::unique_lock lock(rawPtr->m_CvMutex);
+                        rawPtr->m_LoadFinished = true;
+                    }
+
+                    rawPtr->m_CV.notify_one();
+                });
 
                 if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
                 {
@@ -139,8 +139,16 @@ namespace Rigel
             };
 
             const auto rawPtr = entry.Asset.get();
-            auto loadFinishedGuard = ScopeGuard([rawPtr]() { rawPtr->m_LoadFinished = true; });
             const auto handle = MakeHandle<T>(entry);
+            auto loadFinishedGuard = ScopeGuard([rawPtr]
+            {
+                {
+                    std::unique_lock lock(rawPtr->m_CvMutex);
+                    rawPtr->m_LoadFinished = true;
+                }
+
+                rawPtr->m_CV.notify_one();
+            });
 
             {
                 std::unique_lock lock(m_RegistryMutex);

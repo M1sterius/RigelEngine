@@ -22,14 +22,26 @@ namespace Rigel
             HandleValidator::RemoveHandle<HandleType::AssetHandle>(this->GetID());
         }
 
-        NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
-
-        NODISCARD inline bool IsOK() const { return m_LoadFinished && m_Initialized; }
-        NODISCARD inline bool IsReady() const { return m_LoadFinished; }
+        NODISCARD inline bool IsOK() const { return IsLoadFinished() && IsInitialized(); }
         NODISCARD inline bool IsInitialized() const { return m_Initialized; }
 
+        NODISCARD inline bool IsLoadFinished() const
+        {
+            std::unique_lock lock(m_CvMutex);
+            return m_LoadFinished;
+        }
+
         // Blocks the calling thread until the asset has been fully loaded
-        inline void WaitReady() const { SleepUtility::ConditionalSleep([this]() -> bool { return m_LoadFinished; }); }
+        inline void WaitReady() const
+        {
+            std::unique_lock lock(m_CvMutex);
+            m_CV.wait(lock, [this]
+            {
+                return m_LoadFinished;
+            });
+        }
+
+        NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
     protected:
         explicit RigelAsset(std::filesystem::path path, const uid_t id) noexcept
             : RigelObject(id), m_Path(std::move(path))
@@ -42,6 +54,9 @@ namespace Rigel
 
         bool m_Initialized = false; // true if Init() was successful
         bool m_LoadFinished = false; // true when Load finishes
+
+        mutable std::condition_variable m_CV;
+        mutable std::mutex m_CvMutex;
 
         const std::filesystem::path m_Path;
     private:
