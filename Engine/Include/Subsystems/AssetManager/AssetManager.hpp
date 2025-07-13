@@ -207,10 +207,10 @@ namespace Rigel
             return AssetHandle<T>(static_cast<T*>(entry.Asset.get()), entry.AssetID, entry.RefCounter.get());
         }
 
-        template<RigelAssetConcept T>
-        static std::unique_ptr<RigelAsset> MakeAsset(const std::filesystem::path& path, const uid_t id)
+        template<RigelAssetConcept T, typename... Args>
+        static std::unique_ptr<RigelAsset> MakeAsset(Args&&... args)
         {
-            return std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path, id)));
+            return std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(std::forward<Args>(args)...)));
         }
 
         void UnloadImpl(const uid_t assetID);

@@ -5,6 +5,10 @@
 #include "VK_DescriptorPool.hpp"
 #include "VK_Image.hpp"
 #include "VK_Texture.hpp"
+#include "VK_Swapchain.hpp"
+#include "Time.hpp"
+#include "VK_MemoryBuffer.hpp"
+#include "ShaderStructs.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -13,12 +17,16 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Creating vulkan bindless resources manager.");
 
-        std::vector<VkDescriptorPoolSize> poolSizes(1);
+        std::vector<VkDescriptorPoolSize> poolSizes(2);
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         poolSizes[0].descriptorCount = MAX_TEXTURES;
+        poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        poolSizes[1].descriptorCount = 1;
 
         m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, 1, VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT);
+        m_SceneData = std::make_unique<SceneData>();
 
+        CreateStorageBuffers();
         CreateDescriptorSetLayout();
         CreateDescriptorSet();
     }
@@ -32,25 +40,46 @@ namespace Rigel::Backend::Vulkan
             vkDestroySampler(m_Device.Get(), sampler, nullptr);
     }
 
+    void VK_BindlessManager::CreateStorageBuffers()
+    {
+        const auto framesInFlight = Time::GetFrameCount() % m_Renderer.GetSwapchain().GetFramesInFlightCount();
+
+        for (uint32_t i = 0; i < framesInFlight; ++i)
+        {
+            m_StorageBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(SceneData),
+                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
+        }
+    }
+
     void VK_BindlessManager::CreateDescriptorSetLayout()
     {
-        constexpr uint32_t bindingCount = 1;
+        constexpr uint32_t bindingCount = 2;
 
         std::array<VkDescriptorSetLayoutBinding, bindingCount> bindings;
         std::array<VkDescriptorBindingFlags, bindingCount> flags;
         std::array<VkDescriptorType, bindingCount> types;
 
-        bindings[0].binding = 0;
-        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        bindings[0].descriptorCount = MAX_TEXTURES;
-        bindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        bindings[0].pImmutableSamplers = nullptr;
+        // Textures array
+        bindings[TEXTURE_ARRAY_BINDING].binding = TEXTURE_ARRAY_BINDING;
+        bindings[TEXTURE_ARRAY_BINDING].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        bindings[TEXTURE_ARRAY_BINDING].descriptorCount = MAX_TEXTURES;
+        bindings[TEXTURE_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        bindings[TEXTURE_ARRAY_BINDING].pImmutableSamplers = nullptr;
 
-        flags[0] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        // SSBOs array
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].binding = STORAGE_BUFFER_ARRAY_BINDING;
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorCount = 1;
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].pImmutableSamplers = nullptr;
 
-        types[0] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        flags[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        flags[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
 
-        VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlags{};
+        types[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        types[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlags {};
         bindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
         bindingFlags.pBindingFlags = flags.data();
         bindingFlags.bindingCount = bindingCount;
@@ -125,7 +154,7 @@ namespace Rigel::Backend::Vulkan
         VkWriteDescriptorSet write {};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         write.dstSet = m_DescriptorSet;
-        write.dstBinding = 0;
+        write.dstBinding = TEXTURE_ARRAY_BINDING;
         write.dstArrayElement = slotIndex;
         write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         write.descriptorCount = 1;

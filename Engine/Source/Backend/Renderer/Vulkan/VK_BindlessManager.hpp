@@ -14,12 +14,20 @@ namespace Rigel::Backend::Vulkan
     class VK_Device;
     class VK_Texture;
     class VK_DescriptorPool;
-    class VK_Image;
+    class VK_MemoryBuffer;
+
+    struct SceneData;
 
     class VK_BindlessManager 
     {
     public:
         static constexpr uint32_t MAX_TEXTURES = 4096;
+
+        enum SetBindings : uint32_t
+        {
+            TEXTURE_ARRAY_BINDING = 0,
+            STORAGE_BUFFER_ARRAY_BINDING = 1
+        };
 
         VK_BindlessManager(VK_Renderer& renderer, VK_Device& device);
         ~VK_BindlessManager();
@@ -31,6 +39,7 @@ namespace Rigel::Backend::Vulkan
         VK_Renderer& m_Renderer;
         VK_Device& m_Device;
 
+        void CreateStorageBuffers();
         void CreateDescriptorSetLayout();
         void CreateDescriptorSet();
 
@@ -46,5 +55,8 @@ namespace Rigel::Backend::Vulkan
         std::vector<Ref<VK_Texture>> m_Textures;
         std::mutex m_TextureMutex;
         std::mutex m_SamplersMutex;
+
+        std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
+        std::unique_ptr<SceneData> m_SceneData;
     };
 }
