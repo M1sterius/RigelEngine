@@ -3,7 +3,6 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "Debug.hpp"
-#include "AssetRegistryEntry.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "ThreadPool.hpp"
@@ -27,6 +26,15 @@ namespace Rigel
 
     class AssetManager final : public RigelSubsystem
     {
+    private:
+        struct AssetRegistryEntry final
+        {
+            uid_t AssetID;
+            uint64_t PathHash;
+            std::filesystem::path Path;
+            std::unique_ptr<std::atomic<uint32_t>> RefCounter;
+            std::unique_ptr<RigelAsset> Asset;
+        };
     public:
         /**
          * @brief Asynchronously loads an asset of type T from disk using the thread pool.
