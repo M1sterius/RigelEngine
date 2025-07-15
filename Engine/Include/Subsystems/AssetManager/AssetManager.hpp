@@ -5,6 +5,7 @@
 #include "Debug.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
+#include "AssetMetadata.hpp"
 #include "ThreadPool.hpp"
 #include "Hash.hpp"
 #include "ScopeGuard.hpp"
@@ -177,16 +178,33 @@ namespace Rigel
             m_ThreadPool->Enqueue([this, assetID] { this->UnloadImpl(assetID); });
         }
 
-        NODISCARD std::filesystem::path GetAssetPath(const uid_t id) const
+        void SetAssetMetadata(const std::filesystem::path& path, const std::shared_ptr<AssetMetadata>& metadata)
         {
-            for (const auto& record : m_AssetsRegistry)
+            std::unique_lock lock(m_MetadataMutex);
+            m_Metadata[path] = metadata;
+        }
+
+        template<typename T>
+        NODISCARD Result<std::shared_ptr<T>> GetAssetMetadata(const std::filesystem::path& path)
+        {
+            std::shared_ptr<T> retPtr;
+
             {
-                if (record.AssetID == id)
-                    return record.Path;
+                std::unique_lock lock(m_MetadataMutex);
+                if (!m_Metadata.contains(path))
+                {
+                    return Result<std::shared_ptr<T>>::Error(ErrorCode::ASSET_METADATA_NOT_FOUND);
+                }
+
+                retPtr = std::dynamic_pointer_cast<T>(m_Metadata.at(path));
             }
 
-            Debug::Error("Failed to find an asset with ID: {}!", id);
-            return "";
+            if (!retPtr)
+            {
+                return Result<std::shared_ptr<T>>::Error(ErrorCode::DYNAMIC_CAST_ERROR);
+            }
+
+            return Result<std::shared_ptr<T>>::Ok(retPtr);
         }
     INTERNAL:
         AssetManager() = default;
@@ -223,10 +241,10 @@ namespace Rigel
             return AssetHandle<T>(static_cast<T*>(entry.Asset.get()), entry.AssetID, entry.RefCounter.get());
         }
 
-        template<RigelAssetConcept T, typename... Args>
-        static std::unique_ptr<RigelAsset> MakeAsset(Args&&... args)
+        template<RigelAssetConcept T>
+        static std::unique_ptr<RigelAsset> MakeAsset(const std::filesystem::path& path, const uid_t id)
         {
-            return std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(std::forward<Args>(args)...)));
+            return std::unique_ptr<RigelAsset>(static_cast<RigelAsset*>(new T(path, id)));
         }
 
         void UnloadImpl(const uid_t assetID);
@@ -240,5 +258,8 @@ namespace Rigel
 
         std::unordered_map<uint64_t, GenericAssetHandle> m_LoadInProgressMap;
         mutable std::shared_mutex m_LoadInProgressMutex;
+
+        std::unordered_map<std::filesystem::path, std::shared_ptr<AssetMetadata>> m_Metadata;
+        mutable std::mutex m_MetadataMutex;
     };
 }

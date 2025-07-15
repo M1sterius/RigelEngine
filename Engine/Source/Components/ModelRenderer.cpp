@@ -38,7 +38,7 @@ namespace Rigel
         if (m_ModelPath.has_value())
             json["ModelPath"] = m_ModelPath;
         else if (!m_Model.IsNull())
-            json["ModelPath"] = assetManager.GetAssetPath(m_Model.GetID());
+            json["ModelPath"] = m_Model->GetPath();
         else
         {
             json["ModelPath"] = "";

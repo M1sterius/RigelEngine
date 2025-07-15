@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelAsset.hpp"
+#include "AssetMetadata.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -12,6 +13,14 @@ namespace Rigel
     {
         class VK_Shader;
     }
+
+    struct ShaderMetadata : public AssetMetadata
+    {
+        ~ShaderMetadata() override = default;
+
+        std::filesystem::path VertPath;
+        std::filesystem::path FragPath;
+    };
 
     class Shader final : public RigelAsset
     {

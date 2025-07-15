@@ -11,7 +11,8 @@ namespace Rigel
 
         NULL_HANDLE_DEREFERENCE = 2,
         INVALID_HANDLE_DEREFERENCE = 3,
-        LIMIT_EXCEEDED,
+        LIMIT_EXCEEDED = 4,
+        DYNAMIC_CAST_ERROR = 5,
 
         // Subsystems
         SUBSYSTEM_STARTUP_FAILURE = 11,
@@ -32,6 +33,7 @@ namespace Rigel
         FAILED_TO_LOAD_ASSET = 201,
         FAILED_TO_CREATE_ASSET_BACKEND = 202,
         ASSET_FILE_FORMAT_NOT_SUPPORTED = 203,
+        ASSET_METADATA_NOT_FOUND = 204,
 
         // Vulkan
         VULKAN_UNRECOVERABLE_ERROR = 501,
