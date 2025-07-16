@@ -23,16 +23,14 @@ int32_t main(int32_t argc, char** argv)
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
 
-    const auto shaderMetadata = std::make_shared<Rigel::ShaderMetadata>();
-    shaderMetadata->VertPath = "VertPath";
-    shaderMetadata->FragPath = "FragPath";
+    auto shaderMetadata = Rigel::ShaderMetadata();
+    shaderMetadata.VertPath = "VertPath";
+    shaderMetadata.FragPath = "FragPath";
 
-    assetManager.SetAssetMetadata("TestShader", shaderMetadata);
+    assetManager.SetAssetMetadata("TestShader", &shaderMetadata);
 
-    auto md = assetManager.GetAssetMetadata<Rigel::ShaderMetadata>("TestShader");
-
-
-    // Rigel::Debug::Message("{}, {}", md.Value()->VertPath.string(), md.Value()->FragPath.string());
+    auto md = assetManager.GetMetadata<Rigel::ShaderMetadata>("TestShader");
+    Rigel::Debug::Message("{}, {}", md->VertPath.string(), md->FragPath.string());
 
     auto scene = sceneManager.CreateScene();
 

@@ -25,6 +25,9 @@ namespace Rigel
     template<typename T>
     concept RigelAssetConcept = std::is_base_of_v<RigelAsset, T>;
 
+    template<typename T>
+    concept MetadataConcept = std::is_base_of_v<AssetMetadata, T>;
+
     class AssetManager final : public RigelSubsystem
     {
     private:
@@ -173,38 +176,32 @@ namespace Rigel
             return handle;
         }
 
-        inline void Unload(const uid_t assetID)
+        void Unload(const uid_t assetID)
         {
             m_ThreadPool->Enqueue([this, assetID] { this->UnloadImpl(assetID); });
         }
 
-        void SetAssetMetadata(const std::filesystem::path& path, const std::shared_ptr<AssetMetadata>& metadata)
+        template<MetadataConcept T>
+        void SetAssetMetadata(const std::filesystem::path& path, const T* metadata)
         {
             std::unique_lock lock(m_MetadataMutex);
-            m_Metadata[path] = metadata;
+            m_Metadata[path] = std::make_unique<T>(*metadata);
         }
 
-        template<typename T>
-        NODISCARD Result<std::shared_ptr<T>> GetAssetMetadata(const std::filesystem::path& path)
+        template<MetadataConcept T>
+        NODISCARD Ref<T> GetMetadata(const std::filesystem::path& path)
         {
-            std::shared_ptr<T> retPtr;
+            AssetMetadata* basePtr = nullptr;
 
             {
                 std::unique_lock lock(m_MetadataMutex);
                 if (!m_Metadata.contains(path))
-                {
-                    return Result<std::shared_ptr<T>>::Error(ErrorCode::ASSET_METADATA_NOT_FOUND);
-                }
+                    return nullptr;
 
-                retPtr = std::dynamic_pointer_cast<T>(m_Metadata.at(path));
+                basePtr = m_Metadata.at(path).get();
             }
 
-            if (!retPtr)
-            {
-                return Result<std::shared_ptr<T>>::Error(ErrorCode::DYNAMIC_CAST_ERROR);
-            }
-
-            return Result<std::shared_ptr<T>>::Ok(retPtr);
+            return dynamic_cast<T*>(basePtr);
         }
     INTERNAL:
         AssetManager() = default;
@@ -259,7 +256,7 @@ namespace Rigel
         std::unordered_map<uint64_t, GenericAssetHandle> m_LoadInProgressMap;
         mutable std::shared_mutex m_LoadInProgressMutex;
 
-        std::unordered_map<std::filesystem::path, std::shared_ptr<AssetMetadata>> m_Metadata;
+        std::unordered_map<std::filesystem::path, std::unique_ptr<AssetMetadata>> m_Metadata;
         mutable std::mutex m_MetadataMutex;
     };
 }
