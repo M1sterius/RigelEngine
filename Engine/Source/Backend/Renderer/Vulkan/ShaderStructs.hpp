@@ -10,20 +10,29 @@ namespace Rigel::Backend::Vulkan
         uint32_t MeshIndex;
     };
 
-    struct MeshData
+    struct alignas(16) MaterialData
     {
         uint32_t DiffuseIndex;
         uint32_t SpecularIndex;
-        uint32_t NormalIndex;
-        uint32_t _padding0;
+        uint32_t NormalsIndex;
+        float Roughness;
     };
 
-    struct SceneData
+    struct alignas(16) MeshData
+    {
+        uint32_t MaterialIndex;
+        float _pad0[3];
+    };
+
+    struct alignas(16) SceneData
     {
         static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 4096;
+        static constexpr uint32_t MAX_MATERIAL_DATA_ARRAY_SIZE = 1024;
 
-        uint32_t MeshDataSize;
-        uint32_t _padding0[3];
-        MeshData MeshData[MAX_MESH_DATA_ARRAY_SIZE];
+        uint32_t MaterialsSize;
+        uint32_t MeshesSize;
+        uint32_t _padding0[2];
+        MaterialData Materials[MAX_MATERIAL_DATA_ARRAY_SIZE];
+        MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
     };
 }
