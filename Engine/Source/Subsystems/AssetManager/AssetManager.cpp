@@ -33,7 +33,7 @@ namespace Rigel
 
     ErrorCode AssetManager::PreloadAssets()
     {
-        Debug::Trace("Loading built-in engine assets.");
+        Debug::Trace("Preloading built-in engine assets.");
 
         auto handles = std::vector<GenericAssetHandle>();
 
@@ -47,7 +47,11 @@ namespace Rigel
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
 
-        handles.emplace_back(LoadAsync<Shader>(BuiltInAssets::ShaderDefault, true).ToGeneric());
+        auto shaderMetadata = ShaderMetadata();
+        shaderMetadata.VertPath = "Assets/EngineAssets/Shaders/DefaultShader.vert.spv";
+        shaderMetadata.FragPath = "Assets/EngineAssets/Shaders/DefaultShader.frag.spv";
+
+        handles.emplace_back(LoadAsync<Shader>(BuiltInAssets::ShaderDefault, &shaderMetadata, true).ToGeneric());
 
         for (const auto& handle : handles)
         {

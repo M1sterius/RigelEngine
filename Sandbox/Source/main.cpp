@@ -23,15 +23,6 @@ int32_t main(int32_t argc, char** argv)
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
 
-    auto shaderMetadata = Rigel::ShaderMetadata();
-    shaderMetadata.VertPath = "VertPath";
-    shaderMetadata.FragPath = "FragPath";
-
-    assetManager.SetAssetMetadata("TestShader", &shaderMetadata);
-
-    auto md = assetManager.GetMetadata<Rigel::ShaderMetadata>("TestShader");
-    Rigel::Debug::Message("{}, {}", md->VertPath.string(), md->FragPath.string());
-
     auto scene = sceneManager.CreateScene();
 
     auto camera = scene->Instantiate("Camera");

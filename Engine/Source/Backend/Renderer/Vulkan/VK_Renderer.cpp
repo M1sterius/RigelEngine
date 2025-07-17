@@ -61,6 +61,7 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::LateStartup()
     {
+        Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
         const auto shaderAsset = GetAssetManager().Load<Shader>(BuiltInAssets::ShaderDefault);

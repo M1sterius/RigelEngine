@@ -1,6 +1,8 @@
 #include "Shader.hpp"
 #include "Renderer.hpp"
 #include "VK_Shader.hpp"
+#include "Engine.hpp"
+#include "AssetManager.hpp"
 #include "File.hpp"
 
 namespace Rigel
@@ -11,13 +13,14 @@ namespace Rigel
 
     ErrorCode Shader::Init()
     {
-        const auto shaderName = std::filesystem::path(m_Path).replace_extension("");
+        auto& assetManager = Engine::Get().GetAssetManager();
+        const auto metadata = assetManager.GetMetadata<ShaderMetadata>(this->GetPath());
 
-        const auto vertPath = std::filesystem::path(shaderName).concat(".vert.spv");
-        const auto fragPath = std::filesystem::path(shaderName).concat(".frag.spv");
+        if (metadata.IsNull())
+            return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
-        const auto vertBytes = File::ReadBinary(vertPath);
-        const auto fragBytes = File::ReadBinary(fragPath);
+        const auto vertBytes = File::ReadBinary(metadata->VertPath);
+        const auto fragBytes = File::ReadBinary(metadata->FragPath);
 
         if (vertBytes.IsError())
             return vertBytes.GetError();

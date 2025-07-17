@@ -109,7 +109,7 @@ namespace Rigel
                 if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
                 {
                     Debug::Error("Failed to load an asset at path: {}. ID: {}! Error code: {}.",
-                        path.string(), static_cast<int32_t>(result), rawPtr->GetID());
+                        path.string(), rawPtr->GetID(), static_cast<int32_t>(result));
                 }
 
                 std::unique_lock lock(m_LoadInProgressMutex);
@@ -117,6 +117,13 @@ namespace Rigel
             });
 
             return handle;
+        }
+
+        template<RigelAssetConcept aT, MetadataConcept mT>
+        AssetHandle<aT> LoadAsync(const std::filesystem::path& path, const mT* metadata, const bool persistent = false)
+        {
+            this->SetAssetMetadata(path, metadata);
+            return LoadAsync<aT>(path, persistent);
         }
 
         /**
@@ -170,10 +177,17 @@ namespace Rigel
             if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
             {
                 Debug::Error("Failed to load an asset at path: {}. ID: {}! Error code: {}.",
-                    path.string(), static_cast<int32_t>(result), rawPtr->GetID());
+                        path.string(), rawPtr->GetID(), static_cast<int32_t>(result));
             }
 
             return handle;
+        }
+
+        template<RigelAssetConcept aT, MetadataConcept mT>
+        AssetHandle<aT> Load(const std::filesystem::path& path, const mT* metadata, const bool persistent = false)
+        {
+            this->SetAssetMetadata(path, metadata);
+            return Load<aT>(path, persistent);
         }
 
         void Unload(const uid_t assetID)
@@ -196,7 +210,10 @@ namespace Rigel
             {
                 std::unique_lock lock(m_MetadataMutex);
                 if (!m_Metadata.contains(path))
+                {
+                    Debug::Error("Cannot find metadata for the asset at path: {}!", path.string());
                     return nullptr;
+                }
 
                 basePtr = m_Metadata.at(path).get();
             }
