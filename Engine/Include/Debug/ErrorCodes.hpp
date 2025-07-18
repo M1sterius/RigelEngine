@@ -26,8 +26,8 @@ namespace Rigel
 
         // I/O
         FAILED_TO_OPEN_FILE = 101,
-        NLOHMANN_JSON_PARSING_ERROR = 101,
-        NLOHMANN_JSON_READING_ERROR = 102,
+        NLOHMANN_JSON_PARSING_ERROR = 102,
+        NLOHMANN_JSON_READING_ERROR = 103,
 
         // Assets
         FAILED_TO_LOAD_ASSET = 201,
@@ -37,7 +37,6 @@ namespace Rigel
 
         // Vulkan
         VULKAN_UNRECOVERABLE_ERROR = 501,
-        VULKAN_BINDLESS_TEXTURE_REGISTRY_OVERFLOW = 502,
 
         // Window manager
         MONITOR_INFO_ENUMERATION_FAILURE = 701,

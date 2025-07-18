@@ -49,7 +49,7 @@ namespace Rigel
         struct Node
         {
             std::string Name;
-            glm::mat4 Transform;
+            glm::mat4 Transform; // TODO: transform is relative to parent!
 
             std::vector<Mesh> Meshes;
 

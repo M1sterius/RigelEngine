@@ -39,12 +39,13 @@
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "Texture.hpp"
+#include "Material.hpp"
 
 // Debug
 #include "Debug.hpp"
 
 // Tools
-#include "Subsystems/InputManager/Input.hpp"
+#include "Input.hpp"
 #include "Time.hpp"
 
 // ECS
