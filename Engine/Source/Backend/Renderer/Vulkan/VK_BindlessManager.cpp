@@ -269,4 +269,69 @@ namespace Rigel::Backend::Vulkan
             textureIndex
         );
     }
+
+    uint32_t VK_BindlessManager::AddMaterial(const Ref<MaterialData> material)
+    {
+        uint32_t index = UINT32_MAX;
+
+        {
+            std::unique_lock lock(m_MaterialMutex);
+
+            for (uint32_t i = 0; i < m_Materials.size(); ++i)
+            {
+                if (m_Materials.at(i).IsNull())
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        // haven't found an empty slot, so we push a new one to the end of the vector
+        if (index == UINT32_MAX)
+        {
+            index = m_Materials.size();
+
+            if (index >= MAX_MATERIALS)
+            {
+                Debug::Crash(ErrorCode::LIMIT_EXCEEDED,
+                    "Exceeded the maximum number of materials in the scene data array!", __FILE__, __LINE__);
+            }
+
+            {
+                std::unique_lock lock(m_MaterialMutex);
+                m_Materials.push_back(nullptr);
+            }
+        }
+
+        {
+            std::unique_lock lock (m_MaterialMutex);
+            m_Materials[index] = material;
+        }
+
+        m_SceneData->Materials[index] = *material;
+
+        return index;
+    }
+
+    void VK_BindlessManager::RemoveMaterial(const uint32_t materialIndex)
+    {
+        {
+            std::unique_lock lock(m_MaterialMutex);
+
+            if (materialIndex >= m_Materials.size() || m_Materials.at(materialIndex).IsNull())
+            {
+                Debug::Error("{} is not a valid material index!", materialIndex);
+                return;
+            }
+        }
+
+        {
+            std::unique_lock lock(m_MaterialMutex);
+            m_Materials[materialIndex] = nullptr;
+        }
+
+        // TODO:  we don't modify m_SceneData->Materials here because it contains a value type and cannot be null,
+        // maybe we should put some kind of default material in the slot?
+    }
 }

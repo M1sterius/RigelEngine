@@ -383,7 +383,7 @@ namespace Rigel::Backend::Vulkan
     QueueFamilyIndices VK_Device::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         // Searches for support of graphics and present queue families on a device,
-        // corresponding std::optional in QueueFamilyIndices won't have a values if the queue isn't supported
+        // corresponding std::optional in QueueFamilyIndices won't have a value if the queue isn't supported
 
         QueueFamilyIndices indices;
 

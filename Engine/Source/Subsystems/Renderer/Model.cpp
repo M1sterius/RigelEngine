@@ -64,21 +64,21 @@ namespace Rigel
             return ErrorCode::FAILED_TO_OPEN_FILE;
         }
 
+        auto vertices = std::vector<Vertex>();
+        auto indices = std::vector<uint32_t>();
+
         m_RootNode = std::make_shared<Backend::Node>();
-        ProcessAiNode(scene->mRootNode, scene, m_RootNode);
+        ProcessAiNode(scene->mRootNode, scene, m_RootNode, vertices, indices);
 
-        m_VertexBuffer = std::make_unique<VK_VertexBuffer>(GetDevice(), m_Vertices);
-        m_IndexBuffer = std::make_unique<VK_IndexBuffer>(GetDevice(), m_Indices);
-
-        // This little trick completely clears vectors and deallocates their memory!
-        std::vector<Vertex>().swap(m_Vertices);
-        std::vector<uint32_t>().swap(m_Indices);
+        m_VertexBuffer = std::make_unique<VK_VertexBuffer>(GetDevice(), vertices);
+        m_IndexBuffer = std::make_unique<VK_IndexBuffer>(GetDevice(), indices);
 
         m_Initialized = true;
         return ErrorCode::OK;
     }
 
-    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, std::shared_ptr<Backend::Node> curNode)
+    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::Node>& curNode,
+        std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
         curNode->Name = node->mName.C_Str();
         curNode->Transform = ConvertMat4(node->mTransformation);
@@ -87,7 +87,7 @@ namespace Rigel
         for (uint32_t i = 0; i < node->mNumMeshes; ++i)
         {
             const auto mesh = scene->mMeshes[node->mMeshes[i]];
-            curNode->Meshes.emplace_back(ProcessMesh(mesh, scene));
+            curNode->Meshes.emplace_back(ProcessMesh(mesh, scene, vertices, indices));
         }
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i)
@@ -97,24 +97,25 @@ namespace Rigel
             childNode->Parent = curNode;
             curNode->Children.push_back(childNode);
 
-            ProcessAiNode(node->mChildren[i], scene, childNode);
+            ProcessAiNode(node->mChildren[i], scene, childNode, vertices, indices);
         }
     }
 
-    Backend::Mesh Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene)
+    Backend::Mesh Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene,
+        std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
         const auto numVertices = mesh->mNumVertices;
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
 
         auto resMesh = Backend::Mesh();
         resMesh.Name = mesh->mName.C_Str();
-        resMesh.FirstVertex = m_Vertices.size();
+        resMesh.FirstVertex = vertices.size();
         resMesh.VertexCount = numVertices;
-        resMesh.FirstIndex = m_Indices.size();
+        resMesh.FirstIndex = indices.size();
         resMesh.IndexCount = numIndices;
 
         Vertex vertex{};
-        m_Vertices.reserve(m_Vertices.size() + numVertices);
+        vertices.reserve(vertices.size() + numVertices);
 
         for (uint32_t i = 0; i < numVertices; ++i)
         {
@@ -134,16 +135,16 @@ namespace Rigel
 
             vertex.normal = ConvertVec3(mesh->mNormals[i]);
 
-            m_Vertices.push_back(vertex);
+            vertices.push_back(vertex);
         }
 
-        m_Indices.reserve(m_Indices.size() + numIndices);
+        indices.reserve(indices.size() + numIndices);
 
         for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
         {
             const auto face = mesh->mFaces[i];
             for (uint32_t j = 0; j < face.mNumIndices; ++j)
-                m_Indices.push_back(face.mIndices[j]);
+                indices.push_back(face.mIndices[j]);
         }
 
         resMesh.Material = ProcessMaterial(mesh->mMaterialIndex, scene);

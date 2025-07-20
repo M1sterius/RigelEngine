@@ -29,9 +29,6 @@ namespace Rigel::Backend::Vulkan
         static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 4096;
         static constexpr uint32_t MAX_MATERIAL_DATA_ARRAY_SIZE = 1024;
 
-        uint32_t MaterialsSize;
-        uint32_t MeshesSize;
-        uint32_t _padding0[2];
         MaterialData Materials[MAX_MATERIAL_DATA_ARRAY_SIZE];
         MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
     };

@@ -65,7 +65,11 @@ namespace Rigel
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD const SamplerProperties& GetSamplerProperties() const;
     INTERNAL:
-        NODISCARD inline Ref<Backend::Vulkan::VK_Texture> GetImpl() const { return m_Impl.get(); }
+        NODISCARD inline Ref<Backend::Vulkan::VK_Texture> GetImpl() const
+        {
+            this->WaitReady();
+            return m_Impl.get();
+        }
     private:
         Texture(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;

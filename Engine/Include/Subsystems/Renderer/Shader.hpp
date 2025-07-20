@@ -27,7 +27,11 @@ namespace Rigel
     public:
         ~Shader() override;
     INTERNAL:
-        NODISCARD inline Ref<Backend::Vulkan::VK_Shader> GetImpl() const { return m_Impl.get(); }
+        NODISCARD inline Ref<Backend::Vulkan::VK_Shader> GetImpl() const
+        {
+            this->WaitReady();
+            return m_Impl.get();
+        }
     private:
         Shader(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;

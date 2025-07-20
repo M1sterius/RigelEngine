@@ -41,11 +41,10 @@ namespace Rigel
         // handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelCone, true).ToGeneric());
         // handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelSphere, true).ToGeneric());
 
-        // TextureError is loaded synchronously because it MUST be fully loaded before all other textures
+        // Some textures are loaded synchronously because their loading must happen in a specific order
         handles.emplace_back(Load<Texture>(BuiltInAssets::TextureError, true).ToGeneric());
-
+        handles.emplace_back(Load<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
-        handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
 
         auto shaderMetadata = ShaderMetadata();
         shaderMetadata.VertPath = "Assets/EngineAssets/Shaders/DefaultShader.vert.spv";

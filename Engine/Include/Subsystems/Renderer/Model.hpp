@@ -37,11 +37,11 @@ namespace Rigel
             std::string Name;
             uint32_t BindlessIndex = UINT32_MAX;
 
-            uint32_t FirstVertex{0};
-            uint32_t VertexCount{0};
+            uint32_t FirstVertex = 0;
+            uint32_t VertexCount = 0;
 
-            uint32_t FirstIndex{0};
-            uint32_t IndexCount{0};
+            uint32_t FirstIndex = 0;
+            uint32_t IndexCount = 0;
 
             Material Material;
         };
@@ -106,16 +106,14 @@ namespace Rigel
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
-        void ProcessAiNode(const aiNode* node, const aiScene* scene, std::shared_ptr<Backend::Node> curNode);
-        Backend::Mesh ProcessMesh(const aiMesh* mesh, const aiScene* scene);
+        void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::Node>& curNode,
+            std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
+        Backend::Mesh ProcessMesh(const aiMesh* mesh, const aiScene* scene,
+            std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
         Backend::Material ProcessMaterial(const uint32_t aiMaterialIndex, const aiScene* scene) const;
 
         std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;
-
-        // these buffers are used only during the loading process and cleaned up right after uploading the data to the GPU
-        std::vector<Backend::Vulkan::Vertex> m_Vertices;
-        std::vector<uint32_t> m_Indices;
 
         std::shared_ptr<Backend::Node> m_RootNode;
 

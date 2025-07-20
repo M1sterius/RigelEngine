@@ -3,6 +3,7 @@
 #include "Core.hpp"
 #include "Texture.hpp"
 #include "AssetHandle.hpp"
+#include "ShaderStructs.hpp"
 
 #include "vulkan.h"
 
@@ -22,6 +23,7 @@ namespace Rigel::Backend::Vulkan
     {
     public:
         static constexpr uint32_t MAX_TEXTURES = 4096;
+        static constexpr uint32_t MAX_MATERIALS = SceneData::MAX_MATERIAL_DATA_ARRAY_SIZE;
 
         enum SetBindings : uint32_t
         {
@@ -35,6 +37,9 @@ namespace Rigel::Backend::Vulkan
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
         void RemoveTexture(const uint32_t textureIndex);
         void SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
+
+        NODISCARD uint32_t AddMaterial(const Ref<MaterialData> material);
+        void RemoveMaterial(const uint32_t materialIndex);
     private:
         VK_Renderer& m_Renderer;
         VK_Device& m_Device;
@@ -55,6 +60,9 @@ namespace Rigel::Backend::Vulkan
         std::vector<Ref<VK_Texture>> m_Textures;
         std::mutex m_TextureMutex;
         std::mutex m_SamplersMutex;
+
+        std::vector<Ref<MaterialData>> m_Materials;
+        std::mutex m_MaterialMutex;
 
         std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
         std::unique_ptr<SceneData> m_SceneData;
