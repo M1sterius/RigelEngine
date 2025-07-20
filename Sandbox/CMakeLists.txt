@@ -33,6 +33,6 @@ set(COPY_OUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets)
 # Copies assets included with the Rigel engine into the output assets folder
 add_custom_command(TARGET Sandbox POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/EngineAssets
-    ${COPY_OUT_DIR}/EngineAssets
+    ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE}/Assets
+    ${COPY_OUT_DIR}/Engine
 )

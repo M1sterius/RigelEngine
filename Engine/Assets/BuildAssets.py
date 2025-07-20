@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     assets_dir = Path(sys.argv[1])
     build_type = Path(sys.argv[2])
-    output_path = Path(f"{sys.argv[3]}/EngineAssets")
+    output_path = Path(f"{sys.argv[3]}/Assets")
 
     if not output_path.exists():
         output_path.mkdir(parents=True, exist_ok=True)

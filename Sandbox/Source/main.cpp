@@ -33,9 +33,8 @@ int32_t main(int32_t argc, char** argv)
 
     auto model = scene->Instantiate("Model");
     model->GetTransform()->SetLocalPosition({0, 0, -0.5});
-    // model->GetTransform()->SetLocalScale({0.1, 0.1, 0.1});
     model->AddComponent<Rigel::ModelRenderer>(hM);
-    // model->AddComponent<TestComponent>();
+    model->AddComponent<TestComponent>();
 
     sceneManager.LoadScene(scene);
 

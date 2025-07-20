@@ -47,8 +47,8 @@ namespace Rigel
         handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
 
         auto shaderMetadata = ShaderMetadata();
-        shaderMetadata.VertPath = "Assets/EngineAssets/Shaders/DefaultShader.vert.spv";
-        shaderMetadata.FragPath = "Assets/EngineAssets/Shaders/DefaultShader.frag.spv";
+        shaderMetadata.VertPath = "Assets/Engine/Shaders/DefaultShader.vert.spv";
+        shaderMetadata.FragPath = "Assets/Engine/Shaders/DefaultShader.frag.spv";
 
         handles.emplace_back(LoadAsync<Shader>(BuiltInAssets::ShaderDefault, &shaderMetadata, true).ToGeneric());
 
