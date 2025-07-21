@@ -39,5 +39,7 @@ namespace Rigel
         AssetHandle<Texture> m_Normals;
 
         uint32_t m_BindlessIndex = UINT32_MAX;
+
+        friend class AssetManager;
     };
 }

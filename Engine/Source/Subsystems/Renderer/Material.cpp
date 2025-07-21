@@ -1,11 +1,10 @@
 #include "Material.hpp"
 #include "VK_BindlessManager.hpp"
 #include "Engine.hpp"
-#include "Renderer.hpp"
 #include "AssetManager.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_Texture.hpp"
-#include "VK_Renderer.hpp"
+#include "VulkanUtility.hpp"
 #include "VK_BindlessManager.hpp"
 
 // TODO: this constants should probably be defined in a better place
@@ -14,11 +13,6 @@
 
 namespace Rigel
 {
-    NODISCARD static Backend::Vulkan::VK_BindlessManager& GetBindlessManager()
-    {
-        return Engine::Get().GetRenderer().GetImpl().GetBindlessManager();
-    }
-
     Material::Material(const std::filesystem::path& path, const uid_t id)
         : RigelAsset(path, id) { }
 
@@ -31,32 +25,36 @@ namespace Rigel
 
         if (!metadata->DiffusePath.empty())
             m_Diffuse = assetManager.LoadAsync<Texture>(metadata->DiffusePath);
-        else
-            Debug::Error("Material at path {} could not load diffuse texture!", this->GetPath().string());
-
         if (!metadata->SpecularPath.empty())
             m_Specular = assetManager.LoadAsync<Texture>(metadata->SpecularPath);
-        else
-            Debug::Error("Material at path {} could not load specular texture!", this->GetPath().string());
-
         if (!metadata->NormalsPath.empty())
             m_Normals = assetManager.LoadAsync<Texture>(metadata->NormalsPath);
-        else
-            Debug::Error("Material at path {} could not load normals texture!", this->GetPath().string());
 
-        // WaitReady is called inside GetImpl
-        m_Data->DiffuseIndex = m_Diffuse->IsOK() ? m_Diffuse->GetImpl()->GetBindlessIndex() : ERROR_TEXTURE_BINDLESS_INDEX;
-        m_Data->SpecularIndex = m_Specular->IsOK() ? m_Specular->GetImpl()->GetBindlessIndex() : BLACK_TEXTURE_BINDLESS_INDEX;
-        m_Data->NormalsIndex = m_Normals->IsOK() ? m_Normals->GetImpl()->GetBindlessIndex() : BLACK_TEXTURE_BINDLESS_INDEX;
-        m_Data->Roughness = 0.0f;
+        auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t
+        {
+            if (texture.IsNull())
+                return fallbackIndex;
 
-        m_BindlessIndex = GetBindlessManager().AddMaterial(m_Data.get());
+            texture->WaitReady();
 
+            if (texture->IsOK())
+                return texture->GetImpl()->GetBindlessIndex();
+
+            return fallbackIndex;
+        };
+
+        // m_Data->DiffuseIndex = SetIndex(m_Diffuse, ERROR_TEXTURE_BINDLESS_INDEX);
+        // m_Data->SpecularIndex = SetIndex(m_Specular, BLACK_TEXTURE_BINDLESS_INDEX);
+        // m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
+        // m_Data->Roughness = 0.0f;
+        //
+        // Debug::Message("{}, {}, {}", m_Data->DiffuseIndex, m_Data->SpecularIndex, m_Data->NormalsIndex);
+        // m_BindlessIndex = GetBindlessManager().AddMaterial(m_Data.get());
         return ErrorCode::OK;
     }
 
     Material::~Material()
     {
-        GetBindlessManager().RemoveMaterial(m_BindlessIndex);
+        // GetBindlessManager().RemoveMaterial(m_BindlessIndex);
     }
 }

@@ -1,6 +1,5 @@
 #include "Model.hpp"
 #include "AssetManager.hpp"
-#include "BuiltInAssets.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
@@ -38,17 +37,6 @@ namespace Rigel
 {
     using namespace Backend::Vulkan;
 
-    inline Backend::Material GetDefaultMaterial()
-    {
-        auto& assetManager = Engine::Get().GetAssetManager();
-
-        return Backend::Material{
-            .Diffuse = assetManager.Load<Texture>(BuiltInAssets::TextureError),
-            .Specular = assetManager.Load<Texture>(BuiltInAssets::TextureBlack),
-            .Normal = assetManager.Load<Texture>(BuiltInAssets::TextureBlack)
-        };
-    }
-
     Model::Model(const std::filesystem::path& path, const uid_t id) noexcept
         : RigelAsset(path, id) { }
     Model::~Model() = default;
@@ -64,10 +52,16 @@ namespace Rigel
             return ErrorCode::FAILED_TO_OPEN_FILE;
         }
 
+        // preprocess all materials to take the most advantage out of async loading
+        for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
+            ProcessMaterial(scene->mMaterials[i]);
+        // for (const auto& mat : m_Materials)
+        //     mat->WaitReady();
+
         auto vertices = std::vector<Vertex>();
         auto indices = std::vector<uint32_t>();
 
-        m_RootNode = std::make_shared<Backend::Node>();
+        m_RootNode = std::make_shared<Node>();
         ProcessAiNode(scene->mRootNode, scene, m_RootNode, vertices, indices);
 
         m_VertexBuffer = std::make_unique<VK_VertexBuffer>(GetDevice(), vertices);
@@ -77,7 +71,7 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
-    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::Node>& curNode,
+    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
         std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
         curNode->Name = node->mName.C_Str();
@@ -87,12 +81,12 @@ namespace Rigel
         for (uint32_t i = 0; i < node->mNumMeshes; ++i)
         {
             const auto mesh = scene->mMeshes[node->mMeshes[i]];
-            curNode->Meshes.emplace_back(ProcessMesh(mesh, scene, vertices, indices));
+            curNode->Meshes.emplace_back(ProcessMesh(mesh, vertices, indices));
         }
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i)
         {
-            auto childNode = std::make_shared<Backend::Node>();
+            auto childNode = std::make_shared<Node>();
 
             childNode->Parent = curNode;
             curNode->Children.push_back(childNode);
@@ -101,13 +95,12 @@ namespace Rigel
         }
     }
 
-    Backend::Mesh Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene,
-        std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
         const auto numVertices = mesh->mNumVertices;
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
 
-        auto resMesh = Backend::Mesh();
+        auto resMesh = Mesh();
         resMesh.Name = mesh->mName.C_Str();
         resMesh.FirstVertex = vertices.size();
         resMesh.VertexCount = numVertices;
@@ -147,28 +140,27 @@ namespace Rigel
                 indices.push_back(face.mIndices[j]);
         }
 
-        resMesh.Material = ProcessMaterial(mesh->mMaterialIndex, scene);
+        // resMesh.Material = ProcessMaterial(mesh->mMaterialIndex, scene);
 
         return resMesh;
     }
 
-    Backend::Material Model::ProcessMaterial(const uint32_t aiMaterialIndex, const aiScene* scene) const
+    void Model::ProcessMaterial(const aiMaterial* aiMaterial)
     {
-        const auto aiMaterial = scene->mMaterials[aiMaterialIndex];
         ASSERT(aiMaterial, "aiMaterial was a nullptr!");
 
+        const auto materialName = m_Path / std::format("Material{}", m_Materials.size());
         const auto texturesDir = m_Path.parent_path(); // trim to the last '/'
         auto& assetManager = Engine::Get().GetAssetManager();
 
-        auto resMaterial = GetDefaultMaterial();
+        auto metadata = MaterialMetadata();
 
         if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
             aiString diffuseTextureName;
             aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &diffuseTextureName);
 
-            const auto path = texturesDir / diffuseTextureName.C_Str();
-            resMaterial.Diffuse = assetManager.LoadAsync<Texture>(path);
+            metadata.DiffusePath = texturesDir / diffuseTextureName.C_Str();
         }
 
         if (aiMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
@@ -176,8 +168,7 @@ namespace Rigel
             aiString specularTextureName;
             aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &specularTextureName);
 
-            const auto path = texturesDir / specularTextureName.C_Str();
-            resMaterial.Specular = assetManager.LoadAsync<Texture>(path);
+            metadata.SpecularPath = texturesDir / specularTextureName.C_Str();
         }
 
         if (aiMaterial->GetTextureCount(aiTextureType_NORMALS) > 0)
@@ -185,10 +176,9 @@ namespace Rigel
             aiString normalsTextureName;
             aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &normalsTextureName);
 
-            const auto path = texturesDir / normalsTextureName.C_Str();
-            resMaterial.Normal = assetManager.LoadAsync<Texture>(path);
+            metadata.NormalsPath = texturesDir / normalsTextureName.C_Str();
         }
 
-        return resMaterial;
+        m_Materials.push_back(assetManager.LoadAsync<Material>(materialName, &metadata));
     }
 }

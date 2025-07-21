@@ -194,7 +194,7 @@ namespace Rigel::Backend::Vulkan
 
             {
                 std::unique_lock lock(m_TextureMutex);
-                m_Textures.push_back(nullptr);
+                m_Textures.emplace_back(nullptr);
             }
         }
 
@@ -217,6 +217,9 @@ namespace Rigel::Backend::Vulkan
         // if the engine is shutting down we no longer care about maintaining proper free list
         // also it fixes an infinite loop when removing the default texture during shutdown
         if (!Engine::Get().Running())
+            return;
+
+        if (textureIndex == 0 || textureIndex == 1)
             return;
 
         static Ref<VK_Texture> defaultTexture = nullptr;
@@ -300,7 +303,7 @@ namespace Rigel::Backend::Vulkan
 
             {
                 std::unique_lock lock(m_MaterialMutex);
-                m_Materials.push_back(nullptr);
+                m_Materials.emplace_back(nullptr);
             }
         }
 

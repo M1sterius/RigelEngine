@@ -29,7 +29,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline const Texture::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
     private:
         std::unique_ptr<VK_Image> m_Image;
-        Texture::SamplerProperties m_SamplerProperties;
+        Texture::SamplerProperties m_SamplerProperties{};
 
         uint32_t m_BindlessIndex = UINT32_MAX;
     };

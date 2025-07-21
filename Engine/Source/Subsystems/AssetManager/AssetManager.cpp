@@ -108,8 +108,7 @@ namespace Rigel
         if (!assetPtr || path.empty())
             return;
 
-        // just in case the user wants to delete the asset before it's been fully loaded
-        assetPtr->WaitReady();
+        assetPtr->WaitReady(); // just in case the user wants to delete the asset before it's been fully loaded
 
         if (m_EnableAssetLifetimeLogging)
             Debug::Trace("AssetManager::Destroying an asset at path: {}. ", path.string());

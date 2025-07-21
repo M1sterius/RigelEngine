@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelAsset.hpp"
 #include "AssetHandle.hpp"
-#include "Texture.hpp"
+#include "Material.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -12,38 +12,32 @@
 struct aiNode;
 struct aiScene;
 struct aiMesh;
+struct aiMaterial;
 
 namespace Rigel
 {
-    namespace Backend
+    namespace Backend::Vulkan
     {
-        namespace Vulkan
-        {
-            class VK_VertexBuffer;
-            class VK_IndexBuffer;
+        class VK_VertexBuffer;
+        class VK_IndexBuffer;
 
-            struct Vertex;
-        }
+        struct Vertex;
+    }
 
-        struct Material
-        {
-            AssetHandle<Texture> Diffuse;
-            AssetHandle<Texture> Specular;
-            AssetHandle<Texture> Normal;
-        };
-
+    class Model final : public RigelAsset
+    {
+    INTERNAL:
         struct Mesh
         {
             std::string Name;
             uint32_t BindlessIndex = UINT32_MAX;
+            uint32_t MaterialIndex = UINT32_MAX;
 
             uint32_t FirstVertex = 0;
             uint32_t VertexCount = 0;
 
             uint32_t FirstIndex = 0;
             uint32_t IndexCount = 0;
-
-            Material Material;
         };
 
         struct Node
@@ -56,21 +50,17 @@ namespace Rigel
             std::shared_ptr<Node> Parent;
             std::vector<std::shared_ptr<Node>> Children;
         };
-    }
-
-    class Model final : public RigelAsset
-    {
     public:
         class NodeIterator
         {
         public:
-            explicit NodeIterator(std::shared_ptr<Backend::Node> node)
+            explicit NodeIterator(std::shared_ptr<Node> node)
                 : m_RootNode(std::move(node))
             {
                 TraverseNode(m_RootNode);
             }
 
-            const Backend::Node* operator -> () const { return m_Nodes[m_CurrentIndex].get(); }
+            const Node* operator -> () const { return m_Nodes[m_CurrentIndex].get(); }
 
             NodeIterator& operator ++ ()
             {
@@ -83,7 +73,7 @@ namespace Rigel
                 return m_CurrentIndex < m_Nodes.size();
             }
         private:
-            void TraverseNode(const std::shared_ptr<Backend::Node>& node)
+            void TraverseNode(const std::shared_ptr<Node>& node)
             {
                 m_Nodes.push_back(node);
 
@@ -92,8 +82,8 @@ namespace Rigel
             }
 
             uint32_t m_CurrentIndex = 0;
-            std::shared_ptr<Backend::Node> m_RootNode;
-            std::vector<std::shared_ptr<Backend::Node>> m_Nodes;
+            std::shared_ptr<Node> m_RootNode;
+            std::vector<std::shared_ptr<Node>> m_Nodes;
         };
 
         ~Model() override;
@@ -106,16 +96,16 @@ namespace Rigel
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
-        void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::Node>& curNode,
+        void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
             std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
-        Backend::Mesh ProcessMesh(const aiMesh* mesh, const aiScene* scene,
-            std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
-        Backend::Material ProcessMaterial(const uint32_t aiMaterialIndex, const aiScene* scene) const;
+        Mesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
+        void ProcessMaterial(const aiMaterial* aiMaterial);
 
         std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;
 
-        std::shared_ptr<Backend::Node> m_RootNode;
+        std::shared_ptr<Node> m_RootNode;
+        std::vector<AssetHandle<Material>> m_Materials;
 
         friend class AssetManager;
     };
