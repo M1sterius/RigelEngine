@@ -36,7 +36,6 @@ namespace Rigel
             uid_t AssetID;
             uint64_t PathHash;
             std::filesystem::path Path;
-            std::unique_ptr<std::atomic<uint32_t>> RefCounter;
             std::unique_ptr<RigelAsset> Asset;
         };
     public:
@@ -77,9 +76,10 @@ namespace Rigel
                 .AssetID = ++m_NextID,
                 .PathHash = pathHash,
                 .Path = path,
-                .RefCounter = std::make_unique<std::atomic<uint32_t>>(persistent ? 2 : 1),
                 .Asset = MakeAsset<T>(path, m_NextID)
             };
+
+            entry.Asset->m_IsPersistent = persistent;
 
             const auto rawPtr = entry.Asset.get();
             const auto handle = MakeHandle<T>(entry);
@@ -153,12 +153,14 @@ namespace Rigel
                 .AssetID = ++m_NextID,
                 .PathHash = pathHash,
                 .Path = path,
-                .RefCounter = std::make_unique<std::atomic<uint32_t>>(persistent ? 2 : 1),
                 .Asset = MakeAsset<T>(path, m_NextID)
             };
 
+            entry.Asset->m_IsPersistent = persistent;
+
             const auto rawPtr = entry.Asset.get();
             const auto handle = MakeHandle<T>(entry);
+
             auto loadFinishedGuard = ScopeGuard([rawPtr]
             {
                 {
@@ -252,7 +254,7 @@ namespace Rigel
         template<RigelAssetConcept T>
         static AssetHandle<T> MakeHandle(const AssetRegistryEntry& entry)
         {
-            return AssetHandle<T>(static_cast<T*>(entry.Asset.get()), entry.AssetID, entry.RefCounter.get());
+            return AssetHandle<T>(static_cast<T*>(entry.Asset.get()), entry.AssetID, std::make_shared<Backend::AssetDeleter>(entry.Asset.get()));
         }
 
         template<RigelAssetConcept T>

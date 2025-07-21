@@ -67,19 +67,27 @@ namespace Rigel
 
     void AssetManager::UnloadAllAssets()
     {
-        auto vec = std::vector<uid_t>();
+        auto basicAssets = std::vector<uid_t>();
+        auto persistentAssets = std::vector<uid_t>();
 
         {
             std::unique_lock lock(m_RegistryMutex);
-            vec.reserve(m_AssetsRegistry.size());
 
-            for (const auto& record : m_AssetsRegistry)
-                vec.emplace_back(record.AssetID);
+            for (const auto& entry : m_AssetsRegistry)
+            {
+                if (entry.Asset->m_IsPersistent)
+                    persistentAssets.push_back(entry.AssetID);
+                else
+                    basicAssets.push_back(entry.AssetID);
+            }
         }
 
-        for (const auto id : vec)
-            this->UnloadImpl(id);
+        for (const auto id : basicAssets)
+            this->Unload(id);
+        m_ThreadPool->WaitForAll();
 
+        for (const auto id : persistentAssets)
+            this->Unload(id);
         m_ThreadPool->WaitForAll();
     }
 

@@ -55,6 +55,8 @@ namespace Rigel
         bool m_LoadFinished = false; // true when Load finishes
 
         const std::filesystem::path m_Path;
+    INTERNAL:
+        bool m_IsPersistent = false;
     private:
         friend class AssetManager;
 
