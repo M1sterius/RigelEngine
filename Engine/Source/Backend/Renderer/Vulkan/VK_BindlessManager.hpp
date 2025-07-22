@@ -34,7 +34,12 @@ namespace Rigel::Backend::Vulkan
         VK_BindlessManager(VK_Renderer& renderer, VK_Device& device);
         ~VK_BindlessManager();
 
-        NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
+        NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
+        NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+
+        void UpdateStorageBuffer();
+
+        NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);
         void SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
 
@@ -65,6 +70,7 @@ namespace Rigel::Backend::Vulkan
         std::mutex m_MaterialMutex;
 
         std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
+        std::vector<bool> m_DirtyBufferFlags;
         std::unique_ptr<SceneData> m_SceneData;
     };
 }

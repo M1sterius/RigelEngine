@@ -71,6 +71,7 @@ namespace Rigel::Backend::Vulkan
 
         // thread safe way to submit work to the graphics queue, always prefer it to raw vkQueueSubmit
         void SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
+        NODISCARD VkResult SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo);
 
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }

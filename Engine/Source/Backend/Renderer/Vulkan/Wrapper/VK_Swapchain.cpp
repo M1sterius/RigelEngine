@@ -70,7 +70,7 @@ namespace Rigel::Backend::Vulkan
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &waitSemaphore;
 
-        if (const auto result = vkQueuePresentKHR(m_Device.GetPresentQueue(), &presentInfo); result != VK_SUCCESS)
+        if (const auto result = m_Device.SubmitPresentQueue(&presentInfo); result != VK_SUCCESS)
         {
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
                 SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());

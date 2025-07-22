@@ -236,6 +236,12 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
     }
 
+    VkResult VK_Device::SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo)
+    {
+        std::unique_lock lock(m_GraphicsQueueMutex);
+        return vkQueuePresentKHR(m_PresentQueue, pPresentInfo);
+    }
+
     uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const
     {
         const auto memProperties = m_SelectedPhysicalDevice.MemoryProperties;

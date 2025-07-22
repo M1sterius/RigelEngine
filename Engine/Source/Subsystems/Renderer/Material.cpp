@@ -48,12 +48,13 @@ namespace Rigel
         m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
         m_Data->Roughness = 0.0f;
 
-        // m_BindlessIndex = GetBindlessManager().AddMaterial(m_Data.get());
+        m_BindlessIndex = Backend::Vulkan::GetRenderer().GetBindlessManager().AddMaterial(m_Data.get());
+
         return ErrorCode::OK;
     }
 
     Material::~Material()
     {
-        // GetBindlessManager().RemoveMaterial(m_BindlessIndex);
+        Backend::Vulkan::GetRenderer().GetBindlessManager().RemoveMaterial(m_BindlessIndex);
     }
 }

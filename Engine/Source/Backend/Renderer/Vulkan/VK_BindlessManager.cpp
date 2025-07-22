@@ -42,13 +42,15 @@ namespace Rigel::Backend::Vulkan
 
     void VK_BindlessManager::CreateStorageBuffers()
     {
-        const auto framesInFlight = Time::GetFrameCount() % m_Renderer.GetSwapchain().GetFramesInFlightCount();
+        const auto framesInFlight = m_Renderer.GetSwapchain().GetFramesInFlightCount();
 
         for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_StorageBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(SceneData),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
         }
+
+        m_DirtyBufferFlags = std::vector(framesInFlight, true);
     }
 
     void VK_BindlessManager::CreateDescriptorSetLayout()
@@ -163,7 +165,18 @@ namespace Rigel::Backend::Vulkan
         vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
-    uint32_t VK_BindlessManager::AddTexture(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties)
+    void VK_BindlessManager::UpdateStorageBuffer()
+    {
+        const auto frameIndex = Time::GetFrameCount() % GetRenderer().GetSwapchain().GetFramesInFlightCount();
+
+        if (m_DirtyBufferFlags[frameIndex])
+        {
+            m_StorageBuffers[frameIndex]->UploadData(0, sizeof(SceneData), m_SceneData.get());
+            m_DirtyBufferFlags[frameIndex] = false;
+        }
+    }
+
+    uint32_t VK_BindlessManager::AddTexture(const Ref<VK_Texture> texture)
     {
         uint32_t slotIndex = UINT32_MAX;
 
@@ -313,6 +326,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         m_SceneData->Materials[index] = *material;
+        std::fill(m_DirtyBufferFlags.begin(), m_DirtyBufferFlags.end(), true);
 
         return index;
     }

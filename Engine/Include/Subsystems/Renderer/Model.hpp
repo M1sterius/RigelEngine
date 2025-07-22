@@ -30,7 +30,6 @@ namespace Rigel
         struct Mesh
         {
             std::string Name;
-            uint32_t BindlessIndex = UINT32_MAX;
             uint32_t MaterialIndex = UINT32_MAX;
 
             uint32_t FirstVertex = 0;
