@@ -24,11 +24,11 @@ namespace Rigel
         const auto metadata = assetManager.GetMetadata<MaterialMetadata>(this->m_Path);
 
         if (!metadata->DiffusePath.empty())
-            m_Diffuse = assetManager.LoadAsync<Texture>(metadata->DiffusePath);
+            m_Diffuse = assetManager.Load<Texture>(metadata->DiffusePath);
         if (!metadata->SpecularPath.empty())
-            m_Specular = assetManager.LoadAsync<Texture>(metadata->SpecularPath);
+            m_Specular = assetManager.Load<Texture>(metadata->SpecularPath);
         if (!metadata->NormalsPath.empty())
-            m_Normals = assetManager.LoadAsync<Texture>(metadata->NormalsPath);
+            m_Normals = assetManager.Load<Texture>(metadata->NormalsPath);
 
         auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t
         {
@@ -43,12 +43,11 @@ namespace Rigel
             return fallbackIndex;
         };
 
-        // m_Data->DiffuseIndex = SetIndex(m_Diffuse, ERROR_TEXTURE_BINDLESS_INDEX);
-        // m_Data->SpecularIndex = SetIndex(m_Specular, BLACK_TEXTURE_BINDLESS_INDEX);
-        // m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
-        // m_Data->Roughness = 0.0f;
-        //
-        // Debug::Message("{}, {}, {}", m_Data->DiffuseIndex, m_Data->SpecularIndex, m_Data->NormalsIndex);
+        m_Data->DiffuseIndex = SetIndex(m_Diffuse, ERROR_TEXTURE_BINDLESS_INDEX);
+        m_Data->SpecularIndex = SetIndex(m_Specular, BLACK_TEXTURE_BINDLESS_INDEX);
+        m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
+        m_Data->Roughness = 0.0f;
+
         // m_BindlessIndex = GetBindlessManager().AddMaterial(m_Data.get());
         return ErrorCode::OK;
     }

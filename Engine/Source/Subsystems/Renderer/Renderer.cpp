@@ -51,6 +51,8 @@ namespace Rigel
         m_ImGuiImpl.reset();
         m_Impl.reset();
 
+        m_CurrentRenderInfo.Reset();
+
         return ErrorCode::OK;
     }
 

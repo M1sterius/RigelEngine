@@ -12,7 +12,7 @@ int32_t main(int32_t argc, char** argv)
     settings.TargetFPS = 165;
     settings.WindowTitle = "Sandbox";
     settings.WindowSize = glm::vec2(1920, 1080);
-    settings.EnableAssetLifetimeLogging = true;
+    settings.AssetManagerThreadPoolSize = 4;
 
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
@@ -29,22 +29,13 @@ int32_t main(int32_t argc, char** argv)
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
 
-    {
-        auto metadata = Rigel::MaterialMetadata();
-        metadata.DiffusePath = "Assets/Textures/image0.jpg";
-        metadata.SpecularPath = "Assets/Textures/image1.jpg";
-
-        auto hMat = assetManager.LoadAsync<Rigel::Material>("TestMaterial", &metadata);
-        hMat->WaitReady();
-    }
-
     // auto hM = assetManager.Load<Rigel::Model>();
-    // auto hM = assetManager.Load<Rigel::Model>("Assets/Models/TestNodes/TestNodes.gltf");
+    // auto hM = assetManager.LoadAsync<Rigel::Model>("Assets/Models/TestNodes/TestNodes.gltf");
 
-    // auto model = scene->Instantiate("Model");
-    // model->GetTransform()->SetLocalPosition({0, 0, -0.5});
-    // model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
-    // model->AddComponent<TestComponent>();
+    auto model = scene->Instantiate("Model");
+    model->GetTransform()->SetLocalPosition({0, 0, -0.5});
+    model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
+    model->AddComponent<TestComponent>();
 
     sceneManager.LoadScene(scene);
 

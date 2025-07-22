@@ -44,6 +44,7 @@ namespace Rigel
 
         uint8_t m_VisibilityMask;
         mutable std::ofstream m_LogsFile;
+        mutable std::mutex m_Mutex;
 
         NODISCARD static std::string GetFormattedTime();
         NODISCARD static const char* GetColorCode(const ConsoleColor color);

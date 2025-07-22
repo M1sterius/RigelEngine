@@ -42,10 +42,13 @@ namespace Rigel
 
         const auto logTxt = "[" + GetFormattedTime() + " " + GetLogTypePrefix(type) + "] " + log;
 
-        std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) <<"\n";
+        m_Mutex.lock();
+        std::cout << GetColorCode(GetLogTypeColor(type)) << logTxt << GetColorCode(ConsoleColor::Default) << '\n';
+        m_Mutex.unlock();
 
         if (m_LogsFile.is_open())
         {
+            std::unique_lock lock(m_Mutex);
             m_LogsFile << (logTxt + '\n');
 
             if (type == LogType::Error)
