@@ -55,8 +55,6 @@ namespace Rigel
         // preprocess all materials to take the most advantage out of async loading
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
             ProcessMaterial(scene->mMaterials[i]);
-        // for (const auto& mat : m_Materials)
-        //     mat->WaitReady();
 
         auto vertices = std::vector<Vertex>();
         auto indices = std::vector<uint32_t>();
@@ -140,7 +138,9 @@ namespace Rigel
                 indices.push_back(face.mIndices[j]);
         }
 
-        // resMesh.Material = ProcessMaterial(mesh->mMaterialIndex, scene);
+        const auto& material = m_Materials[mesh->mMaterialIndex];
+        material->WaitReady();
+        resMesh.MaterialIndex = material->GetBindlessIndex();
 
         return resMesh;
     }

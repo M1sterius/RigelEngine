@@ -153,8 +153,7 @@ namespace Rigel::Backend::Vulkan
         imageInfo.sampler = sampler;
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkWriteDescriptorSet write {};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        auto write = MakeInfo<VkWriteDescriptorSet>();
         write.dstSet = m_DescriptorSet;
         write.dstBinding = TEXTURE_ARRAY_BINDING;
         write.dstArrayElement = slotIndex;
@@ -174,6 +173,21 @@ namespace Rigel::Backend::Vulkan
             m_StorageBuffers[frameIndex]->UploadData(0, sizeof(SceneData), m_SceneData.get());
             m_DirtyBufferFlags[frameIndex] = false;
         }
+
+        VkDescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = m_StorageBuffers[frameIndex]->Get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = VK_WHOLE_SIZE;
+
+        auto write = MakeInfo<VkWriteDescriptorSet>();
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = STORAGE_BUFFER_ARRAY_BINDING;
+        write.dstArrayElement = 0;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        write.descriptorCount = 1;
+        write.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
     uint32_t VK_BindlessManager::AddTexture(const Ref<VK_Texture> texture)

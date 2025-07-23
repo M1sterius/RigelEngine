@@ -28,16 +28,17 @@ int32_t main(int32_t argc, char** argv)
 
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
-
-
-
-    // auto hM = assetManager.Load<Rigel::Model>();
-    // auto hM = assetManager.LoadAsync<Rigel::Model>("Assets/Models/TestNodes/TestNodes.gltf");
+    camera->GetTransform()->SetLocalPosition({0.0, 1.5, 0.0});
 
     auto model = scene->Instantiate("Model");
     model->GetTransform()->SetLocalPosition({0, 0, -0.5});
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
     model->AddComponent<TestComponent>();
+
+    // const auto json = scene->Serialize();
+    //
+    // auto nScene = sceneManager.CreateScene();
+    // nScene->Deserialize(json);
 
     sceneManager.LoadScene(scene);
 
