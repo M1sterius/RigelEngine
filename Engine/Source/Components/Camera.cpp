@@ -33,9 +33,13 @@ namespace Rigel
         const auto rot = transform->GetRotation();
         const auto transformation = glm::translate(glm::mat4(1.0f), pos) * glm::mat4_cast(rot);
         m_View = glm::inverse(transformation);
-        m_View[0][0] *= -1.0; // this has to be done ONLY in vulkan!
 
         return m_View;
+    }
+
+    glm::mat4 Camera::GetProjection()
+    {
+        return m_Projection;
     }
 
     void Camera::SetFov(const float32_t fov)
@@ -68,6 +72,7 @@ namespace Rigel
 
         const auto aspect = static_cast<float32_t>(m_ViewportSize.x) / static_cast<float32_t>(m_ViewportSize.y);
         m_Projection = glm::perspective(m_FOV * aspect, aspect, m_Near, m_Far);
+        m_Projection[1][1] *= -1.0f;
     }
 
     nlohmann::json Camera::Serialize() const

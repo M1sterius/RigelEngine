@@ -21,7 +21,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Renderer/Renderer.cpp
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp
-    Source/Utils/Serialization/GLM_Serializer.cpp
+        Source/Utils/Serialization/Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp

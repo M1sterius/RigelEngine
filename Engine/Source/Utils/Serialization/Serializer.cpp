@@ -1,10 +1,10 @@
-#include "GLM_Serializer.hpp"
+#include "Serializer.hpp"
 #include "json.hpp"
 
 namespace Rigel
 {
 
-    nlohmann::json GLM_Serializer::Serialize(const glm::vec1 vec)
+    nlohmann::json Serializer::Serialize(const glm::vec1 vec)
     {
         nlohmann::json json = {
             {"x", vec.x}
@@ -12,7 +12,7 @@ namespace Rigel
         return json;
     }
 
-    nlohmann::json GLM_Serializer::Serialize(const glm::vec2& vec)
+    nlohmann::json Serializer::Serialize(const glm::vec2& vec)
     {
         nlohmann::json json = {
             {"x", vec.x},
@@ -21,7 +21,7 @@ namespace Rigel
         return json;
     }
 
-    nlohmann::json GLM_Serializer::Serialize(const glm::vec3& vec)
+    nlohmann::json Serializer::Serialize(const glm::vec3& vec)
     {
         nlohmann::json json = {
             {"x", vec.x},
@@ -31,7 +31,7 @@ namespace Rigel
         return json;
     }
 
-    nlohmann::json GLM_Serializer::Serialize(const glm::vec4& vec)
+    nlohmann::json Serializer::Serialize(const glm::vec4& vec)
     {
         nlohmann::json json = {
             {"x", vec.x},
@@ -42,33 +42,34 @@ namespace Rigel
         return json;
     }
 
-    nlohmann::json GLM_Serializer::Serialize(const glm::quat& quaternion)
+    nlohmann::json Serializer::Serialize(const glm::quat& quaternion)
     {
         return Serialize(glm::vec4(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
     }
 
-    glm::vec1 GLM_Serializer::DeserializeVec1(const nlohmann::json& json)
+    glm::vec1 Serializer::DeserializeVec1(const nlohmann::json& json)
     {
         return glm::vec1(json.value("x", 0.0f));
     }
 
-    glm::vec2 GLM_Serializer::DeserializeVec2(const nlohmann::json& json)
+    glm::vec2 Serializer::DeserializeVec2(const nlohmann::json& json)
     {
         return {json.value("x", 0.0f), json.value("y", 0.0f)};
     }
 
-    glm::vec3 GLM_Serializer::DeserializeVec3(const nlohmann::json& json)
+    glm::vec3 Serializer::DeserializeVec3(const nlohmann::json& json)
     {
         return {json.value("x", 0.0f), json.value("y", 0.0f), json.value("z", 0.0f)};
     }
 
-    glm::vec4 GLM_Serializer::DeserializeVec4(const nlohmann::json& json)
+    glm::vec4 Serializer::DeserializeVec4(const nlohmann::json& json)
     {
         return {json.value("x", 0.0f), json.value("y", 0.0f), json.value("z", 0.0f), json.value("w", 0.0f)};
     }
 
-    glm::quat GLM_Serializer::DeserializeQuaternion(const nlohmann::json& json)
+    glm::quat Serializer::DeserializeQuaternion(const nlohmann::json& json)
     {
-        return {json.value("x", 0.0f), json.value("y", 0.0f), json.value("z", 0.0f), json.value("w", 0.0f)};
+        // The order of elements in the quaternion is different from vec4 you fucking idiot!!!
+        return {json.value("w", 0.0f), json.value("x", 0.0f), json.value("y", 0.0f), json.value("z", 0.0f)};
     }
 }

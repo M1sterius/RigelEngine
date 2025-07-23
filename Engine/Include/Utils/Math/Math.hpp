@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "Hash.hpp"
 #include "Random.hpp"
 
@@ -7,5 +9,3 @@
 #include "glm.hpp"
 #include "gtc/quaternion.hpp"
 #include "gtx/string_cast.hpp"
-
-#include <cmath>

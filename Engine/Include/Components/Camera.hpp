@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Core.hpp"
 #include "Math.hpp"
 #include "Component.hpp"
@@ -16,7 +15,7 @@ namespace Rigel
         bool Deserialize(const nlohmann::json& json) override;
 
         NODISCARD glm::mat4 GetView();
-        NODISCARD inline glm::mat4 GetProjection() const { return m_Projection; }
+        NODISCARD glm::mat4 GetProjection();
 
         void SetFov(const float32_t fov);
         void SetPlanes(const float32_t nearPlane, const float32_t farPlane);

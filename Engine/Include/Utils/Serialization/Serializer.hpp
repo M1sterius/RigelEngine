@@ -6,7 +6,7 @@
 
 namespace Rigel
 {
-    class GLM_Serializer
+    class Serializer
     {
     public:
         static nlohmann::json Serialize(const glm::vec1 vec);

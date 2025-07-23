@@ -1,5 +1,5 @@
 #include "Transform.hpp"
-#include "GLM_Serializer.hpp"
+#include "Serializer.hpp"
 #include "InternalEvents.hpp"
 #include "Debug.hpp"
 #include "Scene.hpp"
@@ -212,9 +212,9 @@ namespace Rigel
     {
         auto json = Component::Serialize();
 
-        json["Position"] = GLM_Serializer::Serialize(m_LocalPosition);
-        json["Rotation"] = GLM_Serializer::Serialize(m_LocalRotation);
-        json["Scale"] = GLM_Serializer::Serialize(m_LocalScale);
+        json["Position"] = Serializer::Serialize(m_LocalPosition);
+        json["Rotation"] = Serializer::Serialize(m_LocalRotation);
+        json["Scale"] = Serializer::Serialize(m_LocalScale);
 
         json["Children"] = nlohmann::json::array(); // This insures that json always has 'Children' array field
         for (const auto& child : m_Children)
@@ -240,9 +240,9 @@ namespace Rigel
             return false;
         }
 
-        m_LocalPosition = GLM_Serializer::DeserializeVec3(json["Position"]);
-        m_LocalRotation = GLM_Serializer::DeserializeQuaternion(json["Rotation"]);
-        m_LocalScale = GLM_Serializer::DeserializeVec3(json["Scale"]);
+        m_LocalPosition = Serializer::DeserializeVec3(json["Position"]);
+        m_LocalRotation = Serializer::DeserializeQuaternion(json["Rotation"]);
+        m_LocalScale = Serializer::DeserializeVec3(json["Scale"]);
 
         // write IDs only because not all objects on the scene are fully deserialized,
         // meaning we can't acquire actual handles yet
