@@ -44,7 +44,7 @@ namespace Rigel
     ErrorCode Model::Init()
     {
         Assimp::Importer importer;
-        const auto scene = importer.ReadFile(m_Path.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
+        const auto scene = importer.ReadFile(m_Path.string(), aiProcess_Triangulate);
 
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {

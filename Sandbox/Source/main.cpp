@@ -33,14 +33,7 @@ int32_t main(int32_t argc, char** argv)
     auto model = scene->Instantiate("Model");
     model->GetTransform()->SetLocalPosition({0, -1.0, 0});
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
-    // model->AddComponent<TestComponent>();
-
-    const auto json = scene->Serialize();
-
-    // Rigel::Debug::Message(json.dump(4));
-
-    auto nScene = sceneManager.CreateScene();
-    nScene->Deserialize(json);
+    model->AddComponent<TestComponent>();
 
     sceneManager.LoadScene(scene);
 
