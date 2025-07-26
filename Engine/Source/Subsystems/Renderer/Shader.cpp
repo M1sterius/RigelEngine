@@ -16,7 +16,7 @@ namespace Rigel
         auto& assetManager = Engine::Get().GetAssetManager();
         const auto metadata = assetManager.GetMetadata<ShaderMetadata>(this->GetPath());
 
-        if (metadata.IsNull())
+        if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
         const auto vertBytes = File::ReadBinary(metadata->VertPath);

@@ -43,7 +43,10 @@ namespace Rigel
             return this->m_Ptr != other.m_Ptr;
         }
 
-        [[nodiscard]] inline bool IsNull() const { return !m_Ptr; }
+        [[nodiscard]] inline explicit operator bool() const
+        {
+            return m_Ptr != nullptr;
+        }
     private:
         T* m_Ptr = nullptr;
     };

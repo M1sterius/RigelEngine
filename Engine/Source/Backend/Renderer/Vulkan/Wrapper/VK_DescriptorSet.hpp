@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Core.hpp"
 
 #include "vulkan.h"
@@ -57,3 +59,5 @@ namespace Rigel::Backend::Vulkan
         VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
     };
 }
+
+#endif

@@ -55,8 +55,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
     Source/Components/Camera.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_UniformBuffer.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Subsystems/Renderer/Model.cpp

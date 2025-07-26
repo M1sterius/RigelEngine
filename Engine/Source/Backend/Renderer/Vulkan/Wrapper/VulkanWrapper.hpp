@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VK_MemoryBuffer.hpp"
-#include "VK_UniformBuffer.hpp"
 #include "VK_DescriptorSet.hpp"
 #include "VK_DescriptorPool.hpp"
 #include "VK_VertexBuffer.hpp"

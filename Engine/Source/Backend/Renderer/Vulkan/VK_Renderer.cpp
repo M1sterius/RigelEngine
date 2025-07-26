@@ -66,7 +66,7 @@ namespace Rigel::Backend::Vulkan
         const auto shaderAsset = GetAssetManager().Load<Shader>(BuiltInAssets::ShaderDefault);
         const auto defaultShader = shaderAsset->GetImpl();
 
-        if (defaultShader.IsNull())
+        if (!defaultShader)
             return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
 
         const std::vector layouts = { m_BindlessManager->GetDescriptorSetLayout() };

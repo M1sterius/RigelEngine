@@ -200,7 +200,7 @@ namespace Rigel::Backend::Vulkan
 
             for (uint32_t i = 0; i < m_Textures.size(); ++i)
             {
-                if (m_Textures.at(i).IsNull())
+                if (!m_Textures.at(i))
                 {
                     slotIndex = i;
                     break;
@@ -250,7 +250,7 @@ namespace Rigel::Backend::Vulkan
             return;
 
         static Ref<VK_Texture> defaultTexture = nullptr;
-        if (defaultTexture.IsNull())
+        if (!defaultTexture)
         {
             auto& manager = Engine::Get().GetAssetManager();
             const auto hTex = manager.Load<Texture>(BuiltInAssets::TextureError);
@@ -260,7 +260,7 @@ namespace Rigel::Backend::Vulkan
         {
             std::unique_lock lock(m_TextureMutex);
 
-            if (textureIndex >= m_Textures.size() || m_Textures.at(textureIndex).IsNull())
+            if (textureIndex >= m_Textures.size() || !m_Textures.at(textureIndex))
             {
                 Debug::Error("{} is not a valid bindless texture index!", textureIndex);
                 return;
@@ -286,7 +286,7 @@ namespace Rigel::Backend::Vulkan
         {
             std::unique_lock lock(m_TextureMutex);
 
-            if (textureIndex >= m_Textures.size() || m_Textures.at(textureIndex).IsNull())
+            if (textureIndex >= m_Textures.size() || !m_Textures.at(textureIndex))
             {
                 Debug::Error("{} is not a valid bindless texture index!", textureIndex);
                 return;
@@ -309,7 +309,7 @@ namespace Rigel::Backend::Vulkan
 
             for (uint32_t i = 0; i < m_Materials.size(); ++i)
             {
-                if (m_Materials.at(i).IsNull())
+                if (!m_Materials.at(i))
                 {
                     index = i;
                     break;
@@ -350,7 +350,7 @@ namespace Rigel::Backend::Vulkan
         {
             std::unique_lock lock(m_MaterialMutex);
 
-            if (materialIndex >= m_Materials.size() || m_Materials.at(materialIndex).IsNull())
+            if (materialIndex >= m_Materials.size() || !m_Materials.at(materialIndex))
             {
                 Debug::Error("{} is not a valid material index!", materialIndex);
                 return;

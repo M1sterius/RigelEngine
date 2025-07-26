@@ -1,7 +1,7 @@
+#if 0
 #include "VK_DescriptorSet.hpp"
 #include "VK_DescriptorPool.hpp"
 #include "VK_MemoryBuffer.hpp"
-#include "VK_UniformBuffer.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -78,3 +78,4 @@ namespace Rigel::Backend::Vulkan
         vkFreeDescriptorSets(m_Device.Get(), m_Pool.Get(), 1, &m_DescriptorSet);
     }
 }
+#endif
