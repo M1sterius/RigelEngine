@@ -68,7 +68,7 @@ namespace Rigel
 
         Debug::Trace("Created window of size {}x{}.", m_WindowSize.x, m_WindowSize.y);
 
-        SetScreenMode(settings.ScreenMode);
+        SetDisplayMode(settings.DisplayMode);
 
         int winPosX, winPosY;
         glfwGetWindowPos(m_GLFWWindow, &winPosX, &winPosY);
@@ -93,27 +93,42 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
-    void WindowManager::SetScreenMode(const ScreenMode mode)
+    void WindowManager::SetDisplayMode(const DisplayMode mode)
     {
-        if (mode == m_CurrentScreenMode) return;
-        m_CurrentScreenMode = mode;
+        if (mode == m_CurrentDisplayMode)
+            return;
+        m_CurrentDisplayMode = mode;
 
-        if (mode == ScreenMode::Fullscreen)
-        {
-            const auto& primaryMonitor = m_Monitors[m_PrimaryMonitorIndex];
-            const auto monitorRes = primaryMonitor.CurrentMod.Resolution;
-
-            glfwSetWindowMonitor(m_GLFWWindow, primaryMonitor.GLFWmonitorPtr,
-                 0, 0, monitorRes.x, monitorRes.y, primaryMonitor.CurrentMod.RefreshRate);
-
-            m_WindowSize = monitorRes;
-        }
-        else if (mode == ScreenMode::Windowed)
+        if (mode == DisplayMode::Windowed)
         {
             // Use arbitrary window size and position values because the correct ones always
             // get overridden when switching to fullscreen
             glfwSetWindowMonitor(m_GLFWWindow, nullptr, 100, 100, 1280, 720, 0);
+            glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
+
             m_WindowSize = {1280, 720};
+        }
+        else if (mode == DisplayMode::WindowedBorderless)
+        {
+            const auto& primaryMonitor = m_Monitors[m_PrimaryMonitorIndex];
+            const auto monitorRes = primaryMonitor.CurrentMod.Resolution;
+
+            glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
+            glfwSetWindowMonitor(m_GLFWWindow, nullptr, 0, 0,
+                static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), 0);
+
+            m_WindowSize = monitorRes;
+        }
+        else
+        {
+            const auto& primaryMonitor = m_Monitors[m_PrimaryMonitorIndex];
+            const auto monitorRes = primaryMonitor.CurrentMod.Resolution;
+
+            glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
+            glfwSetWindowMonitor(m_GLFWWindow, primaryMonitor.GLFWmonitorPtr,
+                 0, 0, static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), 0);
+
+            m_WindowSize = monitorRes;
         }
     }
 
@@ -188,10 +203,10 @@ namespace Rigel
 
     void WindowManager::WaitForFocus() const
     {
-        auto size = GetSize();
+        auto size = GetWindowSize();
         while (size.x == 0 || size.y == 0)
         {
-            size = GetSize();
+            size = GetWindowSize();
             glfwWaitEvents();
         }
     }

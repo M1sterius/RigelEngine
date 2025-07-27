@@ -4,9 +4,10 @@
 
 namespace Rigel
 {
-    enum class ScreenMode
+    enum class DisplayMode
     {
         Windowed,
-        Fullscreen,
+        WindowedBorderless,
+        Fullscreen
     };
 }

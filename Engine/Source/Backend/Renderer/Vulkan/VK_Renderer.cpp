@@ -41,10 +41,10 @@ namespace Rigel::Backend::Vulkan
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
-        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetSize());
+        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
 
-        CreateDepthBufferImage(GetWindowManager().GetSize());
+        CreateDepthBufferImage(GetWindowManager().GetWindowSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
@@ -91,7 +91,7 @@ namespace Rigel::Backend::Vulkan
         GetWindowManager().WaitForFocus();
         m_Device->WaitIdle();
 
-        const auto windowSize = GetWindowManager().GetSize();
+        const auto windowSize = GetWindowManager().GetWindowSize();
         const auto vsync = GetWindowManager().IsVsyncEnabled();
 
         CreateDepthBufferImage(windowSize);

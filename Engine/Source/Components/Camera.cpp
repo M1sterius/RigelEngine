@@ -10,7 +10,7 @@ namespace Rigel
     NODISCARD static glm::uvec2 GetViewportSize()
     {
         const auto& windowManager = Engine::Get().GetWindowManager();
-        return windowManager.GetSize();
+        return windowManager.GetWindowSize();
     }
 
     Camera::Camera()
@@ -62,7 +62,7 @@ namespace Rigel
 
     void Camera::OnWindowResize()
     {
-        m_ViewportSize = Engine::Get().GetWindowManager().GetSize();
+        m_ViewportSize = Engine::Get().GetWindowManager().GetWindowSize();
         CalcProjection();
     }
 

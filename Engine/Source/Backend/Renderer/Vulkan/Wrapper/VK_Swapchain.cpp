@@ -7,7 +7,7 @@
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {
     const auto& windowManager = Rigel::Engine::Get().GetWindowManager();
-    return windowManager.GetSize();
+    return windowManager.GetWindowSize();
 }
 
 NODISCARD static bool GetCurrentVsyncSetting()

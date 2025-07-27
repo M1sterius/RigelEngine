@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Math.hpp"
 #include "ISerializable.hpp"
-#include "ScreenMode.hpp"
+#include "DisplayMode.hpp"
 
 #include "json.hpp"
 
@@ -32,7 +32,7 @@ namespace Rigel
         float64_t TimeScale = 1.0;
 
         // Windowing
-        ScreenMode ScreenMode = ScreenMode::Windowed;
+        DisplayMode DisplayMode = DisplayMode::Windowed;
         glm::uvec2 WindowSize = {1280, 720};
         std::string WindowTitle = "None";
         bool WindowResizeable = true;
