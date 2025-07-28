@@ -9,9 +9,6 @@ namespace Rigel
 {
     ErrorCode Time::Startup(const ProjectSettings& settings)
     {
-        ASSERT(settings.TargetFPS, "Target framerate cannot be equal to 0!");
-        ASSERT(settings.PhysicsTickrate, "Physics tickrate cannot be equal to 0!");
-
         #ifdef RIGEL_PLATFORM_WINDOWS
             static const UINT periodMin = []
             {
@@ -23,8 +20,8 @@ namespace Rigel
             timeBeginPeriod(periodMin);
         #endif
 
-        m_TargetFPS = settings.TargetFPS;
-        m_TargetTickrate = settings.PhysicsTickrate;
+        m_TargetFPS = settings.TargetFPS == 0 ? 1000 : settings.TargetFPS;
+        m_TargetTickrate = settings.PhysicsTickrate == 0 ? 1000 : settings.PhysicsTickrate;
         m_TimeScale = settings.TimeScale;
 
         m_PhysicsTickTime = 1.0 / static_cast<float64_t>(m_TargetTickrate);

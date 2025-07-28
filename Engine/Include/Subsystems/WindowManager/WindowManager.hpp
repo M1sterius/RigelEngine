@@ -3,6 +3,7 @@
 #include "Core.hpp"
 #include "Math.hpp"
 #include "DisplayMode.hpp"
+#include "CursorState.hpp"
 #include "RigelSubsystem.hpp"
 
 #include <string>
@@ -38,6 +39,9 @@ namespace Rigel
 
         void SetDisplayMode(const DisplayMode mode);
         NODISCARD inline DisplayMode GetDisplayMode() const { return m_CurrentDisplayMode; }
+
+        void SetCursorState(const CursorState state);
+        NODISCARD inline CursorState GetCursorState() const { return m_CurrentCursorState; }
     INTERNAL:
         WindowManager() = default;
         ~WindowManager() override = default;
@@ -67,6 +71,7 @@ namespace Rigel
         uint32_t m_PrimaryMonitorIndex = -1;
         std::vector<MonitorInfo> m_Monitors;
         DisplayMode m_CurrentDisplayMode = DisplayMode::Windowed;
+        CursorState m_CurrentCursorState = CursorState::Normal;
 
         friend void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
         friend void window_move_callback(GLFWwindow* window, int xPos, int yPos);

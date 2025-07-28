@@ -23,6 +23,7 @@ int32_t main(int32_t argc, char** argv)
 
     auto& sceneManager = engine->GetSceneManager();
     auto& assetManager = engine->GetAssetManager();
+    auto& windowManager = engine->GetWindowManager();
 
     auto scene = sceneManager.CreateScene();
 

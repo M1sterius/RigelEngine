@@ -132,6 +132,20 @@ namespace Rigel
         }
     }
 
+    void WindowManager::SetCursorState(const CursorState state)
+    {
+        if (state == m_CurrentCursorState)
+            return;
+        m_CurrentCursorState = state;
+
+        if (state == CursorState::Normal)
+            glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else if (state == CursorState::Hidden)
+            glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        else
+            glfwSetInputMode(m_GLFWWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
     ErrorCode WindowManager::EnumerateMonitorInfo()
     {
         int monitorCount;
