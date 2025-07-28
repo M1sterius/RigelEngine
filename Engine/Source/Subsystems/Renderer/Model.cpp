@@ -3,6 +3,7 @@
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -151,8 +152,6 @@ namespace Rigel
 
         const auto materialName = m_Path / std::format("Material{}", m_Materials.size());
         const auto texturesDir = m_Path.parent_path(); // trim to the last '/'
-        auto& assetManager = Engine::Get().GetAssetManager();
-
         auto metadata = MaterialMetadata();
 
         if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
@@ -179,6 +178,6 @@ namespace Rigel
             metadata.NormalsPath = texturesDir / normalsTextureName.C_Str();
         }
 
-        m_Materials.push_back(assetManager.LoadAsync<Material>(materialName, &metadata));
+        m_Materials.push_back(GetAssetManager()->LoadAsync<Material>(materialName, &metadata));
     }
 }

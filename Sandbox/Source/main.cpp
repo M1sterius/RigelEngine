@@ -21,11 +21,11 @@ int32_t main(int32_t argc, char** argv)
         return 1;
     }
 
-    auto& sceneManager = engine->GetSceneManager();
-    auto& assetManager = engine->GetAssetManager();
-    auto& windowManager = engine->GetWindowManager();
+    auto sceneManager = engine->GetSceneManager();
+    auto assetManager = engine->GetAssetManager();
+    auto windowManager = engine->GetWindowManager();
 
-    auto scene = sceneManager.CreateScene();
+    auto scene = sceneManager->CreateScene();
 
     auto camera = scene->Instantiate("Camera");
     camera->AddComponent<Rigel::Camera>(glm::radians(60.0), 0.1, 100.0);
@@ -36,7 +36,7 @@ int32_t main(int32_t argc, char** argv)
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
     model->AddComponent<TestComponent>();
 
-    sceneManager.LoadScene(scene);
+    sceneManager->LoadScene(scene);
 
     engine->Run();
     engine->Shutdown();

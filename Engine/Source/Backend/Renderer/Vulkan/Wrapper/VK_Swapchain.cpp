@@ -3,17 +3,16 @@
 #include "VulkanUtility.hpp"
 #include "Time.hpp"
 #include "WindowManager.hpp"
+#include "SubsystemGetters.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {
-    const auto& windowManager = Rigel::Engine::Get().GetWindowManager();
-    return windowManager.GetWindowSize();
+    return Rigel::GetWindowManager()->GetWindowSize();
 }
 
 NODISCARD static bool GetCurrentVsyncSetting()
 {
-    const auto& windowManager = Rigel::Engine::Get().GetWindowManager();
-    return windowManager.IsVsyncEnabled();
+    return Rigel::GetWindowManager()->IsVsyncEnabled();
 }
 
 namespace Rigel::Backend::Vulkan

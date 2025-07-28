@@ -1,6 +1,7 @@
 #include "VK_Surface.hpp"
 #include "VulkanUtility.hpp"
 #include "WindowManager.hpp"
+#include "SubsystemGetters.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
@@ -13,7 +14,7 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Creating window surface.");
 
-        const auto glfwWindow = Engine::Get().GetWindowManager().GetGLFWWindowPtr();
+        const auto glfwWindow = GetWindowManager()->GetGLFWWindowPtr();
 
         VK_CHECK_RESULT(glfwCreateWindowSurface(instance, glfwWindow, nullptr, &m_Surface), "Failed to create window surface!");
     }

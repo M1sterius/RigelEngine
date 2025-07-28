@@ -1,6 +1,7 @@
 #include "PhysicsEngine.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
+#include "SubsystemGetters.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
 #include "Time.hpp"
@@ -30,7 +31,7 @@ namespace Rigel
 
         while (m_Accumulator >= m_TickTime)
         {
-            Engine::Get().GetEventManager().Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_TickTime));
+            GetEventManager()->Dispatch<PhysicsTickEvent>(PhysicsTickEvent(m_TickTime));
             m_Accumulator -= m_TickTime;
         }
     }

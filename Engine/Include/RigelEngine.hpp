@@ -26,6 +26,7 @@
 #include "AssetManager.hpp"
 #include "WindowManager.hpp"
 #include "PhysicsEngine.hpp"
+#include "SubsystemGetters.hpp"
 
 // Subsystem-related classes
 #include "Event.hpp"

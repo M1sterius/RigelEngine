@@ -1,5 +1,6 @@
 #include "Time.hpp"
 #include "Engine.hpp"
+#include "SubsystemGetters.hpp"
 
 #ifdef RIGEL_PLATFORM_WINDOWS
     #include "Windows.h"
@@ -48,8 +49,8 @@ namespace Rigel
 
     float64_t Time::GetDeltaTime()
     {
-        const auto& time = Engine::Get().GetTime();
-        return CorrectDeltaTime(time.m_DeltaTime * time.m_TimeScale);
+
+        return CorrectDeltaTime(GetTime()->m_DeltaTime * GetTime()->m_TimeScale);
     }
 
     float32_t Time::GetDeltaTimeF()
@@ -59,8 +60,8 @@ namespace Rigel
 
     float64_t Time::GetDeltaTimeUnscaled()
     {
-        const auto& time = Engine::Get().GetTime();
-        return CorrectDeltaTime(time.m_DeltaTime);
+
+        return CorrectDeltaTime(GetTime()->m_DeltaTime);
     }
 
     float32_t Time::GetDeltaTimeUnscaledF()
@@ -70,8 +71,8 @@ namespace Rigel
 
     float64_t Time::GetGlobalTime()
     {
-        const auto& time = Engine::Get().GetTime();
-        return time.m_GlobalTimeStopwatch.GetElapsed().AsSeconds();
+
+        return GetTime()->m_GlobalTimeStopwatch.GetElapsed().AsSeconds();
     }
 
     float32_t Time::GetGlobalTimeF()
@@ -81,34 +82,32 @@ namespace Rigel
 
     uint64_t Time::GetFrameCount()
     {
-        const auto& time = Engine::Get().GetTime();
-        return time.m_FrameCounter;
+
+        return GetTime()->m_FrameCounter;
     }
 
     uint64_t Time::GetTargetFPS()
     {
-        const auto& time = Engine::Get().GetTime();
-        return time.m_TargetFPS;
+
+        return GetTime()->m_TargetFPS;
     }
 
     void Time::SetTimeScale(const float64_t timeScale)
     {
-        auto& time = Engine::Get().GetTime();
-        time.m_TimeScale = timeScale;
+        GetTime()->m_TimeScale = timeScale;
     }
 
     float64_t Time::GetTimeScale()
     {
-        const auto& time = Engine::Get().GetTime();
-        return time.m_TimeScale;
+
+        return GetTime()->m_TimeScale;
     }
 
     void Time::SetTargetFPS(const uint64_t fps)
     {
         ASSERT(fps, "Target framerate cannot be equal to 0!");
 
-        auto& time = Engine::Get().GetTime();
-        time.m_TargetFPS = fps;
+        GetTime()->m_TargetFPS = fps;
     }
 
     float64_t Time::CorrectDeltaTime(const float64_t deltaTime)

@@ -1,5 +1,5 @@
 #include "Shader.hpp"
-#include "Renderer.hpp"
+#include "SubsystemGetters.hpp"
 #include "VK_Shader.hpp"
 #include "Engine.hpp"
 #include "AssetManager.hpp"
@@ -13,8 +13,7 @@ namespace Rigel
 
     ErrorCode Shader::Init()
     {
-        auto& assetManager = Engine::Get().GetAssetManager();
-        const auto metadata = assetManager.GetMetadata<ShaderMetadata>(this->GetPath());
+        const auto metadata = GetAssetManager()->GetMetadata<ShaderMetadata>(this->GetPath());
 
         if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;

@@ -4,7 +4,6 @@
 #include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
 #include "VulkanWrapper.hpp"
-#include "VK_Config.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Time.hpp"
@@ -12,22 +11,11 @@
 #include "BuiltInAssets.hpp"
 #include "Engine.hpp"
 #include "WindowManager.hpp"
-#include "GameObject.hpp"
 #include "Model.hpp"
 #include "Renderer.hpp"
-#include "Transform.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "vulkan.h"
-
-NODISCARD static Rigel::WindowManager& GetWindowManager()
-{
-    return Rigel::Engine::Get().GetWindowManager();
-}
-
-NODISCARD static Rigel::AssetManager& GetAssetManager()
-{
-     return Rigel::Engine::Get().GetAssetManager();
-}
 
 namespace Rigel::Backend::Vulkan
 {
@@ -41,10 +29,10 @@ namespace Rigel::Backend::Vulkan
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
-        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager().GetWindowSize());
+        m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager()->GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
 
-        CreateDepthBufferImage(GetWindowManager().GetWindowSize());
+        CreateDepthBufferImage(GetWindowManager()->GetWindowSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
@@ -63,7 +51,7 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
-        const auto shaderAsset = GetAssetManager().Load<Shader>(BuiltInAssets::ShaderDefault);
+        const auto shaderAsset = GetAssetManager()->Load<Shader>(BuiltInAssets::ShaderDefault);
         const auto defaultShader = shaderAsset->GetImpl();
 
         if (!defaultShader)
@@ -88,11 +76,11 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RecreateSwapchain()
     {
-        GetWindowManager().WaitForFocus();
+        GetWindowManager()->WaitForFocus();
         m_Device->WaitIdle();
 
-        const auto windowSize = GetWindowManager().GetWindowSize();
-        const auto vsync = GetWindowManager().IsVsyncEnabled();
+        const auto windowSize = GetWindowManager()->GetWindowSize();
+        const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
         CreateDepthBufferImage(windowSize);
         m_Swapchain->SetupSwapchain(windowSize, vsync);
@@ -111,7 +99,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RenderScene(VkCommandBuffer cmdBuffer)
     {
-        const auto& renderInfo = Engine::Get().GetRenderer().GetSceneRenderInfo();
+        const auto& renderInfo = GetRenderer()->GetSceneRenderInfo();
 
         if (!renderInfo.CameraPresent)
             return;
@@ -233,9 +221,9 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::Render()
     {
-        if (GetWindowManager().GetWindowResizeFlag())
+        if (GetWindowManager()->GetWindowResizeFlag())
         {
-            GetWindowManager().ResetWindowResizeFlag();
+            GetWindowManager()->ResetWindowResizeFlag();
             RecreateSwapchain();
             return;
         }

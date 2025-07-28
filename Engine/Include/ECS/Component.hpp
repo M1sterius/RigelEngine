@@ -6,9 +6,10 @@
 #include "ISerializable.hpp"
 #include "GOHandle.hpp"
 #include "SceneHandle.hpp"
+#include "TypeRegistry.hpp"
 #include "Engine.hpp"
 #include "EventManager.hpp"
-#include "TypeRegistry.hpp"
+#include "SubsystemGetters.hpp"
 
 #include <type_traits>
 #include <typeindex>
@@ -76,8 +77,7 @@ namespace Rigel
                 return;
             }
 
-            auto& eventManager = Engine::Get().GetEventManager();
-            const auto callbackID = eventManager.Subscribe(typeIndex, static_cast<T*>(this), callback);
+            const auto callbackID = GetEventManager()->Subscribe(typeIndex, static_cast<T*>(this), callback);
 
             m_EventsRegistry[typeIndex] = callbackID;
         }

@@ -22,10 +22,11 @@ namespace Rigel
      * Use it only for that and nothing else!!!
      */
     #define DEFINE_SUBSYSTEM_GETTER(Subsystem) \
-        Subsystem& Engine::Get##Subsystem() const \
+        Ref<Subsystem> Engine::Get##Subsystem() const \
         { \
-            ASSERT(m_##Subsystem, "Attempted to retrieve a Rigel::"#Subsystem" instance before it has been initialized"); \
-            return *m_##Subsystem; \
+            if (!m_##Subsystem) \
+                Debug::Crash(ErrorCode::NULL_REFERENCE, "Subsystem instance was a nullptr", __FILE__, __LINE__);\
+            return m_##Subsystem.get(); \
         }
 
     template<typename T>
@@ -64,7 +65,14 @@ namespace Rigel
         s_Instance = nullptr; // Reset the global instance so that a new one can be properly created
     }
 
-    DEFINE_SUBSYSTEM_GETTER(Time);
+    Ref<Engine> Engine::Get()
+    {
+        if (!s_Instance)
+            Debug::Crash(ErrorCode::NULL_REFERENCE, "Engine static instance was a nullptr", __FILE__, __LINE__);
+        return s_Instance;
+    }
+
+    DEFINE_SUBSYSTEM_GETTER(Time)
     DEFINE_SUBSYSTEM_GETTER(EventManager)
     DEFINE_SUBSYSTEM_GETTER(AssetManager)
     DEFINE_SUBSYSTEM_GETTER(SceneManager)

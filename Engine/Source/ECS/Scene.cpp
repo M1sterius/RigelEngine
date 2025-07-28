@@ -6,6 +6,7 @@
 #include "HandleValidator.hpp"
 #include "Transform.hpp"
 #include "GOHandle.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "json.hpp"
 
@@ -74,7 +75,7 @@ namespace Rigel
     {
         m_Loaded = true;
 
-        m_EndOfFrameCallbackID = Engine::Get().GetEventManager().Subscribe<Backend::EndOfFrameEvent>(
+        m_EndOfFrameCallbackID = GetEventManager()->Subscribe<Backend::EndOfFrameEvent>(
             [this](const Backend::EndOfFrameEvent&){
             OnEndOfFrame();
         });
@@ -92,7 +93,7 @@ namespace Rigel
         for (const auto& go : m_GameObjects)
             DestroyGOImpl(go->GetID());
 
-        Engine::Get().GetEventManager().Unsubscribe<Backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
+        GetEventManager()->Unsubscribe<Backend::EndOfFrameEvent>(m_EndOfFrameCallbackID);
 
         m_Loaded = false;
     }

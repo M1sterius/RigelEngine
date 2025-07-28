@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "Engine.hpp"
 #include "AssetManager.hpp"
+#include "SubsystemGetters.hpp"
 
 namespace Rigel
 {
@@ -25,15 +26,13 @@ namespace Rigel
     {
         if (m_Model.IsNull() && m_ModelPath.has_value())
         {
-            auto& assetManager = Engine::Get().GetAssetManager();
-            m_Model = assetManager.LoadAsync<Model>(m_ModelPath.value());
+            m_Model = GetAssetManager()->LoadAsync<Model>(m_ModelPath.value());
         }
     }
 
     nlohmann::json ModelRenderer::Serialize() const
     {
         auto json = Component::Serialize();
-        const auto& assetManager = Engine::Get().GetAssetManager();
 
         if (m_ModelPath.has_value())
             json["ModelPath"] = m_ModelPath;

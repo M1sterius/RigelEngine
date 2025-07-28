@@ -14,10 +14,10 @@ namespace Rigel
     }
 
     class Time;
+    class AssetManager;
     class SceneManager;
     class Renderer;
     class EventManager;
-    class AssetManager;
     class WindowManager;
     class InputManager;
     class PhysicsEngine;
@@ -46,22 +46,18 @@ namespace Rigel
 
         void Shutdown();
 
-        NODISCARD inline static Engine& Get()
-        {
-            ASSERT(s_Instance, "Attempted to retrieve Rigel engine instance before it has been instantiated!");
-            return *s_Instance;
-        }
+        NODISCARD static Ref<Engine> Get();
+
+        NODISCARD Ref<Time> GetTime() const;
+        NODISCARD Ref<AssetManager> GetAssetManager() const;
+        NODISCARD Ref<SceneManager> GetSceneManager() const;
+        NODISCARD Ref<Renderer> GetRenderer() const;
+        NODISCARD Ref<EventManager> GetEventManager() const;
+        NODISCARD Ref<WindowManager> GetWindowManager() const;
+        NODISCARD Ref<InputManager> GetInputManager() const;
+        NODISCARD Ref<PhysicsEngine> GetPhysicsEngine() const;
 
         NODISCARD bool Running() const { return m_Running; }
-
-        NODISCARD Time& GetTime() const;
-        NODISCARD AssetManager& GetAssetManager() const;
-        NODISCARD SceneManager& GetSceneManager() const;
-        NODISCARD Renderer& GetRenderer() const;
-        NODISCARD EventManager& GetEventManager() const;
-        NODISCARD WindowManager& GetWindowManager() const;
-        NODISCARD InputManager& GetInputManager() const;
-        NODISCARD PhysicsEngine& GetPhysicsEngine() const;
 
         void Run();
     private:

@@ -68,6 +68,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
     Source/Subsystems/Renderer/Material.cpp
     Source/Subsystems/AssetManager/AssetDeleter.cpp
+        Source/Subsystems/SubsystemGetters.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

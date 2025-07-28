@@ -4,23 +4,18 @@
 #include "Engine.hpp"
 #include "WindowManager.hpp"
 #include "EventManager.hpp"
+#include "SubsystemGetters.hpp"
 
 namespace Rigel
 {
-    NODISCARD static glm::uvec2 GetViewportSize()
-    {
-        const auto& windowManager = Engine::Get().GetWindowManager();
-        return windowManager.GetWindowSize();
-    }
-
     Camera::Camera()
-        : m_ViewportSize(GetViewportSize()), m_FOV(3.141592 / 3), m_Near(0.1), m_Far(100.0)
+        : m_ViewportSize(GetWindowManager()->GetWindowSize()), m_FOV(3.141592 / 3), m_Near(0.1), m_Far(100.0)
     {
         CalcProjection();
     }
 
     Camera::Camera(const float32_t fov, const float32_t nearPlane, const float32_t farPlane)
-        : m_ViewportSize(GetViewportSize()), m_FOV(fov), m_Near(nearPlane), m_Far(farPlane)
+        : m_ViewportSize(GetWindowManager()->GetWindowSize()), m_FOV(fov), m_Near(nearPlane), m_Far(farPlane)
     {
         CalcProjection();
     }
@@ -62,7 +57,7 @@ namespace Rigel
 
     void Camera::OnWindowResize()
     {
-        m_ViewportSize = Engine::Get().GetWindowManager().GetWindowSize();
+        m_ViewportSize = GetWindowManager()->GetWindowSize();
         CalcProjection();
     }
 

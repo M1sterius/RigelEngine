@@ -7,6 +7,7 @@
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "WindowManager.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "vulkan.h"
 #include "imgui/imgui.h"
@@ -29,8 +30,7 @@ namespace Rigel::Backend::Vulkan
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.Fonts->AddFontDefault();
 
-        const auto& windowManager = Engine::Get().GetWindowManager();
-        ImGui_ImplGlfw_InitForVulkan(windowManager.GetGLFWWindowPtr(), true);
+        ImGui_ImplGlfw_InitForVulkan(GetWindowManager()->GetGLFWWindowPtr(), true);
 
         const std::vector<VkDescriptorPoolSize> poolSizes = {
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE },

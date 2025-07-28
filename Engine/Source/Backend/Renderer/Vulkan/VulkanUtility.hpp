@@ -7,6 +7,7 @@
 #include "Renderer.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Device.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "vulkan/vulkan.h"
 #include "vulkan/vk_enum_string_helper.h"
@@ -19,14 +20,13 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    NODISCARD inline VK_Renderer& GetRenderer()
+    NODISCARD inline VK_Renderer& GetVKRenderer()
     {
-        const auto& renderer = Engine::Get().GetRenderer();
-        return renderer.GetImpl();
+        return GetRenderer()->GetImpl();
     }
 
     NODISCARD inline VK_Device& GetDevice()
     {
-        return GetRenderer().GetDevice();
+        return GetVKRenderer().GetDevice();
     }
 }

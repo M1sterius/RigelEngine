@@ -2,6 +2,7 @@
 #include "EngineEvents.hpp"
 #include "EventManager.hpp"
 #include "WindowManager.hpp"
+#include "SubsystemGetters.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
 
@@ -12,68 +13,61 @@ namespace Rigel
 #pragma region GLFW_Callbacks
     void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        const auto& engine = Engine::Get();
-        auto& inputManager = engine.GetInputManager();
-        auto& eventManager = engine.GetEventManager();
+        auto inputManager = GetInputManager();
+        auto eventManager = GetEventManager();
 
         if (action == GLFW_PRESS)
         {
-            eventManager.Dispatch<KeyDownEvent>(KeyDownEvent(static_cast<KeyCode>(key)));
-            inputManager.m_KeyboardKeys.insert(static_cast<KeyCode>(key));
+            eventManager->Dispatch<KeyDownEvent>(KeyDownEvent(static_cast<KeyCode>(key)));
+            inputManager->m_KeyboardKeys.insert(static_cast<KeyCode>(key));
         }
         else if (action == GLFW_REPEAT)
         {
-            eventManager.Dispatch<KeyPressedEvent>(KeyPressedEvent(static_cast<KeyCode>(key)));
+            eventManager->Dispatch<KeyPressedEvent>(KeyPressedEvent(static_cast<KeyCode>(key)));
         }
         else if (action == GLFW_RELEASE)
         {
-            eventManager.Dispatch<KeyUpEvent>(KeyUpEvent(static_cast<KeyCode>(key)));
-            inputManager.m_KeyboardKeys.erase(static_cast<KeyCode>(key));
+            eventManager->Dispatch<KeyUpEvent>(KeyUpEvent(static_cast<KeyCode>(key)));
+            inputManager->m_KeyboardKeys.erase(static_cast<KeyCode>(key));
         }
     }
 
     void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
-        const auto& engine = Engine::Get();
-        auto& inputManager = engine.GetInputManager();
-        auto& eventManager = engine.GetEventManager();
+        auto inputManager = GetInputManager();
+        auto eventManager = GetEventManager();
 
         if (action == GLFW_PRESS)
         {
-            eventManager.Dispatch<MouseButtonDownEvent>(MouseButtonDownEvent(static_cast<MouseButton>(button)));
-            inputManager.m_MouseButtons.insert(static_cast<MouseButton>(button));
+            eventManager->Dispatch<MouseButtonDownEvent>(MouseButtonDownEvent(static_cast<MouseButton>(button)));
+            inputManager->m_MouseButtons.insert(static_cast<MouseButton>(button));
         }
         else if (action == GLFW_REPEAT)
         {
-            eventManager.Dispatch<MouseButtonPressedEvent>(MouseButtonPressedEvent(static_cast<MouseButton>(button)));
+            eventManager->Dispatch<MouseButtonPressedEvent>(MouseButtonPressedEvent(static_cast<MouseButton>(button)));
         }
         else if (action == GLFW_RELEASE)
         {
-            eventManager.Dispatch<MouseButtonUpEvent>(MouseButtonUpEvent(static_cast<MouseButton>(button)));
-            inputManager.m_MouseButtons.erase(static_cast<MouseButton>(button));
+            eventManager->Dispatch<MouseButtonUpEvent>(MouseButtonUpEvent(static_cast<MouseButton>(button)));
+            inputManager->m_MouseButtons.erase(static_cast<MouseButton>(button));
         }
     }
 
     void mouse_move_callback(GLFWwindow* window, double xPos, double yPos)
     {
-        const auto& engine = Engine::Get();
-        auto& inputManager = engine.GetInputManager();
-        auto& eventManager = engine.GetEventManager();
+        auto inputManager = GetInputManager();
+        auto eventManager = GetEventManager();
 
         const auto pos = glm::vec2(xPos, yPos);
-        const auto mouseDelta = pos - inputManager.m_MousePosition;
-        inputManager.m_MousePosition = pos;
+        const auto mouseDelta = pos - inputManager->m_MousePosition;
+        inputManager->m_MousePosition = pos;
 
-        eventManager.Dispatch<MouseMoveEvent>(MouseMoveEvent(inputManager.m_MousePosition, mouseDelta));
+        eventManager->Dispatch<MouseMoveEvent>(MouseMoveEvent(inputManager->m_MousePosition, mouseDelta));
     }
 
     void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
     {
-        const auto& engine = Engine::Get();
-        auto& inputManager = engine.GetInputManager();
-        auto& eventManager = engine.GetEventManager();
-
-        eventManager.Dispatch<MouseScrollEvent>(MouseScrollEvent(glm::vec2(xOffset, yOffset)));
+        GetEventManager()->Dispatch<MouseScrollEvent>(MouseScrollEvent(glm::vec2(xOffset, yOffset)));
     }
 #pragma endregion
 
@@ -81,9 +75,7 @@ namespace Rigel
     {
         Debug::Trace("Starting up input manager.");
 
-        const auto& engine = Engine::Get();
-
-        m_GLFWWindow = engine.GetWindowManager().GetGLFWWindowPtr();
+        m_GLFWWindow = GetWindowManager()->GetGLFWWindowPtr();
         if (!m_GLFWWindow)
         {
             Debug::Error("InputManager::Failed to retrieve GLFWWindow instance!");

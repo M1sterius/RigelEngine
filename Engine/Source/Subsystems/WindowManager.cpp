@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include "EventManager.hpp"
 #include "EngineEvents.hpp"
-#include "Debug.hpp"
+#include "SubsystemGetters.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
@@ -14,19 +14,18 @@ namespace Rigel
 #pragma region GLFW_Callbacks
     void framebuffer_resize_callback(GLFWwindow* window, int width, int height)
     {
-        auto& windowManager = Engine::Get().GetWindowManager();
+        auto windowManager = GetWindowManager();
 
         const auto newSize = glm::uvec2(width, height);
-        windowManager.m_WindowResizeFlag = true;
-        windowManager.m_WindowSize = newSize;
+        windowManager->m_WindowResizeFlag = true;
+        windowManager->m_WindowSize = newSize;
 
-        Engine::Get().GetEventManager().Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
+        GetEventManager()->Dispatch<WindowResizeEvent>(WindowResizeEvent(newSize));
     }
 
     void window_move_callback(GLFWwindow* window, int xPos, int yPos)
     {
-        auto& windowManager = Engine::Get().GetWindowManager();
-        windowManager.m_WindowPosition = glm::vec2(xPos, yPos);
+        GetWindowManager()->m_WindowPosition = glm::vec2(xPos, yPos);
     }
 #pragma endregion
 

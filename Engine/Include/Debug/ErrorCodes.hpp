@@ -9,10 +9,11 @@ namespace Rigel
         OK = 0,
         UNKNOWN = 1,
 
-        NULL_HANDLE_DEREFERENCE = 2,
-        INVALID_HANDLE_DEREFERENCE = 3,
-        LIMIT_EXCEEDED = 4,
-        DYNAMIC_CAST_ERROR = 5,
+        NULL_REFERENCE = 2,
+        NULL_HANDLE_DEREFERENCE = 3,
+        INVALID_HANDLE_DEREFERENCE = 4,
+        LIMIT_EXCEEDED = 5,
+        DYNAMIC_CAST_ERROR = 6,
 
         // Subsystems
         SUBSYSTEM_STARTUP_FAILURE = 11,

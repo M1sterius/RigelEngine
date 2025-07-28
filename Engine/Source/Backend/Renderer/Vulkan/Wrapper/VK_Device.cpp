@@ -2,6 +2,7 @@
 #include "VulkanUtility.hpp"
 #include "AssetManager.hpp"
 #include "VK_MemoryBuffer.hpp"
+#include "SubsystemGetters.hpp"
 
 #include <format>
 #include <set>
@@ -186,7 +187,7 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
         m_CommandPools[std::this_thread::get_id()] = commandPool;
 
-        for (const auto& id : Engine::Get().GetAssetManager().GetLoadingThreadIDs())
+        for (const auto& id : GetAssetManager()->GetLoadingThreadIDs())
         {
 
             VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
@@ -199,7 +200,7 @@ namespace Rigel::Backend::Vulkan
         m_StagingBuffers[std::this_thread::get_id()] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                    VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        for (const auto& id : Engine::Get().GetAssetManager().GetLoadingThreadIDs())
+        for (const auto& id : GetAssetManager()->GetLoadingThreadIDs())
         {
             m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                    VMA_MEMORY_USAGE_CPU_TO_GPU);

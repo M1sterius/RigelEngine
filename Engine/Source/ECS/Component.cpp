@@ -1,5 +1,6 @@
 #include "Component.hpp"
 #include "Debug.hpp"
+#include "SubsystemGetters.hpp"
 
 #include "json.hpp"
 
@@ -44,7 +45,7 @@ namespace Rigel
         OnDestroy();
 
         for (const auto& [typeIndex, id] : m_EventsRegistry)
-            Engine::Get().GetEventManager().Unsubscribe(typeIndex, id);
+            GetEventManager()->Unsubscribe(typeIndex, id);
         m_EventsRegistry.clear();
 
         m_Loaded = false;
@@ -55,7 +56,7 @@ namespace Rigel
         OnEnable();
 
         for (const auto id : m_EventsRegistry | std::views::values)
-            Engine::Get().GetEventManager().SetSuspend(id, false);
+            GetEventManager()->SetSuspend(id, false);
     }
 
     void Component::CallOnDisable()
@@ -63,7 +64,7 @@ namespace Rigel
         OnDisable();
 
         for (const auto id : m_EventsRegistry | std::views::values)
-            Engine::Get().GetEventManager().SetSuspend(id, true);
+            GetEventManager()->SetSuspend(id, true);
     }
 
     nlohmann::json Component::Serialize() const

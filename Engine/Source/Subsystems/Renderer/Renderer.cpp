@@ -1,15 +1,13 @@
 #include "Renderer.hpp"
-
 #include "Camera.hpp"
 #include "ComponentHandle.hpp"
-
-#include "Debug.hpp"
 #include "Engine.hpp"
 #include "Scene.hpp"
 #include "SceneManager.hpp"
 #include "ModelRenderer.hpp"
-#include "Renderer/Vulkan/VK_Renderer.hpp"
-#include "Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.hpp"
+#include "SubsystemGetters.hpp"
+#include "Vulkan/VK_Renderer.hpp"
+#include "ImGui/VK_ImGUI_Renderer.hpp"
 
 namespace Rigel
 {
@@ -71,7 +69,7 @@ namespace Rigel
 
         m_CurrentRenderInfo.Reset();
 
-        auto scene = Engine::Get().GetSceneManager().GetLoadedScene();
+        auto scene = GetSceneManager()->GetLoadedScene();
         if (scene.IsNull())
             return;
 

@@ -9,6 +9,7 @@
 #include "Time.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "ShaderStructs.hpp"
+#include "SubsystemGetters.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -166,7 +167,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_BindlessManager::UpdateStorageBuffer()
     {
-        const auto frameIndex = Time::GetFrameCount() % GetRenderer().GetSwapchain().GetFramesInFlightCount();
+        const auto frameIndex = Time::GetFrameCount() % GetVKRenderer().GetSwapchain().GetFramesInFlightCount();
 
         if (m_DirtyBufferFlags[frameIndex])
         {
@@ -243,7 +244,7 @@ namespace Rigel::Backend::Vulkan
     {
         // if the engine is shutting down we no longer care about maintaining proper free list
         // also it fixes an infinite loop when removing the default texture during shutdown
-        if (!Engine::Get().Running())
+        if (!GetEngine()->Running())
             return;
 
         if (textureIndex == 0 || textureIndex == 1)
@@ -252,8 +253,7 @@ namespace Rigel::Backend::Vulkan
         static Ref<VK_Texture> defaultTexture = nullptr;
         if (!defaultTexture)
         {
-            auto& manager = Engine::Get().GetAssetManager();
-            const auto hTex = manager.Load<Texture>(BuiltInAssets::TextureError);
+            const auto hTex = GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError);
             defaultTexture = hTex->GetImpl();
         }
 
