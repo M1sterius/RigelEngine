@@ -102,6 +102,24 @@ namespace Rigel
         return m_LocalScale;
     }
 
+    glm::vec3 Transform::GetForwardVector()
+    {
+        UpdateOnDemand();
+        return m_ForwardVector;
+    }
+
+    glm::vec3 Transform::GetRightVector()
+    {
+        UpdateOnDemand();
+        return m_RightVector;
+    }
+
+    glm::vec3 Transform::GetUpVector()
+    {
+        UpdateOnDemand();
+        return m_UpVector;
+    }
+
     glm::mat4 Transform::GetLocalMatrix()
     {
         UpdateOnDemand();
@@ -138,13 +156,9 @@ namespace Rigel
 
         m_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(m_WorldMatrix)));
 
-        constexpr static glm::vec4 UP = {0.0, 1.0, 0.0, 0.0};
-        constexpr static glm::vec4 FORWARD = {0.0, 0.0, -1.0, 0.0};
-        constexpr static glm::vec4 RIGHT = {1.0, 0.0, 0.0, 0.0};
-
-        m_UpVector = glm::vec3(m_NormalMatrix * UP);
-        m_ForwardVector = glm::vec3(m_NormalMatrix * FORWARD);
-        m_RightVector = glm::vec3(m_NormalMatrix * RIGHT);
+        m_UpVector = glm::vec3(m_NormalMatrix * glm::vec4(WORLD_UP, 0.0f));
+        m_ForwardVector = glm::vec3(m_NormalMatrix * glm::vec4(WORLD_FORWARD, 0.0f));
+        m_RightVector = glm::vec3(m_NormalMatrix * glm::vec4(WORLD_RIGHT, 0.0f));
 
         // if parent component was updated, all it's children must be updated as well
         for (auto& child : m_Children)

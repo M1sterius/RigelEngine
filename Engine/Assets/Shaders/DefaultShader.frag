@@ -25,5 +25,6 @@ layout(std430, set = 0, binding = 1) readonly buffer SceneData_T
 void main()
 {
     MaterialData material = SceneData.Materials[v_MaterialIndex];
+
     outColor = texture(textures[nonuniformEXT(material.DiffuseIndex)], v_TexCoords);
 }

@@ -114,4 +114,44 @@ namespace Rigel
         m_MouseDelta = m_MousePosition - m_OldMousePosition;
         m_OldMousePosition = m_MousePosition;
     }
+
+    bool InputManager::GetKeyDown(const KeyCode key) const
+    {
+        return InKeys(key) && !InOldKeys(key);
+    }
+
+    bool InputManager::GetKeyPressed(const KeyCode key) const
+    {
+        return InKeys(key);
+    }
+
+    bool InputManager::GetKeyUp(const KeyCode key) const
+    {
+        return !InKeys(key) && InOldKeys(key);
+    }
+
+    bool InputManager::GetMouseButtonDown(const MouseButton button) const
+    {
+        return InMouseButtons(button) && !InOldMouseButtons(button);
+    }
+
+    bool InputManager::GetMouseButtonPressed(const MouseButton button) const
+    {
+        return InMouseButtons(button);
+    }
+
+    bool InputManager::GetMouseButtonUp(const MouseButton button) const
+    {
+        return !InMouseButtons(button) && InOldMouseButtons(button);
+    }
+
+    glm::vec2 InputManager::GetMousePosition() const
+    {
+        return m_MousePosition;
+    }
+
+    glm::vec2 InputManager::GetMouseDelta() const
+    {
+        return m_MouseDelta;
+    }
 }

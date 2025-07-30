@@ -102,7 +102,7 @@ namespace Rigel
         {
             // Use arbitrary window size and position values because the correct ones always
             // get overridden when switching to fullscreen
-            glfwSetWindowMonitor(m_GLFWWindow, nullptr, 100, 100, 1280, 720, 0);
+            glfwSetWindowMonitor(m_GLFWWindow, nullptr, 100, 100, 1280, 720, GLFW_DONT_CARE);
             glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
 
             m_WindowSize = {1280, 720};
@@ -114,7 +114,7 @@ namespace Rigel
 
             glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(m_GLFWWindow, nullptr, 0, 0,
-                static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), 0);
+                static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), GLFW_DONT_CARE);
 
             m_WindowSize = monitorRes;
         }
@@ -125,7 +125,7 @@ namespace Rigel
 
             glfwSetWindowAttrib(m_GLFWWindow, GLFW_DECORATED, GLFW_TRUE);
             glfwSetWindowMonitor(m_GLFWWindow, primaryMonitor.GLFWmonitorPtr,
-                 0, 0, static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), 0);
+                 0, 0, static_cast<int>(monitorRes.x), static_cast<int>(monitorRes.y), GLFW_DONT_CARE);
 
             m_WindowSize = monitorRes;
         }

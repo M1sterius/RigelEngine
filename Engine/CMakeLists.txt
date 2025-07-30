@@ -21,7 +21,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Renderer/Renderer.cpp
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp
-        Source/Utils/Serialization/Serializer.cpp
+    Source/Utils/Serialization/Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
@@ -35,8 +35,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
-    Source/Subsystems/InputManager/Input.cpp
-    Source/Subsystems/InputManager/InputManager.cpp
+        Source/Subsystems/InputManager/InputManager.cpp
     Source/Utils/Filesystem/Directory.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
@@ -55,7 +54,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
     Source/Components/Camera.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Subsystems/Renderer/Model.cpp
@@ -68,7 +67,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
     Source/Subsystems/Renderer/Material.cpp
     Source/Subsystems/AssetManager/AssetDeleter.cpp
-        Source/Subsystems/SubsystemGetters.cpp
+    Source/Subsystems/SubsystemGetters.cpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})

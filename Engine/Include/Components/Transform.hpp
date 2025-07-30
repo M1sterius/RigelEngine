@@ -14,6 +14,10 @@ namespace Rigel
     public:
         RIGEL_REGISTER_COMPONENT(Rigel::Transform);
 
+        static constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
+        static constexpr auto WORLD_RIGHT = glm::vec3(1.0, 0.0, 0.0);
+        static constexpr auto WORLD_FORWARD = glm::vec3(0.0, 0.0, -1.0);
+
         NODISCARD glm::vec3 GetPosition();
         NODISCARD glm::quat GetRotation();
         NODISCARD glm::vec3 GetScale();
@@ -21,6 +25,10 @@ namespace Rigel
         NODISCARD glm::vec3 GetLocalPosition();
         NODISCARD glm::quat GetLocalRotation();
         NODISCARD glm::vec3 GetLocalScale();
+
+        NODISCARD glm::vec3 GetForwardVector();
+        NODISCARD glm::vec3 GetRightVector();
+        NODISCARD glm::vec3 GetUpVector();
 
         void SetLocalPosition(const glm::vec3& position);
         void SetLocalRotation(const glm::quat& rotation);

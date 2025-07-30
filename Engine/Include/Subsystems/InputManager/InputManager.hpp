@@ -16,6 +16,17 @@ namespace Rigel
 
     class InputManager final : public RigelSubsystem
     {
+    public:
+        NODISCARD bool GetKeyDown(const KeyCode key) const;
+        NODISCARD bool GetKeyPressed(const KeyCode key) const;
+        NODISCARD bool GetKeyUp(const KeyCode key) const;
+
+        NODISCARD bool GetMouseButtonDown(const MouseButton button) const;
+        NODISCARD bool GetMouseButtonPressed(const MouseButton button) const;
+        NODISCARD bool GetMouseButtonUp(const MouseButton button) const;
+
+        NODISCARD glm::vec2 GetMousePosition() const;
+        NODISCARD glm::vec2 GetMouseDelta() const;
     INTERNAL:
         InputManager() = default;
         ~InputManager() override = default;

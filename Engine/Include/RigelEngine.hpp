@@ -45,8 +45,7 @@
 // Debug
 #include "Debug.hpp"
 
-// Tools
-#include "Input.hpp"
+// Global tool classes
 #include "Time.hpp"
 
 // ECS
