@@ -92,6 +92,15 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
+    void WindowManager::SetVsyncState(const bool state)
+    {
+        if (m_VsyncEnabled == state)
+            return;
+
+        m_VsyncEnabled = state;
+        m_WindowResizeFlag = true; // because we need to recreate the swapchain for the change to take effect
+    }
+
     void WindowManager::SetDisplayMode(const DisplayMode mode)
     {
         if (mode == m_CurrentDisplayMode)

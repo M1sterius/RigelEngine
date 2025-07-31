@@ -54,7 +54,6 @@ namespace Rigel
 
         GLFWwindow* m_GLFWWindow = nullptr;
 
-        friend class Input;
         friend void key_action_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
         friend void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
         friend void mouse_move_callback(GLFWwindow* window, double xPos, double yPos);

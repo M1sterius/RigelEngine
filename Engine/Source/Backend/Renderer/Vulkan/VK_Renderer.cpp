@@ -190,8 +190,24 @@ namespace Rigel::Backend::Vulkan
         vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
 
         const auto viewportSize = glm::vec2(static_cast<float>(m_Swapchain->GetExtent().width), static_cast<float>(m_Swapchain->GetExtent().height));
-        VK_CmdBuffer::CmdSetViewport(vkCmdBuffer, {0.0, 0.0}, viewportSize, {0.0, 1.0});
-        VK_CmdBuffer::CmdSetScissor(vkCmdBuffer, {0.0, 0.0}, m_Swapchain->GetExtent());
+
+        const VkViewport viewport {
+            .x = 0,
+            .y = 0,
+            .width = viewportSize.x,
+            .height = viewportSize.y,
+            .minDepth = 0,
+            .maxDepth = 1
+        };
+
+        vkCmdSetViewport(vkCmdBuffer, 0, 1, &viewport);
+
+        const VkRect2D scissor {
+            .offset = {0, 0},
+            .extent = m_Swapchain->GetExtent()
+        };
+
+        vkCmdSetScissor(vkCmdBuffer, 0, 1, &scissor);
 
         RenderScene(vkCmdBuffer);
 

@@ -107,13 +107,16 @@ namespace Rigel::Backend::Vulkan
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        const auto [graphicsFamily, presentFamily] = m_Device.GetQueueFamilyIndices();
+        const auto [graphicsFamily, presentFamily, _] = m_Device.GetQueueFamilyIndices();
         const uint32_t queueFamilyIndices[] = {graphicsFamily.value(), presentFamily.value()};
 
         if (graphicsFamily != presentFamily)
         {
             // If graphics and present queues are not in the same family, we want
             // resources to be freely shared between them, so VK_SHARING_MODE_CONCURRENT is chosen in that case
+
+            // Note that we don't have to share images with the dedicated transfer queue
+            // because there is no reason fo it to touch the image
 
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
@@ -194,10 +197,17 @@ namespace Rigel::Backend::Vulkan
     VkPresentModeKHR VK_Swapchain::ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes,
                                              const bool vsyncEnabled)
     {
-        if (vsyncEnabled) return VK_PRESENT_MODE_FIFO_KHR;
+        if (vsyncEnabled)
+            return VK_PRESENT_MODE_FIFO_KHR;
 
         for (const auto& mode : availablePresentModes)
-            if (mode == VK_Config::PrioritySwapchainPresentMode) return mode;
+        {
+            if (mode == VK_Config::PrioritySwapchainPresentMode)
+                return mode;
+        }
+
+        Debug::Warning("Priority swapchain present mode {} is not supported.",
+            string_VkPresentModeKHR(VK_Config::PrioritySwapchainPresentMode));
 
         return VK_PRESENT_MODE_FIFO_KHR;
     }

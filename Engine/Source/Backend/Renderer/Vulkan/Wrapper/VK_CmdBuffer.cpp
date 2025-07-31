@@ -27,31 +27,6 @@ namespace Rigel::Backend::Vulkan
         fence->Wait();
     }
 
-    void VK_CmdBuffer::CmdSetScissor(VkCommandBuffer cmdBuffer, const glm::ivec2 offset, const VkExtent2D extent)
-    {
-        const VkRect2D scissor {
-            .offset = {offset.x, offset.y},
-            .extent = extent
-        };
-
-        vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
-    }
-
-    void VK_CmdBuffer::CmdSetViewport(VkCommandBuffer cmdBuffer, const glm::vec2 offset, const glm::vec2 size,
-        const glm::vec2 depthBounds)
-    {
-        const VkViewport viewport {
-            .x = offset.x,
-            .y = offset.y,
-            .width = size.x,
-            .height = size.y,
-            .minDepth = depthBounds.x,
-            .maxDepth = depthBounds.y
-        };
-
-        vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-    }
-
     VK_CmdBuffer::VK_CmdBuffer(VK_Device& device)
         : m_Device(device)
     {

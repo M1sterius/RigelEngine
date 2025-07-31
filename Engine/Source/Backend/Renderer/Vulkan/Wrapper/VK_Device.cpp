@@ -25,10 +25,6 @@ namespace Rigel::Backend::Vulkan
                 "Failed to find any GPUs with adequate support of required vulkan features!", __FILE__, __LINE__);
         }
 
-        // Debug::Message("Max UBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxUniformBufferRange);
-        // Debug::Message("Max SSBO size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxStorageBufferRange);
-        // Debug::Message("Max PC size: {}.", m_SelectedPhysicalDevice.Properties.limits.maxPushConstantsSize);
-
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
 
         Debug::Trace("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName);
@@ -58,15 +54,17 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Creating logical Vulkan device.");
 
-        const auto indices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
-
         auto queueCreateInfos = std::vector<VkDeviceQueueCreateInfo>();
 
         // Eliminates duplicates if a single queue supports multiple operations
-        std::set<uint32_t> uniqueQueueFamilies = {indices.GraphicsFamily.value(), indices.PresentFamily.value()};
+        std::set uniqueQueueFamilies = {
+            m_QueueFamilyIndices.GraphicsFamily.value(),
+            m_QueueFamilyIndices.PresentFamily.value(),
+            m_QueueFamilyIndices.TransferFamily.value()
+        };
 
-        float queuePriority = 1.0f; // Priorities only matter when creating multiple queues within a single family
-        for (uint32_t queueFamily : uniqueQueueFamilies)
+        float queuePriority = 1.0f; // Priorities only matter when creating multiple queues within the same family
+        for (const auto queueFamily : uniqueQueueFamilies)
         {
             auto queueCreateInfo = MakeInfo<VkDeviceQueueCreateInfo>();
             queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -141,8 +139,9 @@ namespace Rigel::Backend::Vulkan
 
         VK_CHECK_RESULT(vkCreateDevice(m_SelectedPhysicalDevice.PhysicalDevice, &createInfo, nullptr, &m_Device), "Failed to create logical device!");
 
-        vkGetDeviceQueue(m_Device, indices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
-        vkGetDeviceQueue(m_Device, indices.PresentFamily.value(), 0, &m_PresentQueue);
+        vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
+        vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_PresentQueue);
+        vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_TransferQueue);
     }
 
     void VK_Device::CreateVmaAllocator()
@@ -189,7 +188,6 @@ namespace Rigel::Backend::Vulkan
 
         for (const auto& id : GetAssetManager()->GetLoadingThreadIDs())
         {
-
             VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
             m_CommandPools[id] = commandPool;
         }
@@ -241,21 +239,6 @@ namespace Rigel::Backend::Vulkan
     {
         std::unique_lock lock(m_GraphicsQueueMutex);
         return vkQueuePresentKHR(m_PresentQueue, pPresentInfo);
-    }
-
-    uint32_t VK_Device::FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const
-    {
-        const auto memProperties = m_SelectedPhysicalDevice.MemoryProperties;
-
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-        {
-            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-                return i;
-        }
-
-        Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Failed to find suitable memory type supported by a Vulkan physical device!", __FILE__, __LINE__);
-        return -1;
     }
 
     void VK_Device::WaitIdle() const
@@ -406,6 +389,14 @@ namespace Rigel::Backend::Vulkan
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                 indices.GraphicsFamily = i;
 
+            // dedicated transfer queue
+            if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) &&
+                !(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+                !(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))
+            {
+                indices.TransferFamily = i;
+            }
+
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
@@ -417,6 +408,10 @@ namespace Rigel::Backend::Vulkan
 
             i++;
         }
+
+        // no dedicated transfer queue, so we have to use graphics queue instead
+        if (!indices.TransferFamily.has_value())
+            indices.TransferFamily = indices.GraphicsFamily;
 
         return indices;
     }

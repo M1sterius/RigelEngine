@@ -10,10 +10,10 @@ int32_t main(int32_t argc, char** argv)
     settings.argv = argv;
     settings.GameName = "Sandbox";
     settings.GameVersion = RIGEL_MAKE_VERSION(0, 0, 1);
-    settings.TargetFPS = 240;
+    settings.TargetFPS = 165;
     settings.WindowTitle = "Sandbox";
     settings.WindowSize = glm::vec2(1600, 900);
-    settings.AssetManagerThreadPoolSize = 16;
+    settings.AssetManagerThreadPoolSize = 8;
 
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)

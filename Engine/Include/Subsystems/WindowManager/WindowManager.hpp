@@ -36,6 +36,7 @@ namespace Rigel
         };
     public:
         NODISCARD inline glm::uvec2 GetWindowSize() const { return m_WindowSize; }
+        void SetVsyncState(const bool state);
 
         void SetDisplayMode(const DisplayMode mode);
         NODISCARD inline DisplayMode GetDisplayMode() const { return m_CurrentDisplayMode; }
@@ -54,6 +55,7 @@ namespace Rigel
 
         NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
         NODISCARD bool WindowShouldClose() const;
+
         NODISCARD bool IsVsyncEnabled() const { return m_VsyncEnabled; }
 
         NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }

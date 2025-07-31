@@ -90,21 +90,9 @@ namespace Rigel::Backend::Vulkan
     void VK_Image::TransitionLayout(VK_Device& device, const VK_Image& image, VkFormat format, VkImageLayout oldLayout,
             VkImageLayout newLayout)
     {
-        const auto commandBuffer = VK_CmdBuffer(device);
-        commandBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-        CmdTransitionLayout(commandBuffer.Get(), image.Get(), format, image.GetAspectFlags(), oldLayout, newLayout);
-
-        commandBuffer.EndRecording();
-        auto submitInfo = MakeInfo<VkSubmitInfo>();
-        submitInfo.commandBufferCount = 1;
-        const auto buff = commandBuffer.Get();
-        submitInfo.pCommandBuffers = &buff;
-
-        // This avoids stalling the entire queue (so don't use vkQueueWaitIdle)
-        const auto fence = std::make_unique<VK_Fence>(device);
-        device.SubmitGraphicsQueue(1, &submitInfo, fence->Get());
-        fence->Wait();
+        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device);
+        CmdTransitionLayout(commandBuffer->Get(), image.Get(), format, image.GetAspectFlags(), oldLayout, newLayout);
+        VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
     }
 
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,

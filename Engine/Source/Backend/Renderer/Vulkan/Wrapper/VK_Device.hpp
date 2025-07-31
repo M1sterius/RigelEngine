@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+
 #include "vulkan.h"
 #include "vk_mem_alloc.h"
 
@@ -31,6 +32,7 @@ namespace Rigel::Backend::Vulkan
 
         std::optional<uint32_t> GraphicsFamily;
         std::optional<uint32_t> PresentFamily;
+        std::optional<uint32_t> TransferFamily;
 
         NODISCARD inline bool IsComplete() const
         {
@@ -48,6 +50,12 @@ namespace Rigel::Backend::Vulkan
         {
             return !Formats.empty() && !PresentModes.empty();
         }
+    };
+
+    enum class QueueType
+    {
+        Graphics,
+        Transfer
     };
 
     class VK_Device
@@ -75,8 +83,7 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
-
-        NODISCARD uint32_t FindMemoryType(const uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+        NODISCARD inline VkQueue GetTransferQueue() const { return m_TransferQueue; }
 
         void WaitIdle() const;
     private:
@@ -91,6 +98,7 @@ namespace Rigel::Backend::Vulkan
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
+        VkQueue m_TransferQueue = VK_NULL_HANDLE;
 
         std::vector<const char*> m_EnabledExtensions;
         std::unordered_map<std::thread::id, VkCommandPool> m_CommandPools;
