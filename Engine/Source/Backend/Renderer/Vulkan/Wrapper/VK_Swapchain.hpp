@@ -9,6 +9,7 @@ namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
     class VK_Semaphore;
+    class VK_CmdBuffer;
 
     struct AcquireImageInfo
     {
@@ -37,7 +38,7 @@ namespace Rigel::Backend::Vulkan
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 
         NODISCARD AcquireImageInfo AcquireNextImage();
-        void Present(const uint32_t imageIndex, VkSemaphore waitSemaphore);
+        void Present(const uint32_t imageIndex, VkSemaphore renderDoneSemaphore);
     private:
         NODISCARD std::vector<VkImage> GetSwapchainImages() const;
 
@@ -53,7 +54,11 @@ namespace Rigel::Backend::Vulkan
         SwapchainSupportDetails m_SwapchainSupportDetails;
         std::vector<VkImage> m_Images {};
         std::vector<VkImageView> m_ImageViews {};
+
+        std::vector<std::unique_ptr<VK_CmdBuffer>> m_AcquireTransitionCommandBuffers;
+        std::vector<std::unique_ptr<VK_CmdBuffer>> m_PresentTransitionCommandBuffers;
         std::vector<std::unique_ptr<VK_Semaphore>> m_ImageAvailableSemaphores;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_TransitionCompleteSemaphores;
 
         NODISCARD static VkPresentModeKHR ChooseSwapchainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes, const bool vsyncEnabled);
         NODISCARD static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& capabilities, const glm::uvec2 extent);

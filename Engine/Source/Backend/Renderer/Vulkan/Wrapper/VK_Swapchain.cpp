@@ -4,6 +4,8 @@
 #include "Time.hpp"
 #include "WindowManager.hpp"
 #include "SubsystemGetters.hpp"
+#include "VK_CmdBuffer.hpp"
+#include "VK_Image.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {
@@ -25,7 +27,12 @@ namespace Rigel::Backend::Vulkan
         m_FramesInFlight = m_SwapchainSupportDetails.Capabilities.minImageCount + 1;
 
         for (uint32_t i = 0; i < m_FramesInFlight; i++)
+        {
             m_ImageAvailableSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
+            m_TransitionCompleteSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
+            m_AcquireTransitionCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device));
+            m_PresentTransitionCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device));
+        }
 
         SetupSwapchain(m_Extent, GetCurrentVsyncSetting());
     }
@@ -57,17 +64,65 @@ namespace Rigel::Backend::Vulkan
             }
         }
 
-        return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex], m_ImageAvailableSemaphores[frameIndex]->Get()};
+        const auto& cmdBuff = m_AcquireTransitionCommandBuffers[frameIndex];
+
+        cmdBuff->Reset(0);
+        cmdBuff->BeginRecording(0);
+        VK_Image::CmdTransitionLayout(cmdBuff->Get(), m_Images[imageIndex], m_SwapchainImageFormat,
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        cmdBuff->EndRecording();
+
+        constexpr VkPipelineStageFlags stageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        const VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[frameIndex]->Get() };
+        const VkSemaphore signalSemaphores[] = { m_TransitionCompleteSemaphores[frameIndex]->Get() };
+        const auto buff = cmdBuff->Get();
+
+        auto submitInfo = MakeInfo<VkSubmitInfo>();
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &buff;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+        submitInfo.pWaitDstStageMask = stageFlags;
+
+        m_Device.SubmitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
+
+        return {imageIndex, m_Images[imageIndex], m_ImageViews[imageIndex], m_TransitionCompleteSemaphores[frameIndex]->Get()};
     }
 
-    void VK_Swapchain::Present(const uint32_t imageIndex, VkSemaphore waitSemaphore)
+    void VK_Swapchain::Present(const uint32_t imageIndex, VkSemaphore renderDoneSemaphore)
     {
+        const auto frameIndex = Time::GetFrameCount() % GetFramesInFlightCount();
+        const auto& cmdBuff = m_PresentTransitionCommandBuffers[frameIndex];
+
+        cmdBuff->Reset(0);
+        cmdBuff->BeginRecording(0);
+        VK_Image::CmdTransitionLayout(cmdBuff->Get(), m_Images[imageIndex], m_SwapchainImageFormat,
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        cmdBuff->EndRecording();
+
+        constexpr VkPipelineStageFlags stageFlags[] = { VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT };
+        const VkSemaphore transitionDoneSemaphores[] = { m_TransitionCompleteSemaphores[frameIndex]->Get() };
+        const auto buff = cmdBuff->Get();
+
+        auto submitInfo = MakeInfo<VkSubmitInfo>();
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &buff;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &renderDoneSemaphore;
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = transitionDoneSemaphores;
+        submitInfo.pWaitDstStageMask = stageFlags;
+
+        m_Device.SubmitGraphicsQueue(1, &submitInfo, VK_NULL_HANDLE);
+
         auto presentInfo = MakeInfo<VkPresentInfoKHR>();
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &waitSemaphore;
+        presentInfo.pWaitSemaphores = transitionDoneSemaphores;
 
         if (const auto result = m_Device.SubmitPresentQueue(&presentInfo); result != VK_SUCCESS)
         {
