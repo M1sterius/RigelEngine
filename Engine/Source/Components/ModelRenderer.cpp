@@ -17,8 +17,6 @@ namespace Rigel
 
     AssetHandle<Model> ModelRenderer::GetModelAsset() const
     {
-        if (!m_Model.IsNull())
-            m_Model->WaitReady();
         return m_Model;
     }
 

@@ -5,9 +5,9 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    std::unique_ptr<VK_CmdBuffer> VK_CmdBuffer::BeginSingleTime(VK_Device& device)
+    std::unique_ptr<VK_CmdBuffer> VK_CmdBuffer::BeginSingleTime(VK_Device& device, const QueueType queueType)
     {
-        auto cmdBuffer = std::make_unique<VK_CmdBuffer>(device);
+        auto cmdBuffer = std::make_unique<VK_CmdBuffer>(device, queueType);
         cmdBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         return cmdBuffer;
     }
@@ -21,17 +21,17 @@ namespace Rigel::Backend::Vulkan
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &buff;
 
-        // This avoids stalling the entire queue (so don't use vkQueueWaitIdle)
+        // Using a fence helps to avoid stalling the entire queue (so don't use vkQueueWaitIdle)
         const auto fence = std::make_unique<VK_Fence>(device);
-        device.SubmitGraphicsQueue(1, &submitInfo, fence->Get());
+        device.SubmitToQueue(commandBuffer.m_QueueType, 1, &submitInfo, fence->Get());
         fence->Wait();
     }
 
-    VK_CmdBuffer::VK_CmdBuffer(VK_Device& device)
-        : m_Device(device)
+    VK_CmdBuffer::VK_CmdBuffer(VK_Device& device, const QueueType queueType)
+        : m_Device(device), m_QueueType(queueType)
     {
         auto allocInfo = MakeInfo<VkCommandBufferAllocateInfo>();
-        allocInfo.commandPool = m_Device.GetCommandPool();
+        allocInfo.commandPool = m_Device.GetCommandPool(queueType);
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
 
@@ -40,7 +40,7 @@ namespace Rigel::Backend::Vulkan
 
     VK_CmdBuffer::~VK_CmdBuffer()
     {
-        vkFreeCommandBuffers(m_Device.Get(), m_Device.GetCommandPool(), 1, &m_CmdBuffer);
+        vkFreeCommandBuffers(m_Device.Get(), m_Device.GetCommandPool(m_QueueType), 1, &m_CmdBuffer);
     }
 
     void VK_CmdBuffer::BeginRecording(VkCommandBufferUsageFlags flags) const

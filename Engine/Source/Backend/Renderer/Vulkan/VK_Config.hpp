@@ -46,7 +46,7 @@ namespace Rigel::Backend::Vulkan
             VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
         };
 
-        inline static VkPresentModeKHR PrioritySwapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+        inline static VkPresentModeKHR PrioritySwapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // VK_PRESENT_MODE_MAILBOX_KHR
         inline static VkFormat PrioritySwapchainSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB; // VK_FORMAT_B8G8R8A8_UNORM
         inline static VkColorSpaceKHR PrioritySwapchainSurfaceColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     };

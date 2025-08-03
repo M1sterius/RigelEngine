@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "QueueType.hpp"
 
 #include "vulkan.h"
 #include "vk_mem_alloc.h"
@@ -36,7 +37,7 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline bool IsComplete() const
         {
-            return GraphicsFamily.has_value() && PresentFamily.has_value();
+            return GraphicsFamily.has_value() && PresentFamily.has_value() && TransferFamily.has_value();
         }
     };
 
@@ -50,12 +51,6 @@ namespace Rigel::Backend::Vulkan
         {
             return !Formats.empty() && !PresentModes.empty();
         }
-    };
-
-    enum class QueueType
-    {
-        Graphics,
-        Transfer
     };
 
     class VK_Device
@@ -74,12 +69,12 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
         NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
-        NODISCARD VkCommandPool GetCommandPool() const;
+        NODISCARD VkCommandPool GetCommandPool(const QueueType queueType) const;
         NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
 
         // thread safe way to submit work to the graphics queue, always prefer it to raw vkQueueSubmit
-        void SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
-        NODISCARD VkResult SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo);
+        void SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
+        NODISCARD VkResult SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo) const;
 
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
@@ -87,6 +82,8 @@ namespace Rigel::Backend::Vulkan
 
         void WaitIdle() const;
     private:
+        using thread_id = std::thread::id;
+
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;
         VkDevice m_Device = VK_NULL_HANDLE;
@@ -95,14 +92,15 @@ namespace Rigel::Backend::Vulkan
         VmaAllocator m_VmaAllocator = VK_NULL_HANDLE;
 
         mutable std::mutex m_GraphicsQueueMutex;
+        mutable std::mutex m_TransferQueueMutex;
 
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_PresentQueue = VK_NULL_HANDLE;
         VkQueue m_TransferQueue = VK_NULL_HANDLE;
 
         std::vector<const char*> m_EnabledExtensions;
-        std::unordered_map<std::thread::id, VkCommandPool> m_CommandPools;
-        std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
+        std::unordered_map<thread_id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
+        std::unordered_map<thread_id, std::unordered_map<QueueType, VkCommandPool>> m_CommandPools;
 
         void CreateLogicalDevice();
         void CreateVmaAllocator();

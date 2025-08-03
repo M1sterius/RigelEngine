@@ -23,7 +23,7 @@ namespace Rigel::Backend::Vulkan
                         VkImageUsageFlags usage, VkImageAspectFlags aspectFlags);
         ~VK_Image();
 
-        void CopyFromBuffer(const VK_MemoryBuffer& buffer);
+        void CopyFromBuffer(const VK_MemoryBuffer& buffer) const;
 
         NODISCARD inline VkImage Get() const { return m_Image; }
         NODISCARD inline VkImageView GetView() const { return m_ImageView; }

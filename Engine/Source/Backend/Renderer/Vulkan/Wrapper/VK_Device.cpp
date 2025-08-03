@@ -44,8 +44,11 @@ namespace Rigel::Backend::Vulkan
 
         vmaDestroyAllocator(m_VmaAllocator);
 
-        for (const auto pool : m_CommandPools | std::views::values)
-            vkDestroyCommandPool(m_Device, pool, nullptr);
+        for (const auto& pools : m_CommandPools | std::views::values)
+        {
+            for (const auto pool : pools | std::views::values)
+                vkDestroyCommandPool(m_Device, pool, nullptr);
+        }
 
         vkDestroyDevice(m_Device, nullptr);
     }
@@ -141,7 +144,7 @@ namespace Rigel::Backend::Vulkan
 
         vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
         vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_PresentQueue);
-        vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_TransferQueue);
+        vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.TransferFamily.value(), 0, &m_TransferQueue);
     }
 
     void VK_Device::CreateVmaAllocator()
@@ -181,15 +184,29 @@ namespace Rigel::Backend::Vulkan
 
         auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
         poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+        // Graphics queue
         poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();
 
         VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-        m_CommandPools[std::this_thread::get_id()] = commandPool;
+        m_CommandPools[std::this_thread::get_id()][QueueType::Graphics] = commandPool;
 
-        for (const auto& id : GetAssetManager()->GetLoadingThreadIDs())
+        for (const auto& threadId : GetAssetManager()->GetLoadingThreadIDs())
         {
             VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-            m_CommandPools[id] = commandPool;
+            m_CommandPools[threadId][QueueType::Graphics] = commandPool;
+        }
+
+        // Transfer queue
+        poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.TransferFamily.value();
+
+        VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+        m_CommandPools[std::this_thread::get_id()][QueueType::Transfer] = commandPool;
+
+        for (const auto& threadId : GetAssetManager()->GetLoadingThreadIDs())
+        {
+            VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+            m_CommandPools[threadId][QueueType::Transfer] = commandPool;
         }
     }
 
@@ -205,7 +222,7 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    VkCommandPool VK_Device::GetCommandPool() const
+    VkCommandPool VK_Device::GetCommandPool(const QueueType queueType) const
     {
         const auto thisThreadID = std::this_thread::get_id();
         if (!m_CommandPools.contains(thisThreadID))
@@ -214,7 +231,7 @@ namespace Rigel::Backend::Vulkan
                 "Command pool can only be retrieved for one of the asset manager's loading threads", __FILE__, __LINE__);
         }
 
-        return m_CommandPools.at(thisThreadID);
+        return m_CommandPools.at(thisThreadID).at(queueType);
     }
 
     VK_MemoryBuffer& VK_Device::GetStagingBuffer() const
@@ -229,13 +246,21 @@ namespace Rigel::Backend::Vulkan
         return *m_StagingBuffers.at(thisThreadID);
     }
 
-    void VK_Device::SubmitGraphicsQueue(const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
+    void VK_Device::SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
     {
-        std::unique_lock lock(m_GraphicsQueueMutex);
-        VK_CHECK_RESULT(vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
+        if (queueType == QueueType::Graphics)
+        {
+            std::unique_lock lock(m_GraphicsQueueMutex);
+            VK_CHECK_RESULT(vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
+        }
+        else if (queueType == QueueType::Transfer)
+        {
+            std::unique_lock lock(m_TransferQueueMutex);
+            VK_CHECK_RESULT(vkQueueSubmit(GetTransferQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the transfer queue!");
+        }
     }
 
-    VkResult VK_Device::SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo)
+    VkResult VK_Device::SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo) const
     {
         std::unique_lock lock(m_GraphicsQueueMutex);
         return vkQueuePresentKHR(m_PresentQueue, pPresentInfo);
@@ -372,7 +397,7 @@ namespace Rigel::Backend::Vulkan
 
     QueueFamilyIndices VK_Device::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
-        // Searches for support of graphics and present queue families on a device,
+        // Searches for support of graphics, transfer and present queue families on a device,
         // corresponding std::optional in QueueFamilyIndices won't have a value if the queue isn't supported
 
         QueueFamilyIndices indices;
@@ -406,7 +431,7 @@ namespace Rigel::Backend::Vulkan
             if (indices.IsComplete())
                 break;
 
-            i++;
+            ++i;
         }
 
         // no dedicated transfer queue, so we have to use graphics queue instead

@@ -40,7 +40,7 @@ namespace Rigel::Backend::Vulkan
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-            m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device));
+            m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
         }
 
         return ErrorCode::OK;
@@ -97,7 +97,7 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
-    void VK_Renderer::RenderScene(VkCommandBuffer cmdBuffer)
+    void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
     {
         const auto& renderInfo = GetRenderer()->GetSceneRenderInfo();
 
@@ -115,8 +115,8 @@ namespace Rigel::Backend::Vulkan
             const VkBuffer pVertexBuffers[] = {vertexBuffer->GetMemoryBuffer().Get()};
             const VkDeviceSize pOffsets[] = {0};
 
-            vkCmdBindVertexBuffers(cmdBuffer, 0, 1, pVertexBuffers, pOffsets);
-            vkCmdBindIndexBuffer(cmdBuffer, indexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, pVertexBuffers, pOffsets);
+            vkCmdBindIndexBuffer(vkCmdBuffer, indexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
 
             int32_t vertexOffset = 0;
             for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
@@ -131,7 +131,7 @@ namespace Rigel::Backend::Vulkan
                     };
 
                     vkCmdPushConstants(
-                        cmdBuffer,
+                        vkCmdBuffer,
                         m_GraphicsPipeline->GetLayout(),
                         VK_SHADER_STAGE_VERTEX_BIT,
                         0,
@@ -140,7 +140,7 @@ namespace Rigel::Backend::Vulkan
                     );
 
                     vkCmdDrawIndexed(
-                        cmdBuffer,
+                        vkCmdBuffer,
                         mesh.IndexCount,
                         1,
                         mesh.FirstIndex,
@@ -154,10 +154,9 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    void VK_Renderer::RecordCommandBuffer(const VK_CmdBuffer& commandBuffer, const AcquireImageInfo& image)
+    void VK_Renderer::RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image)
     {
-        commandBuffer.BeginRecording(0);
-        const auto vkCmdBuffer = commandBuffer.Get();
+        const auto vkCmdBuffer = commandBuffer->Get();
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -226,13 +225,11 @@ namespace Rigel::Backend::Vulkan
         uiRenderingInfo.pColorAttachments = &uiColorAttachment;
 
         vkCmdBeginRendering(vkCmdBuffer, &uiRenderingInfo);
-        m_ImGuiBackend->RenderFrame(commandBuffer.Get());
+        m_ImGuiBackend->RenderFrame(commandBuffer->Get());
         vkCmdEndRendering(vkCmdBuffer);
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
             VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-        commandBuffer.EndRecording();
     }
 
     void VK_Renderer::Render()
@@ -250,12 +247,14 @@ namespace Rigel::Backend::Vulkan
         m_BindlessManager->UpdateStorageBuffer();
         const auto image = m_Swapchain->AcquireNextImage();
 
-        const auto& commandBuffer = *m_CommandBuffers[frameIndex];
-        commandBuffer.Reset(0);
+        const auto& commandBuffer = m_CommandBuffers[frameIndex];
+        commandBuffer->Reset(0);
 
+        commandBuffer->BeginRecording(0);
         RecordCommandBuffer(commandBuffer, image);
+        commandBuffer->EndRecording();
 
-        const VkCommandBuffer submitBuffers[] = { commandBuffer.Get() };
+        const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
         const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
         const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore[frameIndex]->Get() };
 
@@ -273,7 +272,7 @@ namespace Rigel::Backend::Vulkan
         const auto& fence = m_InFlightFences[frameIndex];
         fence->Reset();
 
-        m_Device->SubmitGraphicsQueue(1, &submitInfo, fence->Get());
+        m_Device->SubmitToQueue(QueueType::Graphics,1, &submitInfo, fence->Get());
 
         m_Swapchain->Present(image.imageIndex, signalSemaphores[0]);
     }

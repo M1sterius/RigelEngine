@@ -90,7 +90,7 @@ namespace Rigel::Backend::Vulkan
     void VK_Image::TransitionLayout(VK_Device& device, const VK_Image& image, VkFormat format, VkImageLayout oldLayout,
             VkImageLayout newLayout)
     {
-        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device);
+        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device, QueueType::Graphics);
         CmdTransitionLayout(commandBuffer->Get(), image.Get(), format, image.GetAspectFlags(), oldLayout, newLayout);
         VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
     }
@@ -139,9 +139,9 @@ namespace Rigel::Backend::Vulkan
         vmaDestroyImage(m_Device.GetVmaAllocator(), m_Image, m_Allocation);
     }
 
-    void VK_Image::CopyFromBuffer(const VK_MemoryBuffer& buffer)
+    void VK_Image::CopyFromBuffer(const VK_MemoryBuffer& buffer) const
     {
-        const auto cmdBuffer = VK_CmdBuffer::BeginSingleTime(m_Device);
+        const auto cmdBuffer = VK_CmdBuffer::BeginSingleTime(m_Device, QueueType::Transfer);
 
         VkBufferImageCopy region {};
         region.bufferOffset = 0;
