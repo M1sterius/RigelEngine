@@ -408,10 +408,10 @@ namespace Rigel::Backend::Vulkan
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-        int32_t i = 0;
+        uint32_t i = 0;
         for (const auto& queueFamily : queueFamilies)
         {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT && !indices.GraphicsFamily.has_value())
                 indices.GraphicsFamily = i;
 
             // dedicated transfer queue
@@ -425,7 +425,7 @@ namespace Rigel::Backend::Vulkan
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
-            if (presentSupport)
+            if (presentSupport && !indices.PresentFamily.has_value())
                 indices.PresentFamily = i;
 
             if (indices.IsComplete())
