@@ -58,9 +58,9 @@ namespace Rigel::Backend::Vulkan
     {
         constexpr uint32_t bindingCount = 2;
 
-        std::array<VkDescriptorSetLayoutBinding, bindingCount> bindings;
-        std::array<VkDescriptorBindingFlags, bindingCount> flags;
-        std::array<VkDescriptorType, bindingCount> types;
+        std::array<VkDescriptorSetLayoutBinding, bindingCount> bindings{};
+        std::array<VkDescriptorBindingFlags, bindingCount> flags{};
+        std::array<VkDescriptorType, bindingCount> types{};
 
         // Textures array
         bindings[TEXTURE_ARRAY_BINDING].binding = TEXTURE_ARRAY_BINDING;
@@ -82,14 +82,12 @@ namespace Rigel::Backend::Vulkan
         types[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         types[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
-        VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlags {};
-        bindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+        auto bindingFlags = MakeInfo<VkDescriptorSetLayoutBindingFlagsCreateInfo>();
         bindingFlags.pBindingFlags = flags.data();
         bindingFlags.bindingCount = bindingCount;
         bindingFlags.pNext = nullptr;
 
-        VkDescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        auto createInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
         createInfo.bindingCount = bindingCount;
         createInfo.pBindings = bindings.data();
         createInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
@@ -100,8 +98,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_BindlessManager::CreateDescriptorSet()
     {
-        VkDescriptorSetAllocateInfo allocateInfo{};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        auto allocateInfo = MakeInfo<VkDescriptorSetAllocateInfo>();
         allocateInfo.descriptorPool = m_DescriptorPool->Get();
         allocateInfo.pSetLayouts = &m_DescriptorSetLayout;
         allocateInfo.descriptorSetCount = 1;
@@ -135,6 +132,8 @@ namespace Rigel::Backend::Vulkan
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        // samplerInfo.minLod = 0.0f;
+        // samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
 
         VkSampler sampler = VK_NULL_HANDLE;
         VK_CHECK_RESULT(vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &sampler), "Failed to create texture sampler!");
@@ -195,7 +194,7 @@ namespace Rigel::Backend::Vulkan
     {
         uint32_t slotIndex = UINT32_MAX;
 
-        // checks if there is an empty slot not in the end of the vector
+        // checks if there is an empty slot not at the end of the vector
         {
             std::unique_lock lock(m_TextureMutex);
 

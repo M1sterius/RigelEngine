@@ -19,11 +19,18 @@ namespace Rigel::Backend::Vulkan
         m_Image = std::make_unique<VK_Image>(device, size, VK_FORMAT_R8G8B8A8_SRGB,
                   VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, mipLevelCount);
 
-        VK_Image::TransitionLayout(*m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        // Mip map generation
+        for (uint32_t i = 0; i < mipLevelCount - 1; ++i)
+        {
+            const auto sourceMip = i;
+            const auto targetMip = i + 1;
+        }
+
+        VK_Image::TransitionLayout(*m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0);
 
         m_Image->CopyFromBuffer(stagingBuffer);
 
-        VK_Image::TransitionLayout(*m_Image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        VK_Image::TransitionLayout(*m_Image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0);
 
         m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddTexture(this);
     }

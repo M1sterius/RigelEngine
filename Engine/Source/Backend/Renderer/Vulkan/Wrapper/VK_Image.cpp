@@ -6,9 +6,84 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format,
-        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, int32_t targetMipLevel)
+    VK_Image::TransitionInfo VK_Image::DeduceTransitionInfo(const VkImageLayout oldLayout,
+        const VkImageLayout newLayout)
     {
+        auto transitionInfo = TransitionInfo();
+
+        if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+            transitionInfo.requiredQueue = QueueType::Transfer;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            transitionInfo.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+            transitionInfo.requiredQueue = QueueType::Transfer;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            transitionInfo.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        {
+            transitionInfo.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            transitionInfo.dstAccessMask = 0;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = 0;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        }
+        else
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Unsupported vulkan image layout transition!", __FILE__, __LINE__);
+        }
+
+        return transitionInfo;
+    }
+
+    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
+        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel)
+    {
+        const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
+
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
         barrier.oldLayout = oldLayout;
         barrier.newLayout = newLayout;
@@ -16,70 +91,16 @@ namespace Rigel::Backend::Vulkan
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
         barrier.subresourceRange.aspectMask = aspectFlags;
-        barrier.subresourceRange.baseMipLevel = targetMipLevel == -1 ? 0 : targetMipLevel;
-        barrier.subresourceRange.levelCount = targetMipLevel == -1 ? VK_REMAINING_MIP_LEVELS : 1;
+        barrier.subresourceRange.baseMipLevel = targetMipLevel;
+        barrier.subresourceRange.levelCount = 1;
         barrier.subresourceRange.baseArrayLayer = 0;
         barrier.subresourceRange.layerCount = 1;
-
-        VkPipelineStageFlags sourceStage = 0;
-        VkPipelineStageFlags destinationStage = 0;
-
-        if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-        {
-            barrier.srcAccessMask = 0;
-            barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-        {
-            barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-            sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-        {
-            barrier.srcAccessMask = 0;
-            barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-        {
-            barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            barrier.dstAccessMask = 0;
-
-            sourceStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-        {
-            barrier.srcAccessMask = 0;
-            barrier.dstAccessMask = 0;
-
-            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
-        {
-            barrier.srcAccessMask = 0;
-            barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        }
-        else
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Unsupported vulkan image layout transition!", __FILE__, __LINE__);
-        }
+        barrier.srcAccessMask = transitionInfo.srcAccessMask;
+        barrier.dstAccessMask = transitionInfo.dstAccessMask;
 
         vkCmdPipelineBarrier(
         commandBuffer,
-        sourceStage, destinationStage,
+        transitionInfo.sourceStage, transitionInfo.destinationStage,
         0,
         0, nullptr,
         0, nullptr,
@@ -87,20 +108,27 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_Image::TransitionLayout(VK_Image& image, VkImageLayout newLayout)
+    void VK_Image::TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel)
     {
-        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
+        ASSERT(targetMipLevel >= -1 && targetMipLevel <= image.m_MipLevels, "Invalid mip level!");
 
-        CmdTransitionLayout(commandBuffer->Get(), image.Get(), image.GetFormat(),
-            image.GetAspectFlags(), image.m_Layout, newLayout, -1);
-        image.m_Layout = newLayout;
+        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
+        const auto oldLayout = targetMipLevel == -1 ? VK_IMAGE_LAYOUT_UNDEFINED : image.m_Layouts[targetMipLevel];
+
+        CmdTransitionLayout(commandBuffer->Get(), image.Get(), image.GetAspectFlags(),
+                            oldLayout, newLayout, targetMipLevel);
+
+        if (targetMipLevel == -1)
+            std::ranges::fill(image.m_Layouts, newLayout);
+        else
+            image.m_Layouts[targetMipLevel] = newLayout;
 
         VK_CmdBuffer::EndSingleTime(image.m_Device, *commandBuffer);
     }
 
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels)
-        : m_Device(device), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags), m_MipLevels(mipLevels)
+        : m_Device(device), m_MipLevels(mipLevels), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags)
     {
         ASSERT(m_Size.x > 0 && m_Size.y > 0, "Image cannot have zero size");
 
@@ -117,6 +145,8 @@ namespace Rigel::Backend::Vulkan
         imageInfo.usage = usage;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        m_Layouts = std::vector(m_MipLevels, VK_IMAGE_LAYOUT_UNDEFINED);
 
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;

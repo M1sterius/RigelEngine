@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
+#include "QueueType.hpp"
 
 #include "vulkan.h"
 #include "vk_mem_alloc.h"
@@ -11,13 +12,28 @@ namespace Rigel::Backend::Vulkan
     class VK_Device;
     class VK_MemoryBuffer;
 
-    class VK_Image 
+    class VK_Image
     {
+    private:
+        struct TransitionInfo
+        {
+            VkPipelineStageFlags sourceStage = 0;
+            VkPipelineStageFlags destinationStage = 0;
+
+            VkAccessFlags srcAccessMask = 0;
+            VkAccessFlags dstAccessMask = 0;
+
+            QueueType requiredQueue = QueueType::Graphics;
+        };
+
+        static TransitionInfo DeduceTransitionInfo(const VkImageLayout oldLayout, const VkImageLayout newLayout);
     public:
-        // set targetMipLevel to -1 to transition all levels
-        static void CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format,
-            VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, int32_t targetMipLevel);
-        static void TransitionLayout(VK_Image& image, VkImageLayout newLayout);
+        // this method can transition only ONE mip level at a time
+        static void CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
+            VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel);
+
+        // set targetMipLevel to -1 to transition all mip levels
+        static void TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel);
 
         VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
             VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels);
@@ -40,7 +56,7 @@ namespace Rigel::Backend::Vulkan
         VkImage m_Image = VK_NULL_HANDLE;
         VkImageView m_ImageView = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = VK_NULL_HANDLE;
-        VkImageLayout m_Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        std::vector<VkImageLayout> m_Layouts;
 
         uint32_t m_MipLevels;
         const glm::uvec2 m_Size;

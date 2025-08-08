@@ -228,7 +228,7 @@ namespace Rigel::Backend::Vulkan
         if (!m_CommandPools.contains(thisThreadID))
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Command pool can only be retrieved for one of the asset manager's loading threads", __FILE__, __LINE__);
+                "Command pool can only be retrieved for one of the asset manager's loading threads or the main thread!", __FILE__, __LINE__);
         }
 
         return m_CommandPools.at(thisThreadID).at(queueType);
@@ -240,7 +240,7 @@ namespace Rigel::Backend::Vulkan
         if (!m_StagingBuffers.contains(thisThreadID))
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Staging buffer can only be retrieved for one of the asset manager's loading threads", __FILE__, __LINE__);
+                "Staging buffer can only be retrieved for one of the asset manager's loading threads or the main thread!", __FILE__, __LINE__);
         }
 
         return *m_StagingBuffers.at(thisThreadID);

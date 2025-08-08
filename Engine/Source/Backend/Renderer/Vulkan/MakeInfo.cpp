@@ -277,4 +277,11 @@ namespace Rigel::Backend::Vulkan
         info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         return info;
     }
+
+    template<>
+    VkDescriptorSetLayoutBindingFlagsCreateInfo MakeInfo(VkDescriptorSetLayoutBindingFlagsCreateInfo info)
+    {
+        info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+        return info;
+    }
 }

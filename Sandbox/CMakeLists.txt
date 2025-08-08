@@ -10,8 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD
 add_executable(Sandbox
     Source/main.cpp
     Source/TestComponent.cpp
-        Source/FreeCamController.cpp
-        Source/FreeCamController.hpp
+    Source/FreeCamController.cpp
 )
 
 set(LINK_LIBRARIES RigelEngine)
