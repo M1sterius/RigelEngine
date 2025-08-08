@@ -10,6 +10,8 @@ namespace Rigel::Backend::Vulkan
         const VkImageLayout newLayout)
     {
         auto transitionInfo = TransitionInfo();
+        transitionInfo.oldLayout = oldLayout;
+        transitionInfo.newLayout = newLayout;
 
         if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
         {
@@ -79,14 +81,12 @@ namespace Rigel::Backend::Vulkan
         return transitionInfo;
     }
 
-    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
-        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel)
+    void VK_Image::TransitionBarrierImpl(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags,
+        const TransitionInfo& transitionInfo, const uint32_t targetMipLevel)
     {
-        const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
-
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
-        barrier.oldLayout = oldLayout;
-        barrier.newLayout = newLayout;
+        barrier.oldLayout = transitionInfo.oldLayout;
+        barrier.newLayout = transitionInfo.newLayout;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
@@ -108,22 +108,54 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
+    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
+        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel)
+    {
+        if (oldLayout == newLayout)
+            return;
+
+        const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
+        TransitionBarrierImpl(commandBuffer, image, aspectFlags, transitionInfo, targetMipLevel);
+    }
+
     void VK_Image::TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel)
     {
-        ASSERT(targetMipLevel >= -1 && targetMipLevel <= image.m_MipLevels, "Invalid mip level!");
+        ASSERT(targetMipLevel >= -1 && targetMipLevel <= static_cast<int32_t>(image.m_MipLevels), "Invalid mip level!");
 
-        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
-        const auto oldLayout = targetMipLevel == -1 ? VK_IMAGE_LAYOUT_UNDEFINED : image.m_Layouts[targetMipLevel];
-
-        CmdTransitionLayout(commandBuffer->Get(), image.Get(), image.GetAspectFlags(),
-                            oldLayout, newLayout, targetMipLevel);
-
+        // transition all mip levels
         if (targetMipLevel == -1)
-            std::ranges::fill(image.m_Layouts, newLayout);
-        else
-            image.m_Layouts[targetMipLevel] = newLayout;
+        {
+            const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
+            for (uint32_t i = 0; i < image.m_MipLevels; ++i)
+            {
+                auto& oldLayout = image.m_Layouts[i];
 
-        VK_CmdBuffer::EndSingleTime(image.m_Device, *commandBuffer);
+                if (oldLayout == newLayout)
+                    continue;
+
+                CmdTransitionLayout(cmdBuff->Get(), image.m_Image,
+                    image.m_AspectFlags, oldLayout, newLayout, i);
+                oldLayout = newLayout;
+            }
+            VK_CmdBuffer::EndSingleTime(image.m_Device, *cmdBuff);
+        }
+        // transition only one mip level
+        else
+        {
+            auto& oldLayout = image.m_Layouts[targetMipLevel];
+
+            if (oldLayout == newLayout)
+                return;
+
+            const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
+            const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(image.m_Device, transitionInfo.requiredQueue);
+
+            TransitionBarrierImpl(cmdBuff->Get(), image.m_Image,
+                image.m_AspectFlags, transitionInfo, targetMipLevel);
+            oldLayout = newLayout;
+
+            VK_CmdBuffer::EndSingleTime(image.m_Device, *cmdBuff);
+        }
     }
 
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,

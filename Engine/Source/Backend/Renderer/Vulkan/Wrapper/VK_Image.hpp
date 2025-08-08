@@ -17,6 +17,9 @@ namespace Rigel::Backend::Vulkan
     private:
         struct TransitionInfo
         {
+            VkImageLayout oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            VkImageLayout newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
             VkPipelineStageFlags sourceStage = 0;
             VkPipelineStageFlags destinationStage = 0;
 
@@ -27,12 +30,16 @@ namespace Rigel::Backend::Vulkan
         };
 
         static TransitionInfo DeduceTransitionInfo(const VkImageLayout oldLayout, const VkImageLayout newLayout);
+        static void TransitionBarrierImpl(VkCommandBuffer commandBuffer, VkImage image,
+            VkImageAspectFlags aspectFlags, const TransitionInfo& transitionInfo, const uint32_t targetMipLevel);
     public:
+        static constexpr int32_t AllMips = -1;
+
         // this method can transition only ONE mip level at a time
         static void CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
             VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel);
 
-        // set targetMipLevel to -1 to transition all mip levels
+        // set targetMipLevel to AllMips (-1) to transition all mip levels
         static void TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel);
 
         VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
