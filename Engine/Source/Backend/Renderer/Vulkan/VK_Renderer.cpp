@@ -91,10 +91,9 @@ namespace Rigel::Backend::Vulkan
         if (m_DepthBufferImage) m_DepthBufferImage.reset();
 
         m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
-            VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
+            VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
-        VK_Image::TransitionLayout(*m_Device, *m_DepthBufferImage, m_DepthBufferImage->GetFormat(),
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+        VK_Image::TransitionLayout(*m_DepthBufferImage, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
     }
 
     void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
@@ -113,7 +112,7 @@ namespace Rigel::Backend::Vulkan
             const auto indexBuffer = model->GetIndexBuffer();
 
             const VkBuffer pVertexBuffers[] = {vertexBuffer->GetMemoryBuffer().Get()};
-            const VkDeviceSize pOffsets[] = {0};
+            constexpr VkDeviceSize pOffsets[] = {0};
 
             vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, pVertexBuffers, pOffsets);
             vkCmdBindIndexBuffer(vkCmdBuffer, indexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
@@ -159,7 +158,7 @@ namespace Rigel::Backend::Vulkan
         const auto vkCmdBuffer = commandBuffer->Get();
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
-            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, -1);
 
         auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         colorAttachment.imageView = image.imageView;
@@ -229,7 +228,7 @@ namespace Rigel::Backend::Vulkan
         vkCmdEndRendering(vkCmdBuffer);
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, m_Swapchain->GetSwapchainImageFormat(),
-            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, -1);
     }
 
     void VK_Renderer::Render()

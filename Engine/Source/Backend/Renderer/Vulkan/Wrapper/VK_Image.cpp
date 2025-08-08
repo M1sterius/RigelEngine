@@ -7,7 +7,7 @@
 namespace Rigel::Backend::Vulkan
 {
     void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image, VkFormat format,
-        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
+        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, int32_t targetMipLevel)
     {
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
         barrier.oldLayout = oldLayout;
@@ -16,13 +16,13 @@ namespace Rigel::Backend::Vulkan
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
         barrier.subresourceRange.aspectMask = aspectFlags;
-        barrier.subresourceRange.baseMipLevel = 0;
-        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseMipLevel = targetMipLevel == -1 ? 0 : targetMipLevel;
+        barrier.subresourceRange.levelCount = targetMipLevel == -1 ? VK_REMAINING_MIP_LEVELS : 1;
         barrier.subresourceRange.baseArrayLayer = 0;
         barrier.subresourceRange.layerCount = 1;
 
-        VkPipelineStageFlags sourceStage;
-        VkPipelineStageFlags destinationStage;
+        VkPipelineStageFlags sourceStage = 0;
+        VkPipelineStageFlags destinationStage = 0;
 
         if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
         {
@@ -87,26 +87,29 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_Image::TransitionLayout(VK_Device& device, const VK_Image& image, VkFormat format, VkImageLayout oldLayout,
-            VkImageLayout newLayout)
+    void VK_Image::TransitionLayout(VK_Image& image, VkImageLayout newLayout)
     {
-        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device, QueueType::Graphics);
-        CmdTransitionLayout(commandBuffer->Get(), image.Get(), format, image.GetAspectFlags(), oldLayout, newLayout);
-        VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
+        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
+
+        CmdTransitionLayout(commandBuffer->Get(), image.Get(), image.GetFormat(),
+            image.GetAspectFlags(), image.m_Layout, newLayout, -1);
+        image.m_Layout = newLayout;
+
+        VK_CmdBuffer::EndSingleTime(image.m_Device, *commandBuffer);
     }
 
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
-        VkImageUsageFlags usage, VkImageAspectFlags aspectFlags)
-        : m_Device(device), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags)
+        VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels)
+        : m_Device(device), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags), m_MipLevels(mipLevels)
     {
-        ASSERT(m_Size.x > 0 && m_Size.y > 0, "Cannot create an image of zero size");
+        ASSERT(m_Size.x > 0 && m_Size.y > 0, "Image cannot have zero size");
 
         auto imageInfo = MakeInfo<VkImageCreateInfo>();
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
         imageInfo.extent.width = size.x;
         imageInfo.extent.height = size.y;
         imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1; // TODO: Implement support for mipmap levels
+        imageInfo.mipLevels = m_MipLevels;
         imageInfo.arrayLayers = 1;
         imageInfo.format = m_Format;
         imageInfo.tiling = tiling;
@@ -126,7 +129,7 @@ namespace Rigel::Backend::Vulkan
         viewInfo.format = m_Format;
         viewInfo.subresourceRange.aspectMask = m_AspectFlags;
         viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.levelCount = m_MipLevels;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
