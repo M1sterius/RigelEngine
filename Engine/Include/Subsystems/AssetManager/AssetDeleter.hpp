@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "RigelAsset.hpp"
+#include "../../Assets/RigelAsset.hpp"
 
 namespace Rigel::Backend
 {

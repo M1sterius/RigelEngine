@@ -25,9 +25,8 @@ namespace Rigel::Backend::Vulkan
     }
 
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat swapchainImageFormat, const Ref<VK_Shader> shader, const std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
+        const VkFormat swapchainImageFormat, const std::array<VkPipelineShaderStageCreateInfo, 2>& shaderStages, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
     {
-        const auto shaderStagesInfo = shader->GetShaderStagesInfo();
 
         // Dynamic rendering attachments info
         auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
@@ -114,7 +113,7 @@ namespace Rigel::Backend::Vulkan
 
         auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
         pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStagesInfo.data();
+        pipelineInfo.pStages = shaderStages.data();
         pipelineInfo.pVertexInputState = &vertexInputInfo;
         pipelineInfo.pInputAssemblyState = &inputAssembly;
         pipelineInfo.pViewportState = &viewportState;

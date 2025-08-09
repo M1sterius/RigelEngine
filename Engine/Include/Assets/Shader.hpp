@@ -22,6 +22,14 @@ namespace Rigel
         std::filesystem::path FragPath;
     };
 
+    struct ShaderMetadata2 : public AssetMetadata
+    {
+        ~ShaderMetadata2() override = default;
+
+        std::array<std::filesystem::path, 16> Paths;
+        std::unordered_map<std::string, std::pair<uint32_t, uint32_t>> Variants;
+    };
+
     class Shader final : public RigelAsset
     {
     public:

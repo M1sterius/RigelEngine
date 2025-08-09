@@ -36,11 +36,11 @@
 #include "BuiltInAssets.hpp"
 
 // Assets
-#include "RigelAsset.hpp"
-#include "Shader.hpp"
+#include "Assets/RigelAsset.hpp"
+#include "Assets/Shader.hpp"
 #include "Model.hpp"
 #include "Texture.hpp"
-#include "Material.hpp"
+#include "Assets/Material.hpp"
 
 // Debug
 #include "Debug.hpp"

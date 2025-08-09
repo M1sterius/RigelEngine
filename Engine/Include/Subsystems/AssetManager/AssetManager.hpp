@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelSubsystem.hpp"
 #include "Debug.hpp"
-#include "RigelAsset.hpp"
+#include "../../Assets/RigelAsset.hpp"
 #include "AssetHandle.hpp"
 #include "AssetMetadata.hpp"
 #include "ThreadPool.hpp"

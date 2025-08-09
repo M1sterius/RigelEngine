@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Component.hpp"
 
-#include "Model.hpp"
+#include "../Assets/Model.hpp"
 #include "AssetHandle.hpp"
 
 #include <filesystem>

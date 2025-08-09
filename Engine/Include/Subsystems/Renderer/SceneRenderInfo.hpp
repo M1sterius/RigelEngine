@@ -6,7 +6,7 @@
 #include "Camera.hpp"
 #include "ModelRenderer.hpp"
 #include "AssetHandle.hpp"
-#include "Model.hpp"
+#include "../../Assets/Model.hpp"
 
 #include <vector>
 

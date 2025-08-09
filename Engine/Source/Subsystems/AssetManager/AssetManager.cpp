@@ -2,9 +2,9 @@
 #include "Engine.hpp"
 #include "Debug.hpp"
 #include "Directory.hpp"
-#include "Shader.hpp"
-#include "Model.hpp"
-#include "Texture.hpp"
+#include "../../../Include/Assets/Shader.hpp"
+#include "../../../Include/Assets/Model.hpp"
+#include "../../../Include/Assets/Texture.hpp"
 #include "BuiltInAssets.hpp"
 
 #include "json.hpp"

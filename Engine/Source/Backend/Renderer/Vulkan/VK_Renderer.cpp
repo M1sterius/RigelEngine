@@ -59,7 +59,7 @@ namespace Rigel::Backend::Vulkan
 
         const std::vector layouts = { m_BindlessManager->GetDescriptorSetLayout() };
 
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader, layouts);
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader->GetShaderStagesInfo(), layouts);
 
         return ErrorCode::OK;
     }
@@ -74,7 +74,7 @@ namespace Rigel::Backend::Vulkan
         return ErrorCode::OK;
     }
 
-    void VK_Renderer::RecreateSwapchain()
+    void VK_Renderer::OnRecreateSwapchain()
     {
         GetWindowManager()->WaitForFocus();
         m_Device->WaitIdle();
@@ -88,7 +88,8 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::CreateDepthBufferImage(const glm::uvec2 size)
     {
-        if (m_DepthBufferImage) m_DepthBufferImage.reset();
+        if (m_DepthBufferImage)
+            m_DepthBufferImage.reset();
 
         m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
             VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
@@ -182,6 +183,7 @@ namespace Rigel::Backend::Vulkan
         renderingInfo.pDepthAttachment = &depthAttachment;
 
         vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
+
         vkCmdBindPipeline(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
 
         const VkDescriptorSet sets[] = { m_BindlessManager->GetDescriptorSet() };
@@ -236,7 +238,7 @@ namespace Rigel::Backend::Vulkan
         if (GetWindowManager()->GetWindowResizeFlag())
         {
             GetWindowManager()->ResetWindowResizeFlag();
-            RecreateSwapchain();
+            OnRecreateSwapchain();
             return;
         }
 

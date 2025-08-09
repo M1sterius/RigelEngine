@@ -56,7 +56,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
-        void RecreateSwapchain();
+        void OnRecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
 
         void RenderScene(VkCommandBuffer vkCmdBuffer);

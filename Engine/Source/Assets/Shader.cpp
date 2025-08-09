@@ -1,7 +1,6 @@
 #include "Shader.hpp"
 #include "SubsystemGetters.hpp"
 #include "VK_Shader.hpp"
-#include "Engine.hpp"
 #include "AssetManager.hpp"
 #include "File.hpp"
 

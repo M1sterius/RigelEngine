@@ -47,7 +47,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
-    Source/Subsystems/Renderer/Shader.cpp
+    Source/Assets/Shader.cpp
     Source/Utils/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
@@ -57,17 +57,19 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Components/ModelRenderer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
-    Source/Subsystems/Renderer/Model.cpp
+    Source/Assets/Model.cpp
     Source/Backend/Renderer/Vulkan/ImGui/VK_ImGUI_Renderer.cpp
     Source/Backend/Editor.cpp
-    Source/Subsystems/Renderer/Texture.cpp
+    Source/Assets/Texture.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
     Include/Utils/Reflection/TypeRegistry.hpp
     Source/Utils/Reflection/TypeUtility.cpp
     Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
-    Source/Subsystems/Renderer/Material.cpp
+    Source/Assets/Material.cpp
     Source/Subsystems/AssetManager/AssetDeleter.cpp
     Source/Subsystems/SubsystemGetters.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.hpp
 )
 
 set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
@@ -153,7 +155,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Subsystems/WindowManager
     Include/Utils/HeaderUtils
     Include/Utils/Serialization
-    Include/EngineTools
+    Include/Assets
 )
 
 # compile dependencies from source

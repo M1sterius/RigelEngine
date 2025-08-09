@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Texture.hpp"
+#include "../../../../../Include/Assets/Texture.hpp"
 
 #include "vulkan.h"
 

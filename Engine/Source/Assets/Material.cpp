@@ -1,11 +1,9 @@
 #include "Material.hpp"
 #include "VK_BindlessManager.hpp"
-#include "Engine.hpp"
 #include "AssetManager.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_Texture.hpp"
 #include "VulkanUtility.hpp"
-#include "VK_BindlessManager.hpp"
 #include "SubsystemGetters.hpp"
 
 // TODO: this constants should probably be defined in a better place

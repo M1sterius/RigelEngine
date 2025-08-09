@@ -1,4 +1,4 @@
-#include "Model.hpp"
+#include "../../Include/Assets/Model.hpp"
 #include "AssetManager.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
