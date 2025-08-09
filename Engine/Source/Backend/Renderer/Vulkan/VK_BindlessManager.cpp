@@ -132,8 +132,8 @@ namespace Rigel::Backend::Vulkan
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        // samplerInfo.minLod = 0.0f;
-        // samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
 
         VkSampler sampler = VK_NULL_HANDLE;
         VK_CHECK_RESULT(vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &sampler), "Failed to create texture sampler!");

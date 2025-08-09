@@ -13,7 +13,7 @@ namespace Rigel::Backend::Vulkan
     {
     public:
         NODISCARD static std::unique_ptr<VK_CmdBuffer> BeginSingleTime(VK_Device& device, const QueueType queueType);
-        static void EndSingleTime(const VK_Device& device, const VK_CmdBuffer& commandBuffer);
+        static void EndSingleTime(const std::unique_ptr<VK_CmdBuffer>& commandBuffer);
 
         VK_CmdBuffer(VK_Device& device, const QueueType queueType);
         ~VK_CmdBuffer();

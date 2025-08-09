@@ -93,7 +93,7 @@ namespace Rigel::Backend::Vulkan
         m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
             VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
-        VK_Image::TransitionLayout(*m_DepthBufferImage, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 0);
+        m_DepthBufferImage->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 0);
     }
 
     void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
@@ -158,7 +158,7 @@ namespace Rigel::Backend::Vulkan
         const auto vkCmdBuffer = commandBuffer->Get();
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, VK_IMAGE_ASPECT_COLOR_BIT,
-                                      VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 
         auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         colorAttachment.imageView = image.imageView;
@@ -228,7 +228,7 @@ namespace Rigel::Backend::Vulkan
         vkCmdEndRendering(vkCmdBuffer);
 
         VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, VK_IMAGE_ASPECT_COLOR_BIT,
-                                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
     }
 
     void VK_Renderer::Render()

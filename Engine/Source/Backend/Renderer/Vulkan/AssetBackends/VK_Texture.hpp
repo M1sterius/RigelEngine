@@ -28,6 +28,8 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
         NODISCARD inline const Texture::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
     private:
+        void GenerateMipMaps() const;
+
         std::unique_ptr<VK_Image> m_Image;
         Texture::SamplerProperties m_SamplerProperties{};
 

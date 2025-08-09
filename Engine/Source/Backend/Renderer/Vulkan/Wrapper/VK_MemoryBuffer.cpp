@@ -9,13 +9,13 @@ namespace Rigel::Backend::Vulkan
         ASSERT(size <= src.GetSize(), "Copy region cannot be bigger than source buffer size");
         ASSERT(size <= dst.GetSize(), "Copy region cannot be bigger than destination buffer size");
 
-        const auto commandBuffer = VK_CmdBuffer::BeginSingleTime(device, QueueType::Transfer);
+        const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(device, QueueType::Transfer);
 
         VkBufferCopy copyRegion {};
         copyRegion.size = size;
-        vkCmdCopyBuffer(commandBuffer->Get(), src.Get(), dst.Get(), 1, &copyRegion);
+        vkCmdCopyBuffer(cmdBuff->Get(), src.Get(), dst.Get(), 1, &copyRegion);
 
-        VK_CmdBuffer::EndSingleTime(device, *commandBuffer);
+        VK_CmdBuffer::EndSingleTime(cmdBuff);
     }
 
     VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage, VmaMemoryUsage memUsage)

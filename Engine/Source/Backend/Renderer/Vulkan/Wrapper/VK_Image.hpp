@@ -25,28 +25,24 @@ namespace Rigel::Backend::Vulkan
 
             VkAccessFlags srcAccessMask = 0;
             VkAccessFlags dstAccessMask = 0;
-
-            QueueType requiredQueue = QueueType::Graphics;
         };
 
         static TransitionInfo DeduceTransitionInfo(const VkImageLayout oldLayout, const VkImageLayout newLayout);
-        static void TransitionBarrierImpl(VkCommandBuffer commandBuffer, VkImage image,
-            VkImageAspectFlags aspectFlags, const TransitionInfo& transitionInfo, const uint32_t targetMipLevel);
     public:
         static constexpr int32_t AllMips = -1;
 
-        // this method can transition only ONE mip level at a time
+        /**
+         * Records command to transition one image mip layer to a new layout
+         */
         static void CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
             VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel);
-
-        // set targetMipLevel to AllMips (-1) to transition all mip levels
-        static void TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel);
 
         VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
             VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels);
         ~VK_Image();
 
         void CopyFromBuffer(const VK_MemoryBuffer& buffer) const;
+        void TransitionLayout(const VkImageLayout newLayout, const int32_t targetMipLevel);
 
         NODISCARD inline glm::uvec2 GetSize() const { return m_Size; }
 
@@ -54,6 +50,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VkImageView GetView() const { return m_ImageView; }
         NODISCARD inline VkFormat GetFormat() const { return m_Format; }
         NODISCARD inline VkImageAspectFlags GetAspectFlags() const { return m_AspectFlags; }
+        NODISCARD inline uint32_t GetMipLevelCount() const { return m_MipLevels; }
 
         VK_Image(const VK_Image&) = delete;
         VK_Image operator = (const VK_Image&) = delete;

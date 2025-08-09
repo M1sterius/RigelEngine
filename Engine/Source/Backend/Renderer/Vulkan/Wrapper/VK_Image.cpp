@@ -20,8 +20,6 @@ namespace Rigel::Backend::Vulkan
 
             transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             transitionInfo.destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-            transitionInfo.requiredQueue = QueueType::Transfer;
         }
         else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
         {
@@ -30,12 +28,18 @@ namespace Rigel::Backend::Vulkan
 
             transitionInfo.sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             transitionInfo.destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-            transitionInfo.requiredQueue = QueueType::Transfer;
         }
         else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         {
             transitionInfo.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            transitionInfo.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             transitionInfo.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             transitionInfo.sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -73,6 +77,14 @@ namespace Rigel::Backend::Vulkan
             transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             transitionInfo.destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_GENERAL)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
         else
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Unsupported vulkan image layout transition!", __FILE__, __LINE__);
@@ -81,9 +93,14 @@ namespace Rigel::Backend::Vulkan
         return transitionInfo;
     }
 
-    void VK_Image::TransitionBarrierImpl(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags,
-        const TransitionInfo& transitionInfo, const uint32_t targetMipLevel)
+    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
+        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel)
     {
+        if (oldLayout == newLayout)
+            return;
+
+        const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
+
         auto barrier = MakeInfo<VkImageMemoryBarrier>();
         barrier.oldLayout = transitionInfo.oldLayout;
         barrier.newLayout = transitionInfo.newLayout;
@@ -108,58 +125,8 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_Image::CmdTransitionLayout(VkCommandBuffer commandBuffer, VkImage image,
-        VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t targetMipLevel)
-    {
-        if (oldLayout == newLayout)
-            return;
-
-        const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
-        TransitionBarrierImpl(commandBuffer, image, aspectFlags, transitionInfo, targetMipLevel);
-    }
-
-    void VK_Image::TransitionLayout(VK_Image& image, const VkImageLayout newLayout, const int32_t targetMipLevel)
-    {
-        ASSERT(targetMipLevel >= -1 && targetMipLevel <= static_cast<int32_t>(image.m_MipLevels), "Invalid mip level!");
-
-        // transition all mip levels
-        if (targetMipLevel == -1)
-        {
-            const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(image.m_Device, QueueType::Graphics);
-            for (uint32_t i = 0; i < image.m_MipLevels; ++i)
-            {
-                auto& oldLayout = image.m_Layouts[i];
-
-                if (oldLayout == newLayout)
-                    continue;
-
-                CmdTransitionLayout(cmdBuff->Get(), image.m_Image,
-                    image.m_AspectFlags, oldLayout, newLayout, i);
-                oldLayout = newLayout;
-            }
-            VK_CmdBuffer::EndSingleTime(image.m_Device, *cmdBuff);
-        }
-        // transition only one mip level
-        else
-        {
-            auto& oldLayout = image.m_Layouts[targetMipLevel];
-
-            if (oldLayout == newLayout)
-                return;
-
-            const auto transitionInfo = DeduceTransitionInfo(oldLayout, newLayout);
-            const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(image.m_Device, transitionInfo.requiredQueue);
-
-            TransitionBarrierImpl(cmdBuff->Get(), image.m_Image,
-                image.m_AspectFlags, transitionInfo, targetMipLevel);
-            oldLayout = newLayout;
-
-            VK_CmdBuffer::EndSingleTime(image.m_Device, *cmdBuff);
-        }
-    }
-
     VK_Image::VK_Image(VK_Device& device, const glm::uvec2 size, VkFormat format, VkImageTiling tiling,
-        VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels)
+                       VkImageUsageFlags usage, VkImageAspectFlags aspectFlags, const uint32_t mipLevels)
         : m_Device(device), m_MipLevels(mipLevels), m_Size(size), m_Format(format), m_AspectFlags(aspectFlags)
     {
         ASSERT(m_Size.x > 0 && m_Size.y > 0, "Image cannot have zero size");
@@ -226,6 +193,43 @@ namespace Rigel::Backend::Vulkan
         vkCmdCopyBufferToImage(cmdBuffer->Get(), buffer.Get(), m_Image,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        VK_CmdBuffer::EndSingleTime(m_Device, *cmdBuffer);
+        VK_CmdBuffer::EndSingleTime(cmdBuffer);
+    }
+
+    void VK_Image::TransitionLayout(const VkImageLayout newLayout, const int32_t targetMipLevel)
+    {
+        ASSERT(targetMipLevel >= -1 && targetMipLevel <= static_cast<int32_t>(m_MipLevels), "Invalid mip level!");
+
+        const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(m_Device, QueueType::Graphics);
+
+        // transition all mip levels
+        if (targetMipLevel == -1)
+        {
+            for (uint32_t i = 0; i < m_MipLevels; ++i)
+            {
+                auto& oldLayout = m_Layouts[i];
+
+                if (oldLayout == newLayout)
+                    continue;
+
+                CmdTransitionLayout(cmdBuff->Get(), m_Image,
+                    m_AspectFlags, oldLayout, newLayout, i);
+                oldLayout = newLayout;
+            }
+        }
+        // transition only one mip level
+        else
+        {
+            auto& oldLayout = m_Layouts[targetMipLevel];
+
+            if (oldLayout == newLayout)
+                return;
+
+            CmdTransitionLayout(cmdBuff->Get(), m_Image,
+                m_AspectFlags, oldLayout, newLayout, targetMipLevel);
+            oldLayout = newLayout;
+        }
+
+        VK_CmdBuffer::EndSingleTime(cmdBuff);
     }
 }

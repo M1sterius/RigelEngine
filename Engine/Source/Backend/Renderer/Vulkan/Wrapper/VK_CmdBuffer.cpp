@@ -12,18 +12,18 @@ namespace Rigel::Backend::Vulkan
         return cmdBuffer;
     }
 
-    void VK_CmdBuffer::EndSingleTime(const VK_Device& device, const VK_CmdBuffer& commandBuffer)
+    void VK_CmdBuffer::EndSingleTime(const std::unique_ptr<VK_CmdBuffer>& commandBuffer)
     {
-        commandBuffer.EndRecording();
+        commandBuffer->EndRecording();
 
         auto submitInfo = MakeInfo<VkSubmitInfo>();
-        const auto buff = commandBuffer.Get();
+        const auto buff = commandBuffer->Get();
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &buff;
 
         // Using a fence helps to avoid stalling the entire queue (so don't use vkQueueWaitIdle)
-        const auto fence = std::make_unique<VK_Fence>(device);
-        device.SubmitToQueue(commandBuffer.m_QueueType, 1, &submitInfo, fence->Get());
+        const auto fence = std::make_unique<VK_Fence>(commandBuffer->m_Device);
+        commandBuffer->m_Device.SubmitToQueue(commandBuffer->m_QueueType, 1, &submitInfo, fence->Get());
         fence->Wait();
     }
 
