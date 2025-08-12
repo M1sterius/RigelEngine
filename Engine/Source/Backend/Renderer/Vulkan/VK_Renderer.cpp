@@ -51,11 +51,16 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
+        auto defaultShaderMetadata = ShaderMetadata2();
+        defaultShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DefaultShader.vert.spv";
+        defaultShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DefaultShader.frag.spv";
+        defaultShaderMetadata.AddVariant("Main", 0, 1);
+
         const auto shaderAsset = GetAssetManager()->Load<Shader>(BuiltInAssets::ShaderDefault);
         const auto defaultShader = shaderAsset->GetImpl();
 
         if (!defaultShader)
-            return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
+            return ErrorCode::BUILT_IN_ASSET_NOT_LOADED;
 
         const std::vector layouts = { m_BindlessManager->GetDescriptorSetLayout() };
 

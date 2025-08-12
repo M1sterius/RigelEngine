@@ -24,10 +24,28 @@ namespace Rigel
 
     struct ShaderMetadata2 : public AssetMetadata
     {
+        struct Variant
+        {
+            uint8_t VertexIndex;
+            uint8_t FragmentIndex;
+        };
+
+        static constexpr uint32_t MAX_PATHS = 16;
+
         ~ShaderMetadata2() override = default;
 
-        std::array<std::filesystem::path, 16> Paths;
-        std::unordered_map<std::string, std::pair<uint32_t, uint32_t>> Variants;
+        void AddVariant(const std::string& name, const uint8_t vertIndex, const uint8_t fragIndex)
+        {
+            ASSERT(vertIndex < MAX_PATHS, "Invalid shader metadata vertex path index!");
+            ASSERT(fragIndex < MAX_PATHS, "Invalid shader metadata fragment path index!");
+            ASSERT(!m_Variants.contains(name), "Shader variant with that name already exists!");
+
+            m_Variants[name] = {vertIndex, fragIndex};
+        }
+
+        std::array<std::filesystem::path, MAX_PATHS> Paths;
+    private:
+        std::unordered_map<std::string, Variant> m_Variants;
     };
 
     class Shader final : public RigelAsset

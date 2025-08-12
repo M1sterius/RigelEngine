@@ -39,16 +39,6 @@ int32_t main(int32_t argc, char** argv)
 
     sceneManager->LoadScene(scene);
 
-    auto md = Rigel::ShaderMetadata2();
-    md.Paths[0] = "Vertex.glsl";
-    md.Paths[1] = "FragmentPCF.glsl";
-    md.Paths[2] = "FragmentNoPCF.glsl";
-
-    md.Variants = {
-        {"ShadowsPCF", {0, 1}},
-        {"ShadowsNoPCF", {0, 2}},
-    };
-
     engine->Run();
     engine->Shutdown();
 }

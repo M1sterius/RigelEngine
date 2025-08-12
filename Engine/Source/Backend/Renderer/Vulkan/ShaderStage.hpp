@@ -2,7 +2,7 @@
 
 namespace Rigel::Backend
 {
-    enum class ShaderModuleType
+    enum class ShaderStage
     {
         Vertex,
         Fragment

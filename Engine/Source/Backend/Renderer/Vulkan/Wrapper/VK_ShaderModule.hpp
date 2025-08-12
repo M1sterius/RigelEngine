@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "ShaderModuleType.hpp"
+#include "ShaderStage.hpp"
 
 #include "vulkan.h"
 
@@ -16,16 +16,15 @@ namespace Rigel::Backend::Vulkan
     class VK_ShaderModule
     {
     public:
-        VK_ShaderModule(const std::vector<char>& sourceBytes, const ShaderModuleType shaderType);
+        explicit VK_ShaderModule(const std::vector<char>& sourceBytes);
         ~VK_ShaderModule();
 
         VK_ShaderModule(const VK_ShaderModule& other) = delete;
         VK_ShaderModule& operator = (const VK_ShaderModule&) = delete;
 
         NODISCARD inline VkShaderModule Get() const { return m_ShaderModule; }
-        NODISCARD inline VkPipelineShaderStageCreateInfo GetShaderStageInfo() const { return m_ShaderStageInfo; }
+        NODISCARD VkPipelineShaderStageCreateInfo GetStageInfo(const ShaderStage stage);
     private:
-        ShaderModuleType m_Type;
         VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
         VkPipelineShaderStageCreateInfo m_ShaderStageInfo;
     };
