@@ -5,6 +5,8 @@
 #include "vulkan.h"
 
 #include <memory>
+#include <array>
+#include <vector>
 
 namespace Rigel::Backend::Vulkan
 {

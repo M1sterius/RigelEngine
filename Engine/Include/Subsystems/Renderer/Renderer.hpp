@@ -35,7 +35,7 @@ namespace Rigel
         void Prepare();
         void Render() const;
 
-        // Blocks the calling thread until all rendering operation are done
+        // Blocks the calling thread until all rendering operations are done
         void WaitForFinish() const;
     private:
         Backend::SceneRenderInfo m_CurrentRenderInfo;

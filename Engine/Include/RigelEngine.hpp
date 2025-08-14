@@ -15,6 +15,7 @@
 
 // Core headers
 #include "Core.hpp"
+#include "Math.hpp"
 #include "Engine.hpp"
 #include "ProjectSettings.hpp"
 

@@ -2,6 +2,8 @@
 
 #include "Core.hpp"
 
+#include <memory>
+
 namespace Rigel::Backend::Vulkan
 {
     class VK_Renderer;

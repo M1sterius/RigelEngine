@@ -132,9 +132,7 @@ namespace Rigel::Backend::Vulkan
     uint32_t VK_Instance::GetVulkanVersion()
     {
         uint32_t supportedVersion = 0;
-
-        if (vkEnumerateInstanceVersion)
-            vkEnumerateInstanceVersion(&supportedVersion);
+        vkEnumerateInstanceVersion(&supportedVersion);
 
         return supportedVersion;
     }

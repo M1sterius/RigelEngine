@@ -27,7 +27,7 @@ namespace Rigel
         m_LogsFile = std::ofstream(logsFile);
 
         if (!m_LogsFile)
-            Debug::Error("Failed to open engine logs file! The logs will be displayed in console but will not be saved.");
+            std::cerr << "Failed to open engine logs file! The logs will be displayed in console but will not be saved.\n";
     }
 
     Logger::~Logger()

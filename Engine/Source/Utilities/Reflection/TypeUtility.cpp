@@ -29,12 +29,17 @@ namespace Rigel
     {
         std::string DemangleType_Impl_GCC_CLANG(const std::type_info& typeInfo)
         {
+            std::string result;
+
+            #if defined(__GNUC__) || defined(__clang__)
             int status = 0;
             const char* rawName = typeInfo.name();
             char* demangled = abi::__cxa_demangle(rawName, nullptr, nullptr, &status);
 
-            std::string result = (status == 0 && demangled) ? demangled : rawName;
+            result = (status == 0 && demangled) ? demangled : rawName;
             std::free(demangled);
+            #endif
+
             return result;
         }
 

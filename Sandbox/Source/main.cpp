@@ -1,6 +1,5 @@
 #define RIGEL_ENABLE_HANDLE_VALIDATION
 #include "RigelEngine.hpp"
-#include "TestComponent.hpp"
 #include "FreeCamController.hpp"
 
 int32_t main(int32_t argc, char** argv)

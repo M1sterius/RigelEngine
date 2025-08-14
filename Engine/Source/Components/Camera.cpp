@@ -52,7 +52,7 @@ namespace Rigel
 
     void Camera::OnStart()
     {
-        SubscribeEvent<WindowResizeEvent>(OnWindowResize);
+        SubscribeEvent<WindowResizeEvent>(&Camera::OnWindowResize);
     }
 
     void Camera::OnWindowResize()

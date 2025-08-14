@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Math.hpp"
 #include "RigelAsset.hpp"
 
-#include <filesystem>
 #include <memory>
 
 namespace Rigel

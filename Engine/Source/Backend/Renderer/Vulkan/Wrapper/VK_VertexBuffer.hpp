@@ -5,6 +5,7 @@
 
 #include "vulkan.h"
 
+#include <array>
 #include <vector>
 #include <memory>
 

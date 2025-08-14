@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include <string>
-#include <stdexcept>
+#include <mutex>
 #include <fstream>
 
 namespace Rigel

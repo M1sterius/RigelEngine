@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 project(Sandbox)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin/Sandbox/${CMAKE_BUILD_TYPE})
 
@@ -18,6 +18,10 @@ set(LINK_LIBRARIES RigelEngine)
 # statically link necessary runtime libraries when using gcc
 if (MINGW)
     list(APPEND LINK_LIBRARIES -static-libgcc -static-libstdc++ -static)
+endif ()
+
+if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
 target_include_directories(Sandbox PRIVATE ${CMAKE_SOURCE_DIR}/Engine/Include)

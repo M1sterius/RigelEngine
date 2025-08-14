@@ -8,7 +8,7 @@
 #include "Engine.hpp"
 #include "ThreadPool.hpp"
 
-#include <ranges>
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
 #include <typeindex>

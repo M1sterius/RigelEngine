@@ -12,7 +12,7 @@ bool TestComponent::Deserialize(const nlohmann::json& json)
 
 void TestComponent::OnStart()
 {
-    SubscribeEvent<Rigel::GameUpdateEvent>(OnGameUpdate);
+    SubscribeEvent<Rigel::GameUpdateEvent>(&TestComponent::OnGameUpdate);
     m_ModelRenderer = this->GetGameObject()->GetComponent<Rigel::ModelRenderer>();
 }
 

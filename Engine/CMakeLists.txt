@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 project(RigelEngine)
 
 set(DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/Dependencies)
+set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 
 file(GLOB_RECURSE IMGUI_SOURCES
     "${DEPENDENCIES_DIR}/imgui/*.h"
@@ -21,22 +22,22 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Renderer/Renderer.cpp
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp
-    Source/Utils/Serialization/Serializer.cpp
+    Source/Utilities/Serialization/Serializer.cpp
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
     Source/Components/Transform.cpp
     Source/Handles/SceneHandle.cpp
-    Source/Utils/Threading/SleepUtility.cpp
+    Source/Utilities/Threading/SleepUtility.cpp
     Source/Handles/GOHandle.cpp
     Source/Subsystems/EventSystem/EventManager.cpp
     Source/Subsystems/PhysicsEngine/PhysicsEngine.cpp
-    Source/Utils/Filesystem/File.cpp
+    Source/Utilities/Filesystem/File.cpp
     Source/Subsystems/AssetManager/AssetManager.cpp
     Source/Subsystems/WindowManager.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
-        Source/Subsystems/InputManager/InputManager.cpp
-    Source/Utils/Filesystem/Directory.cpp
+    Source/Subsystems/InputManager/InputManager.cpp
+    Source/Utilities/Filesystem/Directory.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
     Source/Backend/Renderer/Vulkan/MakeInfo.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
@@ -48,7 +49,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
     Source/Assets/Shader.cpp
-    Source/Utils/Threading/ThreadPool.cpp
+    Source/Utilities/Threading/ThreadPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
@@ -62,21 +63,19 @@ add_library(RigelEngine STATIC
     Source/Backend/Editor.cpp
     Source/Assets/Texture.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
-    Include/Utils/Reflection/TypeRegistry.hpp
-    Source/Utils/Reflection/TypeUtility.cpp
+    Include/Utilities/Reflection/TypeRegistry.hpp
+    Source/Utilities/Reflection/TypeUtility.cpp
     Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
     Source/Assets/Material.cpp
     Source/Subsystems/AssetManager/AssetDeleter.cpp
     Source/Subsystems/SubsystemGetters.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.cpp
-        Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.hpp
+    Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.cpp
 )
 
-set(ENGINE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Bin/Engine/${CMAKE_BUILD_TYPE})
 set_target_properties(RigelEngine PROPERTIES
     PREFIX ""
     CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD 20
+    CXX_STANDARD 23
     ARCHIVE_OUTPUT_DIRECTORY ${ENGINE_OUTPUT_PATH}
 )
 
@@ -104,8 +103,8 @@ target_compile_definitions(RigelEngine PUBLIC ${PUBLIC_COMPILE_DEFINITIONS})
 target_compile_definitions(RigelEngine PRIVATE "RIGEL_INTERNAL")
 
 target_precompile_headers(RigelEngine PRIVATE
-    Include/Utils/PCH/STD_PCH.hpp
-    Include/Utils/PCH/RGE_PCH.hpp
+    Include/Utilities/PCH/STD_PCH.hpp
+    Include/Utilities/PCH/RGE_PCH.hpp
 )
 
 set(VULKAN_SDK $ENV{VULKAN_SDK})
@@ -141,11 +140,11 @@ target_include_directories(RigelEngine PUBLIC
     Include/ECS
     Include/Components
     Include/Handles
-    Include/Utils
-    Include/Utils/Filesystem
-    Include/Utils/Math
-    Include/Utils/Threading
-    Include/Utils/Reflection
+    Include/Utilities
+    Include/Utilities/Filesystem
+    Include/Utilities/Math
+    Include/Utilities/Threading
+    Include/Utilities/Reflection
     Include/Subsystems
     Include/Subsystems/AssetManager
     Include/Subsystems/Renderer
@@ -153,8 +152,7 @@ target_include_directories(RigelEngine PUBLIC
     Include/Subsystems/PhysicsEngine
     Include/Subsystems/InputManager
     Include/Subsystems/WindowManager
-    Include/Utils/HeaderUtils
-    Include/Utils/Serialization
+    Include/Utilities/Serialization
     Include/Assets
 )
 
@@ -163,14 +161,13 @@ add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
 add_subdirectory(${DEPENDENCIES_DIR}/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 
 find_package(Vulkan REQUIRED)
-find_package(Python3 REQUIRED)
 
 target_link_libraries(RigelEngine PUBLIC
     ${LINK_LIBRARIES} glfw Vulkan::Vulkan assimp
 )
 
 add_custom_target(RunBuildAssets ALL
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Engine/Assets/BuildAssets.py ${CMAKE_SOURCE_DIR}/Engine/Assets ${CMAKE_BUILD_TYPE} ${ENGINE_OUTPUT_PATH}
+    COMMAND python ${CMAKE_SOURCE_DIR}/Engine/Assets/BuildAssets.py ${CMAKE_SOURCE_DIR}/Engine/Assets ${CMAKE_BUILD_TYPE} ${ENGINE_OUTPUT_PATH}
     COMMENT "Running build assets python script!"
 )
 

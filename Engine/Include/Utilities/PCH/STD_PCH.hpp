@@ -2,7 +2,6 @@
 
 // Misc
 #include <filesystem>
-#include <stdexcept>
 #include <functional>
 #include <format>
 #include <memory>

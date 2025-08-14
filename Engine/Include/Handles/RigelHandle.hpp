@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "HandleValidator.hpp"
+#include "Debug.hpp"
 #include "TypeRegistry.hpp"
 
 namespace Rigel

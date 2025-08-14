@@ -28,7 +28,7 @@ namespace Rigel
 
     void Transform::OnLoad()
     {
-        SubscribeEvent<Backend::TransformUpdateEvent>(UpdateOnDemand);
+        SubscribeEvent<Backend::TransformUpdateEvent>(&Transform::UpdateOnDemand);
 
         const auto thisHandle = ComponentHandle(this, this->GetID());
 

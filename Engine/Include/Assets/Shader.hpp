@@ -4,6 +4,7 @@
 #include "RigelAsset.hpp"
 #include "AssetMetadata.hpp"
 
+#include <array>
 #include <filesystem>
 #include <memory>
 
@@ -12,6 +13,7 @@ namespace Rigel
     namespace Backend::Vulkan
     {
         class VK_Shader;
+        class VK_ShaderModule;
     }
 
     struct ShaderMetadata : public AssetMetadata
@@ -53,6 +55,14 @@ namespace Rigel
     public:
         ~Shader() override;
     INTERNAL:
+        struct Variant
+        {
+            Ref<Backend::Vulkan::VK_ShaderModule> VertexModule;
+            Ref<Backend::Vulkan::VK_ShaderModule> FragmentModule;
+        };
+
+        // NODISCARD Variant GetVariant(const std::string& name);
+
         NODISCARD inline Ref<Backend::Vulkan::VK_Shader> GetImpl() const
         {
             this->WaitReady();

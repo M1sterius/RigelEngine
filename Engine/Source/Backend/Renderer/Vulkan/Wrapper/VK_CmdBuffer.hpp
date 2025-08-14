@@ -5,6 +5,8 @@
 
 #include "vulkan.h"
 
+#include <memory>
+
 namespace Rigel::Backend::Vulkan
 {
     class VK_Device;

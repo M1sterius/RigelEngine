@@ -1,11 +1,14 @@
 #include "SleepUtility.hpp"
 
 #ifdef RIGEL_PLATFORM_WINDOWS
-#include "Windows.h"
-#else
+    // this define removes global legacy windows min/max macros that break everything when used with pch
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #include "Windows.h"
+#endif
 #include <chrono>
 #include <thread>
-#endif
 
 namespace Rigel
 {

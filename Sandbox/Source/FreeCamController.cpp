@@ -37,7 +37,7 @@ bool FreeCamController::Deserialize(const nlohmann::json& json)
 
 void FreeCamController::OnStart()
 {
-    SubscribeEvent<Rigel::GameUpdateEvent>(OnUpdate);
+    SubscribeEvent<Rigel::GameUpdateEvent>(&FreeCamController::OnUpdate);
 }
 
 void FreeCamController::OnUpdate()
