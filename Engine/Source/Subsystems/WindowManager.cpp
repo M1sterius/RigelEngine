@@ -1,11 +1,11 @@
-#include "WindowManager.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
 #include "Engine.hpp"
-#include "EventManager.hpp"
-#include "EngineEvents.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/EventSystem/EngineEvents.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 #define GLFW_INCLUDE_VULKAN
-#include "glfw3.h"
+#include "GLFW/glfw3.h"
 
 #include <format>
 

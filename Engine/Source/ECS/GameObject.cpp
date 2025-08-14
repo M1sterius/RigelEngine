@@ -1,8 +1,8 @@
-#include "GameObject.hpp"
+#include "ECS/GameObject.hpp"
 #include "Debug.hpp"
-#include "Scene.hpp"
-#include "Transform.hpp"
-#include "TypeRegistry.hpp"
+#include "ECS/Scene.hpp"
+#include "Components/Transform.hpp"
+#include "Utilities/Reflection/TypeUtility.hpp"
 
 #include "json.hpp"
 

@@ -2,8 +2,8 @@
 
 #include "Core.hpp"
 #include "RigelAsset.hpp"
-#include "AssetHandle.hpp"
-#include "Material.hpp"
+#include "Handles/AssetHandle.hpp"
+#include "Assets/Material.hpp"
 
 #include <filesystem>
 #include <memory>

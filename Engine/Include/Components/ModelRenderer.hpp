@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Component.hpp"
-
-#include "../Assets/Model.hpp"
-#include "AssetHandle.hpp"
+#include "ECS/Component.hpp"
+#include "Assets/Model.hpp"
+#include "Handles/AssetHandle.hpp"
 
 #include <filesystem>
 

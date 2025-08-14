@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Core.hpp"
-#include "RigelSubsystem.hpp"
 #include "Debug.hpp"
-#include "../../Assets/RigelAsset.hpp"
-#include "AssetHandle.hpp"
-#include "AssetMetadata.hpp"
-#include "ThreadPool.hpp"
 #include "Hash.hpp"
-#include "ScopeGuard.hpp"
+#include "AssetMetadata.hpp"
+#include "Assets/RigelAsset.hpp"
+#include "Handles/AssetHandle.hpp"
+#include "Subsystems/RigelSubsystem.hpp"
+#include "Utilities/Threading/ThreadPool.hpp"
+#include "Utilities/ScopeGuard.hpp"
 
 #include "plf_colony.h"
 

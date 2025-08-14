@@ -1,5 +1,5 @@
-#include "SceneHandle.hpp"
-#include "HandleValidator.hpp"
+#include "Handles/SceneHandle.hpp"
+#include "Handles/HandleValidator.hpp"
 
 namespace Rigel
 {

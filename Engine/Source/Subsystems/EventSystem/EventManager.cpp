@@ -1,4 +1,4 @@
-#include "EventManager.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
 #include "Debug.hpp"
 
 namespace Rigel

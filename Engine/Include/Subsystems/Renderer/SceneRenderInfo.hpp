@@ -2,11 +2,8 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "ComponentHandle.hpp"
-#include "Camera.hpp"
-#include "ModelRenderer.hpp"
-#include "AssetHandle.hpp"
-#include "../../Assets/Model.hpp"
+#include "Handles/AssetHandle.hpp"
+#include "Assets/Model.hpp"
 
 #include <vector>
 

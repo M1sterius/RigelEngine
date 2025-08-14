@@ -2,11 +2,10 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
-#include "RigelSubsystem.hpp"
 #include "Event.hpp"
 #include "EngineEvents.hpp"
-#include "Engine.hpp"
-#include "ThreadPool.hpp"
+#include "Subsystems/RigelSubsystem.hpp"
+#include "Utilities/Threading/ThreadPool.hpp"
 
 #include <algorithm>
 #include <functional>

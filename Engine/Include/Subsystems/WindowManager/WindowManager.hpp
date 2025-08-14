@@ -4,7 +4,7 @@
 #include "Math.hpp"
 #include "DisplayMode.hpp"
 #include "CursorState.hpp"
-#include "RigelSubsystem.hpp"
+#include "Subsystems/RigelSubsystem.hpp"
 
 #include <string>
 #include <vector>

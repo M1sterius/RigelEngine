@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Math.hpp"
 #include "VK_Device.hpp"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 namespace Rigel::Backend::Vulkan
 {

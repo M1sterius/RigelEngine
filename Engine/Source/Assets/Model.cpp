@@ -1,9 +1,9 @@
-#include "../../Include/Assets/Model.hpp"
-#include "AssetManager.hpp"
+#include "Assets/Model.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Types.hpp"
-#include "Internal.hpp"
+#include "Utilities/Types.hpp"
+#include "Utilities/Internal.hpp"
 #include "Assert.hpp"
 #include "ErrorCodes.hpp"
-#include "Result.hpp"
-#include "TypeUtility.hpp"
-#include "Ref.hpp"
+#include "Utilities/Result.hpp"
+#include "Utilities/Ref.hpp"
+#include "Utilities/Reflection/TypeUtility.hpp"
 
 #define RIGEL_ENGINE_NAME "RigelEngine"
 

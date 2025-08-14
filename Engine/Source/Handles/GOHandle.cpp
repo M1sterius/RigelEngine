@@ -1,8 +1,6 @@
-#include "GOHandle.hpp"
-#include "Engine.hpp"
-#include "Scene.hpp"
-#include "SceneManager.hpp"
-#include "HandleValidator.hpp"
+#include "Handles/GOHandle.hpp"
+#include "Handles/HandleValidator.hpp"
+#include "ECS/Scene.hpp"
 
 namespace Rigel
 {

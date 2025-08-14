@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Event.hpp"
+#include "Subsystems/EventSystem/Event.hpp"
 
 namespace Rigel::Backend
 {

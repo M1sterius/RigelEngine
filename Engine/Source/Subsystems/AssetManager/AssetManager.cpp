@@ -1,11 +1,11 @@
-#include "AssetManager.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Subsystems/AssetManager/BuiltInAssets.hpp"
+#include "Utilities/Filesystem/Directory.hpp"
+#include "Assets/Shader.hpp"
+#include "Assets/Model.hpp"
+#include "Assets/Texture.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
-#include "Directory.hpp"
-#include "../../../Include/Assets/Shader.hpp"
-#include "../../../Include/Assets/Model.hpp"
-#include "../../../Include/Assets/Texture.hpp"
-#include "BuiltInAssets.hpp"
 
 #include "json.hpp"
 

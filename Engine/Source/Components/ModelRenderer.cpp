@@ -1,8 +1,8 @@
-#include "ModelRenderer.hpp"
+#include "Components/ModelRenderer.hpp"
 #include "json.hpp"
 #include "Engine.hpp"
-#include "AssetManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 namespace Rigel
 {

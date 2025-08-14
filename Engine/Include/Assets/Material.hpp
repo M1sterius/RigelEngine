@@ -2,9 +2,9 @@
 
 #include "Core.hpp"
 #include "RigelAsset.hpp"
-#include "AssetMetadata.hpp"
-#include "AssetHandle.hpp"
-#include "Texture.hpp"
+#include "Assets/Texture.hpp"
+#include "Handles/AssetHandle.hpp"
+#include "Subsystems/AssetManager/AssetMetadata.hpp"
 
 #include <filesystem>
 

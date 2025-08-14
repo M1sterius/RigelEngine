@@ -4,8 +4,8 @@
 #include "Math.hpp"
 #include "QueueType.hpp"
 
-#include "vulkan.h"
-#include "vk_mem_alloc.h"
+#include "vulkan/vulkan.h"
+#include "vma/vk_mem_alloc.h"
 
 namespace Rigel::Backend::Vulkan
 {

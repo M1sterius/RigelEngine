@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GOHandle.hpp"
 #include "Core.hpp"
-#include "RigelObject.hpp"
 #include "GameObject.hpp"
-#include "ISerializable.hpp"
+#include "RigelObject.hpp"
+#include "Handles/GOHandle.hpp"
+#include "Utilities/Serialization/ISerializable.hpp"
 
 #include "plf_colony.h"
 

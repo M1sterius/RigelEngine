@@ -1,8 +1,7 @@
-#include "Texture.hpp"
+#include "Assets/Texture.hpp"
+#include "Utilities/ScopeGuard.hpp"
 #include "VK_Texture.hpp"
-#include "ScopeGuard.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
 namespace Rigel

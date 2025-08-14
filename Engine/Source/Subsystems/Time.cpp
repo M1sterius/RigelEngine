@@ -1,7 +1,7 @@
-#include "Time.hpp"
+#include "Subsystems/Time.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 #ifdef RIGEL_PLATFORM_WINDOWS
     // this define removes global legacy windows min/max macros that break everything when used with pch

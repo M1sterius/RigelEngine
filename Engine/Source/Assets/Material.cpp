@@ -1,10 +1,10 @@
-#include "Material.hpp"
+#include "Assets/Material.hpp"
 #include "VK_BindlessManager.hpp"
-#include "AssetManager.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_Texture.hpp"
 #include "VulkanUtility.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 // TODO: this constants should probably be defined in a better place
 #define ERROR_TEXTURE_BINDLESS_INDEX 0

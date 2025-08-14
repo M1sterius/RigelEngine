@@ -1,12 +1,11 @@
-#include "InputManager.hpp"
-#include "EngineEvents.hpp"
-#include "EventManager.hpp"
-#include "WindowManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/InputManager/InputManager.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
 
-#include "glfw3.h"
+#include "GLFW/glfw3.h"
 
 namespace Rigel
 {

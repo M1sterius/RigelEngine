@@ -1,10 +1,10 @@
 #include "VK_Surface.hpp"
 #include "VulkanUtility.hpp"
-#include "WindowManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
 
 #define GLFW_INCLUDE_VULKAN
-#include "glfw3.h"
+#include "GLFW/glfw3.h"
 
 namespace Rigel::Backend::Vulkan
 {

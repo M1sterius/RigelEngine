@@ -1,4 +1,4 @@
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 #include "Engine.hpp"
 
 namespace Rigel

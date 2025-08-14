@@ -1,8 +1,8 @@
 #include "VK_Device.hpp"
 #include "VulkanUtility.hpp"
-#include "AssetManager.hpp"
 #include "VK_MemoryBuffer.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
 
 #include <format>
 #include <set>

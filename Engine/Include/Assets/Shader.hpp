@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelAsset.hpp"
-#include "AssetMetadata.hpp"
+#include "Subsystems/AssetManager/AssetMetadata.hpp"
 
 #include <array>
 #include <filesystem>

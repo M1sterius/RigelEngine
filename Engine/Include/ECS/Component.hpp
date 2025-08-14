@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Event.hpp"
 #include "RigelObject.hpp"
-#include "ISerializable.hpp"
-#include "GOHandle.hpp"
-#include "SceneHandle.hpp"
-#include "TypeRegistry.hpp"
 #include "Engine.hpp"
-#include "EventManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Handles/GOHandle.hpp"
+#include "Handles/SceneHandle.hpp"
+#include "Subsystems/EventSystem/Event.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Utilities/Reflection/ITypeRegistrable.hpp"
+#include "Utilities/Reflection/TypeRegistry.hpp"
 
 #include <type_traits>
 #include <typeindex>

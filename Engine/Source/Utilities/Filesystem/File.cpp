@@ -1,8 +1,9 @@
-#include "File.hpp"
+#include "Utilities/Filesystem/File.hpp"
 
 #include "json.hpp"
 
 #include <ostream>
+#include <fstream>
 
 namespace Rigel
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "RigelSubsystem.hpp"
+#include "Subsystems/RigelSubsystem.hpp"
 
 namespace Rigel
 {

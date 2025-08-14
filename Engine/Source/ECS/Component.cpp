@@ -1,6 +1,6 @@
-#include "Component.hpp"
+#include "ECS/Component.hpp"
 #include "Debug.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 #include "json.hpp"
 

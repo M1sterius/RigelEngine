@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core.hpp"
-#include "../../../../Include/Assets/Texture.hpp"
-#include "AssetHandle.hpp"
+#include "Assets/Texture.hpp"
+#include "Handles/AssetHandle.hpp"
 #include "ShaderStructs.hpp"
 
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 #include <vector>
 

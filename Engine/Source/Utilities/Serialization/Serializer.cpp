@@ -1,4 +1,5 @@
-#include "Serializer.hpp"
+#include "Utilities/Serialization/Serializer.hpp"
+
 #include "json.hpp"
 
 namespace Rigel

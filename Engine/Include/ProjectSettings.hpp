@@ -2,8 +2,8 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "ISerializable.hpp"
-#include "DisplayMode.hpp"
+#include "Utilities/Serialization/ISerializable.hpp"
+#include "Subsystems/WindowManager/DisplayMode.hpp"
 
 #include "json.hpp"
 
@@ -44,7 +44,7 @@ namespace Rigel
         };
 
         // Assets and asset manager
-        uint32_t AssetManagerThreadPoolSize = 4; // zero for std::thread::hardware_concurrency()
+        uint32_t AssetManagerThreadPoolSize = 4; // set to 0 for std::thread::hardware_concurrency()
         bool EnableAssetLifetimeLogging = true;
 
         NODISCARD nlohmann::json Serialize() const override

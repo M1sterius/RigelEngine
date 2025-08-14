@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelHandle.hpp"
-#include "AssetDeleter.hpp"
+#include "Subsystems/AssetManager/AssetDeleter.hpp"
 
 #include <memory>
 

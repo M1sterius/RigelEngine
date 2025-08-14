@@ -1,10 +1,10 @@
-#include "PhysicsEngine.hpp"
-#include "EventManager.hpp"
-#include "EngineEvents.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/PhysicsEngine/PhysicsEngine.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/EventSystem/EngineEvents.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/Time.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
-#include "Time.hpp"
 
 namespace Rigel
 {

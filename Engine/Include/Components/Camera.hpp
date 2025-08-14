@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "Component.hpp"
+#include "ECS/Component.hpp"
 
 namespace Rigel
 {

@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
-#include "TypeRegistry.hpp"
+#include "Utilities/Reflection/TypeRegistry.hpp"
 
 namespace Rigel
 {

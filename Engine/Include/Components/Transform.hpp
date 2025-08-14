@@ -2,8 +2,8 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "Component.hpp"
-#include "ComponentHandle.hpp"
+#include "ECS/Component.hpp"
+#include "Handles/ComponentHandle.hpp"
 
 #include <vector>
 

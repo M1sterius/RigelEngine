@@ -1,5 +1,6 @@
 #include "MakeInfo.hpp"
-#include "vulkan.h"
+
+#include "vulkan/vulkan.h"
 
 namespace Rigel::Backend::Vulkan
 {

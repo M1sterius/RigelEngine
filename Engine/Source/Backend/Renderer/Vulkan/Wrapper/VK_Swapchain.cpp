@@ -1,9 +1,9 @@
 #include "VK_Swapchain.hpp"
 #include "VK_Semaphore.hpp"
 #include "VulkanUtility.hpp"
-#include "Time.hpp"
-#include "WindowManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/Time.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
 
 NODISCARD static glm::uvec2 GetCurrentExtent()
 {

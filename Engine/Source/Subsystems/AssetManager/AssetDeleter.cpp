@@ -1,7 +1,6 @@
-#include "AssetDeleter.hpp"
-#include "Engine.hpp"
-#include "AssetManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetDeleter.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 namespace Rigel::Backend
 {

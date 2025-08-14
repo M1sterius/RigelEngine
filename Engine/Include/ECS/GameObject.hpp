@@ -2,13 +2,13 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
-#include "ComponentHandle.hpp"
-#include "HandleValidator.hpp"
+#include "Handles/ComponentHandle.hpp"
+#include "Handles/HandleValidator.hpp"
 #include "Component.hpp"
-#include "ISerializable.hpp"
+#include "Utilities/Serialization/ISerializable.hpp"
 #include "RigelObject.hpp"
-#include "SceneHandle.hpp"
-#include "Transform.hpp"
+#include "Handles/SceneHandle.hpp"
+#include "Components/Transform.hpp"
 
 #include <string>
 #include <typeindex>

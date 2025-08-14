@@ -1,11 +1,10 @@
-#include "SceneManager.hpp"
-#include "SceneHandle.hpp"
-#include "Assert.hpp"
+#include "Subsystems/SceneManager.hpp"
+#include "ECS/Scene.hpp"
+#include "Handles/SceneHandle.hpp"
+#include "Handles/HandleValidator.hpp"
 #include "Debug.hpp"
-#include "Scene.hpp"
 
 #include <utility>
-
 
 namespace Rigel
 {

@@ -4,7 +4,7 @@
 
 #include "RigelSubsystem.hpp"
 #include "Core.hpp"
-#include "SceneHandle.hpp"
+#include "Handles/SceneHandle.hpp"
 
 #include <memory>
 #include <string>

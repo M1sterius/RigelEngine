@@ -1,15 +1,15 @@
 #include "VK_BindlessManager.hpp"
-#include "AssetManager.hpp"
-#include "BuiltInAssets.hpp"
 #include "VulkanUtility.hpp"
 #include "VK_DescriptorPool.hpp"
 #include "VK_Image.hpp"
 #include "VK_Texture.hpp"
 #include "VK_Swapchain.hpp"
-#include "Time.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "ShaderStructs.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/Time.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Subsystems/AssetManager/BuiltInAssets.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

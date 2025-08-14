@@ -15,65 +15,66 @@
 
 // Core headers
 #include "Core.hpp"
-#include "Math.hpp"
+#include "Utilities/Math/Math.hpp"
 #include "Engine.hpp"
 #include "ProjectSettings.hpp"
 
 // Subsystems
-#include "EventManager.hpp"
-#include "SceneManager.hpp"
-#include "Renderer.hpp"
-#include "InputManager.hpp"
-#include "AssetManager.hpp"
-#include "WindowManager.hpp"
-#include "PhysicsEngine.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/Time.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/SceneManager.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
+#include "Subsystems/InputManager/InputManager.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
+#include "Subsystems/PhysicsEngine/PhysicsEngine.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 // Subsystem-related classes
-#include "Event.hpp"
-#include "EngineEvents.hpp"
-#include "AssetHandle.hpp"
-#include "KeysAndButtons.hpp"
-#include "BuiltInAssets.hpp"
+#include "Subsystems/EventSystem/Event.hpp"
+#include "Subsystems/EventSystem/EngineEvents.hpp"
+
+#include "Subsystems/InputManager/KeysAndButtons.hpp"
+#include "Subsystems/AssetManager/BuiltInAssets.hpp"
 
 // Assets
 #include "Assets/RigelAsset.hpp"
 #include "Assets/Shader.hpp"
-#include "Model.hpp"
-#include "Texture.hpp"
+#include "Assets/Model.hpp"
+#include "Assets/Texture.hpp"
 #include "Assets/Material.hpp"
 
 // Debug
 #include "Debug.hpp"
 
-// Global tool classes
-#include "Time.hpp"
+// Handles
+#include "Handles/RigelHandle.hpp"
+#include "Handles/SceneHandle.hpp"
+#include "Handles/GOHandle.hpp"
+#include "Handles/AssetHandle.hpp"
 
 // ECS
-#include "RigelHandle.hpp"
-#include "SceneHandle.hpp"
-#include "GOHandle.hpp"
-#include "Scene.hpp"
-#include "GameObject.hpp"
-#include "Component.hpp"
+#include "ECS/Scene.hpp"
+#include "ECS/GameObject.hpp"
+#include "ECS/Component.hpp"
 
 // Components
-#include "Transform.hpp"
-#include "Camera.hpp"
-#include "ModelRenderer.hpp"
+#include "Components/Transform.hpp"
+#include "Components/Camera.hpp"
+#include "Components/ModelRenderer.hpp"
 
 // Utility
-#include "TypeRegistry.hpp"
-#include "ThreadPool.hpp"
-#include "SleepUtility.hpp"
-#include "ISerializable.hpp"
-#include "Serializer.hpp"
-#include "File.hpp"
-#include "Directory.hpp"
-#include "Math.hpp"
-#include "Random.hpp"
+#include "Utilities/Reflection/TypeUtility.hpp"
+#include "Utilities/Threading/ThreadPool.hpp"
+#include "Utilities/Threading/SleepUtility.hpp"
+#include "Utilities/Serialization/ISerializable.hpp"
+#include "Utilities/Serialization/Serializer.hpp"
+#include "Utilities/Filesystem/File.hpp"
+#include "Utilities/Filesystem/Directory.hpp"
+#include "Utilities/Math/Math.hpp"
+#include "Utilities/Math/Random.hpp"
+#include "Utilities/ScopeGuard.hpp"
+#include "Utilities/Ref.hpp"
 #include "json.hpp"
-#include "ScopeGuard.hpp"
-#include "Ref.hpp"
 
 #endif

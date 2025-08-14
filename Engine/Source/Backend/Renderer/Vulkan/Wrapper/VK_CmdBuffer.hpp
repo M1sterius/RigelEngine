@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "QueueType.hpp"
 
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 #include <memory>
 

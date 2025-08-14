@@ -1,10 +1,9 @@
-#include "Camera.hpp"
+#include "Components/Camera.hpp"
 #include "json.hpp"
-#include "GameObject.hpp"
-#include "Engine.hpp"
-#include "WindowManager.hpp"
-#include "EventManager.hpp"
-#include "SubsystemGetters.hpp"
+#include "ECS/GameObject.hpp"
+#include "Subsystems/WindowManager/WindowManager.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 
 namespace Rigel
 {

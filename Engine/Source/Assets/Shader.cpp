@@ -1,8 +1,8 @@
-#include "Shader.hpp"
-#include "SubsystemGetters.hpp"
+#include "Assets/Shader.hpp"
 #include "VK_Shader.hpp"
-#include "AssetManager.hpp"
-#include "File.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Utilities/Filesystem/File.hpp"
 
 namespace Rigel
 {

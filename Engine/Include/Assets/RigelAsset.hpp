@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "RigelObject.hpp"
-#include "HandleValidator.hpp"
+#include "Handles/HandleValidator.hpp"
 
 #include <filesystem>
 #include <condition_variable>

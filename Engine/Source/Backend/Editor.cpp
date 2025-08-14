@@ -1,8 +1,8 @@
 #include "Editor.hpp"
-#include "Time.hpp"
 #include "Engine.hpp"
-#include "Renderer.hpp"
-#include "SubsystemGetters.hpp"
+#include "Subsystems/Time.hpp"
+#include "Subsystems/Renderer/Renderer.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
 #include "ImGui/VK_ImGUI_Renderer.hpp"
 
 #include "imgui/imgui.h"
