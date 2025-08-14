@@ -1,17 +1,17 @@
 #include "VK_Renderer.hpp"
-#include "ImGui/VK_ImGUI_Renderer.hpp"
 #include "Assets/Shader.hpp"
+#include "Assets/Model.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
 #include "VulkanWrapper.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
+#include "Engine.hpp"
+#include "ImGui/VK_ImGUI_Renderer.hpp"
 #include "Subsystems/Time.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Subsystems/AssetManager/BuiltInAssets.hpp"
-#include "Engine.hpp"
 #include "Subsystems/WindowManager/WindowManager.hpp"
-#include "Assets/Model.hpp"
 #include "Subsystems/Renderer/Renderer.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 
@@ -51,20 +51,23 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
-        auto defaultShaderMetadata = ShaderMetadata2();
+        auto defaultShaderMetadata = ShaderMetadata();
         defaultShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DefaultShader.vert.spv";
         defaultShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DefaultShader.frag.spv";
         defaultShaderMetadata.AddVariant("Main", 0, 1);
 
-        const auto shaderAsset = GetAssetManager()->Load<Shader>(BuiltInAssets::ShaderDefault);
-        const auto defaultShader = shaderAsset->GetImpl();
-
-        if (!defaultShader)
+        auto defaultShader = GetAssetManager()->Load<Shader>(BuiltInAssets::ShaderDefault, &defaultShaderMetadata, true);
+        if (!defaultShader->IsOK())
             return ErrorCode::BUILT_IN_ASSET_NOT_LOADED;
 
         const std::vector layouts = { m_BindlessManager->GetDescriptorSetLayout() };
 
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(*m_Device, m_Swapchain->GetSwapchainImageFormat(), defaultShader->GetShaderStagesInfo(), layouts);
+        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(
+            *m_Device,
+            m_Swapchain->GetSwapchainImageFormat(),
+            defaultShader->GetVariant("Main"),
+            layouts
+        );
 
         return ErrorCode::OK;
     }

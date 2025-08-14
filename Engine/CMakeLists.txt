@@ -82,7 +82,6 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Semaphore.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
-    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Shader.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
 )
 

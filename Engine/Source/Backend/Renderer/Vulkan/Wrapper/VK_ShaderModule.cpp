@@ -16,12 +16,12 @@ namespace Rigel::Backend::Vulkan
         return VkShaderStageFlagBits();
     }
 
-    VK_ShaderModule::VK_ShaderModule(const std::vector<char>& sourceBytes)
+    VK_ShaderModule::VK_ShaderModule(const std::vector<char>& spirv)
         : m_ShaderStageInfo()
     {
         auto shaderInfo = MakeInfo<VkShaderModuleCreateInfo>();
-        shaderInfo.codeSize = sourceBytes.size();
-        shaderInfo.pCode = reinterpret_cast<const uint32_t*>(sourceBytes.data());
+        shaderInfo.codeSize = spirv.size();
+        shaderInfo.pCode = reinterpret_cast<const uint32_t*>(spirv.data());
 
         VK_CHECK_RESULT(vkCreateShaderModule(GetDevice().Get(), &shaderInfo, nullptr, &m_ShaderModule), "Failed to create vertex shader module!");
 
@@ -35,9 +35,8 @@ namespace Rigel::Backend::Vulkan
         vkDestroyShaderModule(GetDevice().Get(), m_ShaderModule, nullptr);
     }
 
-    VkPipelineShaderStageCreateInfo VK_ShaderModule::GetStageInfo(const ShaderStage stage)
+    void VK_ShaderModule::SetStage(const ShaderStage stage)
     {
         m_ShaderStageInfo.stage = DeduceShaderStageFlag(stage);
-        return m_ShaderStageInfo;
     }
 }

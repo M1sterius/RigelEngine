@@ -5,28 +5,20 @@
 #include "Subsystems/AssetManager/AssetMetadata.hpp"
 
 #include <array>
-#include <filesystem>
 #include <memory>
+#include <vector>
+#include <filesystem>
 
 namespace Rigel
 {
     namespace Backend::Vulkan
     {
-        class VK_Shader;
         class VK_ShaderModule;
     }
 
     struct ShaderMetadata : public AssetMetadata
     {
-        ~ShaderMetadata() override = default;
-
-        std::filesystem::path VertPath;
-        std::filesystem::path FragPath;
-    };
-
-    struct ShaderMetadata2 : public AssetMetadata
-    {
-        struct Variant
+        struct VariantIndices
         {
             uint8_t VertexIndex;
             uint8_t FragmentIndex;
@@ -34,20 +26,19 @@ namespace Rigel
 
         static constexpr uint32_t MAX_PATHS = 16;
 
-        ~ShaderMetadata2() override = default;
+        ~ShaderMetadata() override = default;
 
         void AddVariant(const std::string& name, const uint8_t vertIndex, const uint8_t fragIndex)
         {
             ASSERT(vertIndex < MAX_PATHS, "Invalid shader metadata vertex path index!");
             ASSERT(fragIndex < MAX_PATHS, "Invalid shader metadata fragment path index!");
-            ASSERT(!m_Variants.contains(name), "Shader variant with that name already exists!");
+            ASSERT(!Variants.contains(name), "Shader variant with that name already exists!");
 
-            m_Variants[name] = {vertIndex, fragIndex};
+            Variants[name] = {vertIndex, fragIndex};
         }
 
         std::array<std::filesystem::path, MAX_PATHS> Paths;
-    private:
-        std::unordered_map<std::string, Variant> m_Variants;
+        std::unordered_map<std::string, VariantIndices> Variants;
     };
 
     class Shader final : public RigelAsset
@@ -61,18 +52,13 @@ namespace Rigel
             Ref<Backend::Vulkan::VK_ShaderModule> FragmentModule;
         };
 
-        // NODISCARD Variant GetVariant(const std::string& name);
-
-        NODISCARD inline Ref<Backend::Vulkan::VK_Shader> GetImpl() const
-        {
-            this->WaitReady();
-            return m_Impl.get();
-        }
+        NODISCARD Variant GetVariant(const std::string& name);
     private:
         Shader(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
-        std::unique_ptr<Backend::Vulkan::VK_Shader> m_Impl;
+        std::vector<std::unique_ptr<Backend::Vulkan::VK_ShaderModule>> m_ShaderModules;
+        std::unordered_map<std::string, ShaderMetadata::VariantIndices> m_Variants;
 
         friend class AssetManager;
     };

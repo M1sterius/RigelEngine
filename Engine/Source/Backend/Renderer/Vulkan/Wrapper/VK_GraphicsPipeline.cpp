@@ -1,10 +1,9 @@
 #include "VK_GraphicsPipeline.hpp"
-#include "VK_Shader.hpp"
 #include "VulkanUtility.hpp"
 #include "VK_VertexBuffer.hpp"
 #include "VK_DescriptorSet.hpp"
 #include "ShaderStructs.hpp"
-#include "VK_Fence.hpp"
+#include "VK_ShaderModule.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -25,13 +24,17 @@ namespace Rigel::Backend::Vulkan
     }
 
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat swapchainImageFormat, const std::array<VkPipelineShaderStageCreateInfo, 2>& shaderStages, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+        const VkFormat colorAttachmentFormat, const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
     {
+        const std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {
+            shaderVariant.VertexModule->GetStageInfo(),
+            shaderVariant.FragmentModule->GetStageInfo()
+        };
 
         // Dynamic rendering attachments info
         auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
         renderingCreateInfo.colorAttachmentCount = 1;
-        renderingCreateInfo.pColorAttachmentFormats = &swapchainImageFormat;
+        renderingCreateInfo.pColorAttachmentFormats = &colorAttachmentFormat;
         renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
         renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 

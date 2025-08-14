@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Assets/Shader.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -25,8 +26,8 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VkPipeline Get() const { return m_GraphicsPipeline; }
         NODISCARD inline VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
 
-        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat swapchainImageFormat,
-            const std::array<VkPipelineShaderStageCreateInfo, 2>& shaderStages, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat colorAttachmentFormat,
+            const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
     private:
         VK_Device& m_Device;
 

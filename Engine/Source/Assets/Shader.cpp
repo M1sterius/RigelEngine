@@ -1,8 +1,10 @@
 #include "Assets/Shader.hpp"
-#include "VK_Shader.hpp"
+#include "VK_ShaderModule.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Utilities/Filesystem/File.hpp"
+
+#include <ranges>
 
 namespace Rigel
 {
@@ -17,17 +19,42 @@ namespace Rigel
         if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
-        const auto vertBytes = File::ReadBinary(metadata->VertPath);
-        const auto fragBytes = File::ReadBinary(metadata->FragPath);
+        for (const auto& modulePath : metadata->Paths)
+        {
+            if (!modulePath.empty())
+            {
+                const auto spirv = File::ReadBinary(modulePath);
+                if (spirv.IsError())
+                    return spirv.GetError();
 
-        if (vertBytes.IsError())
-            return vertBytes.GetError();
-        if (fragBytes.IsError())
-            return fragBytes.GetError();
+                m_ShaderModules.emplace_back(std::make_unique<Backend::Vulkan::VK_ShaderModule>(spirv.Value()));
+            }
+        }
 
-        m_Impl = std::make_unique<Backend::Vulkan::VK_Shader>(vertBytes.Value(), fragBytes.Value());
+        m_Variants = metadata->Variants;
+
+        for (auto& [vertIndex, fragIndex] : m_Variants | std::views::values)
+        {
+            ASSERT(vertIndex < m_ShaderModules.size() && m_ShaderModules.at(vertIndex), "Invalid shader variant vertex module index!");
+            ASSERT(fragIndex < m_ShaderModules.size() && m_ShaderModules.at(fragIndex), "Invalid shader variant fragment module index!");
+
+            m_ShaderModules[vertIndex]->SetStage(Backend::ShaderStage::Vertex);
+            m_ShaderModules[fragIndex]->SetStage(Backend::ShaderStage::Fragment);
+        }
 
         m_Initialized = true;
         return ErrorCode::OK;
+    }
+
+    Shader::Variant Shader::GetVariant(const std::string& name)
+    {
+        ASSERT(m_Variants.contains(name), "Invalid shader variant name!");
+
+        const auto [vertIndex, fragIndex] = m_Variants[name];
+
+        return {
+            .VertexModule = m_ShaderModules[vertIndex].get(),
+            .FragmentModule = m_ShaderModules[fragIndex].get()
+        };
     }
 }

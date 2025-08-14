@@ -170,7 +170,7 @@ namespace Rigel::Backend::Vulkan
 
         VmaAllocatorCreateInfo allocatorCreateInfo = {};
         allocatorCreateInfo.flags = extensionFlags;
-        allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_4;
+        allocatorCreateInfo.vulkanApiVersion = VK_Config::MinimalRequiredAPIVersion;
         allocatorCreateInfo.physicalDevice = m_SelectedPhysicalDevice.PhysicalDevice;
         allocatorCreateInfo.device = m_Device;
         allocatorCreateInfo.instance = m_Instance;
