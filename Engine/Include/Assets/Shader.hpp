@@ -15,6 +15,9 @@ namespace Rigel
         class VK_ShaderModule;
     }
 
+    /**
+     * Asset that represents a set of SPIR-V shaders
+     */
     class Shader final : public RigelAsset
     {
     public:

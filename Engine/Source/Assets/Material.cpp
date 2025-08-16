@@ -24,13 +24,13 @@ namespace Rigel
         const auto metadata = assetManager->GetMetadata<MaterialMetadata>(this->m_Path);
 
         if (!metadata->DiffusePath.empty())
-            m_Diffuse = assetManager->Load<Texture>(metadata->DiffusePath);
+            m_Diffuse = assetManager->Load<Texture2D>(metadata->DiffusePath);
         if (!metadata->SpecularPath.empty())
-            m_Specular = assetManager->Load<Texture>(metadata->SpecularPath);
+            m_Specular = assetManager->Load<Texture2D>(metadata->SpecularPath);
         if (!metadata->NormalsPath.empty())
-            m_Normals = assetManager->Load<Texture>(metadata->NormalsPath);
+            m_Normals = assetManager->Load<Texture2D>(metadata->NormalsPath);
 
-        auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t
+        auto SetIndex = [](const AssetHandle<Texture2D>& texture, const uint32_t fallbackIndex) -> uint32_t
         {
             if (texture.IsNull())
                 return fallbackIndex;
@@ -48,7 +48,7 @@ namespace Rigel
         m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
         m_Data->Roughness = 0.0f;
 
-        m_BindlessIndex = Backend::Vulkan::GetVKRenderer().GetBindlessManager().AddMaterial(m_Data.get());
+        m_BindlessIndex = Backend::Vulkan::GetVKRenderer().GetBindlessManager().AddMaterialData(m_Data.get());
 
         return ErrorCode::OK;
     }

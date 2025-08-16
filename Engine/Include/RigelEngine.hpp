@@ -41,7 +41,7 @@
 #include "Assets/RigelAsset.hpp"
 #include "Assets/Shader.hpp"
 #include "Assets/Model.hpp"
-#include "Assets/Texture.hpp"
+#include "Assets/Texture2D.hpp"
 #include "Assets/Material.hpp"
 
 // Debug

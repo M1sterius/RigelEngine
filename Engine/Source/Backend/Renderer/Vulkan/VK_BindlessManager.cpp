@@ -104,7 +104,7 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.Get(), &allocateInfo, &m_DescriptorSet), "Failed to create bindless descriptor set!");
     }
 
-    VkSampler VK_BindlessManager::GetSamplerByProperties(const Texture::SamplerProperties& properties)
+    VkSampler VK_BindlessManager::GetSamplerByProperties(const Texture2D::SamplerProperties& properties)
     {
         // check if a sampler with that properties already exists
         {
@@ -131,7 +131,7 @@ namespace Rigel::Backend::Vulkan
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
+        samplerInfo.maxLod = properties.EnableMips ? VK_LOD_CLAMP_NONE : 0.0f;
 
         VkSampler sampler = VK_NULL_HANDLE;
         VK_CHECK_RESULT(vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &sampler), "Failed to create texture sampler!");
@@ -239,18 +239,15 @@ namespace Rigel::Backend::Vulkan
 
     void VK_BindlessManager::RemoveTexture(const uint32_t textureIndex)
     {
-        // if the engine is shutting down we no longer care about maintaining proper free list
-        // also it fixes an infinite loop when removing the default texture during shutdown
-        if (!GetEngine()->Running())
-            return;
-
-        if (textureIndex == 0 || textureIndex == 1)
+        // Default textures should never be removed because doing so will cause an infinite
+        // loop of unloading and loading BuiltInAssets::TextureError
+        if (textureIndex == 0 || textureIndex == 1 || textureIndex == 2)
             return;
 
         static Ref<VK_Texture> defaultTexture = nullptr;
         if (!defaultTexture)
         {
-            const auto hTex = GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError);
+            const auto hTex = GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError);
             defaultTexture = hTex->GetImpl();
         }
 
@@ -276,7 +273,7 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_BindlessManager::SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties)
+    void VK_BindlessManager::SetTextureSampler(const Ref<VK_Texture> texture, const Texture2D::SamplerProperties& samplerProperties)
     {
         const auto textureIndex = texture->GetBindlessIndex();
 
@@ -297,7 +294,7 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    uint32_t VK_BindlessManager::AddMaterial(const Ref<MaterialData> material)
+    uint32_t VK_BindlessManager::AddMaterialData(const Ref<MaterialData> material)
     {
         uint32_t index = UINT32_MAX;
 

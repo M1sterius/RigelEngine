@@ -2,8 +2,8 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
-#include "Hash.hpp"
-#include "../../Assets/Metadata/AssetMetadata.hpp"
+#include "Math.hpp"
+#include "Assets/Metadata/AssetMetadata.hpp"
 #include "Assets/RigelAsset.hpp"
 #include "Handles/AssetHandle.hpp"
 #include "Subsystems/RigelSubsystem.hpp"
@@ -231,7 +231,6 @@ namespace Rigel
 
         NODISCARD const std::vector<std::thread::id>& GetLoadingThreadIDs() const { return m_ThreadPool->GetThreadIDs(); }
 
-        ErrorCode PreloadAssets();
         void UnloadAllAssets();
     private:
         template<RigelAssetConcept T>

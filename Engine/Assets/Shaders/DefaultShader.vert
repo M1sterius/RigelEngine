@@ -10,12 +10,12 @@ layout(location = 1) out flat uint v_MaterialIndex;
 layout (push_constant) uniform PushConstants
 {
     mat4 MVP;
-    uint DrawIndex;
+    uint MaterialIndex;
 } pc_ModelData;
 
 void main()
 {
     gl_Position = pc_ModelData.MVP * vec4(a_Position, 1.0);
     v_TexCoords = a_TexCoords;
-    v_MaterialIndex = pc_ModelData.DrawIndex;
+    v_MaterialIndex = pc_ModelData.MaterialIndex;
 }

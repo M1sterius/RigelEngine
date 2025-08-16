@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Assets/Texture.hpp"
-#include "Handles/AssetHandle.hpp"
 #include "ShaderStructs.hpp"
+#include "Assets/Texture2D.hpp"
+#include "Handles/AssetHandle.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -21,16 +21,19 @@ namespace Rigel::Backend::Vulkan
 
     class VK_BindlessManager 
     {
-    public:
+    private:
         static constexpr uint32_t SET_BINDINGS_COUNT = 2;
         static constexpr uint32_t MAX_TEXTURES = 4096;
-        static constexpr uint32_t MAX_MATERIALS = SceneData::MAX_MATERIAL_DATA_ARRAY_SIZE;
+        static constexpr uint32_t MAX_MATERIALS = SceneData::MAX_MATERIALS_ARRAY_SIZE;
 
         enum SetBindings : uint32_t
         {
             TEXTURE_ARRAY_BINDING = 0,
             STORAGE_BUFFER_ARRAY_BINDING = 1
         };
+    public:
+        static constexpr uint32_t ERROR_TEXTURE_BINDLESS_INDEX = 0;
+        static constexpr uint32_t BLACK_TEXTURE_BINDLESS_INDEX = 1;
 
         VK_BindlessManager(VK_Renderer& renderer, VK_Device& device);
         ~VK_BindlessManager();
@@ -45,9 +48,9 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);
-        void SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
+        void SetTextureSampler(const Ref<VK_Texture> texture, const Texture2D::SamplerProperties& samplerProperties);
 
-        NODISCARD uint32_t AddMaterial(const Ref<MaterialData> material);
+        NODISCARD uint32_t AddMaterialData(const Ref<MaterialData> material);
         void RemoveMaterial(const uint32_t materialIndex);
     private:
         VK_Renderer& m_Renderer;
@@ -57,7 +60,7 @@ namespace Rigel::Backend::Vulkan
         void CreateDescriptorSetLayout();
         void CreateDescriptorSet();
 
-        NODISCARD VkSampler GetSamplerByProperties(const Texture::SamplerProperties& properties);
+        NODISCARD VkSampler GetSamplerByProperties(const Texture2D::SamplerProperties& properties);
         void UpdateTextureDescriptor(VkImageView imageView, VkSampler sampler, const uint32_t slotIndex) const;
 
         VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
@@ -65,7 +68,7 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
-        std::vector<std::pair<Texture::SamplerProperties, VkSampler>> m_TextureSamplers;
+        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_TextureSamplers;
         std::vector<Ref<VK_Texture>> m_Textures;
         std::mutex m_TextureMutex;
         std::mutex m_SamplersMutex;

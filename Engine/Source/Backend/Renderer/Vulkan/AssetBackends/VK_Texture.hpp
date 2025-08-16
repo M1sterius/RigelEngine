@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "../../../../../Include/Assets/Texture.hpp"
+#include "../../../../../Include/Assets/Texture2D.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -10,7 +10,7 @@
 
 namespace Rigel
 {
-    class Texture;
+    class Texture2D;
 }
 
 namespace Rigel::Backend::Vulkan
@@ -20,18 +20,18 @@ namespace Rigel::Backend::Vulkan
     class VK_Texture final
     {
     public:
-        explicit VK_Texture(const void* pixelData, const glm::uvec2 size);
+        VK_Texture(const void* pixelData, const glm::uvec2 size, const uint32_t mipLevelCount);
         ~VK_Texture();
 
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD inline VK_Image& GetImage() const { return *m_Image; }
         NODISCARD inline uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
-        NODISCARD inline const Texture::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
+        NODISCARD inline const Texture2D::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
     private:
         void GenerateMipMaps() const;
 
         std::unique_ptr<VK_Image> m_Image;
-        Texture::SamplerProperties m_SamplerProperties{};
+        Texture2D::SamplerProperties m_SamplerProperties{};
 
         uint32_t m_BindlessIndex = UINT32_MAX;
     };

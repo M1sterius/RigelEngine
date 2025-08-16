@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "RigelAsset.hpp"
 #include "Handles/AssetHandle.hpp"
-#include "Assets/Texture.hpp"
+#include "Assets/Texture2D.hpp"
 
 #include <filesystem>
 
@@ -26,9 +26,9 @@ namespace Rigel
 
         std::unique_ptr<Backend::Vulkan::MaterialData> m_Data;
 
-        AssetHandle<Texture> m_Diffuse;
-        AssetHandle<Texture> m_Specular;
-        AssetHandle<Texture> m_Normals;
+        AssetHandle<Texture2D> m_Diffuse;
+        AssetHandle<Texture2D> m_Specular;
+        AssetHandle<Texture2D> m_Normals;
 
         uint32_t m_BindlessIndex = UINT32_MAX;
 

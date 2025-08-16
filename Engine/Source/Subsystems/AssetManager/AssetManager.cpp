@@ -3,7 +3,7 @@
 #include "Utilities/Filesystem/Directory.hpp"
 #include "Assets/Shader.hpp"
 #include "Assets/Model.hpp"
-#include "Assets/Texture.hpp"
+#include "Assets/Texture2D.hpp"
 #include "Engine.hpp"
 #include "Debug.hpp"
 
@@ -27,40 +27,6 @@ namespace Rigel
     ErrorCode AssetManager::Shutdown()
     {
         Debug::Trace("Shutting down asset manager.");
-
-        return ErrorCode::OK;
-    }
-
-    ErrorCode AssetManager::PreloadAssets()
-    {
-        Debug::Trace("Preloading built-in engine assets.");
-
-        auto handles = std::vector<GenericAssetHandle>();
-
-        // handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelCube, true).ToGeneric());
-        // handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelCone, true).ToGeneric());
-        // handles.emplace_back(LoadAsync<Model>(BuiltInAssets::ModelSphere, true).ToGeneric());
-
-        // Some textures are loaded synchronously because their loading must happen in a specific order
-        handles.emplace_back(Load<Texture>(BuiltInAssets::TextureError, true).ToGeneric());
-        handles.emplace_back(Load<Texture>(BuiltInAssets::TextureBlack, true).ToGeneric());
-        handles.emplace_back(LoadAsync<Texture>(BuiltInAssets::TextureWhite, true).ToGeneric());
-
-        // auto shaderMetadata = ShaderMetadata();
-        // shaderMetadata.VertPath = "Assets/Engine/Shaders/DefaultShader.vert.spv";
-        // shaderMetadata.FragPath = "Assets/Engine/Shaders/DefaultShader.frag.spv";
-        //
-        // handles.emplace_back(LoadAsync<Shader>(BuiltInAssets::ShaderDefault, &shaderMetadata, true).ToGeneric());
-
-        for (const auto& handle : handles)
-        {
-            handle->WaitReady();
-            if (!handle->IsOK())
-            {
-                Debug::Error("Failed to preload built-in Rigel engine asset at path: {}!", handle->GetPath().string());
-                return ErrorCode::BUILT_IN_ASSET_NOT_LOADED;
-            }
-        }
 
         return ErrorCode::OK;
     }

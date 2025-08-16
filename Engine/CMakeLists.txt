@@ -32,7 +32,7 @@ add_library(RigelEngine STATIC
 
     # Assets
     Source/Assets/Model.cpp
-    Source/Assets/Texture.cpp
+    Source/Assets/Texture2D.cpp
     Source/Assets/Material.cpp
     Source/Assets/Shader.cpp
 

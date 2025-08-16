@@ -24,6 +24,9 @@ namespace Rigel
         struct Vertex;
     }
 
+    /**
+     * Asset that represents complex multi-mesh and multi-material model (or scene)
+     */
     class Model final : public RigelAsset
     {
     INTERNAL:

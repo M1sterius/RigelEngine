@@ -51,6 +51,10 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
+        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError, true);
+        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureBlack, true);
+        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureWhite, true);
+
         auto defaultShaderMetadata = ShaderMetadata();
         defaultShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DefaultShader.vert.spv";
         defaultShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DefaultShader.frag.spv";
@@ -135,7 +139,7 @@ namespace Rigel::Backend::Vulkan
                 {
                     auto pc = PushConstantData{
                         .MVP = mvp,
-                        .MeshIndex = mesh.MaterialIndex
+                        .MaterialIndex = mesh.MaterialIndex
                     };
 
                     vkCmdPushConstants(

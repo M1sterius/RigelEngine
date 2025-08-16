@@ -7,7 +7,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_Texture::VK_Texture(const void* pixelData, const glm::uvec2 size)
+    VK_Texture::VK_Texture(const void* pixelData, const glm::uvec2 size, const uint32_t mipLevelCount)
     {
         const VkDeviceSize imageSize = size.x * size.y * 4; // 4 bytes for 8-bit RGBA
 
@@ -16,7 +16,6 @@ namespace Rigel::Backend::Vulkan
         auto& stagingBuffer = device.GetStagingBuffer();
         stagingBuffer.UploadData(0, imageSize, pixelData);
 
-        const auto mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.x, size.y))) + 1);
         m_Image = std::make_unique<VK_Image>(device, size, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, mipLevelCount);
 
@@ -49,12 +48,12 @@ namespace Rigel::Backend::Vulkan
             VkImageBlit blit {};
             blit.srcOffsets[0] = {0, 0, 0};
             blit.srcOffsets[1] = {mipWidth, mipHeight, 1};
+            blit.dstOffsets[0] = {0, 0, 0};
+            blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
             blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             blit.srcSubresource.mipLevel = srcMip;
             blit.srcSubresource.baseArrayLayer = 0;
             blit.srcSubresource.layerCount = 1;
-            blit.dstOffsets[0] = {0, 0, 0};
-            blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
             blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             blit.dstSubresource.mipLevel = dstMip;
             blit.dstSubresource.baseArrayLayer = 0;
@@ -85,4 +84,3 @@ namespace Rigel::Backend::Vulkan
         return m_Image->GetSize();
     }
 }
-
