@@ -124,11 +124,11 @@ namespace Rigel::Backend::Vulkan
             const auto vertexBuffer = model->GetVertexBuffer();
             const auto indexBuffer = model->GetIndexBuffer();
 
-            const VkBuffer pVertexBuffers[] = {vertexBuffer->GetMemoryBuffer().Get()};
-            constexpr VkDeviceSize pOffsets[] = {0};
+            const VkBuffer pVertexBuffers[] = {vertexBuffer->Get()};
+            constexpr VkDeviceSize offsets[] = {0};
 
-            vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, pVertexBuffers, pOffsets);
-            vkCmdBindIndexBuffer(vkCmdBuffer, indexBuffer->GetMemoryBuffer().Get(), 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, pVertexBuffers, offsets);
+            vkCmdBindIndexBuffer(vkCmdBuffer, indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT32);
 
             int32_t vertexOffset = 0;
             for (auto node = model->GetNodeIterator(); node.Valid(); ++node)

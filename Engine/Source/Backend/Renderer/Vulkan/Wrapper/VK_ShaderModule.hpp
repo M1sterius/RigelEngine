@@ -14,7 +14,7 @@ namespace Rigel::Backend::Vulkan
     class VK_ShaderModule
     {
     public:
-        explicit VK_ShaderModule(const std::vector<char>& spirv);
+        explicit VK_ShaderModule(const std::vector<byte_t>& spirv);
         ~VK_ShaderModule();
 
         VK_ShaderModule(const VK_ShaderModule& other) = delete;

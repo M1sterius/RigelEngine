@@ -17,3 +17,6 @@ typedef double float64_t;
 
 static_assert(sizeof(float32_t) == 4, "sizeof(float32_t) is not equal to 4");
 static_assert(sizeof(float64_t) == 8, "sizeof(float64_t) is not equal to 8");
+
+static_assert(sizeof(char) == 1, "sizeof(char) must be equal to 1");
+typedef char byte_t;

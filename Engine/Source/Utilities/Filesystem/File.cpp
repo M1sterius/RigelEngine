@@ -29,7 +29,7 @@ namespace Rigel
         try
         {
             // Read the first few bytes to check for BOM
-            std::vector<char> bom(3);
+            std::vector<byte_t> bom(3);
             file.read(bom.data(), 3);
 
             // Check for UTF-8 BOM (EF BB BF)
@@ -62,7 +62,7 @@ namespace Rigel
             return Result<std::vector<char>>::Error(ErrorCode::FAILED_TO_OPEN_FILE);
 
         const auto fileSize = static_cast<size_t>(file.tellg());
-        auto buffer = std::vector<char>(fileSize);
+        auto buffer = std::vector<byte_t>(fileSize);
 
         file.seekg(0);
         file.read(buffer.data(), fileSize);
@@ -84,7 +84,7 @@ namespace Rigel
         return Result<void>::Error(ErrorCode::OK);
     }
 
-    Result<void> File::WriteBinary(const std::filesystem::path& path, const std::vector<char>& data)
+    Result<void> File::WriteBinary(const std::filesystem::path& path, const std::vector<byte_t>& data)
     {
         auto file = std::ofstream(path, std::ios::out | std::ios::binary);
         if (!file.is_open())

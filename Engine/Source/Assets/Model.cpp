@@ -1,7 +1,6 @@
 #include "Assets/Model.hpp"
-#include "VK_VertexBuffer.hpp"
-#include "VK_IndexBuffer.hpp"
-#include "VulkanUtility.hpp"
+#include "Vertex.hpp"
+#include "VK_MemoryBuffer.hpp"
 #include "Assets/Metadata/MaterialMetadata.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
@@ -64,8 +63,8 @@ namespace Rigel
         m_RootNode = std::make_shared<Node>();
         ProcessAiNode(scene->mRootNode, scene, m_RootNode, vertices, indices);
 
-        m_VertexBuffer = std::make_unique<VK_VertexBuffer>(GetDevice(), vertices);
-        m_IndexBuffer = std::make_unique<VK_IndexBuffer>(GetDevice(), indices);
+        m_VertexBuffer = VK_MemoryBuffer::MakeVertexBuffer(vertices);
+        m_IndexBuffer = VK_MemoryBuffer::MakeIndexBuffer(indices);
 
         m_Initialized = true;
         return ErrorCode::OK;

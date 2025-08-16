@@ -20,6 +20,6 @@ namespace Rigel
         // NODISCARD static std::future<std::vector<char>> ReadBinaryAsync(const std::filesystem::path& path);
 
         static Result<void> WriteText(const std::filesystem::path& path, const std::string& text);
-        static Result<void> WriteBinary(const std::filesystem::path& path, const std::vector<char>& data);
+        static Result<void> WriteBinary(const std::filesystem::path& path, const std::vector<byte_t>& data);
     };
 }

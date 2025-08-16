@@ -3,8 +3,6 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_DescriptorSet.hpp"
 #include "VK_DescriptorPool.hpp"
-#include "VK_VertexBuffer.hpp"
-#include "VK_IndexBuffer.hpp"
 #include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdBuffer.hpp"
 #include "VK_Fence.hpp"

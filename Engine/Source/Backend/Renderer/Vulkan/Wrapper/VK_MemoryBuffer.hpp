@@ -5,19 +5,25 @@
 #include "vulkan/vulkan.h"
 #include "vma/vk_mem_alloc.h"
 
+#include <memory>
+#include <vector>
+
 namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
+    struct Vertex;
 
     class VK_MemoryBuffer
     {
     public:
-        static void Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size);
+        static void Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize copySize);
 
         inline static bool EnableAutoResizeOnUpload = true;
 
-        VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage,
-                        VmaMemoryUsage memUsage);
+        static std::unique_ptr<VK_MemoryBuffer> MakeVertexBuffer(const std::vector<Vertex>& vertices);
+        static std::unique_ptr<VK_MemoryBuffer> MakeIndexBuffer(const std::vector<uint32_t>& indices);
+
+        VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage, VmaMemoryUsage memUsage);
         ~VK_MemoryBuffer();
 
         VK_MemoryBuffer(const VK_MemoryBuffer&) = delete;

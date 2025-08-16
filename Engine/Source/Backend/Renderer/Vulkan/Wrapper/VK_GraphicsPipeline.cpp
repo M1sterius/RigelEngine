@@ -1,6 +1,6 @@
 #include "VK_GraphicsPipeline.hpp"
 #include "VulkanUtility.hpp"
-#include "VK_VertexBuffer.hpp"
+#include "Vertex.hpp"
 #include "VK_DescriptorSet.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_ShaderModule.hpp"

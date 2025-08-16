@@ -67,9 +67,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
-    Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
-    Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
+        Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp

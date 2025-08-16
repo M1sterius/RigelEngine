@@ -1,18 +1,53 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_CmdBuffer.hpp"
 #include "VulkanUtility.hpp"
+#include "Vertex.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
-    void VK_MemoryBuffer::Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize size)
+    std::unique_ptr<VK_MemoryBuffer> VK_MemoryBuffer::MakeVertexBuffer(const std::vector<Vertex>& vertices)
     {
-        ASSERT(size <= src.GetSize(), "Copy region cannot be bigger than source buffer size");
-        ASSERT(size <= dst.GetSize(), "Copy region cannot be bigger than destination buffer size");
+        auto& device = GetDevice();
+
+        const auto bufferSize = sizeof(vertices[0]) * vertices.size();
+        ASSERT(bufferSize > 0, "Vertex buffer size cannot be zero");
+
+        auto& stagingBuffer = device.GetStagingBuffer();
+        stagingBuffer.UploadData(0, bufferSize, vertices.data());
+
+        auto vertexBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VMA_MEMORY_USAGE_CPU_TO_GPU);
+        Copy(device, stagingBuffer, *vertexBuffer, bufferSize);
+
+        return vertexBuffer;
+    }
+
+    std::unique_ptr<VK_MemoryBuffer> VK_MemoryBuffer::MakeIndexBuffer(const std::vector<uint32_t>& indices)
+    {
+        auto& device = GetDevice();
+
+        const auto bufferSize = sizeof(indices[0]) * indices.size();
+        ASSERT(bufferSize > 0, "Index buffer size cannot be zero");
+
+        auto& stagingBuffer = device.GetStagingBuffer();
+        stagingBuffer.UploadData(0, bufferSize, indices.data());
+
+        auto indexBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VMA_MEMORY_USAGE_CPU_TO_GPU);
+        Copy(device, stagingBuffer, *indexBuffer, bufferSize);
+
+        return indexBuffer;
+    }
+
+    void VK_MemoryBuffer::Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize copySize)
+    {
+        ASSERT(copySize <= src.GetSize(), "Copy region cannot be bigger than source buffer size");
+        ASSERT(copySize <= dst.GetSize(), "Copy region cannot be bigger than destination buffer size");
 
         const auto cmdBuff = VK_CmdBuffer::BeginSingleTime(device, QueueType::Transfer);
 
         VkBufferCopy copyRegion {};
-        copyRegion.size = size;
+        copyRegion.size = copySize;
         vkCmdCopyBuffer(cmdBuff->Get(), src.Get(), dst.Get(), 1, &copyRegion);
 
         VK_CmdBuffer::EndSingleTime(cmdBuff);

@@ -16,7 +16,7 @@ namespace Rigel::Backend::Vulkan
         return VkShaderStageFlagBits();
     }
 
-    VK_ShaderModule::VK_ShaderModule(const std::vector<char>& spirv)
+    VK_ShaderModule::VK_ShaderModule(const std::vector<byte_t>& spirv)
         : m_ShaderStageInfo()
     {
         auto shaderInfo = MakeInfo<VkShaderModuleCreateInfo>();

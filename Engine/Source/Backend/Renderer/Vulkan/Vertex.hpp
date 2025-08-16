@@ -5,15 +5,8 @@
 
 #include "vulkan/vulkan.h"
 
-#include <array>
-#include <vector>
-#include <memory>
-
 namespace Rigel::Backend::Vulkan
 {
-    class VK_Device;
-    class VK_MemoryBuffer;
-
     struct Vertex
     {
         glm::vec3 position;
@@ -64,21 +57,5 @@ namespace Rigel::Backend::Vulkan
 
             return attributeDescriptions;
         }
-    };
-
-    class VK_VertexBuffer 
-    {
-    public:
-        VK_VertexBuffer(VK_Device& device, const std::vector<Vertex>& vertices);
-        ~VK_VertexBuffer();
-
-        VK_VertexBuffer(const VK_VertexBuffer&) = delete;
-        VK_VertexBuffer operator = (const VK_VertexBuffer&) = delete;
-
-        NODISCARD VK_MemoryBuffer& GetMemoryBuffer() const { return *m_MemoryBuffer; }
-        NODISCARD uint32_t GetVertexCount() const { return m_VertexCount; }
-    private:
-        std::unique_ptr<VK_MemoryBuffer> m_MemoryBuffer;
-        uint32_t m_VertexCount;
     };
 }
