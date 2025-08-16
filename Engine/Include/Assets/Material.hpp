@@ -2,9 +2,8 @@
 
 #include "Core.hpp"
 #include "RigelAsset.hpp"
-#include "Assets/Texture.hpp"
 #include "Handles/AssetHandle.hpp"
-#include "Subsystems/AssetManager/AssetMetadata.hpp"
+#include "Assets/Texture.hpp"
 
 #include <filesystem>
 
@@ -14,13 +13,6 @@ namespace Rigel
     {
         struct MaterialData;
     }
-
-    struct MaterialMetadata final : AssetMetadata
-    {
-        std::filesystem::path DiffusePath{};
-        std::filesystem::path SpecularPath{};
-        std::filesystem::path NormalsPath{};
-    };
 
     class Material final : public RigelAsset
     {

@@ -3,7 +3,7 @@
 #include "Core.hpp"
 #include "Debug.hpp"
 #include "Hash.hpp"
-#include "AssetMetadata.hpp"
+#include "../../Assets/Metadata/AssetMetadata.hpp"
 #include "Assets/RigelAsset.hpp"
 #include "Handles/AssetHandle.hpp"
 #include "Subsystems/RigelSubsystem.hpp"

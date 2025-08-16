@@ -41,6 +41,9 @@ namespace Rigel::Backend::Vulkan
         VK_Renderer();
         ~VK_Renderer();
 
+        VK_Renderer(const VK_Renderer&) = delete;
+        VK_Renderer operator = (const VK_Renderer&) = delete;
+
         ErrorCode Startup();
         ErrorCode Shutdown();
         ErrorCode LateStartup();

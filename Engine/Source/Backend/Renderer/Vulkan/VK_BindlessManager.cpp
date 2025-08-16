@@ -56,11 +56,9 @@ namespace Rigel::Backend::Vulkan
 
     void VK_BindlessManager::CreateDescriptorSetLayout()
     {
-        constexpr uint32_t bindingCount = 2;
-
-        std::array<VkDescriptorSetLayoutBinding, bindingCount> bindings{};
-        std::array<VkDescriptorBindingFlags, bindingCount> flags{};
-        std::array<VkDescriptorType, bindingCount> types{};
+        std::array<VkDescriptorSetLayoutBinding, SET_BINDINGS_COUNT> bindings{};
+        std::array<VkDescriptorBindingFlags, SET_BINDINGS_COUNT> flags{};
+        std::array<VkDescriptorType, SET_BINDINGS_COUNT> types{};
 
         // Textures array
         bindings[TEXTURE_ARRAY_BINDING].binding = TEXTURE_ARRAY_BINDING;
@@ -83,12 +81,12 @@ namespace Rigel::Backend::Vulkan
         types[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
         auto bindingFlags = MakeInfo<VkDescriptorSetLayoutBindingFlagsCreateInfo>();
+        bindingFlags.bindingCount = flags.size();
         bindingFlags.pBindingFlags = flags.data();
-        bindingFlags.bindingCount = bindingCount;
         bindingFlags.pNext = nullptr;
 
         auto createInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
-        createInfo.bindingCount = bindingCount;
+        createInfo.bindingCount = bindings.size();
         createInfo.pBindings = bindings.data();
         createInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
         createInfo.pNext = &bindingFlags;

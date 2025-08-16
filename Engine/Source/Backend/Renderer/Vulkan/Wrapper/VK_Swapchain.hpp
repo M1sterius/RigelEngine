@@ -32,7 +32,8 @@ namespace Rigel::Backend::Vulkan
         NODISCARD std::vector<VkImage>& GetImages() { return m_Images; }
         NODISCARD std::vector<VkImageView>& GetImageViews() { return m_ImageViews; }
         NODISCARD VkFormat GetSwapchainImageFormat() const { return m_SwapchainImageFormat; }
-        NODISCARD VkExtent2D GetExtent() const { return {m_Extent.x, m_Extent.y}; }
+        NODISCARD VkExtent2D GetExtent() const { return {m_ImageSize.x, m_ImageSize.y}; }
+        NODISCARD glm::uvec2 GetSize() const { return m_ImageSize; }
 
         void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 
@@ -43,7 +44,7 @@ namespace Rigel::Backend::Vulkan
 
         VK_Device& m_Device;
         VkSurfaceKHR m_Surface;
-        glm::uvec2 m_Extent;
+        glm::uvec2 m_ImageSize;
         uint32_t m_FramesInFlight;
 
         VkFormat m_SwapchainImageFormat {};

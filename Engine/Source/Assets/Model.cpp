@@ -2,6 +2,7 @@
 #include "VK_VertexBuffer.hpp"
 #include "VK_IndexBuffer.hpp"
 #include "VulkanUtility.hpp"
+#include "Assets/Metadata/MaterialMetadata.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 
@@ -153,6 +154,13 @@ namespace Rigel
         const auto materialName = m_Path / std::format("Material{}", m_Materials.size());
         const auto texturesDir = m_Path.parent_path(); // trim to the last '/'
         auto metadata = MaterialMetadata();
+
+        bool twoSided = false;
+        if (aiMaterial->Get(AI_MATKEY_TWOSIDED, twoSided) == AI_SUCCESS) {
+            if (twoSided) {
+                Debug::Message("Two sided");
+            }
+        }
 
         if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {

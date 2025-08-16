@@ -36,7 +36,7 @@ namespace Rigel::Backend::Vulkan
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
-        for (uint32_t i = 0; i < framesInFlight; i++)
+        for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
@@ -192,30 +192,15 @@ namespace Rigel::Backend::Vulkan
 
         vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
 
-        vkCmdBindPipeline(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->Get());
+        m_GraphicsPipeline->CmdBind(vkCmdBuffer);
+        m_GraphicsPipeline->CmdSetViewport(vkCmdBuffer, glm::vec2(0.0f), m_Swapchain->GetSize());
+        m_GraphicsPipeline->CmdSetScissor(vkCmdBuffer, glm::ivec2(0), m_Swapchain->GetExtent());
+        m_GraphicsPipeline->CmdSetDepthTestEnable(vkCmdBuffer, true);
+        m_GraphicsPipeline->CmdSetDepthWriteEnable(vkCmdBuffer, true);
+        m_GraphicsPipeline->CmdSetCullMode(vkCmdBuffer, VK_CULL_MODE_BACK_BIT);
 
         const VkDescriptorSet sets[] = { m_BindlessManager->GetDescriptorSet() };
         vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
-
-        const auto viewportSize = glm::vec2(static_cast<float>(m_Swapchain->GetExtent().width), static_cast<float>(m_Swapchain->GetExtent().height));
-
-        const VkViewport viewport {
-            .x = 0,
-            .y = 0,
-            .width = viewportSize.x,
-            .height = viewportSize.y,
-            .minDepth = 0,
-            .maxDepth = 1
-        };
-
-        vkCmdSetViewport(vkCmdBuffer, 0, 1, &viewport);
-
-        const VkRect2D scissor {
-            .offset = {0, 0},
-            .extent = m_Swapchain->GetExtent()
-        };
-
-        vkCmdSetScissor(vkCmdBuffer, 0, 1, &scissor);
 
         RenderScene(vkCmdBuffer);
 

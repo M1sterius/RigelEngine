@@ -18,7 +18,6 @@ namespace Rigel::Backend
         std::vector<AssetHandle<Model>> Models;
         std::vector<glm::mat4> Transforms;
 
-
         inline void Reset()
         {
             CameraPresent = false;

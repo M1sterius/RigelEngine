@@ -18,7 +18,7 @@ NODISCARD static bool GetCurrentVsyncSetting()
 namespace Rigel::Backend::Vulkan
 {
     VK_Swapchain::VK_Swapchain(VK_Device& device, VkSurfaceKHR surface, const glm::uvec2 size)
-        : m_Device(device), m_Surface(surface), m_Extent(size)
+        : m_Device(device), m_Surface(surface), m_ImageSize(size)
     {
         Debug::Trace("Creating Vulkan swapchain.");
         m_SwapchainSupportDetails = m_Device.GetSwapchainSupportDetails();
@@ -27,7 +27,7 @@ namespace Rigel::Backend::Vulkan
         for (uint32_t i = 0; i < m_FramesInFlight; i++)
             m_ImageAvailableSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
 
-        SetupSwapchain(m_Extent, GetCurrentVsyncSetting());
+        SetupSwapchain(m_ImageSize, GetCurrentVsyncSetting());
     }
 
     VK_Swapchain::~VK_Swapchain()
@@ -134,7 +134,7 @@ namespace Rigel::Backend::Vulkan
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
-        m_Extent = {extent.width, extent.height};
+        m_ImageSize = {extent.width, extent.height};
         const auto oldSwapchain = m_Swapchain;
         createInfo.oldSwapchain = oldSwapchain;
 

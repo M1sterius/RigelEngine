@@ -22,6 +22,7 @@ namespace Rigel::Backend::Vulkan
     class VK_BindlessManager 
     {
     public:
+        static constexpr uint32_t SET_BINDINGS_COUNT = 2;
         static constexpr uint32_t MAX_TEXTURES = 4096;
         static constexpr uint32_t MAX_MATERIALS = SceneData::MAX_MATERIAL_DATA_ARRAY_SIZE;
 
@@ -33,6 +34,9 @@ namespace Rigel::Backend::Vulkan
 
         VK_BindlessManager(VK_Renderer& renderer, VK_Device& device);
         ~VK_BindlessManager();
+
+        VK_BindlessManager(const VK_BindlessManager&) = delete;
+        VK_BindlessManager operator = (const VK_BindlessManager&) = delete;
 
         NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
         NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }

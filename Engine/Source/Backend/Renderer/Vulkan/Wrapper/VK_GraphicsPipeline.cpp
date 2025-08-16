@@ -23,6 +23,52 @@ namespace Rigel::Backend::Vulkan
         vkDestroyPipeline(m_Device.Get(), m_GraphicsPipeline, nullptr);
     }
 
+    void VK_GraphicsPipeline::CmdBind(VkCommandBuffer commandBuffer) const
+    {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+    }
+
+    void VK_GraphicsPipeline::CmdSetViewport(VkCommandBuffer commandBuffer, const glm::vec2 pos,
+        const glm::uvec2 size) const
+    {
+        const VkViewport viewport {
+            .x = pos.x,
+            .y = pos.y,
+            .width = static_cast<float>(size.x),
+            .height = static_cast<float>(size.y),
+            .minDepth = 0,
+            .maxDepth = 1
+        };
+
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+    }
+
+    void VK_GraphicsPipeline::CmdSetScissor(VkCommandBuffer commandBuffer, const glm::ivec2 offset,
+        const VkExtent2D extent) const
+    {
+        const VkRect2D scissor {
+            .offset = {offset.x, offset.y},
+            .extent = extent
+        };
+
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+    }
+
+    void VK_GraphicsPipeline::CmdSetDepthTestEnable(VkCommandBuffer commandBuffer, const VkBool32 enabled) const
+    {
+        vkCmdSetDepthTestEnable(commandBuffer, enabled);
+    }
+
+    void VK_GraphicsPipeline::CmdSetDepthWriteEnable(VkCommandBuffer commandBuffer, const VkBool32 enabled) const
+    {
+        vkCmdSetDepthWriteEnable(commandBuffer, enabled);
+    }
+
+    void VK_GraphicsPipeline::CmdSetCullMode(VkCommandBuffer commandBuffer, const VkCullModeFlags mode) const
+    {
+        vkCmdSetCullMode(commandBuffer, mode);
+    }
+
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
         const VkFormat colorAttachmentFormat, const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
     {
@@ -97,7 +143,14 @@ namespace Rigel::Backend::Vulkan
         depthStencil.depthBoundsTestEnable = VK_FALSE;
         depthStencil.stencilTestEnable = VK_FALSE;
 
-        constexpr VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        constexpr VkDynamicState dynamicStates[] = {
+            VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_SCISSOR,
+            VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
+            VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
+            VK_DYNAMIC_STATE_CULL_MODE
+        };
+
         auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
         dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
         dynamicState.pDynamicStates = dynamicStates;
