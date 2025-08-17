@@ -29,7 +29,7 @@ namespace Rigel
         }
     }
 
-    const std::vector<std::thread::id>& ThreadPool::GetThreadIDs() const
+    const std::vector<std::thread::id>& ThreadPool::GetThreadsIDs() const
     {
         while (true)
         {

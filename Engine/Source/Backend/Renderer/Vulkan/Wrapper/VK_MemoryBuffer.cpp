@@ -56,7 +56,7 @@ namespace Rigel::Backend::Vulkan
     VK_MemoryBuffer::VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage, VmaMemoryUsage memUsage)
         : m_Device(device), m_Size(size), m_BufferUsage(buffUsage), m_MemoryUsage(memUsage)
     {
-        CreateBuffer();
+        CreateBuffer(m_Size);
     }
 
     VK_MemoryBuffer::~VK_MemoryBuffer()
@@ -64,19 +64,20 @@ namespace Rigel::Backend::Vulkan
         vmaDestroyBuffer(m_Device.GetVmaAllocator(), m_Buffer, m_Allocation);
     }
 
-    void VK_MemoryBuffer::CreateBuffer()
+    void VK_MemoryBuffer::CreateBuffer(const VkDeviceSize size)
     {
-        ASSERT(m_Size > 0, "Vulkan buffer size must be greater than zero!");
+        ASSERT(size > 0, "Vulkan buffer size must be greater than zero!");
 
         auto bufferInfo = MakeInfo<VkBufferCreateInfo>();
-        bufferInfo.size = m_Size;
+        bufferInfo.size = size;
         bufferInfo.usage = m_BufferUsage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = m_MemoryUsage;
+        // allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-        VK_CHECK_RESULT(vmaCreateBuffer(m_Device.GetVmaAllocator(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr), "Failed to create vma memory buffer!");
+        VK_CHECK_RESULT(vmaCreateBuffer(m_Device.GetVmaAllocator(), &bufferInfo, &allocInfo, &m_Buffer, &m_Allocation, nullptr), "Failed to create vma buffer!");
     }
 
     void VK_MemoryBuffer::Resize(const VkDeviceSize newSize)
@@ -86,7 +87,7 @@ namespace Rigel::Backend::Vulkan
         vmaDestroyBuffer(m_Device.GetVmaAllocator(), m_Buffer, m_Allocation);
 
         m_Size = newSize;
-        CreateBuffer();
+        CreateBuffer(m_Size);
     }
 
     void VK_MemoryBuffer::UploadData(const VkDeviceSize offset, const VkDeviceSize size, const void* data)

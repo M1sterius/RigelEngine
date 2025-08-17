@@ -4,7 +4,7 @@
 
 namespace Rigel
 {
-    enum class ErrorCode : int32_t
+    enum class ErrorCode : uint32_t
     {
         OK = 0,
         UNKNOWN = 1,
@@ -43,6 +43,6 @@ namespace Rigel
         MONITOR_INFO_ENUMERATION_FAILURE = 701,
         GLFW_INIT_FAILURE = 702,
 
-        MAX_VALUE = 0x0FFFFFFF
+        MAX_VALUE = 0xffffffff
     };
 }

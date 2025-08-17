@@ -30,7 +30,7 @@ namespace Rigel
         /**
          * Returns unique std::thread::id of all threads in the pool
          */
-        NODISCARD const std::vector<std::thread::id>& GetThreadIDs() const;
+        NODISCARD const std::vector<std::thread::id>& GetThreadsIDs() const;
 
         NODISCARD inline size_t GetSize() const { return m_WorkerThreads.size(); }
         NODISCARD size_t GetQueueSize() const;

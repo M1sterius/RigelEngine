@@ -6,7 +6,7 @@
 
 namespace Rigel
 {
-    struct MaterialMetadata final : AssetMetadata
+    struct MaterialMetadata : public AssetMetadata
     {
         std::filesystem::path DiffusePath{};
         std::filesystem::path SpecularPath{};

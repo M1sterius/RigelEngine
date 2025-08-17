@@ -23,7 +23,8 @@ namespace Rigel::Backend::Vulkan
         static std::unique_ptr<VK_MemoryBuffer> MakeVertexBuffer(const std::vector<Vertex>& vertices);
         static std::unique_ptr<VK_MemoryBuffer> MakeIndexBuffer(const std::vector<uint32_t>& indices);
 
-        VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage, VmaMemoryUsage memUsage);
+        VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage,
+            VmaMemoryUsage memUsage);
         ~VK_MemoryBuffer();
 
         VK_MemoryBuffer(const VK_MemoryBuffer&) = delete;
@@ -43,6 +44,6 @@ namespace Rigel::Backend::Vulkan
         VkBufferUsageFlags m_BufferUsage;
         VmaMemoryUsage m_MemoryUsage;
 
-        void CreateBuffer();
+        void CreateBuffer(const VkDeviceSize size);
     };
 }

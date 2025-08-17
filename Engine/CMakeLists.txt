@@ -122,6 +122,7 @@ set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
 # Include paths that should be available outside to the projects linking the engine
+# TODO: Make sure that publicly available dependencies headers ship with the engine
 target_include_directories(RigelEngine PUBLIC
     ${DEPENDENCIES_DIR}/nlohmann_json
     ${DEPENDENCIES_DIR}/glm

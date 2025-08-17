@@ -53,7 +53,7 @@ namespace Rigel
             return ErrorCode::FAILED_TO_OPEN_FILE;
         }
 
-        // preprocess all materials to take the most advantage out of async loading
+        // Preprocess all materials to take advantage of async loading
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
             ProcessMaterial(scene->mMaterials[i]);
 
