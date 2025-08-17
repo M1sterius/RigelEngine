@@ -43,7 +43,7 @@ namespace Rigel
 
         NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
     protected:
-        explicit RigelAsset(std::filesystem::path path, const uid_t id) noexcept
+        RigelAsset(std::filesystem::path path, const uid_t id) noexcept
             : RigelObject(id), m_Path(std::move(path))
         {
             using namespace Backend::HandleValidation;

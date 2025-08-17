@@ -23,6 +23,9 @@ namespace Rigel
         auto assetManager = GetAssetManager();
         const auto metadata = assetManager->GetMetadata<MaterialMetadata>(this->m_Path);
 
+        if (!metadata)
+            return ErrorCode::ASSET_METADATA_NOT_FOUND;
+
         if (!metadata->DiffusePath.empty())
             m_Diffuse = assetManager->Load<Texture2D>(metadata->DiffusePath);
         if (!metadata->SpecularPath.empty())

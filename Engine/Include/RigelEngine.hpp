@@ -44,6 +44,11 @@
 #include "Assets/Texture2D.hpp"
 #include "Assets/Material.hpp"
 
+// Asset metadata
+#include "Assets/Metadata/AssetMetadata.hpp"
+#include "Assets/Metadata/MaterialMetadata.hpp"
+#include "Assets/Metadata/ShaderMetadata.hpp"
+
 // Debug
 #include "Debug.hpp"
 

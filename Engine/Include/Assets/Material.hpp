@@ -24,13 +24,12 @@ namespace Rigel
         Material(const std::filesystem::path& path, const uid_t id);
         ErrorCode Init() override;
 
-        std::unique_ptr<Backend::Vulkan::MaterialData> m_Data;
-
         AssetHandle<Texture2D> m_Diffuse;
         AssetHandle<Texture2D> m_Specular;
         AssetHandle<Texture2D> m_Normals;
 
         uint32_t m_BindlessIndex = UINT32_MAX;
+        std::unique_ptr<Backend::Vulkan::MaterialData> m_Data;
 
         friend class AssetManager;
     };

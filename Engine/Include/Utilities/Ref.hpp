@@ -15,6 +15,12 @@ namespace Rigel
         Ref(T* ptr) : m_Ptr(ptr) { }
         Ref() : m_Ptr(nullptr) { }
 
+        template<typename castT>
+        Ref<castT> Cast() const
+        {
+            return Ref(dynamic_cast<castT*>(m_Ptr));
+        }
+
         T* operator -> ()
         {
             ASSERT(m_Ptr, "Ref pointer was a nullptr!");
