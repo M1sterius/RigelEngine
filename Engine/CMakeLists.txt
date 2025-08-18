@@ -67,7 +67,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Image.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_GraphicsPipeline.cpp
-        Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
+    Source/Backend/Renderer/Vulkan/VK_BindlessManager.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Texture.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
@@ -81,6 +81,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.cpp
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
+    Source/Backend/Renderer/Vulkan/VK_MeshPool.cpp
+    Source/Backend/Renderer/Vulkan/AssetBackends/VK_Mesh.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
