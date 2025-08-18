@@ -32,24 +32,13 @@ namespace Rigel::Backend::Vulkan
 
         CreateLogicalDevice();
         CreateVmaAllocator();
-        CreateCommandPools();
-        CreateStagingBuffers();
     }
 
     VK_Device::~VK_Device()
     {
         Debug::Trace("Destroying vulkan device.");
 
-        m_StagingBuffers.clear();
-
         vmaDestroyAllocator(m_VmaAllocator);
-
-        for (const auto& pools : m_CommandPools | std::views::values)
-        {
-            for (const auto pool : pools | std::views::values)
-                vkDestroyCommandPool(m_Device, pool, nullptr);
-        }
-
         vkDestroyDevice(m_Device, nullptr);
     }
 
@@ -176,74 +165,6 @@ namespace Rigel::Backend::Vulkan
         allocatorCreateInfo.instance = m_Instance;
 
         VK_CHECK_RESULT(vmaCreateAllocator(&allocatorCreateInfo, &m_VmaAllocator), "Failed to create VMA allocator object!");
-    }
-
-    void VK_Device::CreateCommandPools()
-    {
-        VkCommandPool commandPool = VK_NULL_HANDLE;
-
-        auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
-        poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-        // Graphics queue
-        poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.GraphicsFamily.value();
-
-        VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-        m_CommandPools[std::this_thread::get_id()][QueueType::Graphics] = commandPool;
-
-        for (const auto& threadId : GetAssetManager()->GetLoadingThreadsIDs())
-        {
-            VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-            m_CommandPools[threadId][QueueType::Graphics] = commandPool;
-        }
-
-        // Transfer queue
-        poolCreateInfo.queueFamilyIndex = m_QueueFamilyIndices.TransferFamily.value();
-
-        VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-        m_CommandPools[std::this_thread::get_id()][QueueType::Transfer] = commandPool;
-
-        for (const auto& threadId : GetAssetManager()->GetLoadingThreadsIDs())
-        {
-            VK_CHECK_RESULT(vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
-            m_CommandPools[threadId][QueueType::Transfer] = commandPool;
-        }
-    }
-
-    void VK_Device::CreateStagingBuffers()
-    {
-        m_StagingBuffers[std::this_thread::get_id()] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-        for (const auto& id : GetAssetManager()->GetLoadingThreadsIDs())
-        {
-            m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*this, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_TO_GPU);
-        }
-    }
-
-    VkCommandPool VK_Device::GetCommandPool(const QueueType queueType) const
-    {
-        const auto thisThreadID = std::this_thread::get_id();
-        if (!m_CommandPools.contains(thisThreadID))
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Command pool can only be retrieved for one of the asset manager's loading threads or the main thread!", __FILE__, __LINE__);
-        }
-
-        return m_CommandPools.at(thisThreadID).at(queueType);
-    }
-
-    VK_MemoryBuffer& VK_Device::GetStagingBuffer() const
-    {
-        const auto thisThreadID = std::this_thread::get_id();
-        if (!m_StagingBuffers.contains(thisThreadID))
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Staging buffer can only be retrieved for one of the asset manager's loading threads or the main thread!", __FILE__, __LINE__);
-        }
-
-        return *m_StagingBuffers.at(thisThreadID);
     }
 
     void VK_Device::SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const

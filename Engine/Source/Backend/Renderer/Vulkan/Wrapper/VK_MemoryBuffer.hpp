@@ -39,10 +39,10 @@ namespace Rigel::Backend::Vulkan
     private:
         VK_Device& m_Device;
         VkDeviceSize m_Size = 0;
+        VmaMemoryUsage m_MemoryUsage;
+        VkBufferUsageFlags m_BufferUsage;
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VmaAllocation m_Allocation = VK_NULL_HANDLE;
-        VkBufferUsageFlags m_BufferUsage;
-        VmaMemoryUsage m_MemoryUsage;
 
         void CreateBuffer(const VkDeviceSize size);
     };

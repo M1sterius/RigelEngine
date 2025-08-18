@@ -7,18 +7,16 @@
 #include "VK_Texture.hpp"
 #include "VulkanUtility.hpp"
 
-// TODO: this constants should probably be defined in a better place
-#define ERROR_TEXTURE_BINDLESS_INDEX 0
-#define BLACK_TEXTURE_BINDLESS_INDEX 1
-
 namespace Rigel
 {
+    using namespace Backend::Vulkan;
+
     Material::Material(const std::filesystem::path& path, const uid_t id)
         : RigelAsset(path, id) { }
 
     ErrorCode Material::Init()
     {
-        m_Data = std::make_unique<Backend::Vulkan::MaterialData>();
+        m_ShaderData = std::make_unique<MaterialData>();
 
         auto assetManager = GetAssetManager();
         const auto metadata = assetManager->GetMetadata<MaterialMetadata>(this->m_Path);
@@ -46,18 +44,18 @@ namespace Rigel
             return fallbackIndex;
         };
 
-        m_Data->DiffuseIndex = SetIndex(m_Diffuse, ERROR_TEXTURE_BINDLESS_INDEX);
-        m_Data->SpecularIndex = SetIndex(m_Specular, BLACK_TEXTURE_BINDLESS_INDEX);
-        m_Data->NormalsIndex = SetIndex(m_Normals, BLACK_TEXTURE_BINDLESS_INDEX);
-        m_Data->Roughness = 0.0f;
+        m_ShaderData->DiffuseIndex = SetIndex(m_Diffuse, VK_BindlessManager::ERROR_TEXTURE_BINDLESS_INDEX);
+        m_ShaderData->SpecularIndex = SetIndex(m_Specular, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
+        m_ShaderData->NormalsIndex = SetIndex(m_Normals, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
+        m_ShaderData->Roughness = 0.0f;
 
-        m_BindlessIndex = Backend::Vulkan::GetVKRenderer().GetBindlessManager().AddMaterialData(m_Data.get());
+        m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddMaterialData(m_ShaderData.get());
 
         return ErrorCode::OK;
     }
 
     Material::~Material()
     {
-        Backend::Vulkan::GetVKRenderer().GetBindlessManager().RemoveMaterial(m_BindlessIndex);
+        GetVKRenderer().GetBindlessManager().RemoveMaterial(m_BindlessIndex);
     }
 }

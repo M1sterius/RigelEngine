@@ -4,6 +4,7 @@
 #include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
 #include "VulkanWrapper.hpp"
+#include "VulkanUtility.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
@@ -32,6 +33,8 @@ namespace Rigel::Backend::Vulkan
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager()->GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
 
+        CreateCommandPools();
+        CreateStagingBuffers();
         CreateDepthBufferImage(GetWindowManager()->GetWindowSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
@@ -81,6 +84,14 @@ namespace Rigel::Backend::Vulkan
         // this shutdown method is called inside Renderer::Shutdown()!
         m_Device->WaitIdle();
 
+        m_StagingBuffers.clear();
+
+        for (const auto& pools : m_CommandPools | std::views::values)
+        {
+            for (const auto pool : pools | std::views::values)
+                vkDestroyCommandPool(m_Device->Get(), pool, nullptr);
+        }
+
         Debug::Trace("Shutting down Vulkan renderer.");
 
         return ErrorCode::OK;
@@ -109,6 +120,74 @@ namespace Rigel::Backend::Vulkan
         m_DepthBufferImage->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 0);
     }
 
+    VkCommandPool VK_Renderer::GetCommandPool(const QueueType queueType) const
+    {
+        const auto thisThreadID = std::this_thread::get_id();
+        if (!m_CommandPools.contains(thisThreadID))
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Command pool can only be retrieved for one of asset manager's loading threads or the main thread!", __FILE__, __LINE__);
+        }
+
+        return m_CommandPools.at(thisThreadID).at(queueType);
+    }
+
+    VK_MemoryBuffer& VK_Renderer::GetStagingBuffer() const
+    {
+        const auto thisThreadID = std::this_thread::get_id();
+        if (!m_StagingBuffers.contains(thisThreadID))
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Staging buffer can only be retrieved for one of asset manager's loading threads or the main thread!", __FILE__, __LINE__);
+        }
+
+        return *m_StagingBuffers.at(thisThreadID);
+    }
+
+    void VK_Renderer::CreateCommandPools()
+    {
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+
+        auto poolCreateInfo = MakeInfo<VkCommandPoolCreateInfo>();
+        poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+        // Graphics queue
+        poolCreateInfo.queueFamilyIndex = m_Device->GetQueueFamilyIndices().GraphicsFamily.value();
+
+        VK_CHECK_RESULT(vkCreateCommandPool(m_Device->Get(), &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+        m_CommandPools[std::this_thread::get_id()][QueueType::Graphics] = commandPool;
+
+        for (const auto& threadId : GetAssetManager()->GetLoadingThreadsIDs())
+        {
+            VK_CHECK_RESULT(vkCreateCommandPool(m_Device->Get(), &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+            m_CommandPools[threadId][QueueType::Graphics] = commandPool;
+        }
+
+        // Transfer queue
+        poolCreateInfo.queueFamilyIndex = m_Device->GetQueueFamilyIndices().TransferFamily.value();
+
+        VK_CHECK_RESULT(vkCreateCommandPool(m_Device->Get(), &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+        m_CommandPools[std::this_thread::get_id()][QueueType::Transfer] = commandPool;
+
+        for (const auto& threadId : GetAssetManager()->GetLoadingThreadsIDs())
+        {
+            VK_CHECK_RESULT(vkCreateCommandPool(m_Device->Get(), &poolCreateInfo, nullptr, &commandPool), "Failed to create command pool!");
+            m_CommandPools[threadId][QueueType::Transfer] = commandPool;
+        }
+    }
+
+    void VK_Renderer::CreateStagingBuffers()
+    {
+        m_StagingBuffers[std::this_thread::get_id()] = std::make_unique<VK_MemoryBuffer>(*m_Device, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+        for (const auto& id : GetAssetManager()->GetLoadingThreadsIDs())
+        {
+            m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*m_Device, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                   VMA_MEMORY_USAGE_CPU_TO_GPU);
+        }
+    }
+
     void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
     {
         const auto& renderInfo = GetRenderer()->GetSceneRenderInfo();
@@ -124,10 +203,10 @@ namespace Rigel::Backend::Vulkan
             const auto vertexBuffer = model->GetVertexBuffer();
             const auto indexBuffer = model->GetIndexBuffer();
 
-            const VkBuffer pVertexBuffers[] = {vertexBuffer->Get()};
+            const VkBuffer vertexBuffers[] = {vertexBuffer->Get()};
             constexpr VkDeviceSize offsets[] = {0};
 
-            vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, pVertexBuffers, offsets);
+            vkCmdBindVertexBuffers(vkCmdBuffer, 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(vkCmdBuffer, indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT32);
 
             int32_t vertexOffset = 0;

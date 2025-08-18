@@ -11,9 +11,10 @@ namespace Rigel::Backend::Vulkan
     {
         const VkDeviceSize imageSize = size.x * size.y * 4; // 4 bytes for 8-bit RGBA
 
-        auto& device = GetDevice();
+        auto& renderer = GetVKRenderer();
+        auto& device = renderer.GetDevice();
 
-        auto& stagingBuffer = device.GetStagingBuffer();
+        auto& stagingBuffer = renderer.GetStagingBuffer();
         stagingBuffer.UploadData(0, imageSize, pixelData);
 
         m_Image = std::make_unique<VK_Image>(device, size, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,

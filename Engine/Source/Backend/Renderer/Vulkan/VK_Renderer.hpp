@@ -2,10 +2,13 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
+#include "QueueType.hpp"
 
 #include "vulkan/vulkan.h"
 
 #include <memory>
+#include <thread>
+#include <unordered_map>
 
 namespace Rigel
 {
@@ -28,6 +31,7 @@ namespace Rigel::Backend::Vulkan
     class VK_UniformBuffer;
     class VK_DescriptorSet;
     class VK_DescriptorPool;
+    class VK_MemoryBuffer;
     class VK_Image;
 
     class VK_ImGUI_Renderer;
@@ -58,10 +62,14 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
 
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
+        NODISCARD VkCommandPool GetCommandPool(const QueueType queueType) const;
+        NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
     private:
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void OnRecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
+        void CreateCommandPools();
+        void CreateStagingBuffers();
 
         void RenderScene(VkCommandBuffer vkCmdBuffer);
 
@@ -76,6 +84,9 @@ namespace Rigel::Backend::Vulkan
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
+
+        std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
+        std::unordered_map<std::thread::id, std::unordered_map<QueueType, VkCommandPool>> m_CommandPools;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

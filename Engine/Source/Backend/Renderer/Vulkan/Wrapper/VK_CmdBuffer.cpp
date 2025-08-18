@@ -31,7 +31,7 @@ namespace Rigel::Backend::Vulkan
         : m_Device(device), m_QueueType(queueType)
     {
         auto allocInfo = MakeInfo<VkCommandBufferAllocateInfo>();
-        allocInfo.commandPool = m_Device.GetCommandPool(queueType);
+        allocInfo.commandPool = GetVKRenderer().GetCommandPool(queueType);
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
 
@@ -40,7 +40,7 @@ namespace Rigel::Backend::Vulkan
 
     VK_CmdBuffer::~VK_CmdBuffer()
     {
-        vkFreeCommandBuffers(m_Device.Get(), m_Device.GetCommandPool(m_QueueType), 1, &m_CmdBuffer);
+        vkFreeCommandBuffers(m_Device.Get(), GetVKRenderer().GetCommandPool(m_QueueType), 1, &m_CmdBuffer);
     }
 
     void VK_CmdBuffer::BeginRecording(VkCommandBufferUsageFlags flags) const
