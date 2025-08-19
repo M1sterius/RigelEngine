@@ -44,6 +44,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
         NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 
+        void BindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
         void UpdateStorageBuffer();
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);

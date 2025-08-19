@@ -162,6 +162,18 @@ namespace Rigel::Backend::Vulkan
         vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
+    void VK_BindlessManager::BindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
+    {
+        vkCmdBindDescriptorSets(
+            commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipelineLayout,
+            0, 1,
+            &m_DescriptorSet,
+            0, nullptr
+        );
+    }
+
     void VK_BindlessManager::UpdateStorageBuffer()
     {
         const auto frameIndex = Time::GetFrameCount() % GetVKRenderer().GetSwapchain().GetFramesInFlightCount();

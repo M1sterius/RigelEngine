@@ -226,8 +226,7 @@ namespace Rigel::Backend::Vulkan
         m_GraphicsPipeline->CmdSetDepthWriteEnable(vkCmdBuffer, true);
         m_GraphicsPipeline->CmdSetCullMode(vkCmdBuffer, VK_CULL_MODE_BACK_BIT);
 
-        const VkDescriptorSet sets[] = { m_BindlessManager->GetDescriptorSet() };
-        vkCmdBindDescriptorSets(vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline->GetLayout(), 0, 1, sets, 0, nullptr);
+        m_BindlessManager->BindDescriptorSet(vkCmdBuffer, m_GraphicsPipeline->GetLayout());
 
         RenderScene(vkCmdBuffer);
 
@@ -271,7 +270,7 @@ namespace Rigel::Backend::Vulkan
         const auto& commandBuffer = m_CommandBuffers[frameIndex];
         commandBuffer->Reset(0);
 
-        commandBuffer->BeginRecording(0);
+        commandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         RecordCommandBuffer(commandBuffer, image);
         commandBuffer->EndRecording();
 
