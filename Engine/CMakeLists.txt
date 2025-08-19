@@ -83,6 +83,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_Renderer.cpp
     Source/Backend/Renderer/Vulkan/VK_MeshPool.cpp
     Source/Backend/Renderer/Vulkan/AssetBackends/VK_Mesh.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdPool.cpp
+        Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdPool.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
