@@ -1,6 +1,7 @@
 #include "VK_CmdBuffer.hpp"
 #include "VK_Device.hpp"
 #include "VK_Fence.hpp"
+#include "VK_CmdPool.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -30,17 +31,12 @@ namespace Rigel::Backend::Vulkan
     VK_CmdBuffer::VK_CmdBuffer(VK_Device& device, const QueueType queueType)
         : m_Device(device), m_QueueType(queueType)
     {
-        auto allocInfo = MakeInfo<VkCommandBufferAllocateInfo>();
-        allocInfo.commandPool = GetVKRenderer().GetCommandPool(queueType);
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
-
-        VK_CHECK_RESULT(vkAllocateCommandBuffers(m_Device.Get(), &allocInfo, &m_CmdBuffer), "Failed to allocate command buffer!");
+        m_CmdBuffer = m_Device.GetCommandPool(queueType).Allocate();
     }
 
     VK_CmdBuffer::~VK_CmdBuffer()
     {
-        vkFreeCommandBuffers(m_Device.Get(), GetVKRenderer().GetCommandPool(m_QueueType), 1, &m_CmdBuffer);
+        m_Device.GetCommandPool(m_QueueType).Free(m_CmdBuffer);
     }
 
     void VK_CmdBuffer::BeginRecording(VkCommandBufferUsageFlags flags) const

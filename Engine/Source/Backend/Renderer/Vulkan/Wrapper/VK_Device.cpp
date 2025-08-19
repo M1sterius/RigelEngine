@@ -1,6 +1,7 @@
 #include "VK_Device.hpp"
 #include "VulkanUtility.hpp"
 #include "VK_MemoryBuffer.hpp"
+#include "VK_CmdPool.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 
@@ -25,18 +26,24 @@ namespace Rigel::Backend::Vulkan
                 "Failed to find any GPUs with adequate support of required vulkan features!", __FILE__, __LINE__);
         }
 
-        m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, surface);
+        m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
+        m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 
         Debug::Trace("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName);
         Debug::Trace("Available dedicated VRAM: {}mb.", m_SelectedPhysicalDevice.DedicatedMemorySize / (1024 * 1024));
 
         CreateLogicalDevice();
         CreateVmaAllocator();
+        CreateCommandPools();
     }
 
     VK_Device::~VK_Device()
     {
         Debug::Trace("Destroying vulkan device.");
+
+        // Destroying all command pools
+        for (auto& poolsMap : m_CommandPools | std::views::values)
+            poolsMap.clear();
 
         vmaDestroyAllocator(m_VmaAllocator);
         vkDestroyDevice(m_Device, nullptr);
@@ -167,17 +174,41 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vmaCreateAllocator(&allocatorCreateInfo, &m_VmaAllocator), "Failed to create VMA allocator object!");
     }
 
+    void VK_Device::CreateCommandPools()
+    {
+        m_CommandPools[std::this_thread::get_id()][QueueType::Graphics] = std::make_unique<VK_CmdPool>(*this, QueueType::Graphics);
+        m_CommandPools[std::this_thread::get_id()][QueueType::Transfer] = std::make_unique<VK_CmdPool>(*this, QueueType::Transfer);
+
+        for (const auto& threadId : GetAssetManager()->GetLoadingThreadsIDs())
+        {
+            m_CommandPools[threadId][QueueType::Graphics] = std::make_unique<VK_CmdPool>(*this, QueueType::Graphics);
+            m_CommandPools[threadId][QueueType::Transfer] = std::make_unique<VK_CmdPool>(*this, QueueType::Transfer);
+        }
+    }
+
+    VK_CmdPool& VK_Device::GetCommandPool(const QueueType queueType) const
+    {
+        const auto thisThreadID = std::this_thread::get_id();
+        if (!m_CommandPools.contains(thisThreadID))
+        {
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
+                "Command pool can only be retrieved for one of asset manager's loading threads or the main thread!", __FILE__, __LINE__);
+        }
+
+        return *m_CommandPools.at(thisThreadID).at(queueType);
+    }
+
     void VK_Device::SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
     {
         if (queueType == QueueType::Graphics)
         {
             std::unique_lock lock(m_GraphicsQueueMutex);
-            VK_CHECK_RESULT(vkQueueSubmit(GetGraphicsQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
+            VK_CHECK_RESULT(vkQueueSubmit(m_GraphicsQueue, submitCount, submitInfo, fence), "Failed to submit a command buffer to the graphics queue!");
         }
         else if (queueType == QueueType::Transfer)
         {
             std::unique_lock lock(m_TransferQueueMutex);
-            VK_CHECK_RESULT(vkQueueSubmit(GetTransferQueue(), submitCount, submitInfo, fence), "Failed to submit a command buffer to the transfer queue!");
+            VK_CHECK_RESULT(vkQueueSubmit(m_TransferQueue, submitCount, submitInfo, fence), "Failed to submit a command buffer to the transfer queue!");
         }
     }
 

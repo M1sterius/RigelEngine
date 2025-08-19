@@ -62,13 +62,12 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
 
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
-        NODISCARD VkCommandPool GetCommandPool(const QueueType queueType) const;
+
         NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
     private:
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void OnRecreateSwapchain();
         void CreateDepthBufferImage(const glm::uvec2 size);
-        void CreateCommandPools();
         void CreateStagingBuffers();
 
         void RenderScene(VkCommandBuffer vkCmdBuffer);
@@ -86,7 +85,6 @@ namespace Rigel::Backend::Vulkan
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
         std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
-        std::unordered_map<std::thread::id, std::unordered_map<QueueType, VkCommandPool>> m_CommandPools;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

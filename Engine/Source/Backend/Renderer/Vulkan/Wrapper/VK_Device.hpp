@@ -14,6 +14,7 @@
 namespace Rigel::Backend::Vulkan
 {
     class VK_MemoryBuffer;
+    class VK_CmdPool;
 
     struct PhysicalDeviceInfo
     {
@@ -66,27 +67,31 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkDevice Get() const { return m_Device; }
 
-        NODISCARD inline const PhysicalDeviceInfo& GetPhysicalDevice() const { return m_SelectedPhysicalDevice; }
-        NODISCARD inline VmaAllocator GetVmaAllocator() const { return m_VmaAllocator; }
-        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
-        NODISCARD inline QueueFamilyIndices GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-
-        // thread safe way to submit work to the graphics queue, always prefer it to raw vkQueueSubmit
+        // Thread safe way to submit work to a queue, always prefer it to raw vkQueueSubmit
         void SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
         NODISCARD VkResult SubmitPresentQueue(const VkPresentInfoKHR* pPresentInfo) const;
 
+        NODISCARD VK_CmdPool& GetCommandPool(const QueueType queueType) const;
+
+        NODISCARD inline VmaAllocator GetVmaAllocator() const { return m_VmaAllocator; }
         NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
         NODISCARD inline VkQueue GetTransferQueue() const { return m_TransferQueue; }
+
+        NODISCARD inline const PhysicalDeviceInfo& GetPhysicalDevice() const { return m_SelectedPhysicalDevice; }
+        NODISCARD inline const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+        NODISCARD inline const SwapchainSupportDetails& GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
 
         void WaitIdle() const;
     private:
         VkInstance m_Instance;
         VkSurfaceKHR m_Surface;
         VkDevice m_Device = VK_NULL_HANDLE;
-        PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
-        QueueFamilyIndices m_QueueFamilyIndices = {};
         VmaAllocator m_VmaAllocator = VK_NULL_HANDLE;
+
+        QueueFamilyIndices m_QueueFamilyIndices = {};
+        PhysicalDeviceInfo m_SelectedPhysicalDevice = {};
+        SwapchainSupportDetails m_SwapchainSupportDetails = {};
 
         mutable std::mutex m_GraphicsQueueMutex;
         mutable std::mutex m_TransferQueueMutex;
@@ -99,6 +104,9 @@ namespace Rigel::Backend::Vulkan
 
         void CreateLogicalDevice();
         void CreateVmaAllocator();
+        void CreateCommandPools();
+
+        std::unordered_map<std::thread::id, std::unordered_map<QueueType, std::unique_ptr<VK_CmdPool>>> m_CommandPools;
 
         NODISCARD static std::vector<PhysicalDeviceInfo> FindPhysicalDevices(VkInstance instance);
         NODISCARD static PhysicalDeviceInfo PickBestPhysicalDevice(const std::vector<PhysicalDeviceInfo>& availableDevices, VkSurfaceKHR surface);

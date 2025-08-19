@@ -17,10 +17,16 @@ namespace Rigel::Backend::Vulkan
 
         VK_CmdPool(const VK_CmdPool&) = delete;
         VK_CmdPool operator = (const VK_CmdPool&) = delete;
+
+        NODISCARD inline VkCommandPool Get() const { return m_CommandPool; }
+
+        NODISCARD VkCommandBuffer Allocate() const;
+        void Free(VkCommandBuffer commandBuffer) const;
     private:
         VK_Device& m_Device;
 
         QueueType m_QueueType;
+        uint32_t m_QueueFamilyIndex = -1;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
     };
 }

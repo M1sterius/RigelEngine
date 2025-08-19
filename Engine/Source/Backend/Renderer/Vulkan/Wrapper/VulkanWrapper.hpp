@@ -4,6 +4,7 @@
 #include "VK_DescriptorSet.hpp"
 #include "VK_DescriptorPool.hpp"
 #include "VK_GraphicsPipeline.hpp"
+#include "VK_CmdPool.hpp"
 #include "VK_CmdBuffer.hpp"
 #include "VK_Fence.hpp"
 #include "VK_Semaphore.hpp"
