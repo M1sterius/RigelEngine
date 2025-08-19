@@ -6,6 +6,8 @@
 #include "VK_GraphicsPipeline.hpp"
 #include "VK_CmdPool.hpp"
 #include "VK_CmdBuffer.hpp"
+#include "VK_VertexBuffer.hpp"
+#include "VK_IndexBuffer.hpp"
 #include "VK_Fence.hpp"
 #include "VK_Semaphore.hpp"
 #include "VK_Instance.hpp"

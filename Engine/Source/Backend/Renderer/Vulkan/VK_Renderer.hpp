@@ -2,7 +2,6 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "QueueType.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -61,9 +60,8 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
 
-        NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
-
         NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
+        NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void OnRecreateSwapchain();

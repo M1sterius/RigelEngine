@@ -18,7 +18,8 @@ namespace Rigel
 {
     namespace Backend::Vulkan
     {
-        class VK_MemoryBuffer;
+        class VK_VertexBuffer;
+        class VK_IndexBuffer;
 
         struct Vertex;
     }
@@ -91,8 +92,8 @@ namespace Rigel
 
         NODISCARD NodeIterator GetNodeIterator() const { return NodeIterator(m_RootNode); }
     INTERNAL:
-        NODISCARD Ref<Backend::Vulkan::VK_MemoryBuffer> GetVertexBuffer() const { return m_VertexBuffer.get(); }
-        NODISCARD Ref<Backend::Vulkan::VK_MemoryBuffer> GetIndexBuffer() const { return m_IndexBuffer.get(); }
+        NODISCARD Ref<Backend::Vulkan::VK_VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer.get(); }
+        NODISCARD Ref<Backend::Vulkan::VK_IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer.get(); }
     private:
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
@@ -102,8 +103,8 @@ namespace Rigel
         Mesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex>& vertices, std::vector<uint32_t>& indices);
         void ProcessMaterial(const aiMaterial* aiMaterial);
 
-        std::unique_ptr<Backend::Vulkan::VK_MemoryBuffer> m_VertexBuffer;
-        std::unique_ptr<Backend::Vulkan::VK_MemoryBuffer> m_IndexBuffer;
+        std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
+        std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;
 
         std::shared_ptr<Node> m_RootNode;
         std::vector<AssetHandle<Material>> m_Materials;

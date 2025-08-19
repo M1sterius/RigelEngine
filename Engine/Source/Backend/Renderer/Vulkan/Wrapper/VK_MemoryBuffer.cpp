@@ -5,42 +5,6 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    std::unique_ptr<VK_MemoryBuffer> VK_MemoryBuffer::MakeVertexBuffer(const std::vector<Vertex>& vertices)
-    {
-        auto& renderer = GetVKRenderer();
-        auto& device = renderer.GetDevice();
-
-        const auto bufferSize = sizeof(vertices[0]) * vertices.size();
-        ASSERT(bufferSize > 0, "Vertex buffer size cannot be zero");
-
-        auto& stagingBuffer = renderer.GetStagingBuffer();
-        stagingBuffer.UploadData(0, bufferSize, vertices.data());
-
-        auto vertexBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VMA_MEMORY_USAGE_GPU_ONLY);
-        Copy(device, stagingBuffer, *vertexBuffer, bufferSize);
-
-        return vertexBuffer;
-    }
-
-    std::unique_ptr<VK_MemoryBuffer> VK_MemoryBuffer::MakeIndexBuffer(const std::vector<uint32_t>& indices)
-    {
-        auto& renderer = GetVKRenderer();
-        auto& device = renderer.GetDevice();
-
-        const auto bufferSize = sizeof(indices[0]) * indices.size();
-        ASSERT(bufferSize > 0, "Index buffer size cannot be zero");
-
-        auto& stagingBuffer = renderer.GetStagingBuffer();
-        stagingBuffer.UploadData(0, bufferSize, indices.data());
-
-        auto indexBuffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            VMA_MEMORY_USAGE_GPU_ONLY);
-        Copy(device, stagingBuffer, *indexBuffer, bufferSize);
-
-        return indexBuffer;
-    }
-
     void VK_MemoryBuffer::Copy(VK_Device& device, const VK_MemoryBuffer& src, const VK_MemoryBuffer& dst, const VkDeviceSize copySize)
     {
         ASSERT(copySize <= src.GetSize(), "Copy region cannot be bigger than source buffer size");

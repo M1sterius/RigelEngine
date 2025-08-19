@@ -20,9 +20,6 @@ namespace Rigel::Backend::Vulkan
 
         inline static bool EnableAutoResizeOnUpload = true;
 
-        static std::unique_ptr<VK_MemoryBuffer> MakeVertexBuffer(const std::vector<Vertex>& vertices);
-        static std::unique_ptr<VK_MemoryBuffer> MakeIndexBuffer(const std::vector<uint32_t>& indices);
-
         VK_MemoryBuffer(VK_Device& device, VkDeviceSize size, VkBufferUsageFlags buffUsage,
             VmaMemoryUsage memUsage);
         ~VK_MemoryBuffer();
@@ -38,6 +35,7 @@ namespace Rigel::Backend::Vulkan
         void UploadData(const VkDeviceSize offset, const VkDeviceSize size, const void* data);
     private:
         VK_Device& m_Device;
+        bool m_EnableResize;
         VkDeviceSize m_Size = 0;
         VmaMemoryUsage m_MemoryUsage;
         VkBufferUsageFlags m_BufferUsage;
