@@ -80,7 +80,7 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline const PhysicalDeviceInfo& GetPhysicalDevice() const { return m_SelectedPhysicalDevice; }
         NODISCARD inline const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-        NODISCARD inline const SwapchainSupportDetails& GetSwapchainSupportDetails() const { return m_SwapchainSupportDetails; }
+        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
 
         void WaitIdle() const;
     private:
