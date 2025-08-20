@@ -196,7 +196,6 @@ namespace Rigel
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
         m_EventManager->Dispatch(Backend::TransformUpdateEvent());
-        m_Renderer->Prepare();
         m_Renderer->Render();
 
         m_InputManager->ResetInputState();

@@ -139,15 +139,15 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
     {
-        const auto& renderInfo = GetRenderer()->GetSceneRenderInfo();
+        const auto& sceneInfo = GetRenderer()->GetSceneRenderInfo();
 
-        if (!renderInfo.CameraPresent)
+        if (!sceneInfo.CameraPresent)
             return;
 
-        for (uint32_t i = 0; i < renderInfo.Models.size(); ++i)
+        for (uint32_t i = 0; i < sceneInfo.Models.size(); ++i)
         {
-            const auto& model = renderInfo.Models[i];
-            const auto& modelTransform = renderInfo.Transforms[i];
+            const auto& model = sceneInfo.Models[i];
+            const auto& modelTransform = sceneInfo.Transforms[i];
 
             model->GetVertexBuffer()->CmdBind(vkCmdBuffer);
             model->GetIndexBuffer()->CmdBind(vkCmdBuffer);
@@ -155,7 +155,7 @@ namespace Rigel::Backend::Vulkan
             int32_t vertexOffset = 0;
             for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
             {
-                const auto mvp = renderInfo.ProjView * modelTransform * node->Transform;
+                const auto mvp = sceneInfo.ProjView * modelTransform * node->Transform;
 
                 for (const auto& mesh : node->Meshes)
                 {

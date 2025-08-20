@@ -58,14 +58,9 @@ namespace Rigel
         return m_Impl->LateStartup();
     }
 
-    void Renderer::Prepare()
+
+    void Renderer::Render()
     {
-        // Find main camera
-        // Find all renderable objects
-        // Find all light sources
-
-        // Cull models, dispatch OnBecomeVisible/OnBecomeInvisible
-
         m_CurrentRenderInfo.Reset();
 
         auto scene = GetSceneManager()->GetLoadedScene();
@@ -90,10 +85,7 @@ namespace Rigel
                 m_CurrentRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
             }
         }
-    }
 
-    void Renderer::Render() const
-    {
         m_Impl->Render();
     }
 

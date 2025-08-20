@@ -8,7 +8,9 @@ from pathlib import Path
 
 shaders = [
     "DefaultShader.frag",
-    "DefaultShader.vert"
+    "DefaultShader.vert",
+    # "GeometryPass.vert",
+    # "GeometryPass.frag"
 ]
 
 def build_shaders():

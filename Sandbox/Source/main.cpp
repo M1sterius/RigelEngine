@@ -36,6 +36,7 @@ int32_t main(int32_t argc, char** argv)
     model->GetTransform()->SetLocalPosition({0, -1.0, 0});
     model->GetTransform()->SetLocalScale(glm::vec3(1.0f));
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
+    // model->AddComponent<Rigel::ModelRenderer>("Assets/Engine/Models/Cube.obj");
 
     sceneManager->LoadScene(scene);
 

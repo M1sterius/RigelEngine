@@ -32,8 +32,8 @@ namespace Rigel
         NODISCARD Backend::SceneRenderInfo& GetSceneRenderInfo() { return m_CurrentRenderInfo; }
 
         ErrorCode LateStartup() const;
-        void Prepare();
-        void Render() const;
+
+        void Render();
 
         // Blocks the calling thread until all rendering operations are done
         void WaitForFinish() const;

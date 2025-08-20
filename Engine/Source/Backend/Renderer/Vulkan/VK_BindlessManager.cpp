@@ -346,7 +346,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         m_SceneData->Materials[index] = *material;
-        std::fill(m_DirtyBufferFlags.begin(), m_DirtyBufferFlags.end(), true);
+        std::ranges::fill(m_DirtyBufferFlags, true);
 
         return index;
     }

@@ -86,6 +86,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_CmdPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
+    Source/Backend/Renderer/Vulkan/VK_GBuffer.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
