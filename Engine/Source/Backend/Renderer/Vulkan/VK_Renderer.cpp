@@ -3,6 +3,7 @@
 #include "Assets/Model.hpp"
 #include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
+#include "VK_GBuffer.hpp"
 #include "VulkanWrapper.hpp"
 #include "VulkanUtility.hpp"
 #include "MakeInfo.hpp"
@@ -32,6 +33,7 @@ namespace Rigel::Backend::Vulkan
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager()->GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
+        m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
         CreateStagingBuffers();
         CreateDepthBufferImage(GetWindowManager()->GetWindowSize());
@@ -100,6 +102,7 @@ namespace Rigel::Backend::Vulkan
 
         CreateDepthBufferImage(windowSize);
         m_Swapchain->SetupSwapchain(windowSize, vsync);
+        m_GBuffer->Setup(windowSize);
     }
 
     void VK_Renderer::CreateDepthBufferImage(const glm::uvec2 size)

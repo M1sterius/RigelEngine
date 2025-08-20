@@ -37,6 +37,7 @@ namespace Rigel::Backend::Vulkan
     class VK_DescriptorPool;
     class VK_MemoryBuffer;
     class VK_Image;
+    class VK_GBuffer;
 
     class VK_ImGUI_Renderer;
     class VK_BindlessManager;
@@ -72,7 +73,6 @@ namespace Rigel::Backend::Vulkan
         void CreateDepthBufferImage(const glm::uvec2 size);
         void OnRecreateSwapchain();
 
-        void ProcessSceneRenderInfo(Ref<SceneRenderInfo> sceneRenderInfo);
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void RenderScene(VkCommandBuffer vkCmdBuffer);
 
@@ -83,6 +83,7 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;
         std::unique_ptr<VK_Image> m_DepthBufferImage;
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
+        std::unique_ptr<VK_GBuffer> m_GBuffer;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;

@@ -6,7 +6,7 @@
 #include "vulkan/vulkan.h"
 
 #include <memory>
-#include <vector>
+#include <array>
 
 namespace Rigel::Backend::Vulkan
 {
@@ -23,6 +23,11 @@ namespace Rigel::Backend::Vulkan
         VK_GBuffer operator = (const VK_GBuffer&) = delete;
 
         void Setup(const glm::uvec2 size);
+
+        void CmdTransitionToRender(VkCommandBuffer commandBuffer);
+        void CmdTransitionToSample(VkCommandBuffer commandBuffer);
+
+        NODISCARD inline VkRenderingInfo* GetRenderingInfo() { return &m_RenderingInfo; }
     private:
         VK_Device& m_Device;
         glm::uvec2 m_Size;
@@ -31,5 +36,11 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_Image> m_Normal;
         std::unique_ptr<VK_Image> m_AlbedoSpec;
         std::unique_ptr<VK_Image> m_Depth;
+
+        std::array<VkRenderingAttachmentInfo, 3> m_ColorAttachments{};
+        VkRenderingAttachmentInfo m_DepthAttachment{};
+        VkRenderingInfo m_RenderingInfo{};
+
+        void SetupRenderingInfo();
     };
 }

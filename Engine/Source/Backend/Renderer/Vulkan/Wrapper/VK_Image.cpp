@@ -77,6 +77,14 @@ namespace Rigel::Backend::Vulkan
             transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             transitionInfo.destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         }
+        else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        {
+            transitionInfo.srcAccessMask = 0;
+            transitionInfo.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+            transitionInfo.sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            transitionInfo.destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        }
         else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_GENERAL)
         {
             transitionInfo.srcAccessMask = 0;
