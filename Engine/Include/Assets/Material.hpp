@@ -29,7 +29,7 @@ namespace Rigel
         AssetHandle<Texture2D> m_Normals;
 
         uint32_t m_BindlessIndex = UINT32_MAX;
-        std::unique_ptr<Backend::Vulkan::MaterialData> m_ShaderData;
+        std::unique_ptr<Backend::Vulkan::MaterialData> m_Data;
 
         friend class AssetManager;
     };

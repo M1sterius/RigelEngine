@@ -33,7 +33,7 @@ namespace Rigel
         struct Mesh
         {
             std::string Name;
-            uint32_t MaterialIndex = UINT32_MAX;
+            AssetHandle<Material> Material;
 
             uint32_t FirstVertex = 0;
             uint32_t VertexCount = 0;

@@ -7,8 +7,7 @@ namespace Rigel::Backend::Vulkan
 {
     struct PushConstantData
     {
-        glm::mat4 MVP;
-        uint32_t MaterialIndex;
+        uint32_t MeshIndex;
     };
 
     struct alignas(16) MaterialData
@@ -21,21 +20,25 @@ namespace Rigel::Backend::Vulkan
 
     struct alignas(16) MeshData
     {
-        uint32_t MaterialIndex;
-        float _pad0[3]; // 12 bytes
+        // uint32_t MaterialIndex;
+        // float _pad0[3]; // 12 bytes
+        //
+        // glm::mat4 MVP;
+        // glm::mat4 ModelMat;
+        // glm::mat3 NormalMat;
+        // float _pad1[3]; // 12 bytes
 
         glm::mat4 MVP;
-        glm::mat4 ModelMat;
-        glm::mat3 NormalMat;
-        float _pad1[3]; // 12 bytes
+        uint32_t MaterialIndex;
+        float _pad0[3];
     };
 
     struct alignas(16) SceneData
     {
         static constexpr uint32_t MAX_MATERIALS_ARRAY_SIZE = 1024;
-        static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 4096;
+        static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 2048;
 
         MaterialData Materials[MAX_MATERIALS_ARRAY_SIZE];
-        // MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
+        MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
     };
 }

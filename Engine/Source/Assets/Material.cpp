@@ -16,7 +16,7 @@ namespace Rigel
 
     ErrorCode Material::Init()
     {
-        m_ShaderData = std::make_unique<MaterialData>();
+        m_Data = std::make_unique<MaterialData>();
 
         auto assetManager = GetAssetManager();
         const auto metadata = assetManager->GetMetadata<MaterialMetadata>(this->m_Path);
@@ -44,12 +44,12 @@ namespace Rigel
             return fallbackIndex;
         };
 
-        m_ShaderData->DiffuseIndex = SetIndex(m_Diffuse, VK_BindlessManager::ERROR_TEXTURE_BINDLESS_INDEX);
-        m_ShaderData->SpecularIndex = SetIndex(m_Specular, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
-        m_ShaderData->NormalsIndex = SetIndex(m_Normals, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
-        m_ShaderData->Roughness = 0.0f;
+        m_Data->DiffuseIndex = SetIndex(m_Diffuse, VK_BindlessManager::ERROR_TEXTURE_BINDLESS_INDEX);
+        m_Data->SpecularIndex = SetIndex(m_Specular, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
+        m_Data->NormalsIndex = SetIndex(m_Normals, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
+        m_Data->Roughness = 0.0f;
 
-        m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddMaterialData(m_ShaderData.get());
+        m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddMaterial(m_Data.get());
 
         return ErrorCode::OK;
     }

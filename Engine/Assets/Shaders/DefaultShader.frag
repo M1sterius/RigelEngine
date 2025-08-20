@@ -15,11 +15,19 @@ struct MaterialData
     float Roughness;
 };
 
+struct MeshData
+{
+    mat4 MVP;
+    uint MaterialIndex;
+    float _pad0[3];
+};
+
 layout(set = 0, binding = 0) uniform sampler2D textures[];
 
 layout(std430, set = 0, binding = 1) readonly buffer SceneData_T
 {
     MaterialData Materials[1024];
+    MeshData Meshes[2048];
 } SceneData;
 
 void main()

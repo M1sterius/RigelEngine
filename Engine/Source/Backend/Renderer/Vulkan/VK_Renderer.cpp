@@ -139,15 +139,18 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
     {
-        const auto& sceneInfo = GetRenderer()->GetSceneRenderInfo();
+        const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo();
 
-        if (!sceneInfo.CameraPresent)
+        if (!sceneRenderInfo->CameraPresent)
             return;
 
-        for (uint32_t i = 0; i < sceneInfo.Models.size(); ++i)
+        const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
+        uint32_t meshIndex = 0;
+
+        for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
         {
-            const auto& model = sceneInfo.Models[i];
-            const auto& modelTransform = sceneInfo.Transforms[i];
+            const auto& model = sceneRenderInfo->Models[i];
+            const auto& modelTransform = sceneRenderInfo->Transforms[i];
 
             model->GetVertexBuffer()->CmdBind(vkCmdBuffer);
             model->GetIndexBuffer()->CmdBind(vkCmdBuffer);
@@ -155,13 +158,17 @@ namespace Rigel::Backend::Vulkan
             int32_t vertexOffset = 0;
             for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
             {
-                const auto mvp = sceneInfo.ProjView * modelTransform * node->Transform;
+                const auto mvp = sceneRenderInfo->ProjView * modelTransform * node->Transform;
 
                 for (const auto& mesh : node->Meshes)
                 {
-                    auto pc = PushConstantData{
+                    sceneDataPtr->Meshes[meshIndex] = {
                         .MVP = mvp,
-                        .MaterialIndex = mesh.MaterialIndex
+                        .MaterialIndex = mesh.Material->GetBindlessIndex(),
+                    };
+
+                    auto pc = PushConstantData{
+                        .MeshIndex = meshIndex
                     };
 
                     vkCmdPushConstants(
@@ -183,6 +190,7 @@ namespace Rigel::Backend::Vulkan
                     );
 
                     vertexOffset = mesh.FirstVertex + mesh.VertexCount;
+                    ++meshIndex;
                 }
             }
         }
@@ -264,7 +272,6 @@ namespace Rigel::Backend::Vulkan
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
         m_InFlightFences[frameIndex]->Wait();
 
-        m_BindlessManager->UpdateStorageBuffer();
         const auto image = m_Swapchain->AcquireNextImage();
 
         const auto& commandBuffer = m_CommandBuffers[frameIndex];
@@ -273,6 +280,8 @@ namespace Rigel::Backend::Vulkan
         commandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         RecordCommandBuffer(commandBuffer, image);
         commandBuffer->EndRecording();
+
+        m_BindlessManager->UpdateStorageBuffer(frameIndex);
 
         const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
         const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
@@ -301,5 +310,4 @@ namespace Rigel::Backend::Vulkan
     {
         m_Device->WaitIdle();
     }
-
 }

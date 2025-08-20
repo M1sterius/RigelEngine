@@ -142,7 +142,7 @@ namespace Rigel
 
         const auto& material = m_Materials[mesh->mMaterialIndex];
         material->WaitReady();
-        resMesh.MaterialIndex = material->GetBindlessIndex();
+        resMesh.Material = material;
 
         return resMesh;
     }

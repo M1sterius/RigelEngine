@@ -48,7 +48,7 @@ namespace Rigel
         m_ImGuiImpl.reset();
         m_Impl.reset();
 
-        m_CurrentRenderInfo.Reset();
+        m_SceneRenderInfo.Reset();
 
         return ErrorCode::OK;
     }
@@ -61,7 +61,7 @@ namespace Rigel
 
     void Renderer::Render()
     {
-        m_CurrentRenderInfo.Reset();
+        m_SceneRenderInfo.Reset();
 
         auto scene = GetSceneManager()->GetLoadedScene();
         if (scene.IsNull())
@@ -74,15 +74,15 @@ namespace Rigel
             return;
         }
 
-        m_CurrentRenderInfo.CameraPresent = true;
-        m_CurrentRenderInfo.ProjView = cameras[0]->GetProjection() * cameras[0]->GetView();
+        m_SceneRenderInfo.CameraPresent = true;
+        m_SceneRenderInfo.ProjView = cameras[0]->GetProjection() * cameras[0]->GetView();
 
         for (const auto& mr : scene->FindComponentsOfType<ModelRenderer>())
         {
             if (const auto asset = mr->GetModelAsset(); !asset.IsNull() && asset->IsOK())
             {
-                m_CurrentRenderInfo.Models.push_back(asset);
-                m_CurrentRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
+                m_SceneRenderInfo.Models.push_back(asset);
+                m_SceneRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
             }
         }
 

@@ -43,15 +43,16 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
         NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+        NODISCARD inline SceneData* GetSceneDataPtr() const { return m_SceneData.get(); }
 
         void BindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
-        void UpdateStorageBuffer();
+        void UpdateStorageBuffer(const uint64_t frameIndex);
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);
         void SetTextureSampler(const Ref<VK_Texture> texture, const Texture2D::SamplerProperties& samplerProperties);
 
-        NODISCARD uint32_t AddMaterialData(const Ref<MaterialData> material);
+        NODISCARD uint32_t AddMaterial(const Ref<MaterialData> material);
         void RemoveMaterial(const uint32_t materialIndex);
     private:
         VK_Renderer& m_Renderer;
@@ -78,7 +79,6 @@ namespace Rigel::Backend::Vulkan
         std::mutex m_MaterialMutex;
 
         std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
-        std::vector<bool> m_DirtyBufferFlags;
         std::unique_ptr<SceneData> m_SceneData;
     };
 }

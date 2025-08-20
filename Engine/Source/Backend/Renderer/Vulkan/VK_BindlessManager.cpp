@@ -50,8 +50,6 @@ namespace Rigel::Backend::Vulkan
             m_StorageBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(SceneData),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
         }
-
-        m_DirtyBufferFlags = std::vector(framesInFlight, true);
     }
 
     void VK_BindlessManager::CreateDescriptorSetLayout()
@@ -71,7 +69,7 @@ namespace Rigel::Backend::Vulkan
         bindings[STORAGE_BUFFER_ARRAY_BINDING].binding = STORAGE_BUFFER_ARRAY_BINDING;
         bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorCount = 1;
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        bindings[STORAGE_BUFFER_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         bindings[STORAGE_BUFFER_ARRAY_BINDING].pImmutableSamplers = nullptr;
 
         flags[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
@@ -174,18 +172,13 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_BindlessManager::UpdateStorageBuffer()
+    void VK_BindlessManager::UpdateStorageBuffer(const uint64_t frameIndex)
     {
-        const auto frameIndex = Time::GetFrameCount() % GetVKRenderer().GetSwapchain().GetFramesInFlightCount();
-
-        if (m_DirtyBufferFlags[frameIndex])
-        {
-            m_StorageBuffers[frameIndex]->UploadData(0, sizeof(SceneData), m_SceneData.get());
-            m_DirtyBufferFlags[frameIndex] = false;
-        }
+        const auto& buffer = m_StorageBuffers[frameIndex];
+        buffer->UploadData(0, sizeof(SceneData), m_SceneData.get());
 
         VkDescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = m_StorageBuffers[frameIndex]->Get();
+        bufferInfo.buffer = buffer->Get();
         bufferInfo.offset = 0;
         bufferInfo.range = VK_WHOLE_SIZE;
 
@@ -306,7 +299,7 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    uint32_t VK_BindlessManager::AddMaterialData(const Ref<MaterialData> material)
+    uint32_t VK_BindlessManager::AddMaterial(const Ref<MaterialData> material)
     {
         uint32_t index = UINT32_MAX;
 
@@ -346,7 +339,6 @@ namespace Rigel::Backend::Vulkan
         }
 
         m_SceneData->Materials[index] = *material;
-        std::ranges::fill(m_DirtyBufferFlags, true);
 
         return index;
     }

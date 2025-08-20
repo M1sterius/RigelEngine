@@ -13,6 +13,11 @@ namespace Rigel
 {
     class WindowManager;
     class AssetManager;
+
+    namespace Backend
+    {
+        struct SceneRenderInfo;
+    }
 }
 
 namespace Rigel::Backend::Vulkan
@@ -52,9 +57,9 @@ namespace Rigel::Backend::Vulkan
         ErrorCode LateStartup();
 
         void Render();
-        void WaitForFinish() const;
 
-        inline void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
+        void WaitForFinish() const;
+        void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
@@ -63,11 +68,12 @@ namespace Rigel::Backend::Vulkan
         NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
-        void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
-        void OnRecreateSwapchain();
-        void CreateDepthBufferImage(const glm::uvec2 size);
         void CreateStagingBuffers();
+        void CreateDepthBufferImage(const glm::uvec2 size);
+        void OnRecreateSwapchain();
 
+        void ProcessSceneRenderInfo(Ref<SceneRenderInfo> sceneRenderInfo);
+        void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void RenderScene(VkCommandBuffer vkCmdBuffer);
 
         std::unique_ptr<VK_Instance> m_Instance;
