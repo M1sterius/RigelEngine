@@ -1,26 +1,13 @@
 #version 450
 
+#include "Include/CommonStructs.glsl"
+
 #extension GL_EXT_nonuniform_qualifier : enable
 
 layout(location = 0) in vec2 v_TexCoords;
 layout(location = 1) in flat uint v_MaterialIndex;
 
 layout(location = 0) out vec4 outColor;
-
-struct MaterialData
-{
-    uint DiffuseIndex;
-    uint SpecularIndex;
-    uint NormalsIndex;
-    float Roughness;
-};
-
-struct MeshData
-{
-    mat4 MVP;
-    uint MaterialIndex;
-    float _pad0[3];
-};
 
 layout(set = 0, binding = 0) uniform sampler2D textures[];
 

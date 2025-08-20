@@ -20,7 +20,7 @@ def build_shaders():
         shaders_output_dir.mkdir(parents=True, exist_ok=True)
 
     for shader in shaders:
-        subprocess.run(["glslc", f"{shader_assets_dir}/{shader}", "-o", f"{shaders_output_dir}/{shader}.spv"])
+        subprocess.run(["glslc", f"{shader_assets_dir}/{shader}", "-o", f"{shaders_output_dir}/{shader}.spv", "-I", "./Include"])
 
 def copy_assets_to_output():
     shutil.copytree(f"{assets_dir}/Models", f"{output_path}/Models", dirs_exist_ok=True)

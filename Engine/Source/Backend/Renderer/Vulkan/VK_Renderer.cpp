@@ -158,13 +158,17 @@ namespace Rigel::Backend::Vulkan
             int32_t vertexOffset = 0;
             for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
             {
-                const auto mvp = sceneRenderInfo->ProjView * modelTransform * node->Transform;
+                const auto meshModelMat = modelTransform * node->Transform;
+                const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
+                const auto meshNormalMat = glm::transpose(glm::inverse(meshModelMat));
 
                 for (const auto& mesh : node->Meshes)
                 {
                     sceneDataPtr->Meshes[meshIndex] = {
-                        .MVP = mvp,
                         .MaterialIndex = mesh.Material->GetBindlessIndex(),
+                        .MVP = meshMVP,
+                        .ModelMat = meshModelMat,
+                        .NormalMat = meshNormalMat,
                     };
 
                     auto pc = PushConstantData{

@@ -20,17 +20,12 @@ namespace Rigel::Backend::Vulkan
 
     struct alignas(16) MeshData
     {
-        // uint32_t MaterialIndex;
-        // float _pad0[3]; // 12 bytes
-        //
-        // glm::mat4 MVP;
-        // glm::mat4 ModelMat;
-        // glm::mat3 NormalMat;
-        // float _pad1[3]; // 12 bytes
+        uint32_t MaterialIndex;
+        float _pad0[3]; // 12 bytes
 
         glm::mat4 MVP;
-        uint32_t MaterialIndex;
-        float _pad0[3];
+        glm::mat4 ModelMat;
+        glm::mat4 NormalMat;
     };
 
     struct alignas(16) SceneData
