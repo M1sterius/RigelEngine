@@ -27,7 +27,7 @@ namespace Rigel::Backend::Vulkan
         for (uint32_t i = 0; i < m_FramesInFlight; i++)
             m_ImageAvailableSemaphores.emplace_back(std::make_unique<VK_Semaphore>(m_Device));
 
-        SetupSwapchain(m_ImageSize, GetCurrentVsyncSetting());
+        Setup(m_ImageSize, GetCurrentVsyncSetting());
     }
 
     VK_Swapchain::~VK_Swapchain()
@@ -49,7 +49,7 @@ namespace Rigel::Backend::Vulkan
         result != VK_SUCCESS)
         {
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
-                SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
+                Setup(GetCurrentExtent(), GetCurrentVsyncSetting());
             else if (result != VK_SUBOPTIMAL_KHR)
             {
                 Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
@@ -72,7 +72,7 @@ namespace Rigel::Backend::Vulkan
         if (const auto result = m_Device.SubmitPresentQueue(&presentInfo); result != VK_SUCCESS)
         {
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-                SetupSwapchain(GetCurrentExtent(), GetCurrentVsyncSetting());
+                Setup(GetCurrentExtent(), GetCurrentVsyncSetting());
             else
             {
                 Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
@@ -81,7 +81,7 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
-    void VK_Swapchain::SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled)
+    void VK_Swapchain::Setup(const glm::uvec2 requestedExtent, const bool vsyncEnabled)
     {
         m_Device.WaitIdle();
 

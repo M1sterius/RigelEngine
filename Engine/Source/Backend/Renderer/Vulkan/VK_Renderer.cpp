@@ -77,6 +77,32 @@ namespace Rigel::Backend::Vulkan
             layouts
         );
 
+        const std::vector descriptorSetLayouts = {m_BindlessManager->GetDescriptorSetLayout()};
+
+        VkPushConstantRange pushConstantRange = {};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(PushConstantData);
+
+        auto geometryPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
+        geometryPassPipelineLayout.pushConstantRangeCount = 1;
+        geometryPassPipelineLayout.pPushConstantRanges = &pushConstantRange;
+        geometryPassPipelineLayout.setLayoutCount = descriptorSetLayouts.size();
+        geometryPassPipelineLayout.pSetLayouts = descriptorSetLayouts.data();
+
+        auto geometryPassShaderMetadata = ShaderMetadata();
+        geometryPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/GeometryPass.vert.spv";
+        geometryPassShaderMetadata.Paths[1] = "Assets/Engine/Shaders/GeometryPass.frag.spv";
+        geometryPassShaderMetadata.AddVariant("Main", 0, 1);
+
+        auto geometryPassShader = GetAssetManager()->Load<Shader>("GeometryPassShader", &geometryPassShaderMetadata, true);
+
+        m_GeometryPassPipeline = VK_GraphicsPipeline::CreateGeometryPassPipeline(
+            *m_Device,
+            geometryPassPipelineLayout,
+            geometryPassShader->GetVariant("Main")
+        );
+
         return ErrorCode::OK;
     }
 
@@ -101,7 +127,7 @@ namespace Rigel::Backend::Vulkan
         const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
         CreateDepthBufferImage(windowSize);
-        m_Swapchain->SetupSwapchain(windowSize, vsync);
+        m_Swapchain->Setup(windowSize, vsync);
         m_GBuffer->Setup(windowSize);
     }
 

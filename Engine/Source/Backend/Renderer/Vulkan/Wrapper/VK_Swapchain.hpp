@@ -35,7 +35,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD VkExtent2D GetExtent() const { return {m_ImageSize.x, m_ImageSize.y}; }
         NODISCARD glm::uvec2 GetSize() const { return m_ImageSize; }
 
-        void SetupSwapchain(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
+        void Setup(const glm::uvec2 requestedExtent, const bool vsyncEnabled);
 
         NODISCARD AcquireImageInfo AcquireNextImage();
         void Present(const uint32_t imageIndex, VkSemaphore waitSemaphore);

@@ -39,6 +39,9 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat colorAttachmentFormat,
             const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+
+        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateGeometryPassPipeline(VK_Device& device,
+            const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const Shader::Variant& shader);
     private:
         VK_Device& m_Device;
 

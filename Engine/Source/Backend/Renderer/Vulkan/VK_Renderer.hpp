@@ -85,6 +85,8 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
         std::unique_ptr<VK_GBuffer> m_GBuffer;
 
+        std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
+
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
