@@ -316,8 +316,9 @@ namespace Rigel::Backend::Vulkan
         auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         uiColorAttachment.imageView = swapchainImage.imageView;
         uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        uiColorAttachment.clearValue.color = {0.2f, 0.3f, 0.4f, 1.0f};
 
         auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
         uiRenderingInfo.renderArea.offset = {0, 0};
@@ -410,38 +411,67 @@ namespace Rigel::Backend::Vulkan
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
         m_InFlightFences[frameIndex]->Wait();
 
-        const auto image = m_Swapchain->AcquireNextImage();
+        const auto swapchainImage = m_Swapchain->AcquireNextImage();
 
-        const auto& commandBuffer = m_CommandBuffers[frameIndex];
-        commandBuffer->Reset(0);
+        const auto& geometryPassCommandBuffer = m_GeometryPassCommandBuffers[frameIndex];
+        const auto& lightingPassCommandBuffer = m_CommandBuffers[frameIndex];
 
-        commandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        RecordCommandBuffer(commandBuffer, image);
-        commandBuffer->EndRecording();
+        geometryPassCommandBuffer->Reset(0);
+        lightingPassCommandBuffer->Reset(0);
 
-        m_BindlessManager->UpdateStorageBuffer(frameIndex);
+        geometryPassCommandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        RecordGeometryPass(geometryPassCommandBuffer->Get());
+        geometryPassCommandBuffer->EndRecording();
 
-        const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
-        const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
-        const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[frameIndex]->Get() };
+        lightingPassCommandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        RecordLightingPass(lightingPassCommandBuffer->Get(), swapchainImage);
+        lightingPassCommandBuffer->EndRecording();
 
-        constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-        auto submitInfo = MakeInfo<VkSubmitInfo>();
-        submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = submitBuffers;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
+        m_BindlessManager->UpdateStorageBuffer(frameIndex); // this line must stay after geometry pass recording
 
         const auto& fence = m_InFlightFences[frameIndex];
         fence->Reset();
 
-        m_Device->SubmitToQueue(QueueType::Graphics,1, &submitInfo, fence->Get());
+        const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer->Get()};
+        const VkSemaphore geometryPassSignalSemaphores[] = {m_GeometryPassFinishedSemaphores[frameIndex]->Get()};
 
-        m_Swapchain->Present(image.imageIndex, signalSemaphores[0]);
+        auto geometryPassSubmitInfo = MakeInfo<VkSubmitInfo>();
+        geometryPassSubmitInfo.pWaitDstStageMask = nullptr;
+        geometryPassSubmitInfo.commandBufferCount = 1;
+        geometryPassSubmitInfo.pCommandBuffers = geometryPassSubmitBuffers;
+        geometryPassSubmitInfo.waitSemaphoreCount = 0;
+        geometryPassSubmitInfo.signalSemaphoreCount = 1;
+        geometryPassSubmitInfo.pSignalSemaphores = geometryPassSignalSemaphores;
+
+        m_Device->SubmitToQueue(QueueType::Graphics, 1, &geometryPassSubmitInfo, nullptr);
+
+        const VkCommandBuffer lightingPassSubmitBuffers[] = {lightingPassCommandBuffer->Get()};
+        const VkSemaphore lightingPassWaitSemaphores[] = {
+            m_GeometryPassFinishedSemaphores[frameIndex]->Get(),
+            swapchainImage.availableSemaphore
+        };
+        const VkSemaphore lightingPassSignalSemaphores[] = {m_RenderFinishedSemaphores[frameIndex]->Get()};
+
+        constexpr VkPipelineStageFlags lightingPassWaitStages[] = {
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+        };
+
+        auto lightingPassSubmitInfo = MakeInfo<VkSubmitInfo>();
+
+        lightingPassSubmitInfo.pWaitDstStageMask = lightingPassWaitStages;
+        lightingPassSubmitInfo.commandBufferCount = 1;
+        lightingPassSubmitInfo.pCommandBuffers = lightingPassSubmitBuffers;
+        lightingPassSubmitInfo.waitSemaphoreCount = 2;
+        lightingPassSubmitInfo.pWaitSemaphores = lightingPassWaitSemaphores;
+        lightingPassSubmitInfo.signalSemaphoreCount = 1;
+        lightingPassSubmitInfo.pSignalSemaphores = lightingPassSignalSemaphores;
+
+        m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, fence->Get());
+
+        const VkSemaphore presentWaitSemaphore = m_RenderFinishedSemaphores[frameIndex]->Get();
+
+        m_Swapchain->Present(swapchainImage.imageIndex, presentWaitSemaphore);
     }
 
     void VK_Renderer::WaitForFinish() const
