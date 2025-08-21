@@ -35,20 +35,19 @@ namespace Rigel::Backend::Vulkan
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
-        CreateStagingBuffers();
-        CreateDepthBufferImage(GetWindowManager()->GetWindowSize());
-
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
         for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_RenderFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-            m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
+            m_LightingPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
 
             m_GeometryPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
+
+        CreateStagingBuffers();
 
         return ErrorCode::OK;
     }
@@ -61,24 +60,6 @@ namespace Rigel::Backend::Vulkan
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError, true);
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureBlack, true);
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureWhite, true);
-
-        auto defaultShaderMetadata = ShaderMetadata();
-        defaultShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DefaultShader.vert.spv";
-        defaultShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DefaultShader.frag.spv";
-        defaultShaderMetadata.AddVariant("Main", 0, 1);
-
-        auto defaultShader = GetAssetManager()->Load<Shader>(BuiltInAssets::ShaderDefault, &defaultShaderMetadata, true);
-        if (!defaultShader->IsOK())
-            return ErrorCode::BUILT_IN_ASSET_NOT_LOADED;
-
-        const std::vector layouts = { m_BindlessManager->GetDescriptorSetLayout() };
-
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(
-            *m_Device,
-            m_Swapchain->GetSwapchainImageFormat(),
-            defaultShader->GetVariant("Main"),
-            layouts
-        );
 
         const std::vector descriptorSetLayouts = {m_BindlessManager->GetDescriptorSetLayout()};
 
@@ -129,20 +110,8 @@ namespace Rigel::Backend::Vulkan
         const auto windowSize = GetWindowManager()->GetWindowSize();
         const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
-        CreateDepthBufferImage(windowSize);
         m_Swapchain->Setup(windowSize, vsync);
         m_GBuffer->Setup(windowSize);
-    }
-
-    void VK_Renderer::CreateDepthBufferImage(const glm::uvec2 size)
-    {
-        if (m_DepthBufferImage)
-            m_DepthBufferImage.reset();
-
-        m_DepthBufferImage = std::make_unique<VK_Image>(*m_Device, size, VK_FORMAT_D32_SFLOAT,
-            VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-
-        m_DepthBufferImage->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 0);
     }
 
     VK_MemoryBuffer& VK_Renderer::GetStagingBuffer() const
@@ -166,69 +135,6 @@ namespace Rigel::Backend::Vulkan
         {
             m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*m_Device, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                    VMA_MEMORY_USAGE_CPU_TO_GPU);
-        }
-    }
-
-    void VK_Renderer::RenderScene(VkCommandBuffer vkCmdBuffer)
-    {
-        const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo();
-
-        if (!sceneRenderInfo->CameraPresent)
-            return;
-
-        const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
-        uint32_t meshIndex = 0;
-
-        for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
-        {
-            const auto& model = sceneRenderInfo->Models[i];
-            const auto& modelTransform = sceneRenderInfo->Transforms[i];
-
-            model->GetVertexBuffer()->CmdBind(vkCmdBuffer);
-            model->GetIndexBuffer()->CmdBind(vkCmdBuffer);
-
-            int32_t vertexOffset = 0;
-            for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
-            {
-                const auto meshModelMat = modelTransform * node->Transform;
-                const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
-                const auto meshNormalMat = glm::transpose(glm::inverse(meshModelMat));
-
-                for (const auto& mesh : node->Meshes)
-                {
-                    sceneDataPtr->Meshes[meshIndex] = {
-                        .MaterialIndex = mesh.Material->GetBindlessIndex(),
-                        .MVP = meshMVP,
-                        .ModelMat = meshModelMat,
-                        .NormalMat = meshNormalMat,
-                    };
-
-                    auto pc = PushConstantData{
-                        .MeshIndex = meshIndex
-                    };
-
-                    vkCmdPushConstants(
-                        vkCmdBuffer,
-                        m_GraphicsPipeline->GetLayout(),
-                        VK_SHADER_STAGE_VERTEX_BIT,
-                        0,
-                        sizeof(pc),
-                        &pc
-                    );
-
-                    vkCmdDrawIndexed(
-                        vkCmdBuffer,
-                        mesh.IndexCount,
-                        1,
-                        mesh.FirstIndex,
-                        vertexOffset,
-                        0
-                    );
-
-                    vertexOffset = mesh.FirstVertex + mesh.VertexCount;
-                    ++meshIndex;
-                }
-            }
         }
     }
 
@@ -280,7 +186,7 @@ namespace Rigel::Backend::Vulkan
 
                         vkCmdPushConstants(
                             cmdBuff,
-                            m_GraphicsPipeline->GetLayout(),
+                            m_GeometryPassPipeline->GetLayout(),
                             VK_SHADER_STAGE_VERTEX_BIT,
                             0,
                             sizeof(pc),
@@ -335,70 +241,6 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
     }
 
-    void VK_Renderer::RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image)
-    {
-        const auto vkCmdBuffer = commandBuffer->Get();
-
-        VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
-
-        auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        colorAttachment.imageView = image.imageView;
-        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue.color = {{0.2f, 0.3f, 0.4f, 1.0f}};
-
-        auto depthAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        depthAttachment.imageView = m_DepthBufferImage->GetView();
-        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.clearValue.depthStencil = {1.0f, 0};
-
-        auto renderingInfo = MakeInfo<VkRenderingInfo>();
-        renderingInfo.renderArea.offset = {0, 0};
-        renderingInfo.renderArea.extent = m_Swapchain->GetExtent();
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthAttachment;
-
-        vkCmdBeginRendering(vkCmdBuffer, &renderingInfo);
-
-        m_GraphicsPipeline->CmdBind(vkCmdBuffer);
-        m_GraphicsPipeline->CmdSetViewport(vkCmdBuffer, glm::vec2(0.0f), m_Swapchain->GetSize());
-        m_GraphicsPipeline->CmdSetScissor(vkCmdBuffer, glm::ivec2(0), m_Swapchain->GetExtent());
-        m_GraphicsPipeline->CmdSetDepthTestEnable(vkCmdBuffer, true);
-        m_GraphicsPipeline->CmdSetDepthWriteEnable(vkCmdBuffer, true);
-        m_GraphicsPipeline->CmdSetCullMode(vkCmdBuffer, VK_CULL_MODE_BACK_BIT);
-
-        m_BindlessManager->BindDescriptorSet(vkCmdBuffer, m_GraphicsPipeline->GetLayout());
-
-        RenderScene(vkCmdBuffer);
-
-        vkCmdEndRendering(vkCmdBuffer);
-
-        auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        uiColorAttachment.imageView = image.imageView;
-        uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-        auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
-        uiRenderingInfo.renderArea = { {0, 0}, m_Swapchain->GetExtent() };
-        uiRenderingInfo.layerCount = 1;
-        uiRenderingInfo.colorAttachmentCount = 1;
-        uiRenderingInfo.pColorAttachments = &uiColorAttachment;
-
-        vkCmdBeginRendering(vkCmdBuffer, &uiRenderingInfo);
-        m_ImGuiBackend->RenderFrame(commandBuffer->Get());
-        vkCmdEndRendering(vkCmdBuffer);
-
-        VK_Image::CmdTransitionLayout(vkCmdBuffer, image.image, VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
-    }
-
     void VK_Renderer::Render()
     {
         if (GetWindowManager()->GetWindowResizeFlag())
@@ -414,7 +256,7 @@ namespace Rigel::Backend::Vulkan
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
 
         const auto& geometryPassCommandBuffer = m_GeometryPassCommandBuffers[frameIndex];
-        const auto& lightingPassCommandBuffer = m_CommandBuffers[frameIndex];
+        const auto& lightingPassCommandBuffer = m_LightingPassCommandBuffers[frameIndex];
 
         geometryPassCommandBuffer->Reset(0);
         lightingPassCommandBuffer->Reset(0);
