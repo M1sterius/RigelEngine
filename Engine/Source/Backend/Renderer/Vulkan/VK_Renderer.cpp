@@ -43,8 +43,11 @@ namespace Rigel::Backend::Vulkan
         for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
-            m_RenderFinishedSemaphore.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
+            m_RenderFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
+
+            m_GeometryPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
+            m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
 
         return ErrorCode::OK;
@@ -229,6 +232,108 @@ namespace Rigel::Backend::Vulkan
         }
     }
 
+    void VK_Renderer::RecordGeometryPass(VkCommandBuffer cmdBuff)
+    {
+        m_GBuffer->CmdTransitionToRender(cmdBuff);
+
+        const auto renderingInfo = m_GBuffer->GetRenderingInfo();
+        vkCmdBeginRendering(cmdBuff, renderingInfo);
+
+        m_GeometryPassPipeline->CmdBind(cmdBuff);
+        m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
+        m_GeometryPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
+
+        m_BindlessManager->BindDescriptorSet(cmdBuff, m_GeometryPassPipeline->GetLayout());
+
+        if (const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo(); sceneRenderInfo->CameraPresent)
+        {
+            const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
+            uint32_t meshIndex = 0;
+
+            for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
+            {
+                const auto& model = sceneRenderInfo->Models[i];
+                const auto& modelTransform = sceneRenderInfo->Transforms[i];
+
+                model->GetVertexBuffer()->CmdBind(cmdBuff);
+                model->GetIndexBuffer()->CmdBind(cmdBuff);
+
+                int32_t vertexOffset = 0;
+                for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
+                {
+                    const auto meshModelMat = modelTransform * node->Transform;
+                    const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
+                    const auto meshNormalMat = glm::transpose(glm::inverse(meshModelMat));
+
+                    for (const auto& mesh : node->Meshes)
+                    {
+                        sceneDataPtr->Meshes[meshIndex] = {
+                            .MaterialIndex = mesh.Material->GetBindlessIndex(),
+                            .MVP = meshMVP,
+                            .ModelMat = meshModelMat,
+                            .NormalMat = meshNormalMat,
+                        };
+
+                        auto pc = PushConstantData{
+                            .MeshIndex = meshIndex
+                        };
+
+                        vkCmdPushConstants(
+                            cmdBuff,
+                            m_GraphicsPipeline->GetLayout(),
+                            VK_SHADER_STAGE_VERTEX_BIT,
+                            0,
+                            sizeof(pc),
+                            &pc
+                        );
+
+                        vkCmdDrawIndexed(
+                            cmdBuff,
+                            mesh.IndexCount,
+                            1,
+                            mesh.FirstIndex,
+                            vertexOffset,
+                            0
+                        );
+
+                        vertexOffset = mesh.FirstVertex + mesh.VertexCount;
+                        ++meshIndex;
+                    }
+                }
+            }
+        }
+
+        vkCmdEndRendering(cmdBuff);
+    }
+
+    void VK_Renderer::RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage)
+    {
+        // TODO: This is just a test pass to get something rendering on the screen while I test if geometry pass is working as expected
+
+        VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
+
+        auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
+        uiColorAttachment.imageView = swapchainImage.imageView;
+        uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+        auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
+        uiRenderingInfo.renderArea.offset = {0, 0};
+        uiRenderingInfo.renderArea.extent = m_Swapchain->GetExtent();
+        uiRenderingInfo.layerCount = 1;
+        uiRenderingInfo.colorAttachmentCount = 1;
+        uiRenderingInfo.pColorAttachments = &uiColorAttachment;
+
+        vkCmdBeginRendering(cmdBuff, &uiRenderingInfo);
+        m_ImGuiBackend->RenderFrame(cmdBuff);
+        vkCmdEndRendering(cmdBuff);
+
+        VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
+    }
+
     void VK_Renderer::RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image)
     {
         const auto vkCmdBuffer = commandBuffer->Get();
@@ -318,7 +423,7 @@ namespace Rigel::Backend::Vulkan
 
         const VkCommandBuffer submitBuffers[] = { commandBuffer->Get() };
         const VkSemaphore waitSemaphores[] = { image.availableSemaphore };
-        const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore[frameIndex]->Get() };
+        const VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[frameIndex]->Get() };
 
         constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 

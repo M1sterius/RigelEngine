@@ -76,6 +76,9 @@ namespace Rigel::Backend::Vulkan
         void RecordCommandBuffer(const std::unique_ptr<VK_CmdBuffer>& commandBuffer, const AcquireImageInfo& image);
         void RenderScene(VkCommandBuffer vkCmdBuffer);
 
+        void RecordGeometryPass(VkCommandBuffer cmdBuff);
+        void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);
+
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
@@ -86,9 +89,11 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_GBuffer> m_GBuffer;
 
         std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
+        std::vector<std::unique_ptr<VK_CmdBuffer>> m_GeometryPassCommandBuffers;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_GeometryPassFinishedSemaphores;
 
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
-        std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphore;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphores;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_CommandBuffers;
 
         std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
