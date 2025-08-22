@@ -39,7 +39,7 @@ namespace Rigel::Backend::Vulkan
         auto& device = m_Renderer.GetDevice();
         m_DescriptorPool = std::make_unique<VK_DescriptorPool>(device, poolSizes, 1, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 
-        const auto imageFormat = m_Renderer.GetSwapchain().GetSwapchainImageFormat();
+        const auto imageFormat = m_Renderer.GetSwapchain().GetImageFormat();
 
         // We specify this so that imgui will enable blending
         VkPipelineRenderingCreateInfoKHR pipelineRenderingInfo {};

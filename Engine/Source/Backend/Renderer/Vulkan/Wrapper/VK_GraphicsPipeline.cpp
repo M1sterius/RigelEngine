@@ -2,8 +2,7 @@
 #include "VulkanUtility.hpp"
 #include "Vertex.hpp"
 #include "VK_DescriptorSet.hpp"
-#include "ShaderStructs.hpp"
-#include "VK_Fence.hpp"
+#include "VK_GBuffer.hpp"
 #include "VK_ShaderModule.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -70,146 +69,30 @@ namespace Rigel::Backend::Vulkan
         vkCmdSetCullMode(commandBuffer, mode);
     }
 
-    std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateDefaultGraphicsPipeline(VK_Device& device,
-        const VkFormat colorAttachmentFormat, const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
-    {
-        const std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {
-            shaderVariant.VertexModule->GetStageInfo(),
-            shaderVariant.FragmentModule->GetStageInfo()
-        };
-
-        // Dynamic rendering attachments info
-        auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
-        renderingCreateInfo.colorAttachmentCount = 1;
-        renderingCreateInfo.pColorAttachmentFormats = &colorAttachmentFormat;
-        renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
-        renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
-
-        // Pipeline vertex input
-        const auto bindingDescription = Vertex::GetBindingDescription();
-        const auto attributeDescription = Vertex::GetAttributeDescriptions();
-
-        auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = attributeDescription.size();
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
-
-        // Input Assembly
-        auto inputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        // Viewport & Scissor
-        auto viewportState = MakeInfo<VkPipelineViewportStateCreateInfo>();
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-
-        // Rasterizer
-        auto rasterizer = MakeInfo<VkPipelineRasterizationStateCreateInfo>();
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-
-        // Multisampling
-        auto multisampling = MakeInfo<VkPipelineMultisampleStateCreateInfo>();
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        // Color Blend State
-        VkPipelineColorBlendAttachmentState colorBlendAttachment {};
-        colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        // colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        // colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        // colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        // colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        // colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        // colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-        auto colorBlending = MakeInfo<VkPipelineColorBlendStateCreateInfo>();
-        colorBlending.attachmentCount = 1;
-        colorBlending.pAttachments = &colorBlendAttachment;
-
-        // Depth and stencil
-        auto depthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
-        depthStencil.depthTestEnable = VK_TRUE;
-        depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencil.depthBoundsTestEnable = VK_FALSE;
-        depthStencil.stencilTestEnable = VK_FALSE;
-
-        constexpr VkDynamicState dynamicStates[] = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR,
-            VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
-            VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
-            VK_DYNAMIC_STATE_CULL_MODE
-        };
-
-        auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
-        dynamicState.pDynamicStates = dynamicStates;
-
-        VkPushConstantRange pushConstantRange = {};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PushConstantData);
-
-        // Pipeline Layout (Add descriptors and push constants here)
-        auto pipelineLayoutInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-        pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
-        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-
-        auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
-        pipelineInfo.stageCount = shaderStages.size();
-        pipelineInfo.pStages = shaderStages.data();
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
-        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
-        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
-
-        return std::make_unique<VK_GraphicsPipeline>(device, pipelineLayoutInfo, pipelineInfo);
-    }
-
     std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateGeometryPassPipeline(VK_Device& device,
         const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const Shader::Variant& shader)
     {
-        const std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {
+        const std::array shaderStages = {
             shader.VertexModule->GetStageInfo(),
             shader.FragmentModule->GetStageInfo()
         };
 
         constexpr VkFormat colorAttachmentFormats[] = {
-            VK_FORMAT_R32G32B32A32_SFLOAT, // Position
-            VK_FORMAT_R32G32B32A32_SFLOAT, // Normal
-            VK_FORMAT_R32G32B32A32_SFLOAT // Albedo-spec
+            VK_GBuffer::POSITION_ATTACHMENT_FORMAT,
+            VK_GBuffer::NORMAL_ATTACHMENT_FORMAT,
+            VK_GBuffer::ALBEDO_SPEC_ATTACHMENT_FORMAT
         };
 
         // Dynamic rendering attachments info
         auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
         renderingCreateInfo.colorAttachmentCount = 3;
         renderingCreateInfo.pColorAttachmentFormats = colorAttachmentFormats;
-        renderingCreateInfo.depthAttachmentFormat = VK_FORMAT_D24_UNORM_S8_UINT;
-        renderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_D24_UNORM_S8_UINT;
+        renderingCreateInfo.depthAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
+        renderingCreateInfo.stencilAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
 
         // Pipeline vertex input
-        const auto bindingDescription = Vertex::GetBindingDescription();
-        const auto attributeDescription = Vertex::GetAttributeDescriptions();
+        const auto bindingDescription = Vertex3p2t3n::GetBindingDescription();
+        const auto attributeDescription = Vertex3p2t3n::GetAttributeDescriptions();
 
         auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
         vertexInputInfo.vertexBindingDescriptionCount = 1;
@@ -273,6 +156,97 @@ namespace Rigel::Backend::Vulkan
             // VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
             // VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
             // VK_DYNAMIC_STATE_CULL_MODE
+        };
+
+        auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
+        dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
+        dynamicState.pDynamicStates = dynamicStates;
+
+        auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
+        pipelineInfo.stageCount = shaderStages.size();
+        pipelineInfo.pStages = shaderStages.data();
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDepthStencilState = &depthStencil;
+        pipelineInfo.pDynamicState = &dynamicState;
+        pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
+        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
+        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
+
+        return std::make_unique<VK_GraphicsPipeline>(device, pipelineLayoutInfo, pipelineInfo);
+    }
+
+    std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateLightingPassPipeline(VK_Device& device,
+        const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const VkFormat colorAttachmentFormat, const Shader::Variant& shader)
+    {
+        const std::array shaderStages = {
+            shader.VertexModule->GetStageInfo(),
+            shader.FragmentModule->GetStageInfo()
+        };
+
+        const VkFormat colorAttachmentsFormats[] = {colorAttachmentFormat};
+
+        auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
+        renderingCreateInfo.colorAttachmentCount = 1;
+        renderingCreateInfo.pColorAttachmentFormats = colorAttachmentsFormats;
+
+        // Pipeline vertex input
+        auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
+        vertexInputInfo.vertexBindingDescriptionCount = 0;
+        vertexInputInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputInfo.pVertexBindingDescriptions = nullptr;
+        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+
+        // Input Assembly
+        auto inputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+        // Viewport & Scissor
+        auto viewportState = MakeInfo<VkPipelineViewportStateCreateInfo>();
+        viewportState.viewportCount = 1;
+        viewportState.scissorCount = 1;
+
+        // Rasterizer
+        auto rasterizer = MakeInfo<VkPipelineRasterizationStateCreateInfo>();
+        rasterizer.depthClampEnable = VK_FALSE;
+        rasterizer.rasterizerDiscardEnable = VK_FALSE;
+        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        rasterizer.lineWidth = 1.0f;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
+        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        rasterizer.depthBiasEnable = VK_FALSE;
+
+        // Multisampling
+        auto multisampling = MakeInfo<VkPipelineMultisampleStateCreateInfo>();
+        multisampling.sampleShadingEnable = VK_FALSE;
+        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+        // Blending
+        std::array<VkPipelineColorBlendAttachmentState, 1> colorBlendAttachments {};
+        colorBlendAttachments[0].blendEnable = VK_TRUE;
+        colorBlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+        auto colorBlending = MakeInfo<VkPipelineColorBlendStateCreateInfo>();
+        colorBlending.attachmentCount = colorBlendAttachments.size();
+        colorBlending.pAttachments = colorBlendAttachments.data();
+
+        // Depth and stencil
+        auto depthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
+        depthStencil.depthTestEnable = VK_FALSE;
+        depthStencil.depthWriteEnable = VK_FALSE;
+
+        constexpr VkDynamicState dynamicStates[] = {
+            VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_SCISSOR,
         };
 
         auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();

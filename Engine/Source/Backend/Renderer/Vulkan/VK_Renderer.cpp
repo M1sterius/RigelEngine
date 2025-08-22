@@ -21,6 +21,8 @@
 
 namespace Rigel::Backend::Vulkan
 {
+    static constexpr auto GEOMETRY_PASS_PIPELINE_NAME = "GeometryPass";
+
     VK_Renderer::VK_Renderer() = default;
     VK_Renderer::~VK_Renderer() = default;
 
@@ -61,6 +63,27 @@ namespace Rigel::Backend::Vulkan
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureBlack, true);
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureWhite, true);
 
+        if (const auto result = SetupPipelines(); result != ErrorCode::OK)
+            return result;
+
+        return ErrorCode::OK;
+    }
+
+    ErrorCode VK_Renderer::Shutdown()
+    {
+        // this shutdown method is called inside Renderer::Shutdown()!
+        m_Device->WaitIdle();
+
+        m_StagingBuffers.clear();
+
+        Debug::Trace("Shutting down Vulkan renderer.");
+
+        return ErrorCode::OK;
+    }
+
+    ErrorCode VK_Renderer::SetupPipelines()
+    {
+        // Geometry pass
         const std::vector descriptorSetLayouts = {m_BindlessManager->GetDescriptorSetLayout()};
 
         VkPushConstantRange pushConstantRange = {};
@@ -86,18 +109,27 @@ namespace Rigel::Backend::Vulkan
             geometryPassPipelineLayout,
             geometryPassShader->GetVariant("Main")
         );
+        // --------------
 
-        return ErrorCode::OK;
-    }
+        // Lighting pass
+        auto lightingPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
+        lightingPassPipelineLayout.pushConstantRangeCount = 0;
+        lightingPassPipelineLayout.setLayoutCount = 0;
 
-    ErrorCode VK_Renderer::Shutdown()
-    {
-        // this shutdown method is called inside Renderer::Shutdown()!
-        m_Device->WaitIdle();
+        auto lightingPassShaderMetadata = ShaderMetadata();
+        lightingPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";
+        lightingPassShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DirLight.frag.spv";
+        lightingPassShaderMetadata.AddVariant("Main", 0, 1);
 
-        m_StagingBuffers.clear();
+        auto lightingPassShader = GetAssetManager()->Load<Shader>("LightingPassShader", &lightingPassShaderMetadata, true);
 
-        Debug::Trace("Shutting down Vulkan renderer.");
+        m_LightingPassPipeline = VK_GraphicsPipeline::CreateLightingPassPipeline(
+            *m_Device,
+            lightingPassPipelineLayout,
+            m_Swapchain->GetImageFormat(),
+            lightingPassShader->GetVariant("Main")
+            );
+        // --------------
 
         return ErrorCode::OK;
     }
@@ -142,8 +174,7 @@ namespace Rigel::Backend::Vulkan
     {
         m_GBuffer->CmdTransitionToRender(cmdBuff);
 
-        const auto renderingInfo = m_GBuffer->GetRenderingInfo();
-        vkCmdBeginRendering(cmdBuff, renderingInfo);
+        vkCmdBeginRendering(cmdBuff, m_GBuffer->GetRenderingInfo());
 
         m_GeometryPassPipeline->CmdBind(cmdBuff);
         m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
@@ -219,12 +250,35 @@ namespace Rigel::Backend::Vulkan
         VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 
+        auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
+        colorAttachment.imageView = swapchainImage.imageView;
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
+
+        auto renderingInfo = MakeInfo<VkRenderingInfo>();
+        renderingInfo.renderArea.offset = {0, 0};
+        renderingInfo.renderArea.extent = m_Swapchain->GetExtent();
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+
+        vkCmdBeginRendering(cmdBuff, &renderingInfo);
+
+        m_LightingPassPipeline->CmdBind(cmdBuff);
+        m_LightingPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
+        m_LightingPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
+
+        vkCmdDraw(cmdBuff, 3, 1, 0, 0);
+
+        vkCmdEndRendering(cmdBuff);
+
         auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         uiColorAttachment.imageView = swapchainImage.imageView;
         uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        uiColorAttachment.clearValue.color = {0.2f, 0.3f, 0.4f, 1.0f};
 
         auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
         uiRenderingInfo.renderArea.offset = {0, 0};
@@ -311,7 +365,7 @@ namespace Rigel::Backend::Vulkan
 
         m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, fence->Get());
 
-        const VkSemaphore presentWaitSemaphore = m_RenderFinishedSemaphores[frameIndex]->Get();
+        VkSemaphore presentWaitSemaphore = m_RenderFinishedSemaphores[frameIndex]->Get();
 
         m_Swapchain->Present(swapchainImage.imageIndex, presentWaitSemaphore);
     }

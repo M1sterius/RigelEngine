@@ -58,7 +58,7 @@ namespace Rigel
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
             ProcessMaterial(scene->mMaterials[i]);
 
-        auto vertices = std::vector<Vertex>();
+        auto vertices = std::vector<Vertex3p2t3n>();
         auto indices = std::vector<uint32_t>();
 
         m_RootNode = std::make_shared<Node>();
@@ -72,7 +72,7 @@ namespace Rigel
     }
 
     void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
-        std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+        std::vector<Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices)
     {
         curNode->Name = node->mName.C_Str();
         curNode->Transform = ConvertMat4(node->mTransformation);
@@ -95,7 +95,7 @@ namespace Rigel
         }
     }
 
-    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices)
     {
         const auto numVertices = mesh->mNumVertices;
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
@@ -107,26 +107,26 @@ namespace Rigel
         resMesh.FirstIndex = indices.size();
         resMesh.IndexCount = numIndices;
 
-        Vertex vertex{};
+        Vertex3p2t3n vertex{};
         vertices.reserve(vertices.size() + numVertices);
 
         for (uint32_t i = 0; i < numVertices; ++i)
         {
-            vertex.position = ConvertVec3(mesh->mVertices[i]);
+            vertex.Position = ConvertVec3(mesh->mVertices[i]);
 
             if (mesh->mTextureCoords[0])
             {
-                vertex.texCoords = {
+                vertex.TexCoords = {
                     mesh->mTextureCoords[0][i].x,
                     mesh->mTextureCoords[0][i].y
                 };
             }
             else
             {
-                vertex.texCoords = glm::vec2(0.0f);
+                vertex.TexCoords = glm::vec2(0.0f);
             }
 
-            vertex.normal = ConvertVec3(mesh->mNormals[i]);
+            vertex.Normal = ConvertVec3(mesh->mNormals[i]);
 
             vertices.push_back(vertex);
         }

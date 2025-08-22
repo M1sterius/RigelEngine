@@ -2,6 +2,9 @@
 #include "RigelEngine.hpp"
 #include "FreeCamController.hpp"
 
+#include <print>
+#include <stdfloat>
+
 int32_t main(int32_t argc, char** argv)
 {
     auto settings = Rigel::ProjectSettings();

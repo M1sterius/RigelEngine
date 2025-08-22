@@ -7,10 +7,11 @@ from pathlib import Path
 # into the binary output directory
 
 shaders = [
-    "DefaultShader.frag",
-    "DefaultShader.vert",
     "GeometryPass.vert",
-    "GeometryPass.frag"
+    "GeometryPass.frag",
+
+    "DirLight.vert",
+    "DirLight.frag"
 ]
 
 def build_shaders():

@@ -11,7 +11,7 @@
 namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
-    struct Vertex;
+    struct Vertex3p2t3n;
 
     class VK_MemoryBuffer
     {

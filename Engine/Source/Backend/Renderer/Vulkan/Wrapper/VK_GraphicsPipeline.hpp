@@ -37,11 +37,12 @@ namespace Rigel::Backend::Vulkan
         void CmdSetDepthWriteEnable(VkCommandBuffer commandBuffer, const VkBool32 enabled) const;
         void CmdSetCullMode(VkCommandBuffer commandBuffer, const VkCullModeFlags mode) const;
 
-        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateDefaultGraphicsPipeline(VK_Device& device, const VkFormat colorAttachmentFormat,
-            const Shader::Variant& shaderVariant, const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
-
         NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateGeometryPassPipeline(VK_Device& device,
             const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const Shader::Variant& shader);
+
+        // For now just handles one directional light
+        NODISCARD static std::unique_ptr<VK_GraphicsPipeline> CreateLightingPassPipeline(VK_Device& device,
+            const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const VkFormat colorAttachmentFormat, const Shader::Variant& shader);
     private:
         VK_Device& m_Device;
 

@@ -24,25 +24,25 @@ namespace Rigel::Backend::Vulkan
 
         // Position attachment (location 0)
         m_Position = std::make_unique<VK_Image>(m_Device, m_Size,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+            POSITION_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
         // Normal attachment (location 1)
         m_Normal = std::make_unique<VK_Image>(m_Device, m_Size,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+            NORMAL_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
         // Albedo-spec attachment (location 2)
         m_AlbedoSpec = std::make_unique<VK_Image>(m_Device, m_Size,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+            ALBEDO_SPEC_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
         // Depth attachment
         m_Depth = std::make_unique<VK_Image>(m_Device, m_Size,
-            VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_TILING_OPTIMAL,
+            DEPTH_STENCIL_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
             VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 1);
 

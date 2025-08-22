@@ -32,7 +32,6 @@ namespace Rigel::Backend::Vulkan
     class VK_GraphicsPipeline;
     class VK_VertexBuffer;
     class VK_IndexBuffer;
-    class VK_UniformBuffer;
     class VK_DescriptorSet;
     class VK_DescriptorPool;
     class VK_MemoryBuffer;
@@ -69,8 +68,10 @@ namespace Rigel::Backend::Vulkan
         NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
-        void CreateStagingBuffers();
         void OnRecreateSwapchain();
+
+        void CreateStagingBuffers();
+        NODISCARD ErrorCode SetupPipelines();
 
         void RecordGeometryPass(VkCommandBuffer cmdBuff);
         void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);
@@ -83,12 +84,14 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
         std::unique_ptr<VK_GBuffer> m_GBuffer;
 
-        std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_GeometryPassCommandBuffers;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_LightingPassCommandBuffers;
         std::vector<std::unique_ptr<VK_Semaphore>> m_GeometryPassFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
+
+        std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
+        std::unique_ptr<VK_GraphicsPipeline> m_LightingPassPipeline;
 
         std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
 

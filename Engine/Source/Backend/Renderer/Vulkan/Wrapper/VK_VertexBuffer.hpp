@@ -9,13 +9,17 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    struct Vertex;
+    struct Vertex3p2t3n;
     class VK_MemoryBuffer;
 
     class VK_VertexBuffer
     {
     public:
-        explicit VK_VertexBuffer(const std::vector<Vertex>& vertices);
+        template<typename vertexType>
+        explicit VK_VertexBuffer(const std::vector<vertexType>& vertices)
+            : VK_VertexBuffer(sizeof(vertexType), vertices.size(), vertices.data()) { }
+
+        VK_VertexBuffer(const size_t vertexSize, const size_t vertexCount, const void* vertexData);
         ~VK_VertexBuffer();
 
         VK_VertexBuffer(const VK_VertexBuffer&) = delete;

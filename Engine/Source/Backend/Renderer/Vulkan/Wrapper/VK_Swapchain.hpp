@@ -31,7 +31,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD uint32_t GetMinImageCount() const { return m_SwapchainSupportDetails.Capabilities.minImageCount; }
         NODISCARD std::vector<VkImage>& GetImages() { return m_Images; }
         NODISCARD std::vector<VkImageView>& GetImageViews() { return m_ImageViews; }
-        NODISCARD VkFormat GetSwapchainImageFormat() const { return m_SwapchainImageFormat; }
+        NODISCARD VkFormat GetImageFormat() const { return m_SwapchainImageFormat; }
         NODISCARD VkExtent2D GetExtent() const { return {m_ImageSize.x, m_ImageSize.y}; }
         NODISCARD glm::uvec2 GetSize() const { return m_ImageSize; }
 
