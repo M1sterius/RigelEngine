@@ -32,7 +32,7 @@ namespace Rigel::Backend::Vulkan
         inline static const std::vector<const char*> RequiredPhysicalDeviceExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-            VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+            VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
         };
 
         inline static const std::vector<const char*> OptionalPhysicalDeviceExtensions = {

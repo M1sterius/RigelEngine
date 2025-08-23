@@ -160,7 +160,7 @@ namespace Rigel::Backend::Vulkan
         vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
-    void VK_BindlessManager::BindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
+    void VK_BindlessManager::CmdBindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
     {
         vkCmdBindDescriptorSets(
             commandBuffer,

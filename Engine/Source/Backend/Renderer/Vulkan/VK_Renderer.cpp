@@ -147,7 +147,7 @@ namespace Rigel::Backend::Vulkan
         const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
         m_Swapchain->Setup(windowSize, vsync);
-        m_GBuffer->SetupImages(windowSize);
+        m_GBuffer->Setup(windowSize);
     }
 
     VK_MemoryBuffer& VK_Renderer::GetStagingBuffer() const
@@ -184,7 +184,7 @@ namespace Rigel::Backend::Vulkan
         m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
         m_GeometryPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
 
-        m_BindlessManager->BindDescriptorSet(cmdBuff, m_GeometryPassPipeline->GetLayout());
+        m_BindlessManager->CmdBindDescriptorSet(cmdBuff, m_GeometryPassPipeline->GetLayout());
 
         if (const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo(); sceneRenderInfo->CameraPresent)
         {
@@ -276,16 +276,7 @@ namespace Rigel::Backend::Vulkan
         m_LightingPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
         m_LightingPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
 
-        const auto& descriptorWrites = m_GBuffer->GetDescriptorWrites();
-
-        vkCmdPushDescriptorSet(
-            cmdBuff,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_LightingPassPipeline->GetLayout(),
-            0,
-            descriptorWrites.size(),
-            descriptorWrites.data()
-        );
+        m_GBuffer->CmdBindSampleDescriptorSet(cmdBuff, m_LightingPassPipeline->GetLayout());
 
         vkCmdDraw(cmdBuff, 3, 1, 0, 0);
 

@@ -1,6 +1,7 @@
 #include "VK_GBuffer.hpp"
 #include "VK_Device.hpp"
 #include "VK_Image.hpp"
+#include "VK_DescriptorPool.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -8,10 +9,17 @@ namespace Rigel::Backend::Vulkan
     VK_GBuffer::VK_GBuffer(VK_Device& device, const glm::uvec2 size)
         : m_Device(device), m_Size(size)
     {
-        SetupSampler();
-        SetupDescriptorSetLayout();
+        std::vector<VkDescriptorPoolSize> poolSizes(1);
+        poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        poolSizes[0].descriptorCount = 3;
 
-        SetupImages(m_Size);
+        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, 1, 0);
+
+        CreateSampler();
+        CreateDescriptorSetLayout();
+        CreateDescriptorSet();
+
+        Setup(m_Size);
     }
 
     VK_GBuffer::~VK_GBuffer()
@@ -20,7 +28,7 @@ namespace Rigel::Backend::Vulkan
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }
 
-    void VK_GBuffer::SetupImages(const glm::uvec2 size)
+    void VK_GBuffer::Setup(const glm::uvec2 size)
     {
         m_Size = size;
 
@@ -56,10 +64,10 @@ namespace Rigel::Backend::Vulkan
         m_Depth->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0);
 
         SetupRenderingInfo();
-        SetupDescriptorWrites();
+        UpdateDescriptorSet();
     }
 
-    void VK_GBuffer::SetupSampler()
+    void VK_GBuffer::CreateSampler()
     {
         auto samplerInfo = MakeInfo<VkSamplerCreateInfo>();
         samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -100,6 +108,18 @@ namespace Rigel::Backend::Vulkan
 
         VK_Image::CmdTransitionLayout(commandBuffer, m_AlbedoSpec->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0);
+    }
+
+    void VK_GBuffer::CmdBindSampleDescriptorSet(VkCommandBuffer cmdBuff, VkPipelineLayout pipelineLayout)
+    {
+        vkCmdBindDescriptorSets(
+            cmdBuff,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipelineLayout,
+            0, 1,
+            &m_DescriptorSet,
+            0, nullptr
+        );
     }
 
     void VK_GBuffer::SetupRenderingInfo()
@@ -145,49 +165,62 @@ namespace Rigel::Backend::Vulkan
         m_RenderingInfo.pDepthAttachment = &m_DepthAttachment;
     }
 
-    void VK_GBuffer::SetupDescriptorWrites()
+    void VK_GBuffer::UpdateDescriptorSet()
     {
-        m_DescriptorImageInfos[0] = VkDescriptorImageInfo{
+        std::array<VkDescriptorImageInfo, 3> imageInfos{};
+        std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+
+        imageInfos[0] = VkDescriptorImageInfo{
             .sampler = m_Sampler,
             .imageView = m_Position->GetView(),
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-        m_DescriptorImageInfos[1] = VkDescriptorImageInfo{
+        imageInfos[1] = VkDescriptorImageInfo{
             .sampler = m_Sampler,
             .imageView = m_Normal->GetView(),
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-        m_DescriptorImageInfos[2] = VkDescriptorImageInfo{
+        imageInfos[2] = VkDescriptorImageInfo{
             .sampler = m_Sampler,
             .imageView = m_AlbedoSpec->GetView(),
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
         // Position attachment (location 0)
-        m_DescriptorWrites[0] = MakeInfo<VkWriteDescriptorSet>();
-        m_DescriptorWrites[0].dstBinding = 0;
-        m_DescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        m_DescriptorWrites[0].descriptorCount = 1;
-        m_DescriptorWrites[0].pImageInfo = &m_DescriptorImageInfos[0];
+        descriptorWrites[0] = MakeInfo<VkWriteDescriptorSet>();
+        descriptorWrites[0].dstSet = m_DescriptorSet;
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pImageInfo = &imageInfos[0];
 
         // Normal attachment (location 1)
-        m_DescriptorWrites[1] = MakeInfo<VkWriteDescriptorSet>();
-        m_DescriptorWrites[1].dstBinding = 1;
-        m_DescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        m_DescriptorWrites[1].descriptorCount = 1;
-        m_DescriptorWrites[1].pImageInfo = &m_DescriptorImageInfos[1];
+        descriptorWrites[1] = MakeInfo<VkWriteDescriptorSet>();
+        descriptorWrites[1].dstSet = m_DescriptorSet;
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pImageInfo = &imageInfos[1];
 
         // AlbedoSpec attachment (location 2)
-        m_DescriptorWrites[2] = MakeInfo<VkWriteDescriptorSet>();
-        m_DescriptorWrites[2].dstBinding = 2;
-        m_DescriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        m_DescriptorWrites[2].descriptorCount = 1;
-        m_DescriptorWrites[2].pImageInfo = &m_DescriptorImageInfos[2];
+        descriptorWrites[2] = MakeInfo<VkWriteDescriptorSet>();
+        descriptorWrites[2].dstSet = m_DescriptorSet;
+        descriptorWrites[2].dstBinding = 2;
+        descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[2].descriptorCount = 1;
+        descriptorWrites[2].pImageInfo = &imageInfos[2];
+
+        vkUpdateDescriptorSets(
+            m_Device.Get(),
+            descriptorWrites.size(),
+            descriptorWrites.data(),
+            0, nullptr
+        );
     }
 
-    void VK_GBuffer::SetupDescriptorSetLayout()
+    void VK_GBuffer::CreateDescriptorSetLayout()
     {
         std::array<VkDescriptorSetLayoutBinding, 3> gBufferBindings{};
 
@@ -202,8 +235,17 @@ namespace Rigel::Backend::Vulkan
         auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
         setLayoutInfo.bindingCount = static_cast<uint32_t>(gBufferBindings.size());
         setLayoutInfo.pBindings = gBufferBindings.data();
-        setLayoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
 
         vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout);
+    }
+
+    void VK_GBuffer::CreateDescriptorSet()
+    {
+        auto allocateInfo = MakeInfo<VkDescriptorSetAllocateInfo>();
+        allocateInfo.descriptorPool = m_DescriptorPool->Get();
+        allocateInfo.pSetLayouts = &m_DescriptorSetLayout;
+        allocateInfo.descriptorSetCount = 1;
+
+        VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.Get(), &allocateInfo, &m_DescriptorSet), "Failed to create bindless descriptor set!");
     }
 }
