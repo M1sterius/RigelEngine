@@ -5,11 +5,6 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    struct PushConstantData
-    {
-        uint32_t MeshIndex;
-    };
-
     struct alignas(16) MaterialData
     {
         uint32_t DiffuseIndex;

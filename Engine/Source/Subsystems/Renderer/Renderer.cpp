@@ -76,6 +76,7 @@ namespace Rigel
 
         m_SceneRenderInfo.CameraPresent = true;
         m_SceneRenderInfo.ProjView = cameras[0]->GetProjection() * cameras[0]->GetView();
+        m_SceneRenderInfo.CamPos = cameras[0]->GetGameObject()->GetTransform()->GetPosition();
 
         for (const auto& mr : scene->FindComponentsOfType<ModelRenderer>())
         {

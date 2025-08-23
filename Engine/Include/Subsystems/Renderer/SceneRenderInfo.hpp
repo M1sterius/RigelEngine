@@ -14,6 +14,7 @@ namespace Rigel::Backend
     {
         bool CameraPresent;
         glm::mat4 ProjView;
+        glm::vec3 CamPos;
 
         std::vector<AssetHandle<Model>> Models;
         std::vector<glm::mat4> Transforms;

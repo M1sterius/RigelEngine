@@ -86,14 +86,14 @@ namespace Rigel::Backend::Vulkan
         // Geometry pass
         const std::vector descriptorSetLayouts = {m_BindlessManager->GetDescriptorSetLayout()};
 
-        VkPushConstantRange pushConstantRange = {};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PushConstantData);
+        VkPushConstantRange geometryPassPC = {};
+        geometryPassPC.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        geometryPassPC.offset = 0;
+        geometryPassPC.size = sizeof(uint32_t);
 
         auto geometryPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
         geometryPassPipelineLayout.pushConstantRangeCount = 1;
-        geometryPassPipelineLayout.pPushConstantRanges = &pushConstantRange;
+        geometryPassPipelineLayout.pPushConstantRanges = &geometryPassPC;
         geometryPassPipelineLayout.setLayoutCount = descriptorSetLayouts.size();
         geometryPassPipelineLayout.pSetLayouts = descriptorSetLayouts.data();
 
@@ -114,8 +114,14 @@ namespace Rigel::Backend::Vulkan
         // Lighting pass
         const auto gBufferSetLayout = m_GBuffer->GetDescriptorSetLayout();
 
+        VkPushConstantRange lightingPassPC = {};
+        lightingPassPC.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        lightingPassPC.offset = 0;
+        lightingPassPC.size = sizeof(glm::vec3);
+
         auto lightingPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
-        lightingPassPipelineLayout.pushConstantRangeCount = 0;
+        lightingPassPipelineLayout.pushConstantRangeCount = 1;
+        lightingPassPipelineLayout.pPushConstantRanges = &lightingPassPC;
         lightingPassPipelineLayout.setLayoutCount = 0;
         lightingPassPipelineLayout.setLayoutCount = 1;
         lightingPassPipelineLayout.pSetLayouts = &gBufferSetLayout;
@@ -215,17 +221,13 @@ namespace Rigel::Backend::Vulkan
                             .NormalMat = meshNormalMat,
                         };
 
-                        auto pc = PushConstantData{
-                            .MeshIndex = meshIndex
-                        };
-
                         vkCmdPushConstants(
                             cmdBuff,
                             m_GeometryPassPipeline->GetLayout(),
                             VK_SHADER_STAGE_VERTEX_BIT,
                             0,
-                            sizeof(pc),
-                            &pc
+                            sizeof(uint32_t),
+                            &meshIndex
                         );
 
                         vkCmdDrawIndexed(
@@ -277,6 +279,17 @@ namespace Rigel::Backend::Vulkan
         m_LightingPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
 
         m_GBuffer->CmdBindSampleDescriptorSet(cmdBuff, m_LightingPassPipeline->GetLayout());
+
+        const auto camPos = GetRenderer()->GetSceneRenderInfo()->CamPos;
+
+        vkCmdPushConstants(
+            cmdBuff,
+            m_LightingPassPipeline->GetLayout(),
+            VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(glm::vec3),
+            &camPos
+        );
 
         vkCmdDraw(cmdBuff, 3, 1, 0, 0);
 
