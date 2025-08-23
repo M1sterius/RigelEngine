@@ -112,9 +112,13 @@ namespace Rigel::Backend::Vulkan
         // --------------
 
         // Lighting pass
+        const auto gBufferSetLayout = m_GBuffer->GetDescriptorSetLayout();
+
         auto lightingPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
         lightingPassPipelineLayout.pushConstantRangeCount = 0;
         lightingPassPipelineLayout.setLayoutCount = 0;
+        lightingPassPipelineLayout.setLayoutCount = 1;
+        lightingPassPipelineLayout.pSetLayouts = &gBufferSetLayout;
 
         auto lightingPassShaderMetadata = ShaderMetadata();
         lightingPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";
@@ -143,7 +147,7 @@ namespace Rigel::Backend::Vulkan
         const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
         m_Swapchain->Setup(windowSize, vsync);
-        m_GBuffer->Setup(windowSize);
+        m_GBuffer->SetupImages(windowSize);
     }
 
     VK_MemoryBuffer& VK_Renderer::GetStagingBuffer() const
@@ -250,6 +254,8 @@ namespace Rigel::Backend::Vulkan
         VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 
+        m_GBuffer->CmdTransitionToSample(cmdBuff);
+
         auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         colorAttachment.imageView = swapchainImage.imageView;
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -269,6 +275,17 @@ namespace Rigel::Backend::Vulkan
         m_LightingPassPipeline->CmdBind(cmdBuff);
         m_LightingPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
         m_LightingPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
+
+        const auto& descriptorWrites = m_GBuffer->GetDescriptorWrites();
+
+        vkCmdPushDescriptorSet(
+            cmdBuff,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_LightingPassPipeline->GetLayout(),
+            0,
+            descriptorWrites.size(),
+            descriptorWrites.data()
+        );
 
         vkCmdDraw(cmdBuff, 3, 1, 0, 0);
 

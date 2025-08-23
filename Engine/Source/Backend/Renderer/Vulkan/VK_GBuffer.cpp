@@ -8,12 +8,19 @@ namespace Rigel::Backend::Vulkan
     VK_GBuffer::VK_GBuffer(VK_Device& device, const glm::uvec2 size)
         : m_Device(device), m_Size(size)
     {
-        Setup(m_Size);
+        SetupSampler();
+        SetupDescriptorSetLayout();
+
+        SetupImages(m_Size);
     }
 
-    VK_GBuffer::~VK_GBuffer() = default;
+    VK_GBuffer::~VK_GBuffer()
+    {
+        vkDestroySampler(m_Device.Get(), m_Sampler, nullptr);
+        vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
+    }
 
-    void VK_GBuffer::Setup(const glm::uvec2 size)
+    void VK_GBuffer::SetupImages(const glm::uvec2 size)
     {
         m_Size = size;
 
@@ -47,7 +54,28 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 1);
 
         m_Depth->TransitionLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0);
+
         SetupRenderingInfo();
+        SetupDescriptorWrites();
+    }
+
+    void VK_GBuffer::SetupSampler()
+    {
+        auto samplerInfo = MakeInfo<VkSamplerCreateInfo>();
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.anisotropyEnable = VK_FALSE;
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.minLod = 0.0f;
+
+        VK_CHECK_RESULT(vkCreateSampler(m_Device.Get(), &samplerInfo, nullptr, &m_Sampler), "Failed to create gbuffer sampler!");
     }
 
     void VK_GBuffer::CmdTransitionToRender(VkCommandBuffer commandBuffer)
@@ -115,5 +143,67 @@ namespace Rigel::Backend::Vulkan
         m_RenderingInfo.colorAttachmentCount = m_ColorAttachments.size();
         m_RenderingInfo.pColorAttachments = m_ColorAttachments.data();
         m_RenderingInfo.pDepthAttachment = &m_DepthAttachment;
+    }
+
+    void VK_GBuffer::SetupDescriptorWrites()
+    {
+        m_DescriptorImageInfos[0] = VkDescriptorImageInfo{
+            .sampler = m_Sampler,
+            .imageView = m_Position->GetView(),
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
+
+        m_DescriptorImageInfos[1] = VkDescriptorImageInfo{
+            .sampler = m_Sampler,
+            .imageView = m_Normal->GetView(),
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
+
+        m_DescriptorImageInfos[2] = VkDescriptorImageInfo{
+            .sampler = m_Sampler,
+            .imageView = m_AlbedoSpec->GetView(),
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
+
+        // Position attachment (location 0)
+        m_DescriptorWrites[0] = MakeInfo<VkWriteDescriptorSet>();
+        m_DescriptorWrites[0].dstBinding = 0;
+        m_DescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        m_DescriptorWrites[0].descriptorCount = 1;
+        m_DescriptorWrites[0].pImageInfo = &m_DescriptorImageInfos[0];
+
+        // Normal attachment (location 1)
+        m_DescriptorWrites[1] = MakeInfo<VkWriteDescriptorSet>();
+        m_DescriptorWrites[1].dstBinding = 1;
+        m_DescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        m_DescriptorWrites[1].descriptorCount = 1;
+        m_DescriptorWrites[1].pImageInfo = &m_DescriptorImageInfos[1];
+
+        // AlbedoSpec attachment (location 2)
+        m_DescriptorWrites[2] = MakeInfo<VkWriteDescriptorSet>();
+        m_DescriptorWrites[2].dstBinding = 2;
+        m_DescriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        m_DescriptorWrites[2].descriptorCount = 1;
+        m_DescriptorWrites[2].pImageInfo = &m_DescriptorImageInfos[2];
+    }
+
+    void VK_GBuffer::SetupDescriptorSetLayout()
+    {
+        std::array<VkDescriptorSetLayoutBinding, 3> gBufferBindings{};
+
+        for (uint32_t i = 0; i < gBufferBindings.size(); ++i)
+        {
+            gBufferBindings[i].binding = i;
+            gBufferBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            gBufferBindings[i].descriptorCount = 1;
+            gBufferBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        }
+
+        auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
+        setLayoutInfo.bindingCount = static_cast<uint32_t>(gBufferBindings.size());
+        setLayoutInfo.pBindings = gBufferBindings.data();
+        setLayoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+
+        vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout);
     }
 }

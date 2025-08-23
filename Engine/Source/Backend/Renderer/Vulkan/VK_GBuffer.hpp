@@ -27,12 +27,15 @@ namespace Rigel::Backend::Vulkan
         VK_GBuffer(const VK_GBuffer&) = delete;
         VK_GBuffer operator = (const VK_GBuffer&) = delete;
 
-        void Setup(const glm::uvec2 size);
+        void SetupImages(const glm::uvec2 size);
 
         void CmdTransitionToRender(VkCommandBuffer commandBuffer);
         void CmdTransitionToSample(VkCommandBuffer commandBuffer);
 
         NODISCARD inline VkRenderingInfo* GetRenderingInfo() { return &m_RenderingInfo; }
+        NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+
+        NODISCARD inline const std::array<VkWriteDescriptorSet, 3>& GetDescriptorWrites() const { return m_DescriptorWrites; }
     private:
         VK_Device& m_Device;
         glm::uvec2 m_Size;
@@ -42,10 +45,19 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_Image> m_AlbedoSpec;
         std::unique_ptr<VK_Image> m_Depth;
 
-        std::array<VkRenderingAttachmentInfo, 3> m_ColorAttachments{};
-        VkRenderingAttachmentInfo m_DepthAttachment{};
-        VkRenderingInfo m_RenderingInfo{};
+        VkSampler m_Sampler = VK_NULL_HANDLE;
+        VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 
+        VkRenderingInfo m_RenderingInfo{};
+        VkRenderingAttachmentInfo m_DepthAttachment{};
+        std::array<VkRenderingAttachmentInfo, 3> m_ColorAttachments{};
+
+        std::array<VkWriteDescriptorSet, 3> m_DescriptorWrites{};
+        std::array<VkDescriptorImageInfo, 3> m_DescriptorImageInfos{};
+
+        void SetupSampler();
         void SetupRenderingInfo();
+        void SetupDescriptorWrites();
+        void SetupDescriptorSetLayout();
     };
 }
