@@ -12,11 +12,10 @@ struct MaterialData
 struct MeshData
 {
     uint MaterialIndex;
-    float _pad0[3]; // 12 bytes
 
     mat4 MVP;
     mat4 ModelMat;
-    mat4 NormalMat;
+    mat3 NormalMat;
 };
 
 #endif

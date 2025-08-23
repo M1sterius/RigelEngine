@@ -37,6 +37,7 @@ namespace Rigel::Backend::Vulkan
     class VK_MemoryBuffer;
     class VK_Image;
     class VK_GBuffer;
+    class VK_StagingManager;
 
     class VK_ImGUI_Renderer;
     class VK_BindlessManager;
@@ -64,13 +65,11 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
         NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
         NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
-
-        NODISCARD VK_MemoryBuffer& GetStagingBuffer() const;
+        NODISCARD inline VK_StagingManager& GetStagingManager() const { return *m_StagingManager; }
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
         void OnRecreateSwapchain();
 
-        void CreateStagingBuffers();
         NODISCARD ErrorCode SetupPipelines();
 
         void RecordGeometryPass(VkCommandBuffer cmdBuff);
@@ -81,6 +80,7 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_Device> m_Device;
         std::unique_ptr<VK_Swapchain> m_Swapchain;
 
+        std::unique_ptr<VK_StagingManager> m_StagingManager;
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
         std::unique_ptr<VK_GBuffer> m_GBuffer;
 
@@ -92,8 +92,6 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
         std::unique_ptr<VK_GraphicsPipeline> m_LightingPassPipeline;
-
-        std::unordered_map<std::thread::id, std::unique_ptr<VK_MemoryBuffer>> m_StagingBuffers;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

@@ -91,6 +91,11 @@ namespace Rigel::Backend::Vulkan
         VkPhysicalDeviceFeatures deviceFeatures {};
         deviceFeatures.samplerAnisotropy = true;
 
+        // Enable dynamic rendering (REQUIRED)
+        VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures {};
+        dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+        dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
         // Enable bindless descriptors (REQUIRED)
         VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures = {};
         indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
@@ -101,22 +106,19 @@ namespace Rigel::Backend::Vulkan
         indexingFeatures.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
         indexingFeatures.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 
-        // Enable dynamic rendering (REQUIRED)
-        VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature {};
-        dynamicRenderingFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-        dynamicRenderingFeature.dynamicRendering = VK_TRUE;
+        // Enable scalar block layout (REQUIRED)
+        VkPhysicalDeviceScalarBlockLayoutFeatures scalarBlockLayoutFeatures {};
+        scalarBlockLayoutFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES;
+        scalarBlockLayoutFeatures.scalarBlockLayout = VK_TRUE;
 
-        // Enable buffer device address (OPTIONAL)
-        if (IsPhysicalDeviceExtensionSupported(m_SelectedPhysicalDevice, VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
-        {
-            VkPhysicalDeviceBufferDeviceAddressFeatures bufferAddressFeatures {};
-            bufferAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
-            bufferAddressFeatures.bufferDeviceAddress = VK_TRUE;
+        // Enable buffer device address (REQUIRED)
+        VkPhysicalDeviceBufferDeviceAddressFeatures bufferAddressFeatures {};
+        bufferAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+        bufferAddressFeatures.bufferDeviceAddress = VK_TRUE;
 
-            dynamicRenderingFeature.pNext = &bufferAddressFeatures;
-        }
-
-        indexingFeatures.pNext = &dynamicRenderingFeature;
+        dynamicRenderingFeatures.pNext = &indexingFeatures;
+        indexingFeatures.pNext = &scalarBlockLayoutFeatures;
+        scalarBlockLayoutFeatures.pNext = &bufferAddressFeatures;
 
         auto createInfo = MakeInfo<VkDeviceCreateInfo>();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -124,7 +126,7 @@ namespace Rigel::Backend::Vulkan
         createInfo.pEnabledFeatures = &deviceFeatures;
         createInfo.enabledExtensionCount = static_cast<uint32_t>(m_EnabledExtensions.size());
         createInfo.ppEnabledExtensionNames = m_EnabledExtensions.data();
-        createInfo.pNext = &indexingFeatures;
+        createInfo.pNext = &dynamicRenderingFeatures;
 
         if (VK_Config::EnableValidationLayers)
         {

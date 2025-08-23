@@ -3,6 +3,7 @@
 #include "Include/CommonStructs.glsl"
 
 #extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
 
 layout(location = 0) in vec2 v_TexCoords;
 layout(location = 1) in vec3 v_Normal;
@@ -15,7 +16,7 @@ layout(location = 2) out vec4 g_AlbedoSpec;
 
 layout(set = 0, binding = 0) uniform sampler2D textures[];
 
-layout(std430, set = 0, binding = 1) readonly buffer SceneData_T
+layout(set = 0, binding = 1, scalar) readonly buffer SceneData_T
 {
     MaterialData Materials[1024];
     MeshData Meshes[2048];

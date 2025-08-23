@@ -4,6 +4,7 @@
 #include "VK_CmdBuffer.hpp"
 #include "VulkanUtility.hpp"
 #include "VK_BindlessManager.hpp"
+#include "VK_StagingManager.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
@@ -14,7 +15,7 @@ namespace Rigel::Backend::Vulkan
         auto& renderer = GetVKRenderer();
         auto& device = renderer.GetDevice();
 
-        auto& stagingBuffer = renderer.GetStagingBuffer();
+        auto& stagingBuffer = renderer.GetStagingManager().GetBuffer();
         stagingBuffer.UploadData(0, imageSize, pixelData);
 
         m_Image = std::make_unique<VK_Image>(device, size, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,

@@ -1,6 +1,7 @@
 #include "VK_VertexBuffer.hpp"
 #include "Vertex.hpp"
 #include "VK_MemoryBuffer.hpp"
+#include "VK_StagingManager.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -17,7 +18,7 @@ namespace Rigel::Backend::Vulkan
 
         const auto bufferSize = vertexSize * vertexCount;
 
-        auto& stagingBuffer = renderer.GetStagingBuffer();
+        auto& stagingBuffer = renderer.GetStagingManager().GetBuffer();
         stagingBuffer.UploadData(0, bufferSize, vertexData);
 
         m_Buffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,

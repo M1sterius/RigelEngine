@@ -5,7 +5,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    struct alignas(16) MaterialData
+    struct MaterialData
     {
         uint32_t DiffuseIndex;
         uint32_t SpecularIndex;
@@ -13,17 +13,31 @@ namespace Rigel::Backend::Vulkan
         float Roughness;
     };
 
-    struct alignas(16) MeshData
+    struct PBRMaterialData
+    {
+        uint32_t AlbedoIndex;
+        glm::vec3 Color{1.0};
+
+        uint32_t MetallicIndex;
+        glm::vec3 Metalness{0.0};
+
+        uint32_t RoughnessIndex;
+        glm::vec3 Roughness{1.0};
+
+        uint32_t NormalIndex;
+        uint32_t AmbientOcclusionIndex;
+    };
+
+    struct MeshData
     {
         uint32_t MaterialIndex;
-        float _pad0[3]; // 12 bytes
 
         glm::mat4 MVP;
         glm::mat4 ModelMat;
-        glm::mat4 NormalMat;
+        glm::mat3 NormalMat;
     };
 
-    struct alignas(16) SceneData
+    struct SceneData
     {
         static constexpr uint32_t MAX_MATERIALS_ARRAY_SIZE = 1024;
         static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 2048;

@@ -4,6 +4,7 @@
 #include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
 #include "VK_GBuffer.hpp"
+#include "VK_StagingManager.hpp"
 #include "VulkanWrapper.hpp"
 #include "VulkanUtility.hpp"
 #include "MakeInfo.hpp"
@@ -35,6 +36,7 @@ namespace Rigel::Backend::Vulkan
         m_Device = std::make_unique<VK_Device>(m_Instance->Get(), m_Surface->Get());
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager()->GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
+        m_StagingManager = std::make_unique<VK_StagingManager>(*m_Device);
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
@@ -48,8 +50,6 @@ namespace Rigel::Backend::Vulkan
             m_GeometryPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
-
-        CreateStagingBuffers();
 
         return ErrorCode::OK;
     }
@@ -73,8 +73,6 @@ namespace Rigel::Backend::Vulkan
     {
         // this shutdown method is called inside Renderer::Shutdown()!
         m_Device->WaitIdle();
-
-        m_StagingBuffers.clear();
 
         Debug::Trace("Shutting down Vulkan renderer.");
 
@@ -156,30 +154,6 @@ namespace Rigel::Backend::Vulkan
         m_GBuffer->Setup(windowSize);
     }
 
-    VK_MemoryBuffer& VK_Renderer::GetStagingBuffer() const
-    {
-        const auto thisThreadID = std::this_thread::get_id();
-        if (!m_StagingBuffers.contains(thisThreadID))
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Staging buffer can only be retrieved for one of asset manager's loading threads or the main thread!", __FILE__, __LINE__);
-        }
-
-        return *m_StagingBuffers.at(thisThreadID);
-    }
-
-    void VK_Renderer::CreateStagingBuffers()
-    {
-        m_StagingBuffers[std::this_thread::get_id()] = std::make_unique<VK_MemoryBuffer>(*m_Device, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-        for (const auto& id : GetAssetManager()->GetLoadingThreadsIDs())
-        {
-            m_StagingBuffers[id] = std::make_unique<VK_MemoryBuffer>(*m_Device, MB(4), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                   VMA_MEMORY_USAGE_CPU_TO_GPU);
-        }
-    }
-
     void VK_Renderer::RecordGeometryPass(VkCommandBuffer cmdBuff)
     {
         m_GBuffer->CmdTransitionToRender(cmdBuff);
@@ -210,7 +184,8 @@ namespace Rigel::Backend::Vulkan
                 {
                     const auto meshModelMat = modelTransform * node->Transform;
                     const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
-                    const auto meshNormalMat = glm::transpose(glm::inverse(meshModelMat));
+                    const auto meshNormalMat = glm::mat3(glm::transpose(glm::inverse(meshModelMat)));
+
 
                     for (const auto& mesh : node->Meshes)
                     {
@@ -251,8 +226,6 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage)
     {
-        // TODO: This is just a test pass to get something rendering on the screen while I test if geometry pass is working as expected
-
         VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 

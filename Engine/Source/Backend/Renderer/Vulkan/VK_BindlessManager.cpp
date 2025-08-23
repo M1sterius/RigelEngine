@@ -142,7 +142,7 @@ namespace Rigel::Backend::Vulkan
         return sampler;
     }
 
-    void VK_BindlessManager::UpdateTextureDescriptor(VkImageView imageView, VkSampler sampler, const uint32_t slotIndex) const
+    void VK_BindlessManager::UpdateTextureDescriptor(VkImageView imageView, VkSampler sampler, const uint32_t slot) const
     {
         VkDescriptorImageInfo imageInfo {};
         imageInfo.imageView = imageView;
@@ -152,7 +152,7 @@ namespace Rigel::Backend::Vulkan
         auto write = MakeInfo<VkWriteDescriptorSet>();
         write.dstSet = m_DescriptorSet;
         write.dstBinding = TEXTURE_ARRAY_BINDING;
-        write.dstArrayElement = slotIndex;
+        write.dstArrayElement = slot;
         write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         write.descriptorCount = 1;
         write.pImageInfo = &imageInfo;
@@ -199,7 +199,7 @@ namespace Rigel::Backend::Vulkan
 
         // checks if there is an empty slot not at the end of the vector
         {
-            std::unique_lock lock(m_TextureMutex);
+            std::unique_lock lock(m_TexturesMutex);
 
             for (uint32_t i = 0; i < m_Textures.size(); ++i)
             {
@@ -223,13 +223,13 @@ namespace Rigel::Backend::Vulkan
             }
 
             {
-                std::unique_lock lock(m_TextureMutex);
+                std::unique_lock lock(m_TexturesMutex);
                 m_Textures.emplace_back(nullptr);
             }
         }
 
         {
-            std::unique_lock lock (m_TextureMutex);
+            std::unique_lock lock (m_TexturesMutex);
             m_Textures[slotIndex] = texture;
         }
 
@@ -257,7 +257,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         {
-            std::unique_lock lock(m_TextureMutex);
+            std::unique_lock lock(m_TexturesMutex);
 
             if (textureIndex >= m_Textures.size() || !m_Textures.at(textureIndex))
             {
@@ -267,7 +267,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         {
-            std::unique_lock lock(m_TextureMutex);
+            std::unique_lock lock(m_TexturesMutex);
             m_Textures[textureIndex] = nullptr;
         }
 
@@ -283,7 +283,7 @@ namespace Rigel::Backend::Vulkan
         const auto textureIndex = texture->GetBindlessIndex();
 
         {
-            std::unique_lock lock(m_TextureMutex);
+            std::unique_lock lock(m_TexturesMutex);
 
             if (textureIndex >= m_Textures.size() || !m_Textures.at(textureIndex))
             {
@@ -304,7 +304,7 @@ namespace Rigel::Backend::Vulkan
         uint32_t index = UINT32_MAX;
 
         {
-            std::unique_lock lock(m_MaterialMutex);
+            std::unique_lock lock(m_MaterialsMutex);
 
             for (uint32_t i = 0; i < m_Materials.size(); ++i)
             {
@@ -328,13 +328,13 @@ namespace Rigel::Backend::Vulkan
             }
 
             {
-                std::unique_lock lock(m_MaterialMutex);
+                std::unique_lock lock(m_MaterialsMutex);
                 m_Materials.emplace_back(nullptr);
             }
         }
 
         {
-            std::unique_lock lock (m_MaterialMutex);
+            std::unique_lock lock (m_MaterialsMutex);
             m_Materials[index] = material;
         }
 
@@ -346,7 +346,7 @@ namespace Rigel::Backend::Vulkan
     void VK_BindlessManager::RemoveMaterial(const uint32_t materialIndex)
     {
         {
-            std::unique_lock lock(m_MaterialMutex);
+            std::unique_lock lock(m_MaterialsMutex);
 
             if (materialIndex >= m_Materials.size() || !m_Materials.at(materialIndex))
             {
@@ -356,7 +356,7 @@ namespace Rigel::Backend::Vulkan
         }
 
         {
-            std::unique_lock lock(m_MaterialMutex);
+            std::unique_lock lock(m_MaterialsMutex);
             m_Materials[materialIndex] = nullptr;
         }
 

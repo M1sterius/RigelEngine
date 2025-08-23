@@ -1,5 +1,6 @@
 #include "VK_IndexBuffer.hpp"
 #include "VK_MemoryBuffer.hpp"
+#include "VK_StagingManager.hpp"
 #include "VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -14,7 +15,7 @@ namespace Rigel::Backend::Vulkan
 
         const auto bufferSize = sizeof(indices[0]) * indices.size();
 
-        auto& stagingBuffer = renderer.GetStagingBuffer();
+        auto& stagingBuffer = renderer.GetStagingManager().GetBuffer();
         stagingBuffer.UploadData(0, bufferSize, indices.data());
 
         m_Buffer = std::make_unique<VK_MemoryBuffer>(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
