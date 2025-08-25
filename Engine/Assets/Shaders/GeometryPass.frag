@@ -14,20 +14,19 @@ layout(location = 0) out vec4 g_Position;
 layout(location = 1) out vec4 g_Normal;
 layout(location = 2) out vec4 g_AlbedoSpec;
 
-layout(set = 0, binding = 0) uniform sampler2D textures[];
+layout(set = 0, binding = 0) uniform sampler2D Textures[];
 
-layout(set = 0, binding = 1, scalar) readonly buffer SceneData_T
+layout(set = 0, binding = 1, scalar) readonly buffer MaterialsBuffer_T
 {
-    MaterialData Materials[1024];
-    MeshData Meshes[2048];
-} SceneData;
+    MaterialData Materials[];
+} b_Materials;
 
 void main()
 {
-    MaterialData material = SceneData.Materials[v_MaterialIndex];
+    MaterialData material = b_Materials.Materials[v_MaterialIndex];
 
     g_Position = vec4(v_FragPos, 0.0);
     g_Normal = vec4(normalize(v_Normal), 0.0);
-    g_AlbedoSpec.rgb = texture(textures[nonuniformEXT(material.AlbedoIndex)], v_TexCoords).rgb;
-    g_AlbedoSpec.a = texture(textures[nonuniformEXT(material.MetallicIndex)], v_TexCoords).r;
+    g_AlbedoSpec.rgb = texture(Textures[nonuniformEXT(material.AlbedoIndex)], v_TexCoords).rgb;
+    g_AlbedoSpec.a = texture(Textures[nonuniformEXT(material.MetallicIndex)], v_TexCoords).r;
 }

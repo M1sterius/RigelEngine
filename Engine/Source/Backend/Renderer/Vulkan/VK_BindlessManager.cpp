@@ -23,13 +23,12 @@ namespace Rigel::Backend::Vulkan
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         poolSizes[1].descriptorCount = 1;
 
-        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, 1, VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT);
-        m_SceneData = std::make_unique<SceneData>();
-
-        CreateStorageBuffers();
         CreateDescriptorSetLayout();
 
+        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, 1, VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT);
         m_DescriptorSet = m_DescriptorPool->Allocate(m_DescriptorSetLayout);
+
+        CreateMaterialsBuffer();
     }
 
     VK_BindlessManager::~VK_BindlessManager()
@@ -41,15 +40,25 @@ namespace Rigel::Backend::Vulkan
             vkDestroySampler(m_Device.Get(), sampler, nullptr);
     }
 
-    void VK_BindlessManager::CreateStorageBuffers()
+    void VK_BindlessManager::CreateMaterialsBuffer()
     {
-        const auto framesInFlight = m_Renderer.GetSwapchain().GetFramesInFlightCount();
+        m_MaterialsBuffer = std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(MaterialData) * MAX_MATERIALS,
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        for (uint32_t i = 0; i < framesInFlight; ++i)
-        {
-            m_StorageBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(SceneData),
-                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
-        }
+        VkDescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = m_MaterialsBuffer->Get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = VK_WHOLE_SIZE;
+
+        auto write = MakeInfo<VkWriteDescriptorSet>();
+        write.dstSet = m_DescriptorSet;
+        write.dstBinding = MATERIAL_ARRAY_BINDING;
+        write.dstArrayElement = 0;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        write.descriptorCount = 1;
+        write.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
 
     void VK_BindlessManager::CreateDescriptorSetLayout()
@@ -65,18 +74,18 @@ namespace Rigel::Backend::Vulkan
         bindings[TEXTURE_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         bindings[TEXTURE_ARRAY_BINDING].pImmutableSamplers = nullptr;
 
-        // SSBOs array
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].binding = STORAGE_BUFFER_ARRAY_BINDING;
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].descriptorCount = 1;
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        bindings[STORAGE_BUFFER_ARRAY_BINDING].pImmutableSamplers = nullptr;
+        // Materials array
+        bindings[MATERIAL_ARRAY_BINDING].binding = MATERIAL_ARRAY_BINDING;
+        bindings[MATERIAL_ARRAY_BINDING].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        bindings[MATERIAL_ARRAY_BINDING].descriptorCount = 1;
+        bindings[MATERIAL_ARRAY_BINDING].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        bindings[MATERIAL_ARRAY_BINDING].pImmutableSamplers = nullptr;
 
         flags[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
-        flags[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
+        flags[MATERIAL_ARRAY_BINDING] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT;
 
         types[TEXTURE_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        types[STORAGE_BUFFER_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        types[MATERIAL_ARRAY_BINDING] = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
         auto bindingFlags = MakeInfo<VkDescriptorSetLayoutBindingFlagsCreateInfo>();
         bindingFlags.bindingCount = flags.size();
@@ -146,39 +155,6 @@ namespace Rigel::Backend::Vulkan
         write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         write.descriptorCount = 1;
         write.pImageInfo = &imageInfo;
-
-        vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
-    }
-
-    void VK_BindlessManager::CmdBindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
-    {
-        vkCmdBindDescriptorSets(
-            commandBuffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            pipelineLayout,
-            0, 1,
-            &m_DescriptorSet,
-            0, nullptr
-        );
-    }
-
-    void VK_BindlessManager::UpdateStorageBuffer(const uint64_t frameIndex)
-    {
-        const auto& buffer = m_StorageBuffers[frameIndex];
-        buffer->UploadData(0, sizeof(SceneData), m_SceneData.get());
-
-        VkDescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = buffer->Get();
-        bufferInfo.offset = 0;
-        bufferInfo.range = VK_WHOLE_SIZE;
-
-        auto write = MakeInfo<VkWriteDescriptorSet>();
-        write.dstSet = m_DescriptorSet;
-        write.dstBinding = STORAGE_BUFFER_ARRAY_BINDING;
-        write.dstArrayElement = 0;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        write.descriptorCount = 1;
-        write.pBufferInfo = &bufferInfo;
 
         vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
     }
@@ -270,46 +246,28 @@ namespace Rigel::Backend::Vulkan
 
     uint32_t VK_BindlessManager::AddMaterial(const Ref<MaterialData> material)
     {
-        uint32_t index = UINT32_MAX;
+        uint32_t slotIndex = UINT32_MAX;
 
         {
             std::unique_lock lock(m_MaterialsMutex);
 
-            for (uint32_t i = 0; i < m_Materials.size(); ++i)
+            if (!m_FreeMaterialSlots.empty())
             {
-                if (!m_Materials.at(i))
-                {
-                    index = i;
-                    break;
-                }
+                slotIndex = m_FreeTextureSlots.front();
+                m_FreeMaterialSlots.pop();
+                m_Materials[slotIndex] = *material;
+            }
+            else
+            {
+                slotIndex = m_Materials.size();
+                ASSERT(slotIndex < MAX_MATERIALS, "Exceeded the maximum number of bindless materials!");
+                m_Materials.emplace_back(*material);
             }
         }
 
-        // haven't found an empty slot, so we push a new one to the end of the vector
-        if (index == UINT32_MAX)
-        {
-            index = m_Materials.size();
+        m_MaterialsBuffer->UploadData(0, sizeof(MaterialData) * m_Materials.size(), m_Materials.data());
 
-            if (index >= MAX_MATERIALS)
-            {
-                Debug::Crash(ErrorCode::LIMIT_EXCEEDED,
-                    "Exceeded the maximum number of materials in the scene data array!", __FILE__, __LINE__);
-            }
-
-            {
-                std::unique_lock lock(m_MaterialsMutex);
-                m_Materials.emplace_back(nullptr);
-            }
-        }
-
-        {
-            std::unique_lock lock (m_MaterialsMutex);
-            m_Materials[index] = material;
-        }
-
-        m_SceneData->Materials[index] = *material;
-
-        return index;
+        return slotIndex;
     }
 
     void VK_BindlessManager::RemoveMaterial(const uint32_t materialIndex)
@@ -317,19 +275,16 @@ namespace Rigel::Backend::Vulkan
         {
             std::unique_lock lock(m_MaterialsMutex);
 
-            if (materialIndex >= m_Materials.size() || !m_Materials.at(materialIndex))
+            if (materialIndex >= m_Materials.size())
             {
-                Debug::Error("{} is not a valid material index!", materialIndex);
+                Debug::Error("{} is not a valid bindless material index!", materialIndex);
                 return;
             }
+
+            m_Materials[materialIndex] = MaterialData();
+            m_FreeMaterialSlots.push(materialIndex);
         }
 
-        {
-            std::unique_lock lock(m_MaterialsMutex);
-            m_Materials[materialIndex] = nullptr;
-        }
-
-        // TODO:  we don't modify m_SceneData->Materials here because it contains a value type and cannot be null,
-        // maybe we should put some kind of default material in the slot?
+        m_MaterialsBuffer->UploadData(0, sizeof(MaterialData) * m_Materials.size(), m_Materials.data());
     }
 }

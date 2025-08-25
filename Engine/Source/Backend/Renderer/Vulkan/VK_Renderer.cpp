@@ -51,6 +51,8 @@ namespace Rigel::Backend::Vulkan
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
 
+        SetupGeometryPassDescriptorSet();
+
         return ErrorCode::OK;
     }
 
@@ -82,7 +84,10 @@ namespace Rigel::Backend::Vulkan
     ErrorCode VK_Renderer::SetupPipelines()
     {
         // Geometry pass
-        const std::vector descriptorSetLayouts = {m_BindlessManager->GetDescriptorSetLayout()};
+        const std::vector descriptorSetLayouts = {
+            m_BindlessManager->GetDescriptorSetLayout(),
+            m_GeometryPassDescriptorSetLayout
+        };
 
         VkPushConstantRange geometryPassPC = {};
         geometryPassPC.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
@@ -142,6 +147,59 @@ namespace Rigel::Backend::Vulkan
         return ErrorCode::OK;
     }
 
+    void VK_Renderer::SetupGeometryPassDescriptorSet()
+    {
+        std::vector<VkDescriptorPoolSize> poolSizes(1);
+        poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        poolSizes[0].descriptorCount = 1;
+
+        m_GeometryPassDescriptorPool = std::make_unique<VK_DescriptorPool>(*m_Device, poolSizes, 1, 0);
+
+        std::vector<VkDescriptorSetLayoutBinding> bindings(1);
+
+        bindings[0].binding = 0;
+        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        bindings[0].descriptorCount = 1;
+        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+        auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
+        setLayoutInfo.bindingCount = bindings.size();
+        setLayoutInfo.pBindings = bindings.data();
+
+        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device->Get(), &setLayoutInfo, nullptr, &m_GeometryPassDescriptorSetLayout), "Failed to create descriptor set layout!");
+
+        m_GeometryPassDescriptorSet = m_GeometryPassDescriptorPool->Allocate(m_GeometryPassDescriptorSetLayout);
+
+
+        const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
+        for (uint32_t i = 0; i < framesInFlight; ++i)
+        {
+            m_MeshBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(*m_Device, sizeof(MeshData) * m_Meshes.size(),
+                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
+        }
+    }
+
+    void VK_Renderer::UpdateMeshData(const uint32_t frameIndex)
+    {
+        const auto& buffer = m_MeshBuffers[frameIndex];
+        buffer->UploadData(0, sizeof(MeshData) * m_Meshes.size(), m_Meshes.data());
+
+        VkDescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = buffer->Get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = VK_WHOLE_SIZE;
+
+        auto write = MakeInfo<VkWriteDescriptorSet>();
+        write.dstSet = m_GeometryPassDescriptorSet;
+        write.dstBinding = 0;
+        write.dstArrayElement = 0;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        write.descriptorCount = 1;
+        write.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(m_Device->Get(), 1, &write, 0, nullptr);
+    }
+
     void VK_Renderer::OnRecreateSwapchain()
     {
         GetWindowManager()->WaitForFocus();
@@ -164,11 +222,23 @@ namespace Rigel::Backend::Vulkan
         m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
         m_GeometryPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
 
-        m_BindlessManager->CmdBindDescriptorSet(cmdBuff, m_GeometryPassPipeline->GetLayout());
+        const VkDescriptorSet sets[] = {
+            m_BindlessManager->GetDescriptorSet(),
+            m_GeometryPassDescriptorSet
+        };
+
+        vkCmdBindDescriptorSets(
+            cmdBuff,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_GeometryPassPipeline->GetLayout(),
+            0, 2,
+            sets,
+            0, nullptr
+        );
 
         if (const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo(); sceneRenderInfo->CameraPresent)
         {
-            const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
+            // const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
             uint32_t meshIndex = 0;
 
             for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
@@ -188,7 +258,7 @@ namespace Rigel::Backend::Vulkan
 
                     for (const auto& mesh : node->Meshes)
                     {
-                        sceneDataPtr->Meshes[meshIndex] = {
+                        m_Meshes[meshIndex] = MeshData{
                             .MaterialIndex = mesh.Material->GetBindlessIndex(),
                             .MVP = meshMVP,
                             .Model = meshModelMat,
@@ -316,7 +386,7 @@ namespace Rigel::Backend::Vulkan
         RecordLightingPass(lightingPassCommandBuffer->Get(), swapchainImage);
         lightingPassCommandBuffer->EndRecording();
 
-        m_BindlessManager->UpdateStorageBuffer(frameIndex); // this line must stay after geometry pass recording
+        UpdateMeshData(frameIndex); // this line must stay after geometry pass recording
 
         const auto& fence = m_InFlightFences[frameIndex];
         fence->Reset();

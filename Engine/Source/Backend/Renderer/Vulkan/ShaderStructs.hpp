@@ -32,12 +32,10 @@ namespace Rigel::Backend::Vulkan
         glm::mat3 Normal;
     };
 
-    struct SceneData
-    {
-        static constexpr uint32_t MAX_MATERIALS_ARRAY_SIZE = 1024;
-        static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 2048;
-
-        MaterialData Materials[MAX_MATERIALS_ARRAY_SIZE];
-        MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
-    };
+    // struct SceneData
+    // {
+    //     static constexpr uint32_t MAX_MESH_DATA_ARRAY_SIZE = 2048;
+    //
+    //     MeshData Meshes[MAX_MESH_DATA_ARRAY_SIZE];
+    // };
 }

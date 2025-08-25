@@ -13,11 +13,10 @@ layout(location = 1) out vec3 v_Normal;
 layout(location = 2) out vec3 v_FragPos;
 layout(location = 3) out flat uint v_MaterialIndex;
 
-layout(set = 0, binding = 1, scalar) readonly buffer SceneData_T
+layout(set = 1, binding = 0, scalar) readonly buffer MeshBuffer_T
 {
-    MaterialData Materials[1024];
-    MeshData Meshes[2048];
-} SceneData;
+    MeshData Meshes[];
+} b_MeshBuffer;
 
 layout (push_constant) uniform PushConstants
 {
@@ -26,7 +25,7 @@ layout (push_constant) uniform PushConstants
 
 void main()
 {
-    MeshData meshData = SceneData.Meshes[pc_MeshData.MeshIndex];
+    MeshData meshData = b_MeshBuffer.Meshes[pc_MeshData.MeshIndex];
 
     v_TexCoords = a_TexCoords;
     v_Normal = meshData.NormalMat * a_Normal;

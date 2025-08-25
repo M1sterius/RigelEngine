@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
+#include "ShaderStructs.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -43,6 +44,7 @@ namespace Rigel::Backend::Vulkan
     class VK_BindlessManager;
 
     struct AcquireImageInfo;
+    struct MeshData;
 
     class VK_Renderer final
     {
@@ -71,6 +73,9 @@ namespace Rigel::Backend::Vulkan
 
         ErrorCode SetupPipelines();
 
+        void SetupGeometryPassDescriptorSet();
+        void UpdateMeshData(const uint32_t frameIndex);
+
         void RecordGeometryPass(VkCommandBuffer cmdBuff);
         void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);
 
@@ -91,6 +96,13 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
         std::unique_ptr<VK_GraphicsPipeline> m_LightingPassPipeline;
+
+        std::array<MeshData, 1024> m_Meshes;
+        std::vector<std::unique_ptr<VK_MemoryBuffer>> m_MeshBuffers;
+        std::unique_ptr<VK_DescriptorPool> m_GeometryPassDescriptorPool;
+
+        VkDescriptorSetLayout m_GeometryPassDescriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorSet m_GeometryPassDescriptorSet = VK_NULL_HANDLE;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

@@ -24,13 +24,13 @@ namespace Rigel::Backend::Vulkan
     {
     private:
         static constexpr uint32_t SET_BINDINGS_COUNT = 2;
-        static constexpr uint32_t MAX_TEXTURES = 4096;
-        static constexpr uint32_t MAX_MATERIALS = SceneData::MAX_MATERIALS_ARRAY_SIZE;
+        static constexpr uint32_t MAX_TEXTURES = 2048;
+        static constexpr uint32_t MAX_MATERIALS = 512;
 
         enum SetBindings : uint32_t
         {
             TEXTURE_ARRAY_BINDING = 0,
-            STORAGE_BUFFER_ARRAY_BINDING = 1
+            MATERIAL_ARRAY_BINDING = 1,
         };
     public:
         static constexpr uint32_t ERROR_TEXTURE_BINDLESS_INDEX = 0;
@@ -45,10 +45,6 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
         NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
-        NODISCARD inline SceneData* GetSceneDataPtr() const { return m_SceneData.get(); }
-
-        void CmdBindDescriptorSet(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
-        void UpdateStorageBuffer(const uint64_t frameIndex);
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);
@@ -60,7 +56,7 @@ namespace Rigel::Backend::Vulkan
         VK_Renderer& m_Renderer;
         VK_Device& m_Device;
 
-        void CreateStorageBuffers();
+        void CreateMaterialsBuffer();
         void CreateDescriptorSetLayout();
 
         NODISCARD VkSampler GetSamplerByProperties(const Texture2D::SamplerProperties& properties);
@@ -71,17 +67,17 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
+        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_Samplers;
+        std::mutex m_SamplersMutex;
+
         std::vector<Ref<VK_Texture>> m_Textures;
         std::queue<uint32_t> m_FreeTextureSlots;
         std::mutex m_TexturesMutex;
 
-        std::vector<Ref<MaterialData>> m_Materials;
+        std::vector<MaterialData> m_Materials;
+        std::queue<uint32_t> m_FreeMaterialSlots;
         std::mutex m_MaterialsMutex;
 
-        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_Samplers;
-        std::mutex m_SamplersMutex;
-
-        std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
-        std::unique_ptr<SceneData> m_SceneData;
+        std::unique_ptr<VK_MemoryBuffer> m_MaterialsBuffer;
     };
 }

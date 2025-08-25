@@ -237,6 +237,6 @@ namespace Rigel::Backend::Vulkan
         setLayoutInfo.bindingCount = static_cast<uint32_t>(gBufferBindings.size());
         setLayoutInfo.pBindings = gBufferBindings.data();
 
-        vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout);
+        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout), "Failed to create descriptor set layout!");
     }
 }
