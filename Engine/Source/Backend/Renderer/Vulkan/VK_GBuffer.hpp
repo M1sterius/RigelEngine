@@ -61,6 +61,5 @@ namespace Rigel::Backend::Vulkan
 
         void CreateSampler();
         void CreateDescriptorSetLayout();
-        void CreateDescriptorSet();
     };
 }

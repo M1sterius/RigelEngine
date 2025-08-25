@@ -8,6 +8,7 @@
 #include "vulkan/vulkan.h"
 
 #include <vector>
+#include <queue>
 
 namespace Rigel::Backend::Vulkan
 {
@@ -61,7 +62,6 @@ namespace Rigel::Backend::Vulkan
 
         void CreateStorageBuffers();
         void CreateDescriptorSetLayout();
-        void CreateDescriptorSet();
 
         NODISCARD VkSampler GetSamplerByProperties(const Texture2D::SamplerProperties& properties);
         void UpdateTextureDescriptor(VkImageView imageView, VkSampler sampler, const uint32_t slot) const;
@@ -71,13 +71,15 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
-        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_TextureSamplers;
         std::vector<Ref<VK_Texture>> m_Textures;
+        std::queue<uint32_t> m_FreeTextureSlots;
         std::mutex m_TexturesMutex;
-        std::mutex m_SamplersMutex;
 
         std::vector<Ref<MaterialData>> m_Materials;
         std::mutex m_MaterialsMutex;
+
+        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_Samplers;
+        std::mutex m_SamplersMutex;
 
         std::vector<std::unique_ptr<VK_MemoryBuffer>> m_StorageBuffers;
         std::unique_ptr<SceneData> m_SceneData;

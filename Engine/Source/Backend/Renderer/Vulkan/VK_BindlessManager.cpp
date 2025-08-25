@@ -6,7 +6,6 @@
 #include "VK_Swapchain.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "ShaderStructs.hpp"
-#include "Subsystems/Time.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Subsystems/AssetManager/BuiltInAssets.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
@@ -29,7 +28,8 @@ namespace Rigel::Backend::Vulkan
 
         CreateStorageBuffers();
         CreateDescriptorSetLayout();
-        CreateDescriptorSet();
+
+        m_DescriptorSet = m_DescriptorPool->Allocate(m_DescriptorSetLayout);
     }
 
     VK_BindlessManager::~VK_BindlessManager()
@@ -37,7 +37,7 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Destroying vulkan bindless resources manager.");
 
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
-        for (const auto& sampler : m_TextureSamplers | std::views::values)
+        for (const auto& sampler : m_Samplers | std::views::values)
             vkDestroySampler(m_Device.Get(), sampler, nullptr);
     }
 
@@ -92,23 +92,13 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &createInfo, nullptr, &m_DescriptorSetLayout), "Failed to create bindless descriptor set layout");
     }
 
-    void VK_BindlessManager::CreateDescriptorSet()
-    {
-        auto allocateInfo = MakeInfo<VkDescriptorSetAllocateInfo>();
-        allocateInfo.descriptorPool = m_DescriptorPool->Get();
-        allocateInfo.pSetLayouts = &m_DescriptorSetLayout;
-        allocateInfo.descriptorSetCount = 1;
-
-        VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.Get(), &allocateInfo, &m_DescriptorSet), "Failed to create bindless descriptor set!");
-    }
-
     VkSampler VK_BindlessManager::GetSamplerByProperties(const Texture2D::SamplerProperties& properties)
     {
         // check if a sampler with that properties already exists
         {
             std::unique_lock lock(m_SamplersMutex);
 
-            for (const auto& [curProperties, curSampler] : m_TextureSamplers)
+            for (const auto& [curProperties, curSampler] : m_Samplers)
             {
                 if (curProperties == properties)
                     return curSampler;
@@ -136,7 +126,7 @@ namespace Rigel::Backend::Vulkan
 
         {
             std::unique_lock lock(m_SamplersMutex);
-            m_TextureSamplers.emplace_back(properties, sampler);
+            m_Samplers.emplace_back(properties, sampler);
         }
 
         return sampler;
@@ -197,40 +187,21 @@ namespace Rigel::Backend::Vulkan
     {
         uint32_t slotIndex = UINT32_MAX;
 
-        // checks if there is an empty slot not at the end of the vector
         {
             std::unique_lock lock(m_TexturesMutex);
 
-            for (uint32_t i = 0; i < m_Textures.size(); ++i)
+            if (!m_FreeTextureSlots.empty())
             {
-                if (!m_Textures.at(i))
-                {
-                    slotIndex = i;
-                    break;
-                }
+                slotIndex = m_FreeTextureSlots.front();
+                m_FreeTextureSlots.pop();
+                m_Textures[slotIndex] = texture;
             }
-        }
-
-        // haven't found an empty slot, so we push a new one to the end of the vector
-        if (slotIndex == UINT32_MAX)
-        {
-            slotIndex = m_Textures.size();
-
-            if (slotIndex >= MAX_TEXTURES)
+            else
             {
-                Debug::Crash(ErrorCode::LIMIT_EXCEEDED,
-                    "Exceeded the maximum number of bindless textures!", __FILE__, __LINE__);
+                slotIndex = m_Textures.size();
+                ASSERT(slotIndex < MAX_TEXTURES, "Exceeded the maximum number of bindless textures!");
+                m_Textures.emplace_back(texture);
             }
-
-            {
-                std::unique_lock lock(m_TexturesMutex);
-                m_Textures.emplace_back(nullptr);
-            }
-        }
-
-        {
-            std::unique_lock lock (m_TexturesMutex);
-            m_Textures[slotIndex] = texture;
         }
 
         UpdateTextureDescriptor(
@@ -264,11 +235,9 @@ namespace Rigel::Backend::Vulkan
                 Debug::Error("{} is not a valid bindless texture index!", textureIndex);
                 return;
             }
-        }
 
-        {
-            std::unique_lock lock(m_TexturesMutex);
             m_Textures[textureIndex] = nullptr;
+            m_FreeTextureSlots.push(textureIndex);
         }
 
         UpdateTextureDescriptor(

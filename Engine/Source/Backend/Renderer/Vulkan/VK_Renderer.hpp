@@ -58,7 +58,6 @@ namespace Rigel::Backend::Vulkan
         ErrorCode LateStartup();
 
         void Render();
-
         void WaitForFinish() const;
         void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
@@ -70,7 +69,7 @@ namespace Rigel::Backend::Vulkan
     private:
         void OnRecreateSwapchain();
 
-        NODISCARD ErrorCode SetupPipelines();
+        ErrorCode SetupPipelines();
 
         void RecordGeometryPass(VkCommandBuffer cmdBuff);
         void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);

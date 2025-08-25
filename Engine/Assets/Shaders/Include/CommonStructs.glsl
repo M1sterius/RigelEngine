@@ -9,6 +9,24 @@ struct MaterialData
     float Roughness;
 };
 
+struct PBRMaterialData
+{
+    uint AlbedoIndex;
+    vec3 Color;
+
+    uint MetallicIndex;
+    float Metalness;
+
+    uint RougnessIndex;
+    float Roughness;
+
+    uint NormalIndex;
+    uint AmbientOcclusionIndex;
+
+    vec2 Tiling;
+    vec2 Offset;
+};
+
 struct MeshData
 {
     uint MaterialIndex;

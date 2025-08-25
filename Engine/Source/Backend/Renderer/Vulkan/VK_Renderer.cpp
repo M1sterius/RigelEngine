@@ -186,14 +186,13 @@ namespace Rigel::Backend::Vulkan
                     const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
                     const auto meshNormalMat = glm::mat3(glm::transpose(glm::inverse(meshModelMat)));
 
-
                     for (const auto& mesh : node->Meshes)
                     {
                         sceneDataPtr->Meshes[meshIndex] = {
                             .MaterialIndex = mesh.Material->GetBindlessIndex(),
                             .MVP = meshMVP,
-                            .ModelMat = meshModelMat,
-                            .NormalMat = meshNormalMat,
+                            .Model = meshModelMat,
+                            .Normal = meshNormalMat,
                         };
 
                         vkCmdPushConstants(

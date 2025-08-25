@@ -17,6 +17,9 @@ namespace Rigel::Backend::Vulkan
         ~VK_DescriptorPool();
 
         NODISCARD VkDescriptorPool Get() const { return m_DescriptorPool; }
+
+        NODISCARD VkDescriptorSet Allocate(VkDescriptorSetLayout layout) const;
+        void Free(VkDescriptorSet descriptorSet) const;
     private:
         VK_Device& m_Device;
 

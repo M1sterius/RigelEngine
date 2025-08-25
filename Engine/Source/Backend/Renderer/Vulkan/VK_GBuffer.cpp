@@ -17,7 +17,8 @@ namespace Rigel::Backend::Vulkan
 
         CreateSampler();
         CreateDescriptorSetLayout();
-        CreateDescriptorSet();
+
+        m_DescriptorSet = m_DescriptorPool->Allocate(m_DescriptorSetLayout);
 
         Setup(m_Size);
     }
@@ -237,15 +238,5 @@ namespace Rigel::Backend::Vulkan
         setLayoutInfo.pBindings = gBufferBindings.data();
 
         vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout);
-    }
-
-    void VK_GBuffer::CreateDescriptorSet()
-    {
-        auto allocateInfo = MakeInfo<VkDescriptorSetAllocateInfo>();
-        allocateInfo.descriptorPool = m_DescriptorPool->Get();
-        allocateInfo.pSetLayouts = &m_DescriptorSetLayout;
-        allocateInfo.descriptorSetCount = 1;
-
-        VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.Get(), &allocateInfo, &m_DescriptorSet), "Failed to create bindless descriptor set!");
     }
 }

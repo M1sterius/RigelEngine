@@ -15,17 +15,20 @@ namespace Rigel::Backend::Vulkan
 
     struct PBRMaterialData
     {
-        uint32_t AlbedoIndex;
+        uint32_t AlbedoIndex{0};
         glm::vec3 Color{1.0};
 
-        uint32_t MetallicIndex;
-        glm::vec3 Metalness{0.0};
+        uint32_t MetallicIndex{1};
+        float32_t Metalness{0.0};
 
-        uint32_t RoughnessIndex;
-        glm::vec3 Roughness{1.0};
+        uint32_t RoughnessIndex{1};
+        float32_t Roughness{1.0};
 
-        uint32_t NormalIndex;
-        uint32_t AmbientOcclusionIndex;
+        uint32_t NormalIndex{1};
+        uint32_t AmbientOcclusionIndex{1};
+
+        glm::vec2 Tiling{1.0};
+        glm::vec2 Offset{0.0};
     };
 
     struct MeshData
@@ -33,8 +36,8 @@ namespace Rigel::Backend::Vulkan
         uint32_t MaterialIndex;
 
         glm::mat4 MVP;
-        glm::mat4 ModelMat;
-        glm::mat3 NormalMat;
+        glm::mat4 Model;
+        glm::mat3 Normal;
     };
 
     struct SceneData

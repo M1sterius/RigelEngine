@@ -7,6 +7,18 @@
 
 namespace Rigel::Backend::Vulkan
 {
+    /*
+     * Vertex layout naming scheme:
+     *
+     * number - how many floats a particular attribute occupies
+     * letter - what type of attribute it is
+     *
+     * p - position
+     * t - texture coordinates
+     * n - normal
+     * g - tangent
+     */
+
     struct Vertex3p2t3n
     {
         glm::vec3 Position;
