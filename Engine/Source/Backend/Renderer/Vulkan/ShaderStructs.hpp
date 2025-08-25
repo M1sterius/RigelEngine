@@ -7,14 +7,6 @@ namespace Rigel::Backend::Vulkan
 {
     struct MaterialData
     {
-        uint32_t DiffuseIndex;
-        uint32_t SpecularIndex;
-        uint32_t NormalsIndex;
-        float Roughness;
-    };
-
-    struct PBRMaterialData
-    {
         uint32_t AlbedoIndex{0};
         glm::vec3 Color{1.0};
 

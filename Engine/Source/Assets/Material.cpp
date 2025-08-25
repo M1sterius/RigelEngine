@@ -7,6 +7,8 @@
 #include "VK_Texture.hpp"
 #include "VulkanUtility.hpp"
 
+#include <filesystem>
+
 namespace Rigel
 {
     using namespace Backend::Vulkan;
@@ -16,20 +18,18 @@ namespace Rigel
 
     ErrorCode Material::Init()
     {
-        m_Data = std::make_unique<MaterialData>();
-
-        auto assetManager = GetAssetManager();
-        const auto metadata = assetManager->GetMetadata<MaterialMetadata>(this->m_Path);
+        const auto metadata = GetAssetManager()->GetMetadata<MaterialMetadata>(this->m_Path);
 
         if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
-        if (!metadata->DiffusePath.empty())
-            m_Diffuse = assetManager->Load<Texture2D>(metadata->DiffusePath);
-        if (!metadata->SpecularPath.empty())
-            m_Specular = assetManager->Load<Texture2D>(metadata->SpecularPath);
-        if (!metadata->NormalsPath.empty())
-            m_Normals = assetManager->Load<Texture2D>(metadata->NormalsPath);
+        auto LoadTexture = [metadata](const std::filesystem::path& path) -> AssetHandle<Texture2D>
+        {
+            if (metadata->PermitAsyncTextureLoading)
+                return GetAssetManager()->LoadAsync<Texture2D>(path);
+            else
+                return GetAssetManager()->Load<Texture2D>(path);
+        };
 
         auto SetIndex = [](const AssetHandle<Texture2D>& texture, const uint32_t fallbackIndex) -> uint32_t
         {
@@ -44,12 +44,47 @@ namespace Rigel
             return fallbackIndex;
         };
 
-        m_Data->DiffuseIndex = SetIndex(m_Diffuse, VK_BindlessManager::ERROR_TEXTURE_BINDLESS_INDEX);
-        m_Data->SpecularIndex = SetIndex(m_Specular, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
-        m_Data->NormalsIndex = SetIndex(m_Normals, VK_BindlessManager::BLACK_TEXTURE_BINDLESS_INDEX);
-        m_Data->Roughness = 0.0f;
+        // Albedo
+        if (!metadata->AlbedoTex.empty())
+            m_AlbedoTex = LoadTexture(metadata->AlbedoTex);
+        m_Color = metadata->Color;
 
-        m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddMaterial(m_Data.get());
+        // Metallic
+        if (!metadata->MetallicTex.empty())
+            m_MetallicTex = LoadTexture(metadata->MetallicTex);
+        m_Metalness = metadata->Metalness;
+
+        // Roughness
+        if (!metadata->RoughnessTex.empty())
+            m_RoughnessTex = LoadTexture(metadata->RoughnessTex);
+        m_Roughness = metadata->Roughness;
+
+        // Normal
+        if (!metadata->NormalTex.empty())
+            m_NormalTex = LoadTexture(metadata->NormalTex);
+
+        // Ambient occlusion
+        if (!metadata->AmbientOcclusionTex.empty())
+            m_AmbientOcclusionTex = LoadTexture(metadata->AmbientOcclusionTex);
+
+        m_Tiling = metadata->Tiling;
+        m_Offset = metadata->Offset;
+        m_TwoSided = metadata->TwoSided;
+
+        auto shaderData = MaterialData{
+            .AlbedoIndex = SetIndex(m_AlbedoTex, 0),
+            .Color = m_Color,
+            .MetallicIndex = SetIndex(m_MetallicTex, 1),
+            .Metalness = m_Metalness,
+            .RoughnessIndex = SetIndex(m_RoughnessTex, 1),
+            .Roughness = m_Roughness,
+            .NormalIndex = SetIndex(m_NormalTex, 1),
+            .AmbientOcclusionIndex = SetIndex(m_AmbientOcclusionTex, 1),
+            .Tiling = m_Tiling,
+            .Offset = m_Offset
+        };
+
+        m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddMaterial(&shaderData);
 
         return ErrorCode::OK;
     }

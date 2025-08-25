@@ -10,7 +10,6 @@
 #include "Utilities/ScopeGuard.hpp"
 #include "Utilities/Threading/ThreadPool.hpp"
 
-#include <mutex>
 #include <memory>
 #include <atomic>
 #include <filesystem>

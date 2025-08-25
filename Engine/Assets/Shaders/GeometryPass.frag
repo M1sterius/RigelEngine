@@ -28,6 +28,6 @@ void main()
 
     g_Position = vec4(v_FragPos, 0.0);
     g_Normal = vec4(normalize(v_Normal), 0.0);
-    g_AlbedoSpec.rgb = texture(textures[nonuniformEXT(material.DiffuseIndex)], v_TexCoords).rgb;
-    g_AlbedoSpec.a = texture(textures[nonuniformEXT(material.SpecularIndex)], v_TexCoords).r;
+    g_AlbedoSpec.rgb = texture(textures[nonuniformEXT(material.AlbedoIndex)], v_TexCoords).rgb;
+    g_AlbedoSpec.a = texture(textures[nonuniformEXT(material.MetallicIndex)], v_TexCoords).r;
 }

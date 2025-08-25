@@ -40,11 +40,11 @@ void main()
     vec3 albedo = texture(g_AlbedoSpec, v_TexCoords).rgb;
     float specular = texture(g_AlbedoSpec, v_TexCoords).a;
 
-    vec3 viewDir = normalize(pc_CamPos.pos - fragPos);
+//    vec3 viewDir = normalize(pc_CamPos.pos - fragPos);
+//
+//    vec3 light = CalcLight(normal, viewDir, albedo, specular);
+//
+//    vec3 color = (albedo * AMBIENT_INTENSITY) + light;
 
-    vec3 light = CalcLight(normal, viewDir, albedo, specular);
-
-    vec3 color = (albedo * AMBIENT_INTENSITY) + light;
-
-    outColor = vec4(color, 1.0);
+    outColor = vec4(albedo, 1.0);
 }

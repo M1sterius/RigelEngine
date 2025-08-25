@@ -8,13 +8,6 @@ namespace Rigel
 {
     struct MaterialMetadata : public AssetMetadata
     {
-        std::filesystem::path DiffusePath{};
-        std::filesystem::path SpecularPath{};
-        std::filesystem::path NormalsPath{};
-    };
-
-    struct MaterialMetadata2 : public AssetMetadata
-    {
         std::filesystem::path AlbedoTex{};
         glm::vec3 Color{1.0};
 
@@ -31,5 +24,6 @@ namespace Rigel
         glm::vec2 Offset{0.0};
 
         bool TwoSided{false};
+        bool PermitAsyncTextureLoading{false};
     };
 }

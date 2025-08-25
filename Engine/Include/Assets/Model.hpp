@@ -101,7 +101,8 @@ namespace Rigel
         void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
             std::vector<Backend::Vulkan::Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices);
         Mesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices);
-        void ProcessMaterial(const aiMaterial* aiMaterial);
+
+        AssetHandle<Material> ProcessMaterial(const aiMaterial* aiMaterial);
 
         std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;

@@ -35,6 +35,11 @@ inline glm::vec2 ConvertVec2(const aiVector2D& vec)
     };
 }
 
+inline glm::vec3 ConvertColor(const aiColor3D& color)
+{
+    return {color.r, color.g, color.b};
+}
+
 namespace Rigel
 {
     using namespace Backend::Vulkan;
@@ -56,7 +61,7 @@ namespace Rigel
 
         // Preprocess all materials to take advantage of async loading
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
-            ProcessMaterial(scene->mMaterials[i]);
+            m_Materials.emplace_back(ProcessMaterial(scene->mMaterials[i]));
 
         auto vertices = std::vector<Vertex3p2t3n>();
         auto indices = std::vector<uint32_t>();
@@ -147,45 +152,83 @@ namespace Rigel
         return resMesh;
     }
 
-    void Model::ProcessMaterial(const aiMaterial* aiMaterial)
+    AssetHandle<Material> Model::ProcessMaterial(const aiMaterial* aiMaterial)
     {
         ASSERT(aiMaterial, "aiMaterial was a nullptr!");
 
         const auto materialName = m_Path / std::format("Material{}", m_Materials.size());
         const auto texturesDir = m_Path.parent_path(); // trim to the last '/'
+
         auto metadata = MaterialMetadata();
+        // TODO: Update assimp to get correct roughness and metallic textures!
 
-        bool twoSided = false;
-        if (aiMaterial->Get(AI_MATKEY_TWOSIDED, twoSided) == AI_SUCCESS) {
-            if (twoSided) {
-                Debug::Message("Two sided");
-            }
-        }
-
+        // Albedo
         if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
-            aiString diffuseTextureName;
-            aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &diffuseTextureName);
+            aiString albedoTextureName;
+            aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &albedoTextureName);
 
-            metadata.DiffusePath = texturesDir / diffuseTextureName.C_Str();
+            metadata.AlbedoTex = texturesDir / albedoTextureName.C_Str();
         }
-
-        if (aiMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
+        else
         {
-            aiString specularTextureName;
-            aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &specularTextureName);
-
-            metadata.SpecularPath = texturesDir / specularTextureName.C_Str();
+            aiColor3D color{};
+            if (aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+                metadata.Color = ConvertColor(color);
         }
 
+        // Metallic
+        if (aiMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
+        {
+            aiString metallicTextureName;
+            aiMaterial->GetTexture(aiTextureType_METALNESS, 0, &metallicTextureName);
+
+            metadata.MetallicTex = texturesDir / metallicTextureName.C_Str();
+        }
+        else
+        {
+            float32_t metalness{0.0};
+            if (aiMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metalness) == AI_SUCCESS)
+                metadata.Metalness = metalness;
+        }
+
+        // Roughness
+        if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+        {
+            aiString roughnessTextureName;
+            aiMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &roughnessTextureName);
+
+            metadata.RoughnessTex = texturesDir / roughnessTextureName.C_Str();
+        }
+        else
+        {
+            float32_t roughness{1.0};
+            if (aiMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS)
+                metadata.Roughness = roughness;
+        }
+
+        // Normal
         if (aiMaterial->GetTextureCount(aiTextureType_NORMALS) > 0)
         {
             aiString normalsTextureName;
             aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &normalsTextureName);
 
-            metadata.NormalsPath = texturesDir / normalsTextureName.C_Str();
+            metadata.NormalTex = texturesDir / normalsTextureName.C_Str();
         }
 
-        m_Materials.push_back(GetAssetManager()->LoadAsync<Material>(materialName, &metadata));
+        // Ambient occlusion
+        if (aiMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
+        {
+            aiString ambientOcclusionTextureName;
+            aiMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &ambientOcclusionTextureName);
+
+            metadata.AmbientOcclusionTex = texturesDir / ambientOcclusionTextureName.C_Str();
+        }
+
+        bool twoSided{false};
+        if (aiMaterial->Get(AI_MATKEY_TWOSIDED, twoSided) == AI_SUCCESS)
+            metadata.TwoSided = twoSided;
+
+        return GetAssetManager()->LoadAsync<Material>(materialName, &metadata);
     }
 }

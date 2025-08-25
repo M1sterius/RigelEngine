@@ -3,14 +3,6 @@
 
 struct MaterialData
 {
-    uint DiffuseIndex;
-    uint SpecularIndex;
-    uint NormalsIndex;
-    float Roughness;
-};
-
-struct PBRMaterialData
-{
     uint AlbedoIndex;
     vec3 Color;
 
