@@ -26,11 +26,17 @@ namespace Rigel::Backend::Vulkan
                 "Failed to find any GPUs with adequate support of required vulkan features!", __FILE__, __LINE__);
         }
 
-        m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
-        m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
+        const auto version = m_SelectedPhysicalDevice.Properties.apiVersion;
+        const auto major = VK_VERSION_MAJOR(version);
+        const auto minor = VK_VERSION_MINOR(version);
+        const auto patch = VK_VERSION_PATCH(version);
 
         Debug::Trace("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName);
+        Debug::Trace("GPU supported API version: {}.{}.{}", major, minor, patch);
         Debug::Trace("Available dedicated VRAM: {}mb.", m_SelectedPhysicalDevice.DedicatedMemorySize / (1024 * 1024));
+
+        m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
+        m_SwapchainSupportDetails = QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
 
         CreateLogicalDevice();
         CreateVmaAllocator();
@@ -318,11 +324,15 @@ namespace Rigel::Backend::Vulkan
     {
         // Checks if all minimal requirements are satisfied by a device
 
+        const auto versionSupported = device.Properties.apiVersion > VK_Config::MinimalRequiredAPIVersion;
         const auto indices = FindQueueFamilies(device.PhysicalDevice, surface);
         const auto areExtensionsSupported = CheckPhysicalDeviceExtensionsSupport(device, VK_Config::RequiredPhysicalDeviceExtensions);
         const auto swapchainSupportDetails = QuerySwapchainSupportDetails(device.PhysicalDevice, surface);
 
-        return indices.IsComplete() && areExtensionsSupported && swapchainSupportDetails.IsSupportAdequate();
+        return indices.IsComplete() &&
+            areExtensionsSupported &&
+            swapchainSupportDetails.IsSupportAdequate() &&
+            versionSupported;
     }
 
     bool VK_Device::IsPhysicalDeviceExtensionSupported(const PhysicalDeviceInfo& device, const char* extName)

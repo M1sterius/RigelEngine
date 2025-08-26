@@ -58,11 +58,9 @@ namespace Rigel::Backend::Vulkan
         if (supportedVersion < requiredVersion)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Minimal required vulkan version ({}.{}.{}) is not supported on this device!",
+                std::format("Minimal required vulkan version {}.{}.{} is not supported by the loader!",
                     VK_VERSION_MAJOR(requiredVersion), VK_VERSION_MINOR(requiredVersion), VK_VERSION_PATCH(requiredVersion)), __FILE__, __LINE__);
         }
-
-        Debug::Trace("Vulkan version: {}.{}.{}", VK_VERSION_MAJOR(supportedVersion), VK_VERSION_MINOR(supportedVersion), VK_VERSION_PATCH(supportedVersion));
 
         if (VK_Config::EnableValidationLayers && !CheckValidationLayersSupport())
         {
@@ -240,11 +238,7 @@ namespace Rigel::Backend::Vulkan
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         PopulateDebugMessengerCreateInfo(createInfo);
 
-        if (const auto result = CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger); result != VK_SUCCESS)
-        {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to set up vulkan debug messanger. VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
-        }
+        VK_CHECK_RESULT(CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger), "Failed to create vulkan debug messanger!");
     }
 
     void VK_Instance::DestroyDebugMessenger()
