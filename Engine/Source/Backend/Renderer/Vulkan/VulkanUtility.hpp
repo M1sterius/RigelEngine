@@ -3,7 +3,6 @@
 #include "Core.hpp"
 #include "VK_Config.hpp"
 #include "MakeInfo.hpp"
-#include "Engine.hpp"
 #include "Subsystems/Renderer/Renderer.hpp"
 #include "VK_Renderer.hpp"
 #include "VK_Device.hpp"

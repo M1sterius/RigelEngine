@@ -88,6 +88,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.cpp
     Source/Backend/Renderer/Vulkan/VK_GBuffer.cpp
     Source/Backend/Renderer/Vulkan/VK_StagingManager.cpp
+    Source/Backend/Renderer/Vulkan/RenderPasses/VK_GeometryPass.cpp
+    Source/Backend/Renderer/Vulkan/RenderPasses/VK_LightingPass.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

@@ -7,8 +7,6 @@
 #include "vulkan/vulkan.h"
 
 #include <memory>
-#include <thread>
-#include <unordered_map>
 
 namespace Rigel
 {
@@ -69,7 +67,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD inline VK_StagingManager& GetStagingManager() const { return *m_StagingManager; }
         NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
-        void OnRecreateSwapchain();
+        void OnWindowResize();
 
         ErrorCode SetupPipelines();
 

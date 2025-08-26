@@ -200,7 +200,7 @@ namespace Rigel::Backend::Vulkan
         vkUpdateDescriptorSets(m_Device->Get(), 1, &write, 0, nullptr);
     }
 
-    void VK_Renderer::OnRecreateSwapchain()
+    void VK_Renderer::OnWindowResize()
     {
         GetWindowManager()->WaitForFocus();
         m_Device->WaitIdle();
@@ -222,7 +222,7 @@ namespace Rigel::Backend::Vulkan
         m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
         m_GeometryPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
 
-        const VkDescriptorSet sets[] = {
+        const std::array descriptorSets = {
             m_BindlessManager->GetDescriptorSet(),
             m_GeometryPassDescriptorSet
         };
@@ -231,8 +231,8 @@ namespace Rigel::Backend::Vulkan
             cmdBuff,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             m_GeometryPassPipeline->GetLayout(),
-            0, 2,
-            sets,
+            0, descriptorSets.size(),
+            descriptorSets.data(),
             0, nullptr
         );
 
@@ -252,17 +252,17 @@ namespace Rigel::Backend::Vulkan
                 int32_t vertexOffset = 0;
                 for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
                 {
-                    const auto meshModelMat = modelTransform * node->Transform;
-                    const auto meshMVP = sceneRenderInfo->ProjView * meshModelMat;
-                    const auto meshNormalMat = glm::mat3(glm::transpose(glm::inverse(meshModelMat)));
+                    const auto modelMat = modelTransform * node->Transform;
+                    const auto normalMat = glm::mat3(glm::transpose(glm::inverse(modelMat)));
+                    const auto MVP = sceneRenderInfo->ProjView * modelMat;
 
                     for (const auto& mesh : node->Meshes)
                     {
                         m_Meshes[meshIndex] = MeshData{
                             .MaterialIndex = mesh.Material->GetBindlessIndex(),
-                            .MVP = meshMVP,
-                            .Model = meshModelMat,
-                            .Normal = meshNormalMat,
+                            .MVP = MVP,
+                            .Model = modelMat,
+                            .Normal = normalMat,
                         };
 
                         vkCmdPushConstants(
@@ -363,7 +363,7 @@ namespace Rigel::Backend::Vulkan
         if (GetWindowManager()->GetWindowResizeFlag())
         {
             GetWindowManager()->ResetWindowResizeFlag();
-            OnRecreateSwapchain();
+            OnWindowResize();
             return;
         }
 
