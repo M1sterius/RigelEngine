@@ -22,10 +22,10 @@ namespace Rigel
             HandleValidator::RemoveHandle<HandleType::AssetHandle>(this->GetID());
         }
 
-        NODISCARD inline bool IsOK() const { return IsLoadFinished() && IsInitialized(); }
-        NODISCARD inline bool IsInitialized() const { return m_Initialized; }
+        NODISCARD bool IsOK() const { return IsLoadFinished() && IsInitialized(); }
+        NODISCARD bool IsInitialized() const { return m_Initialized; }
 
-        NODISCARD inline bool IsLoadFinished() const
+        NODISCARD bool IsLoadFinished() const
         {
             std::unique_lock lock(m_CvMutex);
             return m_LoadFinished;
@@ -41,7 +41,7 @@ namespace Rigel
             });
         }
 
-        NODISCARD inline std::filesystem::path GetPath() const { return m_Path; }
+        NODISCARD std::filesystem::path GetPath() const { return m_Path; }
     protected:
         RigelAsset(std::filesystem::path path, const uid_t id) noexcept
             : RigelObject(id), m_Path(std::move(path))

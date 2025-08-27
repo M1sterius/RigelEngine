@@ -23,7 +23,7 @@ namespace Rigel::Backend::Vulkan
         VK_CmdBuffer(const VK_CmdBuffer&) = delete;
         VK_CmdBuffer operator = (const VK_CmdBuffer&) = delete;
 
-        NODISCARD inline VkCommandBuffer Get() const { return m_CmdBuffer; }
+        NODISCARD VkCommandBuffer Get() const { return m_CmdBuffer; }
 
         void BeginRecording(VkCommandBufferUsageFlags flags) const;
         void EndRecording() const;

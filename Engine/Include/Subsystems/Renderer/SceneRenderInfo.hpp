@@ -19,7 +19,7 @@ namespace Rigel::Backend
         std::vector<AssetHandle<Model>> Models;
         std::vector<glm::mat4> Transforms;
 
-        inline void Reset()
+        void Reset()
         {
             CameraPresent = false;
             ProjView = glm::identity<glm::mat4>();

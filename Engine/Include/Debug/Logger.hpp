@@ -28,7 +28,7 @@ namespace Rigel
     class Logger
     {
     public:
-        inline static Logger& Get()
+        static Logger& Get()
         {
             static auto instance = Logger();
             return instance;
@@ -37,7 +37,7 @@ namespace Rigel
         void Log(const std::string& log, const LogType type) const;
 
         void ChangeLogsVisibilityMask(const LogType type, const bool visibility);
-        NODISCARD inline uint8_t GetVisibilityMask() const { return m_VisibilityMask; }
+        NODISCARD uint8_t GetVisibilityMask() const { return m_VisibilityMask; }
     private:
         Logger();
         ~Logger();

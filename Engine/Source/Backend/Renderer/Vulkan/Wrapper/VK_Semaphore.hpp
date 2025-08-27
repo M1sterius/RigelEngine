@@ -16,7 +16,7 @@ namespace Rigel::Backend::Vulkan
         VK_Semaphore(const VK_Semaphore&) = delete;
         VK_Semaphore operator = (const VK_Semaphore&) = delete;
 
-        NODISCARD inline VkSemaphore Get() const { return m_Semaphore; }
+        NODISCARD VkSemaphore Get() const { return m_Semaphore; }
     private:
         VK_Device& m_Device;
         VkSemaphore m_Semaphore = VK_NULL_HANDLE;

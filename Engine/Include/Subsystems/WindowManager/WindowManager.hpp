@@ -35,14 +35,14 @@ namespace Rigel
             std::vector<MonitorVideoModInfo> AvailableModes = {};
         };
     public:
-        NODISCARD inline glm::uvec2 GetWindowSize() const { return m_WindowSize; }
+        NODISCARD glm::uvec2 GetWindowSize() const { return m_WindowSize; }
         void SetVsyncState(const bool state);
 
         void SetDisplayMode(const DisplayMode mode);
-        NODISCARD inline DisplayMode GetDisplayMode() const { return m_CurrentDisplayMode; }
+        NODISCARD DisplayMode GetDisplayMode() const { return m_CurrentDisplayMode; }
 
         void SetCursorState(const CursorState state);
-        NODISCARD inline CursorState GetCursorState() const { return m_CurrentCursorState; }
+        NODISCARD CursorState GetCursorState() const { return m_CurrentCursorState; }
     INTERNAL:
         WindowManager() = default;
         ~WindowManager() override = default;
@@ -53,13 +53,12 @@ namespace Rigel
         void PollGLFWEvents() const;
         void WaitForFocus() const;
 
-        NODISCARD inline GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
+        NODISCARD GLFWwindow* GetGLFWWindowPtr() const { return m_GLFWWindow; }
         NODISCARD bool WindowShouldClose() const;
 
         NODISCARD bool IsVsyncEnabled() const { return m_VsyncEnabled; }
 
-        NODISCARD inline bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }
-        inline void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
+        NODISCARD bool GetWindowResizeFlag() const { return m_WindowResizeFlag; }void ResetWindowResizeFlag() { m_WindowResizeFlag = false; }
     private:
         NODISCARD ErrorCode EnumerateMonitorInfo();
 

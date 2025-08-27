@@ -32,9 +32,9 @@ namespace Rigel
          */
         NODISCARD const std::vector<std::thread::id>& GetThreadsIDs() const;
 
-        NODISCARD inline size_t GetSize() const { return m_WorkerThreads.size(); }
+        NODISCARD size_t GetSize() const { return m_WorkerThreads.size(); }
         NODISCARD size_t GetQueueSize() const;
-        NODISCARD inline size_t GetActiveTasksCount() const { return m_ActiveTasks; }
+        NODISCARD size_t GetActiveTasksCount() const { return m_ActiveTasks; }
 
         /**
          * Waits for all scheduled and active tasks to complete

@@ -324,7 +324,7 @@ namespace Rigel::Backend::Vulkan
     {
         // Checks if all minimal requirements are satisfied by a device
 
-        const auto versionSupported = device.Properties.apiVersion > VK_Config::MinimalRequiredAPIVersion;
+        const auto versionSupported = device.Properties.apiVersion >= VK_Config::MinimalRequiredAPIVersion;
         const auto indices = FindQueueFamilies(device.PhysicalDevice, surface);
         const auto areExtensionsSupported = CheckPhysicalDeviceExtensionsSupport(device, VK_Config::RequiredPhysicalDeviceExtensions);
         const auto swapchainSupportDetails = QuerySwapchainSupportDetails(device.PhysicalDevice, surface);

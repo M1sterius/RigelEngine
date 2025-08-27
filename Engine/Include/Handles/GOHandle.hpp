@@ -18,7 +18,7 @@ namespace Rigel
         GOHandle() : RigelHandle(nullptr, NULL_ID) { }
         GOHandle(GameObject* ptr, const uid_t id);
 
-        NODISCARD inline static GOHandle Null()
+        NODISCARD static GOHandle Null()
         {
             return {nullptr, NULL_ID};
         }

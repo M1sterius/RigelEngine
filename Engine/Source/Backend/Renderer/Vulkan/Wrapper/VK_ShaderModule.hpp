@@ -22,8 +22,8 @@ namespace Rigel::Backend::Vulkan
 
         void SetStage(const ShaderStage stage);
 
-        NODISCARD inline VkShaderModule Get() const { return m_ShaderModule; }
-        NODISCARD inline VkPipelineShaderStageCreateInfo GetStageInfo() const { return m_ShaderStageInfo; }
+        NODISCARD VkShaderModule Get() const { return m_ShaderModule; }
+        NODISCARD VkPipelineShaderStageCreateInfo GetStageInfo() const { return m_ShaderStageInfo; }
     private:
         VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
         VkPipelineShaderStageCreateInfo m_ShaderStageInfo;

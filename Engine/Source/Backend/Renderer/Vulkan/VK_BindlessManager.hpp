@@ -43,8 +43,8 @@ namespace Rigel::Backend::Vulkan
         VK_BindlessManager(const VK_BindlessManager&) = delete;
         VK_BindlessManager operator = (const VK_BindlessManager&) = delete;
 
-        NODISCARD inline VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
-        NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+        NODISCARD VkDescriptorSet GetDescriptorSet() const { return m_DescriptorSet; }
+        NODISCARD VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);

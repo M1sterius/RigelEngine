@@ -28,13 +28,13 @@ namespace Rigel::Backend::Vulkan
         VK_GBuffer(const VK_GBuffer&) = delete;
         VK_GBuffer operator = (const VK_GBuffer&) = delete;
 
-        void Setup(const glm::uvec2 size);
+        void Recreate(const glm::uvec2 size);
 
         void CmdTransitionToRender(VkCommandBuffer commandBuffer);
         void CmdTransitionToSample(VkCommandBuffer commandBuffer);
 
-        NODISCARD inline VkRenderingInfo* GetRenderingInfo() { return &m_RenderingInfo; }
-        NODISCARD inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+        NODISCARD VkRenderingInfo* GetRenderingInfo() { return &m_RenderingInfo; }
+        NODISCARD VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 
         void CmdBindSampleDescriptorSet(VkCommandBuffer cmdBuff, VkPipelineLayout pipelineLayout);
     private:

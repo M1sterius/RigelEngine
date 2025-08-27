@@ -29,7 +29,7 @@ namespace Rigel::Backend::Vulkan
         Vertex3p2t3n(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec3& normal)
             : Position(position), TexCoords(texCoords), Normal(normal) { }
 
-        NODISCARD inline static VkVertexInputBindingDescription GetBindingDescription()
+        NODISCARD static VkVertexInputBindingDescription GetBindingDescription()
         {
             /*
              * Apparently it specifies how many vertex buffers will be used inside the shader
@@ -45,7 +45,7 @@ namespace Rigel::Backend::Vulkan
             return bindingDescription;
         }
 
-        NODISCARD inline static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
+        NODISCARD static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
         {
             std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions {};
 
@@ -80,7 +80,7 @@ namespace Rigel::Backend::Vulkan
         Vertex3p2t(const glm::vec3 pos, const glm::vec2 texCoords)
             : Position(pos), TexCoords(texCoords) { }
 
-        NODISCARD inline static VkVertexInputBindingDescription GetBindingDescription()
+        NODISCARD static VkVertexInputBindingDescription GetBindingDescription()
         {
             /*
              * Apparently it specifies how many vertex buffers will be used inside the shader
@@ -96,7 +96,7 @@ namespace Rigel::Backend::Vulkan
             return bindingDescription;
         }
 
-        NODISCARD inline static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+        NODISCARD static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
         {
             std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
 

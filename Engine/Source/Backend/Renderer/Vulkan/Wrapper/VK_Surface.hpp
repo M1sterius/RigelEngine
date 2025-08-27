@@ -14,7 +14,7 @@ namespace Rigel::Backend::Vulkan
         VK_Surface(const VK_Surface&) = delete;
         VK_Surface operator = (const VK_Surface) = delete;
 
-        NODISCARD inline VkSurfaceKHR Get() const { return m_Surface; }
+        NODISCARD VkSurfaceKHR Get() const { return m_Surface; }
     private:
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkInstance m_Instance;

@@ -56,7 +56,7 @@ namespace Rigel
 
         void UnloadCurrentScene();
     private:
-        NODISCARD inline uid_t GetNextSceneID() { return m_NextSceneID++; }
+        NODISCARD uid_t GetNextSceneID() { return m_NextSceneID++; }
 
         uid_t m_NextSceneID = 1;
         std::unordered_map<uid_t, std::unique_ptr<Scene>> m_Scenes;

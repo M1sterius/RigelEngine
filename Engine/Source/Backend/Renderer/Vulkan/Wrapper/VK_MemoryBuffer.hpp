@@ -27,8 +27,8 @@ namespace Rigel::Backend::Vulkan
         VK_MemoryBuffer(const VK_MemoryBuffer&) = delete;
         VK_MemoryBuffer operator = (const VK_MemoryBuffer) = delete;
 
-        NODISCARD inline VkBuffer Get() const { return m_Buffer; }
-        NODISCARD inline VkDeviceSize GetSize() const { return m_Size; }
+        NODISCARD VkBuffer Get() const { return m_Buffer; }
+        NODISCARD VkDeviceSize GetSize() const { return m_Size; }
 
         // WARNING: All data in the buffer will be lost after resizing!
         void Resize(const VkDeviceSize newSize);

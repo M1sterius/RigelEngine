@@ -7,6 +7,8 @@
 #include "VK_StagingManager.hpp"
 #include "VulkanWrapper.hpp"
 #include "VulkanUtility.hpp"
+#include "RenderPasses/VK_GeometryPass.hpp"
+#include "RenderPasses/VK_LightingPass.hpp"
 #include "MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
@@ -39,19 +41,19 @@ namespace Rigel::Backend::Vulkan
         m_StagingManager = std::make_unique<VK_StagingManager>(*m_Device);
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
+        m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer);
+
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
         for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_RenderFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-            m_LightingPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
 
             m_GeometryPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
+            m_LightingPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
         }
-
-        SetupGeometryPassDescriptorSet();
 
         return ErrorCode::OK;
     }
@@ -83,37 +85,6 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::SetupPipelines()
     {
-        // Geometry pass
-        const std::vector descriptorSetLayouts = {
-            m_BindlessManager->GetDescriptorSetLayout(),
-            m_GeometryPassDescriptorSetLayout
-        };
-
-        VkPushConstantRange geometryPassPC = {};
-        geometryPassPC.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        geometryPassPC.offset = 0;
-        geometryPassPC.size = sizeof(uint32_t);
-
-        auto geometryPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
-        geometryPassPipelineLayout.pushConstantRangeCount = 1;
-        geometryPassPipelineLayout.pPushConstantRanges = &geometryPassPC;
-        geometryPassPipelineLayout.setLayoutCount = descriptorSetLayouts.size();
-        geometryPassPipelineLayout.pSetLayouts = descriptorSetLayouts.data();
-
-        auto geometryPassShaderMetadata = ShaderMetadata();
-        geometryPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/GeometryPass.vert.spv";
-        geometryPassShaderMetadata.Paths[1] = "Assets/Engine/Shaders/GeometryPass.frag.spv";
-        geometryPassShaderMetadata.AddVariant("Main", 0, 1);
-
-        auto geometryPassShader = GetAssetManager()->Load<Shader>("GeometryPassShader", &geometryPassShaderMetadata, true);
-
-        m_GeometryPassPipeline = VK_GraphicsPipeline::CreateGeometryPassPipeline(
-            *m_Device,
-            geometryPassPipelineLayout,
-            geometryPassShader->GetVariant("Main")
-        );
-        // --------------
-
         // Lighting pass
         const auto gBufferSetLayout = m_GBuffer->GetDescriptorSetLayout();
 
@@ -147,59 +118,6 @@ namespace Rigel::Backend::Vulkan
         return ErrorCode::OK;
     }
 
-    void VK_Renderer::SetupGeometryPassDescriptorSet()
-    {
-        std::vector<VkDescriptorPoolSize> poolSizes(1);
-        poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        poolSizes[0].descriptorCount = 1;
-
-        m_GeometryPassDescriptorPool = std::make_unique<VK_DescriptorPool>(*m_Device, poolSizes, 1, 0);
-
-        std::vector<VkDescriptorSetLayoutBinding> bindings(1);
-
-        bindings[0].binding = 0;
-        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        bindings[0].descriptorCount = 1;
-        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
-        setLayoutInfo.bindingCount = bindings.size();
-        setLayoutInfo.pBindings = bindings.data();
-
-        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device->Get(), &setLayoutInfo, nullptr, &m_GeometryPassDescriptorSetLayout), "Failed to create descriptor set layout!");
-
-        m_GeometryPassDescriptorSet = m_GeometryPassDescriptorPool->Allocate(m_GeometryPassDescriptorSetLayout);
-
-
-        const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
-        for (uint32_t i = 0; i < framesInFlight; ++i)
-        {
-            m_MeshBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(*m_Device, sizeof(MeshData) * m_Meshes.size(),
-                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
-        }
-    }
-
-    void VK_Renderer::UpdateMeshData(const uint32_t frameIndex)
-    {
-        const auto& buffer = m_MeshBuffers[frameIndex];
-        buffer->UploadData(0, sizeof(MeshData) * m_Meshes.size(), m_Meshes.data());
-
-        VkDescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = buffer->Get();
-        bufferInfo.offset = 0;
-        bufferInfo.range = VK_WHOLE_SIZE;
-
-        auto write = MakeInfo<VkWriteDescriptorSet>();
-        write.dstSet = m_GeometryPassDescriptorSet;
-        write.dstBinding = 0;
-        write.dstArrayElement = 0;
-        write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        write.descriptorCount = 1;
-        write.pBufferInfo = &bufferInfo;
-
-        vkUpdateDescriptorSets(m_Device->Get(), 1, &write, 0, nullptr);
-    }
-
     void VK_Renderer::OnWindowResize()
     {
         GetWindowManager()->WaitForFocus();
@@ -208,89 +126,8 @@ namespace Rigel::Backend::Vulkan
         const auto windowSize = GetWindowManager()->GetWindowSize();
         const auto vsync = GetWindowManager()->IsVsyncEnabled();
 
-        m_Swapchain->Setup(windowSize, vsync);
-        m_GBuffer->Setup(windowSize);
-    }
-
-    void VK_Renderer::RecordGeometryPass(VkCommandBuffer cmdBuff)
-    {
-        m_GBuffer->CmdTransitionToRender(cmdBuff);
-
-        vkCmdBeginRendering(cmdBuff, m_GBuffer->GetRenderingInfo());
-
-        m_GeometryPassPipeline->CmdBind(cmdBuff);
-        m_GeometryPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
-        m_GeometryPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
-
-        const std::array descriptorSets = {
-            m_BindlessManager->GetDescriptorSet(),
-            m_GeometryPassDescriptorSet
-        };
-
-        vkCmdBindDescriptorSets(
-            cmdBuff,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            m_GeometryPassPipeline->GetLayout(),
-            0, descriptorSets.size(),
-            descriptorSets.data(),
-            0, nullptr
-        );
-
-        if (const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo(); sceneRenderInfo->CameraPresent)
-        {
-            // const auto sceneDataPtr = m_BindlessManager->GetSceneDataPtr();
-            uint32_t meshIndex = 0;
-
-            for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
-            {
-                const auto& model = sceneRenderInfo->Models[i];
-                const auto& modelTransform = sceneRenderInfo->Transforms[i];
-
-                model->GetVertexBuffer()->CmdBind(cmdBuff);
-                model->GetIndexBuffer()->CmdBind(cmdBuff);
-
-                int32_t vertexOffset = 0;
-                for (auto node = model->GetNodeIterator(); node.Valid(); ++node)
-                {
-                    const auto modelMat = modelTransform * node->Transform;
-                    const auto normalMat = glm::mat3(glm::transpose(glm::inverse(modelMat)));
-                    const auto MVP = sceneRenderInfo->ProjView * modelMat;
-
-                    for (const auto& mesh : node->Meshes)
-                    {
-                        m_Meshes[meshIndex] = MeshData{
-                            .MaterialIndex = mesh.Material->GetBindlessIndex(),
-                            .MVP = MVP,
-                            .Model = modelMat,
-                            .Normal = normalMat,
-                        };
-
-                        vkCmdPushConstants(
-                            cmdBuff,
-                            m_GeometryPassPipeline->GetLayout(),
-                            VK_SHADER_STAGE_VERTEX_BIT,
-                            0,
-                            sizeof(uint32_t),
-                            &meshIndex
-                        );
-
-                        vkCmdDrawIndexed(
-                            cmdBuff,
-                            mesh.IndexCount,
-                            1,
-                            mesh.FirstIndex,
-                            vertexOffset,
-                            0
-                        );
-
-                        vertexOffset = mesh.FirstVertex + mesh.VertexCount;
-                        ++meshIndex;
-                    }
-                }
-            }
-        }
-
-        vkCmdEndRendering(cmdBuff);
+        m_Swapchain->Recreate(windowSize, vsync);
+        m_GBuffer->Recreate(windowSize);
     }
 
     void VK_Renderer::RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage)
@@ -372,26 +209,21 @@ namespace Rigel::Backend::Vulkan
 
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
 
-        const auto& geometryPassCommandBuffer = m_GeometryPassCommandBuffers[frameIndex];
+        m_GeometryPass->SetMeshData(GetRenderer()->GetSceneRenderInfo(), frameIndex);
+        const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
+
         const auto& lightingPassCommandBuffer = m_LightingPassCommandBuffers[frameIndex];
 
-        geometryPassCommandBuffer->Reset(0);
         lightingPassCommandBuffer->Reset(0);
-
-        geometryPassCommandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        RecordGeometryPass(geometryPassCommandBuffer->Get());
-        geometryPassCommandBuffer->EndRecording();
 
         lightingPassCommandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         RecordLightingPass(lightingPassCommandBuffer->Get(), swapchainImage);
         lightingPassCommandBuffer->EndRecording();
 
-        UpdateMeshData(frameIndex); // this line must stay after geometry pass recording
-
         const auto& fence = m_InFlightFences[frameIndex];
         fence->Reset();
 
-        const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer->Get()};
+        const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer};
         const VkSemaphore geometryPassSignalSemaphores[] = {m_GeometryPassFinishedSemaphores[frameIndex]->Get()};
 
         auto geometryPassSubmitInfo = MakeInfo<VkSubmitInfo>();

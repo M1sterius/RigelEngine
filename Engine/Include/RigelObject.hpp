@@ -14,9 +14,9 @@ namespace Rigel
         RigelObject(const RigelObject&) = delete;
         RigelObject operator = (const RigelObject&) = delete;
 
-        NODISCARD inline uid_t GetID() const { return m_ID; }
+        NODISCARD uid_t GetID() const { return m_ID; }
     INTERNAL:
-        inline void OverrideID(const uid_t id) { m_ID = id; }
+        void OverrideID(const uid_t id) { m_ID = id; }
     protected:
         explicit RigelObject(const uid_t id) : m_ID(id) { }
         virtual ~RigelObject() = default;

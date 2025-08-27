@@ -29,10 +29,10 @@ namespace Rigel
 
         void Render();
 
-        NODISCARD inline Backend::Vulkan::VK_Renderer& GetImpl() const { return *m_Impl; }
-        NODISCARD inline Backend::Vulkan::VK_ImGUI_Renderer& GetImGuiImpl() const { return *m_ImGuiImpl; }
+        NODISCARD Backend::Vulkan::VK_Renderer& GetImpl() const { return *m_Impl; }
+        NODISCARD Backend::Vulkan::VK_ImGUI_Renderer& GetImGuiImpl() const { return *m_ImGuiImpl; }
 
-        NODISCARD inline Ref<Backend::SceneRenderInfo> GetSceneRenderInfo() { return &m_SceneRenderInfo; }
+        NODISCARD Ref<Backend::SceneRenderInfo> GetSceneRenderInfo() { return &m_SceneRenderInfo; }
 
         // Blocks the calling thread until all rendering operations are done
         void WaitForFinish() const;

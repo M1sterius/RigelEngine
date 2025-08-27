@@ -27,8 +27,8 @@ namespace Rigel::Backend::Vulkan
         VK_GraphicsPipeline(const VK_GraphicsPipeline&) = delete;
         VK_GraphicsPipeline operator = (const VK_GraphicsPipeline&) = delete;
 
-        NODISCARD inline VkPipeline Get() const { return m_GraphicsPipeline; }
-        NODISCARD inline VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
+        NODISCARD VkPipeline Get() const { return m_GraphicsPipeline; }
+        NODISCARD VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
 
         void CmdBind(VkCommandBuffer commandBuffer) const;
         void CmdSetViewport(VkCommandBuffer commandBuffer, const glm::vec2 pos, const glm::uvec2 size) const;

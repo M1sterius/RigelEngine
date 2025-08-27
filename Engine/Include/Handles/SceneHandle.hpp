@@ -18,7 +18,7 @@ namespace Rigel
         SceneHandle() : RigelHandle(nullptr, NULL_ID) { }
         SceneHandle(Scene* ptr, const uid_t id);
 
-        NODISCARD inline static SceneHandle Null()
+        NODISCARD static SceneHandle Null()
         {
             return {nullptr, NULL_ID};
         }

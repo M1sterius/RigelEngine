@@ -44,13 +44,13 @@ namespace Rigel::Backend::Vulkan
         void CopyFromBuffer(const VK_MemoryBuffer& buffer) const;
         void TransitionLayout(const VkImageLayout newLayout, const int32_t targetMipLevel);
 
-        NODISCARD inline glm::uvec2 GetSize() const { return m_Size; }
+        NODISCARD glm::uvec2 GetSize() const { return m_Size; }
 
-        NODISCARD inline VkImage Get() const { return m_Image; }
-        NODISCARD inline VkImageView GetView() const { return m_ImageView; }
-        NODISCARD inline VkFormat GetFormat() const { return m_Format; }
-        NODISCARD inline VkImageAspectFlags GetAspectFlags() const { return m_AspectFlags; }
-        NODISCARD inline uint32_t GetMipLevelCount() const { return m_MipLevels; }
+        NODISCARD VkImage Get() const { return m_Image; }
+        NODISCARD VkImageView GetView() const { return m_ImageView; }
+        NODISCARD VkFormat GetFormat() const { return m_Format; }
+        NODISCARD VkImageAspectFlags GetAspectFlags() const { return m_AspectFlags; }
+        NODISCARD uint32_t GetMipLevelCount() const { return m_MipLevels; }
 
         VK_Image(const VK_Image&) = delete;
         VK_Image operator = (const VK_Image&) = delete;

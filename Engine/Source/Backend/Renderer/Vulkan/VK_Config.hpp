@@ -17,7 +17,7 @@ namespace Rigel::Backend::Vulkan
         static constexpr bool EnableValidationLayers = false;
     #endif
 
-        static constexpr auto MinimalRequiredAPIVersion = VK_API_VERSION_1_4;
+        static constexpr auto MinimalRequiredAPIVersion = VK_API_VERSION_1_3;
 
         inline static const std::vector<const char*> ValidationLayers = {
             "VK_LAYER_KHRONOS_validation"

@@ -29,20 +29,19 @@ namespace Rigel
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
-        NODISCARD inline std::string GetName() const { return m_Name; }
-        inline void SetName(std::string name) { m_Name = std::move(name); }
+        NODISCARD std::string GetName() const { return m_Name; }void SetName(std::string name) { m_Name = std::move(name); }
 
         void SetActive(const bool active);
         NODISCARD bool IsActive() const { return m_Active; }
 
         // Returns handle to the scene this object is attached to
-        NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
+        NODISCARD SceneHandle GetScene() const { return m_Scene; }
 
         /**
          * Returns Transform component attached to the GameObject
          * @return Rigel::ComponentHandle<Rigel::Transform> to Transform attached to the game object
          */
-        NODISCARD inline ComponentHandle<Transform> GetTransform() const
+        NODISCARD ComponentHandle<Transform> GetTransform() const
         {
             if (!HasComponent<Transform>())
             {

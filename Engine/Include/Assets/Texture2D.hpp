@@ -52,7 +52,7 @@ namespace Rigel
             BorderColor BorderColor = BorderColor::OpaqueBlack;
             bool EnableMips = true;
 
-            NODISCARD inline bool operator == (const SamplerProperties& other) const
+            NODISCARD bool operator == (const SamplerProperties& other) const
             {
                 return MinFilter == other.MinFilter &&
                        MagFilter == other.MagFilter &&
@@ -61,7 +61,7 @@ namespace Rigel
                        BorderColor == other.BorderColor;
             }
 
-            NODISCARD inline bool operator != (const SamplerProperties& other) const
+            NODISCARD bool operator != (const SamplerProperties& other) const
             {
                 return !(*this == other);
             }
@@ -72,7 +72,7 @@ namespace Rigel
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD const SamplerProperties& GetSamplerProperties() const;
     INTERNAL:
-        NODISCARD inline Ref<Backend::Vulkan::VK_Texture> GetImpl() const
+        NODISCARD Ref<Backend::Vulkan::VK_Texture> GetImpl() const
         {
             this->WaitReady();
             return m_Impl.get();

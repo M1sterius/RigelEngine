@@ -20,7 +20,7 @@ namespace Rigel::Backend::HandleValidation
     };
 
     template<HandleType hT>
-    inline static constexpr bool IS_HANDLE_TYPE_VALID()
+    static constexpr bool IS_HANDLE_TYPE_VALID()
     {
         constexpr auto val = static_cast<uint32_t>(hT);
         return val > static_cast<uint32_t>(HandleType::Unknown) &&

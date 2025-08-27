@@ -39,17 +39,17 @@ namespace Rigel
             return *m_Ptr;
         }
 
-        [[nodiscard]] inline bool operator == (const Ref other) const
+        [[nodiscard]] bool operator == (const Ref other) const
         {
             return this->m_Ptr == other.m_Ptr;
         }
 
-        [[nodiscard]] inline bool operator != (const Ref other) const
+        [[nodiscard]] bool operator != (const Ref other) const
         {
             return this->m_Ptr != other.m_Ptr;
         }
 
-        [[nodiscard]] inline explicit operator bool() const
+        [[nodiscard]] explicit operator bool() const
         {
             return m_Ptr != nullptr;
         }

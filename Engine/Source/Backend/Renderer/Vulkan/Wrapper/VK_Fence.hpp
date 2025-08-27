@@ -18,7 +18,7 @@ namespace Rigel::Backend::Vulkan
         VK_Fence(const VK_Fence&) = delete;
         VK_Fence operator = (const VK_Fence&) = delete;
 
-        NODISCARD inline VkFence Get() const { return m_Fence; }
+        NODISCARD VkFence Get() const { return m_Fence; }
 
         void Reset() const;
         void Wait(const uint64_t timeout = std::numeric_limits<uint64_t>::max()) const;

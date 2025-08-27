@@ -20,7 +20,7 @@ namespace Rigel::Backend::Vulkan
 
         m_DescriptorSet = m_DescriptorPool->Allocate(m_DescriptorSetLayout);
 
-        Setup(m_Size);
+        Recreate(m_Size);
     }
 
     VK_GBuffer::~VK_GBuffer()
@@ -29,7 +29,7 @@ namespace Rigel::Backend::Vulkan
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }
 
-    void VK_GBuffer::Setup(const glm::uvec2 size)
+    void VK_GBuffer::Recreate(const glm::uvec2 size)
     {
         m_Size = size;
 

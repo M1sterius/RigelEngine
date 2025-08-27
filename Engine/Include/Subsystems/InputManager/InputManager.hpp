@@ -36,11 +36,11 @@ namespace Rigel
 
         void ResetInputState();
     private:
-        NODISCARD inline bool InKeys(const KeyCode key) const { return m_KeyboardKeys.find(key) != m_KeyboardKeys.end(); }
-        NODISCARD inline bool InOldKeys(const KeyCode key) const { return m_OldKeyboardKeys.find(key) != m_OldKeyboardKeys.end(); }
+        NODISCARD bool InKeys(const KeyCode key) const { return m_KeyboardKeys.find(key) != m_KeyboardKeys.end(); }
+        NODISCARD bool InOldKeys(const KeyCode key) const { return m_OldKeyboardKeys.find(key) != m_OldKeyboardKeys.end(); }
 
-        NODISCARD inline bool InMouseButtons(const MouseButton button) const { return m_MouseButtons.find(button) != m_MouseButtons.end(); }
-        NODISCARD inline bool InOldMouseButtons(const MouseButton button) const { return m_OldMouseButtons.find(button) != m_OldMouseButtons.end(); }
+        NODISCARD bool InMouseButtons(const MouseButton button) const { return m_MouseButtons.find(button) != m_MouseButtons.end(); }
+        NODISCARD bool InOldMouseButtons(const MouseButton button) const { return m_OldMouseButtons.find(button) != m_OldMouseButtons.end(); }
 
         std::unordered_set<KeyCode> m_KeyboardKeys;
         std::unordered_set<KeyCode> m_OldKeyboardKeys;

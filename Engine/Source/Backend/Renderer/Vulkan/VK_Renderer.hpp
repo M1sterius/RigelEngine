@@ -37,6 +37,7 @@ namespace Rigel::Backend::Vulkan
     class VK_Image;
     class VK_GBuffer;
     class VK_StagingManager;
+    class VK_GeometryPass;
 
     class VK_ImGUI_Renderer;
     class VK_BindlessManager;
@@ -61,20 +62,16 @@ namespace Rigel::Backend::Vulkan
         void WaitForFinish() const;
         void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
-        NODISCARD inline VK_Device& GetDevice() const { return *m_Device; }
-        NODISCARD inline VK_Instance& GetInstance() const { return *m_Instance; }
-        NODISCARD inline VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
-        NODISCARD inline VK_StagingManager& GetStagingManager() const { return *m_StagingManager; }
-        NODISCARD inline VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
+        NODISCARD VK_Device& GetDevice() const { return *m_Device; }
+        NODISCARD VK_Instance& GetInstance() const { return *m_Instance; }
+        NODISCARD VK_Swapchain& GetSwapchain() const { return *m_Swapchain; }
+        NODISCARD VK_StagingManager& GetStagingManager() const { return *m_StagingManager; }
+        NODISCARD VK_BindlessManager& GetBindlessManager() const { return *m_BindlessManager; }
     private:
         void OnWindowResize();
 
         ErrorCode SetupPipelines();
 
-        void SetupGeometryPassDescriptorSet();
-        void UpdateMeshData(const uint32_t frameIndex);
-
-        void RecordGeometryPass(VkCommandBuffer cmdBuff);
         void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);
 
         std::unique_ptr<VK_Instance> m_Instance;
@@ -86,21 +83,15 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
         std::unique_ptr<VK_GBuffer> m_GBuffer;
 
+        std::unique_ptr<VK_GeometryPass> m_GeometryPass;
+
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_GeometryPassCommandBuffers;
         std::vector<std::unique_ptr<VK_CmdBuffer>> m_LightingPassCommandBuffers;
         std::vector<std::unique_ptr<VK_Semaphore>> m_GeometryPassFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
 
-        std::unique_ptr<VK_GraphicsPipeline> m_GeometryPassPipeline;
         std::unique_ptr<VK_GraphicsPipeline> m_LightingPassPipeline;
-
-        std::array<MeshData, 1024> m_Meshes;
-        std::vector<std::unique_ptr<VK_MemoryBuffer>> m_MeshBuffers;
-        std::unique_ptr<VK_DescriptorPool> m_GeometryPassDescriptorPool;
-
-        VkDescriptorSetLayout m_GeometryPassDescriptorSetLayout = VK_NULL_HANDLE;
-        VkDescriptorSet m_GeometryPassDescriptorSet = VK_NULL_HANDLE;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

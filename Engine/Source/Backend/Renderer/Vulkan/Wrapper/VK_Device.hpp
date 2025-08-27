@@ -38,7 +38,7 @@ namespace Rigel::Backend::Vulkan
         std::optional<uint32_t> PresentFamily;
         std::optional<uint32_t> TransferFamily;
 
-        NODISCARD inline bool IsComplete() const
+        NODISCARD bool IsComplete() const
         {
             return GraphicsFamily.has_value() && PresentFamily.has_value() && TransferFamily.has_value();
         }
@@ -50,7 +50,7 @@ namespace Rigel::Backend::Vulkan
         std::vector<VkSurfaceFormatKHR> Formats {};
         std::vector<VkPresentModeKHR> PresentModes {};
 
-        NODISCARD inline bool IsSupportAdequate() const
+        NODISCARD bool IsSupportAdequate() const
         {
             return !Formats.empty() && !PresentModes.empty();
         }
@@ -65,7 +65,7 @@ namespace Rigel::Backend::Vulkan
         VK_Device(const VK_Device&) = delete;
         VK_Device operator = (const VK_Device) = delete;
 
-        NODISCARD inline VkDevice Get() const { return m_Device; }
+        NODISCARD VkDevice Get() const { return m_Device; }
 
         // Thread safe way to submit work to a queue, always prefer it to raw vkQueueSubmit
         void SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const;
@@ -73,14 +73,14 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD VK_CmdPool& GetCommandPool(const QueueType queueType) const;
 
-        NODISCARD inline VmaAllocator GetVmaAllocator() const { return m_VmaAllocator; }
-        NODISCARD inline VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
-        NODISCARD inline VkQueue GetPresentQueue() const { return m_PresentQueue; }
-        NODISCARD inline VkQueue GetTransferQueue() const { return m_TransferQueue; }
+        NODISCARD VmaAllocator GetVmaAllocator() const { return m_VmaAllocator; }
+        NODISCARD VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+        NODISCARD VkQueue GetPresentQueue() const { return m_PresentQueue; }
+        NODISCARD VkQueue GetTransferQueue() const { return m_TransferQueue; }
 
-        NODISCARD inline const PhysicalDeviceInfo& GetPhysicalDevice() const { return m_SelectedPhysicalDevice; }
-        NODISCARD inline const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-        NODISCARD inline SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
+        NODISCARD const PhysicalDeviceInfo& GetPhysicalDevice() const { return m_SelectedPhysicalDevice; }
+        NODISCARD const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
+        NODISCARD SwapchainSupportDetails GetSwapchainSupportDetails() const { return QuerySwapchainSupportDetails(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface); }
 
         void WaitIdle() const;
     private:

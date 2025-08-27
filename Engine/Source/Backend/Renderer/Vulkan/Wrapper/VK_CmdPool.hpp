@@ -18,7 +18,7 @@ namespace Rigel::Backend::Vulkan
         VK_CmdPool(const VK_CmdPool&) = delete;
         VK_CmdPool operator = (const VK_CmdPool&) = delete;
 
-        NODISCARD inline VkCommandPool Get() const { return m_CommandPool; }
+        NODISCARD VkCommandPool Get() const { return m_CommandPool; }
 
         NODISCARD VkCommandBuffer Allocate() const;
         void Free(VkCommandBuffer commandBuffer) const;

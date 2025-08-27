@@ -32,8 +32,8 @@ namespace Rigel
         // Returns the type of derived component represented as a string
         NODISCARD const char* GetTypeName() const override = 0;
 
-        NODISCARD inline SceneHandle GetScene() const { return m_Scene; }
-        NODISCARD inline GOHandle GetGameObject() const { return m_GameObject; }
+        NODISCARD SceneHandle GetScene() const { return m_Scene; }
+        NODISCARD GOHandle GetGameObject() const { return m_GameObject; }
 
         void SetActive(const bool active);
         NODISCARD bool IsActive() const { return m_Active; }

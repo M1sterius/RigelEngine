@@ -23,12 +23,12 @@ namespace Rigel
         NODISCARD nlohmann::json Serialize() const override;
         bool Deserialize(const nlohmann::json& json) override;
 
-        NODISCARD inline std::string GetName() const { return m_Name; }
-        inline void SetName(std::string name) { m_Name = std::move(name); }
+        NODISCARD std::string GetName() const { return m_Name; }
+        void SetName(std::string name) { m_Name = std::move(name); }
 
-        NODISCARD inline size_t GetSize() const { return m_GameObjects.size(); }
+        NODISCARD size_t GetSize() const { return m_GameObjects.size(); }
 
-        NODISCARD inline bool IsLoaded() const { return m_Loaded; }
+        NODISCARD bool IsLoaded() const { return m_Loaded; }
 
         GOHandle Instantiate(std::string name = "GameObject");
         void Destroy(const GOHandle& handle);
@@ -39,7 +39,7 @@ namespace Rigel
          * use it unless absolutely necessary. Always prefer regular 'Destroy'!
          * @param handle The GameObject to be destroyed
          */
-        inline void DestroyImmediately(const GOHandle& handle) { DestroyGOImpl(handle.GetID()); }
+        void DestroyImmediately(const GOHandle& handle) { DestroyGOImpl(handle.GetID()); }
 
         /**
          * Searches objects on the scene by given conditional function

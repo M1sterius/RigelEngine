@@ -37,8 +37,7 @@ namespace Rigel
         ElapsedTime& operator=(ElapsedTime&& other) noexcept = default;
 
         ~ElapsedTime() = default;
-
-        inline ElapsedTime operator + (const ElapsedTime& other) const noexcept
+        ElapsedTime operator + (const ElapsedTime& other) const noexcept
         {
             return ElapsedTime(m_Duration + other.m_Duration);
         }
@@ -146,70 +145,70 @@ namespace Rigel
         }
 
         // Conversion methods
-        NODISCARD inline std::chrono::high_resolution_clock::duration DurationRaw() const noexcept
+        NODISCARD std::chrono::high_resolution_clock::duration DurationRaw() const noexcept
         {
             return m_Duration;
         }
 
-        NODISCARD inline float64_t AsSeconds() const noexcept
+        NODISCARD float64_t AsSeconds() const noexcept
         {
             const float64_t seconds = std::chrono::duration<float64_t>(m_Duration).count();
             return seconds;
         }
 
-        NODISCARD inline float32_t AsSecondsF() const noexcept
+        NODISCARD float32_t AsSecondsF() const noexcept
         {
             const float32_t seconds = std::chrono::duration<float32_t>(m_Duration).count();
             return seconds;
         }
 
-        NODISCARD inline uint64_t AsMilliseconds() const noexcept
+        NODISCARD uint64_t AsMilliseconds() const noexcept
         {
             const uint64_t milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(m_Duration).count();
             return milliseconds;
         }
 
-        NODISCARD inline float64_t AsMillisecondsD() const noexcept
+        NODISCARD float64_t AsMillisecondsD() const noexcept
         {
             const float64_t milliseconds = std::chrono::duration<float64_t, std::milli>(m_Duration).count();
             return milliseconds;
         }
 
-        NODISCARD inline float32_t AsMillisecondsF() const noexcept
+        NODISCARD float32_t AsMillisecondsF() const noexcept
         {
             const float32_t milliseconds = std::chrono::duration<float32_t, std::milli>(m_Duration).count();
             return milliseconds;
         }
 
-        NODISCARD inline uint64_t AsMicroseconds() const noexcept
+        NODISCARD uint64_t AsMicroseconds() const noexcept
         {
             const uint64_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>(m_Duration).count();
             return microseconds;
         }
 
-        NODISCARD inline float64_t AsMicrosecondsD() const noexcept
+        NODISCARD float64_t AsMicrosecondsD() const noexcept
         {
             const float64_t microseconds = std::chrono::duration<float64_t, std::micro>(m_Duration).count();
             return microseconds;
         }
 
-        NODISCARD static inline ElapsedTime FromSeconds(float64_t seconds) noexcept
+        NODISCARD static ElapsedTime FromSeconds(float64_t seconds) noexcept
         {
             return ElapsedTime(seconds);
         }
 
-        NODISCARD static inline ElapsedTime FromMilliseconds(uint64_t milliseconds) noexcept
+        NODISCARD static ElapsedTime FromMilliseconds(uint64_t milliseconds) noexcept
         {
             return ElapsedTime(std::chrono::milliseconds(milliseconds));
         }
 
-        NODISCARD static inline ElapsedTime FromMicroseconds(uint64_t microseconds) noexcept
+        NODISCARD static ElapsedTime FromMicroseconds(uint64_t microseconds) noexcept
         {
             return ElapsedTime(std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
                 std::chrono::microseconds(microseconds)));
         }
 
-        NODISCARD static inline ElapsedTime Zero() noexcept
+        NODISCARD static ElapsedTime Zero() noexcept
         {
             return ElapsedTime();
         }
@@ -230,28 +229,24 @@ namespace Rigel
     public:
         Stopwatch() = default;
         ~Stopwatch() = default;
-
-        inline static Stopwatch StartNew()
+        static Stopwatch StartNew()
         {
             auto sw = Stopwatch();
             sw.Start();
             return sw;
         }
-
-        inline void Start()
+        void Start()
         {
             m_Start = std::chrono::high_resolution_clock::now();
             m_Running = true;
         }
-
-        inline ElapsedTime Stop()
+        ElapsedTime Stop()
         {
             m_End = std::chrono::high_resolution_clock::now();
             m_Running = false;
             return ElapsedTime( m_End - m_Start);
         }
-
-        inline ElapsedTime Restart()
+        ElapsedTime Restart()
         {
             m_End = std::chrono::high_resolution_clock::now();
             const auto elapsed = m_End - m_Start;
@@ -260,7 +255,7 @@ namespace Rigel
             return ElapsedTime(elapsed);
         }
 
-        NODISCARD inline ElapsedTime GetElapsed() const
+        NODISCARD ElapsedTime GetElapsed() const
         {
             if (m_Running)
                 return ElapsedTime(std::chrono::high_resolution_clock::now() - m_Start);

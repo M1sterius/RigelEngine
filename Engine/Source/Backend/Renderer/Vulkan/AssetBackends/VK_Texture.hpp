@@ -24,9 +24,9 @@ namespace Rigel::Backend::Vulkan
         ~VK_Texture();
 
         NODISCARD glm::uvec2 GetSize() const;
-        NODISCARD inline VK_Image& GetImage() const { return *m_Image; }
-        NODISCARD inline uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
-        NODISCARD inline const Texture2D::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
+        NODISCARD VK_Image& GetImage() const { return *m_Image; }
+        NODISCARD uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
+        NODISCARD const Texture2D::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
     private:
         void GenerateMipMaps() const;
 
