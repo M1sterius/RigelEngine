@@ -79,8 +79,8 @@ namespace Rigel::Backend::Vulkan
 
         constexpr VkFormat colorAttachmentFormats[] = {
             VK_GBuffer::POSITION_ATTACHMENT_FORMAT,
-            VK_GBuffer::NORMAL_ATTACHMENT_FORMAT,
-            VK_GBuffer::ALBEDO_SPEC_ATTACHMENT_FORMAT
+            VK_GBuffer::NORMAL_ROUGHNESS_ATTACHMENT_FORMAT,
+            VK_GBuffer::ALBEDO_METALLIC_ATTACHMENT_FORMAT
         };
 
         // Dynamic rendering attachments info
@@ -91,8 +91,8 @@ namespace Rigel::Backend::Vulkan
         renderingCreateInfo.stencilAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
 
         // Pipeline vertex input
-        const auto bindingDescription = Vertex3p2t3n::GetBindingDescription();
-        const auto attributeDescription = Vertex3p2t3n::GetAttributeDescriptions();
+        const auto bindingDescription = Vertex3p2t3n3g::GetBindingDescription();
+        const auto attributeDescription = Vertex3p2t3n3g::GetAttributeDescriptions();
 
         auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
         vertexInputInfo.vertexBindingDescriptionCount = 1;

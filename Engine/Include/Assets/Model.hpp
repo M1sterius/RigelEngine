@@ -21,7 +21,7 @@ namespace Rigel
         class VK_VertexBuffer;
         class VK_IndexBuffer;
 
-        struct Vertex3p2t3n;
+        struct Vertex3p2t3n3g;
     }
 
     /**
@@ -99,8 +99,8 @@ namespace Rigel
         ErrorCode Init() override;
 
         void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
-            std::vector<Backend::Vulkan::Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices);
-        Mesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex3p2t3n>& vertices, std::vector<uint32_t>& indices);
+            std::vector<Backend::Vulkan::Vertex3p2t3n3g>& vertices, std::vector<uint32_t>& indices);
+        Mesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex3p2t3n3g>& vertices, std::vector<uint32_t>& indices);
 
         AssetHandle<Material> ProcessMaterial(const aiMaterial* aiMaterial);
 

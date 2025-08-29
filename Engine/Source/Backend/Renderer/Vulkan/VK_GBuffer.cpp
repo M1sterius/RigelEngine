@@ -34,8 +34,8 @@ namespace Rigel::Backend::Vulkan
         m_Size = size;
 
         if (m_Position) m_Position.reset();
-        if (m_Normal) m_Normal.reset();
-        if (m_AlbedoSpec) m_AlbedoSpec.reset();
+        if (m_NormalRoughness) m_NormalRoughness.reset();
+        if (m_AlbedoMetallic) m_AlbedoMetallic.reset();
         if (m_Depth) m_Depth.reset();
 
         // Position attachment (location 0)
@@ -44,15 +44,15 @@ namespace Rigel::Backend::Vulkan
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
-        // Normal attachment (location 1)
-        m_Normal = std::make_unique<VK_Image>(m_Device, m_Size,
-            NORMAL_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
+        // Normal-roughness attachment (location 1)
+        m_NormalRoughness = std::make_unique<VK_Image>(m_Device, m_Size,
+            NORMAL_ROUGHNESS_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
         // Albedo-spec attachment (location 2)
-        m_AlbedoSpec = std::make_unique<VK_Image>(m_Device, m_Size,
-            ALBEDO_SPEC_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
+        m_AlbedoMetallic = std::make_unique<VK_Image>(m_Device, m_Size,
+            ALBEDO_METALLIC_ATTACHMENT_FORMAT, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
 
@@ -92,10 +92,10 @@ namespace Rigel::Backend::Vulkan
         VK_Image::CmdTransitionLayout(commandBuffer, m_Position->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 
-        VK_Image::CmdTransitionLayout(commandBuffer, m_Normal->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+        VK_Image::CmdTransitionLayout(commandBuffer, m_NormalRoughness->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
 
-        VK_Image::CmdTransitionLayout(commandBuffer, m_AlbedoSpec->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+        VK_Image::CmdTransitionLayout(commandBuffer, m_AlbedoMetallic->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
     }
 
@@ -104,10 +104,10 @@ namespace Rigel::Backend::Vulkan
         VK_Image::CmdTransitionLayout(commandBuffer, m_Position->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0);
 
-        VK_Image::CmdTransitionLayout(commandBuffer, m_Normal->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+        VK_Image::CmdTransitionLayout(commandBuffer, m_NormalRoughness->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0);
 
-        VK_Image::CmdTransitionLayout(commandBuffer, m_AlbedoSpec->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+        VK_Image::CmdTransitionLayout(commandBuffer, m_AlbedoMetallic->Get(), VK_IMAGE_ASPECT_COLOR_BIT,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0);
     }
 
@@ -135,7 +135,7 @@ namespace Rigel::Backend::Vulkan
 
         // Normal attachment
         m_ColorAttachments[1] = MakeInfo<VkRenderingAttachmentInfo>();
-        m_ColorAttachments[1].imageView = m_Normal->GetView();
+        m_ColorAttachments[1].imageView = m_NormalRoughness->GetView();
         m_ColorAttachments[1].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         m_ColorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         m_ColorAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -143,7 +143,7 @@ namespace Rigel::Backend::Vulkan
 
         // Albedo-spec attachment
         m_ColorAttachments[2] = MakeInfo<VkRenderingAttachmentInfo>();
-        m_ColorAttachments[2].imageView = m_AlbedoSpec->GetView();
+        m_ColorAttachments[2].imageView = m_AlbedoMetallic->GetView();
         m_ColorAttachments[2].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         m_ColorAttachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         m_ColorAttachments[2].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -179,13 +179,13 @@ namespace Rigel::Backend::Vulkan
 
         imageInfos[1] = VkDescriptorImageInfo{
             .sampler = m_Sampler,
-            .imageView = m_Normal->GetView(),
+            .imageView = m_NormalRoughness->GetView(),
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
         imageInfos[2] = VkDescriptorImageInfo{
             .sampler = m_Sampler,
-            .imageView = m_AlbedoSpec->GetView(),
+            .imageView = m_AlbedoMetallic->GetView(),
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 

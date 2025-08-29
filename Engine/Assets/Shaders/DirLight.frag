@@ -5,8 +5,8 @@ layout(location = 0) in vec2 v_TexCoords;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0) uniform sampler2D g_Position;
-layout(set = 0, binding = 1) uniform sampler2D g_Normal;
-layout(set = 0, binding = 2) uniform sampler2D g_AlbedoSpec;
+layout(set = 0, binding = 1) uniform sampler2D g_NormalRoughness;
+layout(set = 0, binding = 2) uniform sampler2D g_AlbedoMetallic;
 
 layout (push_constant) uniform PushConstants
 {
@@ -36,15 +36,16 @@ vec3 CalcLight(vec3 normal, vec3 viewDir, vec3 diffuse, float specular)
 void main()
 {
     vec3 fragPos = texture(g_Position, v_TexCoords).rgb;
-    vec3 normal = texture(g_Normal, v_TexCoords).rgb;
-    vec3 albedo = texture(g_AlbedoSpec, v_TexCoords).rgb;
-    float specular = texture(g_AlbedoSpec, v_TexCoords).a;
+    vec3 normal = normalize(texture(g_NormalRoughness, v_TexCoords).rgb);
+    float roughness = texture(g_NormalRoughness, v_TexCoords).a;
+    vec3 albedo = texture(g_AlbedoMetallic, v_TexCoords).rgb;
+    float metallic = texture(g_AlbedoMetallic, v_TexCoords).a;
 
-//    vec3 viewDir = normalize(pc_CamPos.pos - fragPos);
-//
-//    vec3 light = CalcLight(normal, viewDir, albedo, specular);
-//
-//    vec3 color = (albedo * AMBIENT_INTENSITY) + light;
+    vec3 viewDir = normalize(pc_CamPos.pos - fragPos);
 
-    outColor = vec4(albedo, 1.0);
+    vec3 light = CalcLight(normal, viewDir, albedo, metallic);
+
+    vec3 color = (albedo * AMBIENT_INTENSITY) + light;
+
+    outColor = vec4(color, 1.0);
 }

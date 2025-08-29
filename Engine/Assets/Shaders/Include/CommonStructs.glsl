@@ -9,7 +9,7 @@ struct MaterialData
     uint MetallicIndex;
     float Metalness;
 
-    uint RougnessIndex;
+    uint RoughnessIndex;
     float Roughness;
 
     uint NormalIndex;

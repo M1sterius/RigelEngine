@@ -32,6 +32,7 @@ namespace Rigel
 
         void SetLocalPosition(const glm::vec3& position);
         void SetLocalRotation(const glm::quat& rotation);
+        void SetLocalRotation(const glm::vec3& rotation);
         void SetLocalScale(const glm::vec3& scale);
 
         NODISCARD glm::mat4 GetLocalMatrix();

@@ -58,6 +58,11 @@ namespace Rigel
         m_UpdateRequiredFlag = true;
     }
 
+    void Transform::SetLocalRotation(const glm::vec3& rotation)
+    {
+        SetLocalRotation(glm::quat(rotation));
+    }
+
     void Transform::SetLocalScale(const glm::vec3& scale)
     {
         m_LocalScale = scale;
