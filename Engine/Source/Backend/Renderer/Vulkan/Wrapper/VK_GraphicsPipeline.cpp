@@ -91,8 +91,8 @@ namespace Rigel::Backend::Vulkan
         renderingCreateInfo.stencilAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
 
         // Pipeline vertex input
-        const auto bindingDescription = Vertex3p2t3n3g::GetBindingDescription();
-        const auto attributeDescription = Vertex3p2t3n3g::GetAttributeDescriptions();
+        const auto bindingDescription = Vertex3p2t3n4g::GetBindingDescription();
+        const auto attributeDescription = Vertex3p2t3n4g::GetAttributeDescriptions();
 
         auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
         vertexInputInfo.vertexBindingDescriptionCount = 1;

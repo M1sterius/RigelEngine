@@ -34,9 +34,11 @@ namespace Rigel::Backend::Vulkan
         void CmdTransitionToSample(VkCommandBuffer commandBuffer);
 
         NODISCARD VkRenderingInfo* GetRenderingInfo() { return &m_RenderingInfo; }
-        NODISCARD VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
 
-        void CmdBindSampleDescriptorSet(VkCommandBuffer cmdBuff, VkPipelineLayout pipelineLayout);
+        NODISCARD Ref<VK_Image> GetPosition() const { return m_Position.get(); }
+        NODISCARD Ref<VK_Image> GetNormalRoughness() const { return m_NormalRoughness.get(); }
+        NODISCARD Ref<VK_Image> GetAlbedoMetallic() const { return m_AlbedoMetallic.get(); }
+        NODISCARD Ref<VK_Image> GetDepth() const { return m_Depth.get(); }
     private:
         VK_Device& m_Device;
         glm::uvec2 m_Size;
@@ -46,20 +48,10 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_Image> m_AlbedoMetallic;
         std::unique_ptr<VK_Image> m_Depth;
 
-        VkSampler m_Sampler = VK_NULL_HANDLE;
-        VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
-        VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
-
-        std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
-
         VkRenderingInfo m_RenderingInfo{};
         VkRenderingAttachmentInfo m_DepthAttachment{};
         std::array<VkRenderingAttachmentInfo, 3> m_ColorAttachments{};
 
         void SetupRenderingInfo();
-        void UpdateDescriptorSet();
-
-        void CreateSampler();
-        void CreateDescriptorSetLayout();
     };
 }

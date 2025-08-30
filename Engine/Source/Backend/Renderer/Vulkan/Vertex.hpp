@@ -19,15 +19,15 @@ namespace Rigel::Backend::Vulkan
      * g - tangent
      */
 
-    struct Vertex3p2t3n3g
+    struct Vertex3p2t3n4g
     {
         glm::vec3 Position;
         glm::vec2 TexCoords;
         glm::vec3 Normal;
         glm::vec4 Tangent;
 
-        Vertex3p2t3n3g() = default;
-        Vertex3p2t3n3g(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec4& normal, const glm::vec4& tangent)
+        Vertex3p2t3n4g() = default;
+        Vertex3p2t3n4g(const glm::vec3& position, const glm::vec2& texCoords, const glm::vec4& normal, const glm::vec4& tangent)
             : Position(position), TexCoords(texCoords), Normal(normal), Tangent(tangent) { }
 
         NODISCARD static VkVertexInputBindingDescription GetBindingDescription()
@@ -40,7 +40,7 @@ namespace Rigel::Backend::Vulkan
 
             VkVertexInputBindingDescription bindingDescription {};
             bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex3p2t3n3g);
+            bindingDescription.stride = sizeof(Vertex3p2t3n4g);
             bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
             return bindingDescription;
@@ -54,25 +54,25 @@ namespace Rigel::Backend::Vulkan
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
             attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[0].offset = offsetof(Vertex3p2t3n3g, Position);
+            attributeDescriptions[0].offset = offsetof(Vertex3p2t3n4g, Position);
 
             // a_TexCoords (location = 1)
             attributeDescriptions[1].binding = 0;
             attributeDescriptions[1].location = 1;
             attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex3p2t3n3g, TexCoords);
+            attributeDescriptions[1].offset = offsetof(Vertex3p2t3n4g, TexCoords);
 
             // a_Normal (location = 2)
             attributeDescriptions[2].binding = 0;
             attributeDescriptions[2].location = 2;
             attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[2].offset = offsetof(Vertex3p2t3n3g, Normal);
+            attributeDescriptions[2].offset = offsetof(Vertex3p2t3n4g, Normal);
 
             // a_Tangent(location = 3)
             attributeDescriptions[3].binding = 0;
             attributeDescriptions[3].location = 3;
             attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            attributeDescriptions[3].offset = offsetof(Vertex3p2t3n3g, Tangent);
+            attributeDescriptions[3].offset = offsetof(Vertex3p2t3n4g, Tangent);
 
             return attributeDescriptions;
         }

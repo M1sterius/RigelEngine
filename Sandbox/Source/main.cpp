@@ -14,7 +14,7 @@ int32_t main(int32_t argc, char** argv)
     settings.TargetFPS = 165;
     settings.WindowTitle = "Sandbox";
     settings.WindowSize = glm::vec2(1600, 900);
-    settings.AssetManagerThreadPoolSize = 16;
+    settings.AssetManagerThreadPoolSize = 8;
 
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
@@ -36,7 +36,7 @@ int32_t main(int32_t argc, char** argv)
 
     auto model = scene->Instantiate("Model");
     model->GetTransform()->SetLocalPosition({0, -1.0, 0});
-    model->GetTransform()->SetLocalScale(glm::vec3(1.0f));
+    model->GetTransform()->SetLocalScale(glm::vec3(0.007f));
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/SponzaOBJ/Sponza.obj");
 
     auto model1 = scene->Instantiate("Model1");

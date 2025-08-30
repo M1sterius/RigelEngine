@@ -9,7 +9,7 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    struct Vertex3p2t3n3g;
+    struct Vertex3p2t3n4g;
     class VK_MemoryBuffer;
 
     class VK_VertexBuffer

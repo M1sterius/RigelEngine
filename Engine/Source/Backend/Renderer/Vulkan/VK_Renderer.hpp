@@ -38,6 +38,7 @@ namespace Rigel::Backend::Vulkan
     class VK_GBuffer;
     class VK_StagingManager;
     class VK_GeometryPass;
+    class VK_LightingPass;
 
     class VK_ImGUI_Renderer;
     class VK_BindlessManager;
@@ -70,10 +71,6 @@ namespace Rigel::Backend::Vulkan
     private:
         void OnWindowResize();
 
-        ErrorCode SetupPipelines();
-
-        void RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage);
-
         std::unique_ptr<VK_Instance> m_Instance;
         std::unique_ptr<VK_Surface> m_Surface;
         std::unique_ptr<VK_Device> m_Device;
@@ -81,17 +78,14 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_StagingManager> m_StagingManager;
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
+
         std::unique_ptr<VK_GBuffer> m_GBuffer;
-
         std::unique_ptr<VK_GeometryPass> m_GeometryPass;
+        std::unique_ptr<VK_LightingPass> m_LightingPass;
 
-        std::vector<std::unique_ptr<VK_CmdBuffer>> m_GeometryPassCommandBuffers;
-        std::vector<std::unique_ptr<VK_CmdBuffer>> m_LightingPassCommandBuffers;
         std::vector<std::unique_ptr<VK_Semaphore>> m_GeometryPassFinishedSemaphores;
-        std::vector<std::unique_ptr<VK_Semaphore>> m_RenderFinishedSemaphores;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_LightingPassFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
-
-        std::unique_ptr<VK_GraphicsPipeline> m_LightingPassPipeline;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
     };

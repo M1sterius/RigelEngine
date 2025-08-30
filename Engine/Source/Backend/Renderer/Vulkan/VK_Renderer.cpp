@@ -1,7 +1,6 @@
 #include "VK_Renderer.hpp"
 #include "Assets/Shader.hpp"
 #include "Assets/Model.hpp"
-#include "ShaderStructs.hpp"
 #include "VK_BindlessManager.hpp"
 #include "VK_GBuffer.hpp"
 #include "VK_StagingManager.hpp"
@@ -24,8 +23,6 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    static constexpr auto GEOMETRY_PASS_PIPELINE_NAME = "GeometryPass";
-
     VK_Renderer::VK_Renderer() = default;
     VK_Renderer::~VK_Renderer() = default;
 
@@ -42,17 +39,15 @@ namespace Rigel::Backend::Vulkan
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
         m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer);
+        m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer);
 
         const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
 
         for (uint32_t i = 0; i < framesInFlight; ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
-            m_RenderFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-
-            m_GeometryPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
-            m_LightingPassCommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(*m_Device, QueueType::Graphics));
+            m_LightingPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
 
         return ErrorCode::OK;
@@ -63,12 +58,11 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
+        m_LightingPass->SetImGuiBackend(m_ImGuiBackend);
+
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError, true);
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureBlack, true);
         GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureWhite, true);
-
-        if (const auto result = SetupPipelines(); result != ErrorCode::OK)
-            return result;
 
         return ErrorCode::OK;
     }
@@ -82,42 +76,7 @@ namespace Rigel::Backend::Vulkan
 
         return ErrorCode::OK;
     }
-
-    ErrorCode VK_Renderer::SetupPipelines()
-    {
-        // Lighting pass
-        const auto gBufferSetLayout = m_GBuffer->GetDescriptorSetLayout();
-
-        VkPushConstantRange lightingPassPC = {};
-        lightingPassPC.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        lightingPassPC.offset = 0;
-        lightingPassPC.size = sizeof(glm::vec3);
-
-        auto lightingPassPipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
-        lightingPassPipelineLayout.pushConstantRangeCount = 1;
-        lightingPassPipelineLayout.pPushConstantRanges = &lightingPassPC;
-        lightingPassPipelineLayout.setLayoutCount = 0;
-        lightingPassPipelineLayout.setLayoutCount = 1;
-        lightingPassPipelineLayout.pSetLayouts = &gBufferSetLayout;
-
-        auto lightingPassShaderMetadata = ShaderMetadata();
-        lightingPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";
-        lightingPassShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DirLight.frag.spv";
-        lightingPassShaderMetadata.AddVariant("Main", 0, 1);
-
-        auto lightingPassShader = GetAssetManager()->Load<Shader>("LightingPassShader", &lightingPassShaderMetadata, true);
-
-        m_LightingPassPipeline = VK_GraphicsPipeline::CreateLightingPassPipeline(
-            *m_Device,
-            lightingPassPipelineLayout,
-            m_Swapchain->GetImageFormat(),
-            lightingPassShader->GetVariant("Main")
-            );
-        // --------------
-
-        return ErrorCode::OK;
-    }
-
+    
     void VK_Renderer::OnWindowResize()
     {
         GetWindowManager()->WaitForFocus();
@@ -128,71 +87,7 @@ namespace Rigel::Backend::Vulkan
 
         m_Swapchain->Recreate(windowSize, vsync);
         m_GBuffer->Recreate(windowSize);
-    }
-
-    void VK_Renderer::RecordLightingPass(VkCommandBuffer cmdBuff, const AcquireImageInfo& swapchainImage)
-    {
-        VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0);
-
-        m_GBuffer->CmdTransitionToSample(cmdBuff);
-
-        auto colorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        colorAttachment.imageView = swapchainImage.imageView;
-        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
-
-        auto renderingInfo = MakeInfo<VkRenderingInfo>();
-        renderingInfo.renderArea.offset = {0, 0};
-        renderingInfo.renderArea.extent = m_Swapchain->GetExtent();
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-
-        vkCmdBeginRendering(cmdBuff, &renderingInfo);
-
-        m_LightingPassPipeline->CmdBind(cmdBuff);
-        m_LightingPassPipeline->CmdSetViewport(cmdBuff, glm::vec2(0.0f), m_Swapchain->GetSize());
-        m_LightingPassPipeline->CmdSetScissor(cmdBuff, glm::ivec2(0), m_Swapchain->GetExtent());
-
-        m_GBuffer->CmdBindSampleDescriptorSet(cmdBuff, m_LightingPassPipeline->GetLayout());
-
-        const auto camPos = GetRenderer()->GetSceneRenderInfo()->CamPos;
-
-        vkCmdPushConstants(
-            cmdBuff,
-            m_LightingPassPipeline->GetLayout(),
-            VK_SHADER_STAGE_FRAGMENT_BIT,
-            0,
-            sizeof(glm::vec3),
-            &camPos
-        );
-
-        vkCmdDraw(cmdBuff, 3, 1, 0, 0);
-
-        vkCmdEndRendering(cmdBuff);
-
-        auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        uiColorAttachment.imageView = swapchainImage.imageView;
-        uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-        auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
-        uiRenderingInfo.renderArea.offset = {0, 0};
-        uiRenderingInfo.renderArea.extent = m_Swapchain->GetExtent();
-        uiRenderingInfo.layerCount = 1;
-        uiRenderingInfo.colorAttachmentCount = 1;
-        uiRenderingInfo.pColorAttachments = &uiColorAttachment;
-
-        vkCmdBeginRendering(cmdBuff, &uiRenderingInfo);
-        m_ImGuiBackend->RenderFrame(cmdBuff);
-        vkCmdEndRendering(cmdBuff);
-
-        VK_Image::CmdTransitionLayout(cmdBuff, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
+        m_LightingPass->Recreate();
     }
 
     void VK_Renderer::Render()
@@ -205,23 +100,19 @@ namespace Rigel::Backend::Vulkan
         }
 
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-        m_InFlightFences[frameIndex]->Wait();
+        const auto& fence = m_InFlightFences[frameIndex];
+
+        fence->Wait();
+        fence->Reset();
 
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
+        const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo();
 
-        m_GeometryPass->SetMeshData(GetRenderer()->GetSceneRenderInfo(), frameIndex);
+        m_GeometryPass->SetMeshData(sceneRenderInfo, frameIndex);
         const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
 
-        const auto& lightingPassCommandBuffer = m_LightingPassCommandBuffers[frameIndex];
-
-        lightingPassCommandBuffer->Reset(0);
-
-        lightingPassCommandBuffer->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        RecordLightingPass(lightingPassCommandBuffer->Get(), swapchainImage);
-        lightingPassCommandBuffer->EndRecording();
-
-        const auto& fence = m_InFlightFences[frameIndex];
-        fence->Reset();
+        m_LightingPass->SetLightData(sceneRenderInfo, frameIndex);
+        const auto lightingPassCommandBuffer = m_LightingPass->RecordCommandBuffer(swapchainImage, frameIndex);
 
         const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer};
         const VkSemaphore geometryPassSignalSemaphores[] = {m_GeometryPassFinishedSemaphores[frameIndex]->Get()};
@@ -236,12 +127,12 @@ namespace Rigel::Backend::Vulkan
 
         m_Device->SubmitToQueue(QueueType::Graphics, 1, &geometryPassSubmitInfo, nullptr);
 
-        const VkCommandBuffer lightingPassSubmitBuffers[] = {lightingPassCommandBuffer->Get()};
+        const VkCommandBuffer lightingPassSubmitBuffers[] = {lightingPassCommandBuffer};
         const VkSemaphore lightingPassWaitSemaphores[] = {
             m_GeometryPassFinishedSemaphores[frameIndex]->Get(),
             swapchainImage.availableSemaphore
         };
-        const VkSemaphore lightingPassSignalSemaphores[] = {m_RenderFinishedSemaphores[frameIndex]->Get()};
+        const VkSemaphore lightingPassSignalSemaphores[] = {m_LightingPassFinishedSemaphores[frameIndex]->Get()};
 
         constexpr VkPipelineStageFlags lightingPassWaitStages[] = {
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
@@ -260,7 +151,7 @@ namespace Rigel::Backend::Vulkan
 
         m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, fence->Get());
 
-        VkSemaphore presentWaitSemaphore = m_RenderFinishedSemaphores[frameIndex]->Get();
+        VkSemaphore presentWaitSemaphore = m_LightingPassFinishedSemaphores[frameIndex]->Get();
 
         m_Swapchain->Present(swapchainImage.imageIndex, presentWaitSemaphore);
     }

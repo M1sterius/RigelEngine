@@ -63,7 +63,7 @@ namespace Rigel
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
             m_Materials.emplace_back(ProcessMaterial(scene->mMaterials[i]));
 
-        auto vertices = std::vector<Vertex3p2t3n3g>();
+        auto vertices = std::vector<Vertex3p2t3n4g>();
         auto indices = std::vector<uint32_t>();
 
         m_RootNode = std::make_shared<Node>();
@@ -77,7 +77,7 @@ namespace Rigel
     }
 
     void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
-        std::vector<Vertex3p2t3n3g>& vertices, std::vector<uint32_t>& indices)
+        std::vector<Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices)
     {
         curNode->Name = node->mName.C_Str();
         curNode->Transform = ConvertMat4(node->mTransformation);
@@ -100,7 +100,7 @@ namespace Rigel
         }
     }
 
-    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex3p2t3n3g>& vertices, std::vector<uint32_t>& indices)
+    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices)
     {
         const auto numVertices = mesh->mNumVertices;
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
@@ -112,7 +112,7 @@ namespace Rigel
         resMesh.FirstIndex = indices.size();
         resMesh.IndexCount = numIndices;
 
-        Vertex3p2t3n3g vertex{};
+        Vertex3p2t3n4g vertex{};
         vertices.reserve(vertices.size() + numVertices);
 
         for (uint32_t i = 0; i < numVertices; ++i)

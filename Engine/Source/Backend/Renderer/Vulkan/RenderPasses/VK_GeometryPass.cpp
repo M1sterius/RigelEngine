@@ -226,8 +226,8 @@ namespace Rigel::Backend::Vulkan
         }
 
         vkCmdEndRendering(commandBuffer);
-        m_CommandBuffers[frameIndex]->EndRecording();
 
+        m_CommandBuffers[frameIndex]->EndRecording();
         return commandBuffer;
     }
 }
