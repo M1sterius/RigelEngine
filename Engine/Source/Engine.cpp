@@ -1,7 +1,6 @@
 #include "Engine.hpp"
 #include "InternalEvents.hpp"
 #include "Debug.hpp"
-#include "Editor.hpp"
 #include "Subsystems/Time.hpp"
 #include "Subsystems/InputManager/InputManager.hpp"
 #include "Subsystems/SceneManager.hpp"
@@ -14,6 +13,7 @@
 #include "Utilities/Threading/SleepUtility.hpp"
 #include "Utilities/Filesystem/Directory.hpp"
 
+#include "imgui/imgui.h"
 
 namespace Rigel
 {
@@ -128,7 +128,9 @@ namespace Rigel
             return ErrorCode::RENDERER_LATE_STARTUP_FAILURE;
         }
 
-        m_Editor = std::make_unique<Backend::Editor::Editor>();
+        m_EventManager->Subscribe<DrawGUIEvent>([this](const DrawGUIEvent&) {
+            DrawDebugGUI();
+        });
 
         Debug::Trace("Rigel engine initialization complete.");
 
@@ -172,7 +174,7 @@ namespace Rigel
 
         Debug::Trace("Entering the game loop. Target FPS: {}", Time::GetTargetFPS());
 
-        while (Running())
+        while (m_Running)
         {
             fpsLimitStopwatch.Start();
             EngineUpdate();
@@ -181,8 +183,8 @@ namespace Rigel
             m_Time->m_DeltaTime = m_Time->m_DeltaTimeStopwatch.Restart().AsSeconds();
             m_Time->m_FrameCounter++;
 
-            // for now the only condition for the engine to keep running is the window not being closed.
-            m_Running = !m_WindowManager->WindowShouldClose();
+            if (m_WindowManager->WindowShouldClose())
+                m_Running = false;
         }
 
         m_Time->m_GlobalTimeStopwatch.Stop();
@@ -190,8 +192,6 @@ namespace Rigel
 
     void Engine::EngineUpdate() const
     {
-        m_Editor->Draw();
-
         m_WindowManager->PollGLFWEvents();
         m_PhysicsEngine->Tick();
         m_EventManager->Dispatch(GameUpdateEvent(Time::GetDeltaTime(), Time::GetFrameCount()));
@@ -200,5 +200,20 @@ namespace Rigel
 
         m_InputManager->ResetInputState();
         m_EventManager->Dispatch(Backend::EndOfFrameEvent());
+    }
+
+    void Engine::DrawDebugGUI()
+    {
+        ImGui::Begin("Debug GUI");
+        ImGui::SetWindowFontScale(1.5);
+
+        ImGui::Text("FPS: %.1f", 1.0 / Time::GetDeltaTime());
+        ImGui::Text("Frametime: %.3f",  Time::GetDeltaTime());
+        ImGui::Text("Frame count: %u", Time::GetFrameCount());
+
+        if (ImGui::Button("Shutdown"))
+            m_Running = false;
+
+        ImGui::End();
     }
 }

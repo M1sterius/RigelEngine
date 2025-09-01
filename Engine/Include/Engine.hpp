@@ -64,14 +64,12 @@ namespace Rigel
         Engine();
         void EngineUpdate() const;
 
+        void DrawDebugGUI();
+
+        ProjectSettings m_ProjectSettings;
         bool m_Initialized = false;
         bool m_Running = false;
 
-        ProjectSettings m_ProjectSettings;
-
-        std::unique_ptr<Backend::Editor::Editor> m_Editor; // this is probably temporary
-
-        // Subsystem instances
         std::unique_ptr<Time> m_Time;
         std::unique_ptr<EventManager> m_EventManager;
         std::unique_ptr<AssetManager> m_AssetManager;

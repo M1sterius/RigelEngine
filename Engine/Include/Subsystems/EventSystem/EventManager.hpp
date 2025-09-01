@@ -56,7 +56,7 @@ namespace Rigel
          * @param memberFunc The class member function
          * @return A unique event callback ID, you can use it to unsubscribe the callback
          */
-        template<EventTypeConcept EventType, typename T> requires std::is_base_of_v<Component, T>
+        template<EventTypeConcept EventType, typename T>
         CallbackID Subscribe(T* instance, void (T::*memberFunc)(const EventType&))
         {
             const auto id = m_NextCallbackID++;

@@ -4,9 +4,13 @@
 #include "ECS/Scene.hpp"
 #include "Subsystems/SceneManager.hpp"
 #include "Components/ModelRenderer.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Subsystems/EventSystem/EngineEvents.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Vulkan/VK_Renderer.hpp"
 #include "ImGui/VK_ImGUI_Renderer.hpp"
+
+#include "imgui/imgui.h"
 
 namespace Rigel
 {
@@ -58,7 +62,6 @@ namespace Rigel
         return m_Impl->LateStartup();
     }
 
-
     void Renderer::Render()
     {
         m_SceneRenderInfo.Reset();
@@ -86,6 +89,10 @@ namespace Rigel
                 m_SceneRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
             }
         }
+
+        m_ImGuiImpl->BeginNewFrame();
+        GetEventManager()->Dispatch(DrawGUIEvent());
+        ImGui::Render();
 
         m_Impl->Render();
     }

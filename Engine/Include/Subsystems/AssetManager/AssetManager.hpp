@@ -56,7 +56,7 @@ namespace Rigel
                 return existing;
 
             if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
+                Debug::Trace("AssetManager::Loading an asset: {}.", path.string());
 
             auto entry = AssetRegistryEntry{
                 .AssetID = ++m_NextID,
@@ -86,7 +86,7 @@ namespace Rigel
 
             if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
             {
-                Debug::Error("Failed to load an asset at path: {}. ID: {}. Error code: {}.",
+                Debug::Error("Failed to load an asset: {}. ID: {}. Error code: {}.",
                         path.string(), rawPtr->GetID(), static_cast<int32_t>(result));
             }
 
@@ -124,7 +124,7 @@ namespace Rigel
                 return existing;
 
             if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Loading an asset at path: {}.", path.string());
+                Debug::Trace("AssetManager::Loading an asset: {}.", path.string());
 
             auto entry = AssetRegistryEntry{
                 .AssetID = ++m_NextID,
@@ -156,7 +156,7 @@ namespace Rigel
 
                 if (const auto result = rawPtr->Init(); result != ErrorCode::OK)
                 {
-                    Debug::Error("Failed to load an asset at path: {}. ID: {}. Error code: {}.",
+                    Debug::Error("Failed to load an asset: {}. ID: {}. Error code: {}.",
                         path.string(), rawPtr->GetID(), static_cast<int32_t>(result));
                 }
             });

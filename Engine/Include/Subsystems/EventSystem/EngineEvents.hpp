@@ -100,4 +100,9 @@ namespace Rigel
 
         MouseButton Button;
     };
+
+    struct DrawGUIEvent final : public Event
+    {
+
+    };
 }

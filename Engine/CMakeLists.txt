@@ -19,9 +19,8 @@ add_library(RigelEngine STATIC
     Source/Engine.cpp
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp
-    Source/Backend/Editor.cpp
 
-    # Ecs
+        # Ecs
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp

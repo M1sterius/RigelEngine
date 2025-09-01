@@ -49,11 +49,11 @@ namespace Rigel::Backend::Vulkan
 
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout), "Failed to create descriptor set layout!");
 
+        const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
+
         std::vector<VkDescriptorPoolSize> poolSizes(1);
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        poolSizes[0].descriptorCount = 1;
-
-        const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
+        poolSizes[0].descriptorCount = framesInFlight;
 
         m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, framesInFlight, 0);
         for (uint32_t i = 0; i < framesInFlight; ++i)
