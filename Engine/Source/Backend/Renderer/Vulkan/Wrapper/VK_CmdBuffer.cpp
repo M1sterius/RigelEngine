@@ -2,7 +2,7 @@
 #include "VK_Device.hpp"
 #include "VK_Fence.hpp"
 #include "VK_CmdPool.hpp"
-#include "VulkanUtility.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

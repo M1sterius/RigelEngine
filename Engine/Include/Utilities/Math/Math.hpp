@@ -6,6 +6,6 @@
 #include "Random.hpp"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE // required for vulkan
-#include "glm.hpp"
-#include "gtc/quaternion.hpp"
-#include "gtx/string_cast.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/string_cast.hpp"

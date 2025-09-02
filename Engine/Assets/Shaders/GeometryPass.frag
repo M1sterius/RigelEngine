@@ -5,6 +5,10 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 #extension GL_EXT_scalar_block_layout : enable
 
+const uint ERROR_TEXTURE_INDEX = 0;
+const uint BLACK_TEXTURE_INDEX = 1;
+const uint WHITE_TEXTURE_INDEX = 2;
+
 layout(location = 0) in Varying_T
 {
     vec2 TexCoords;
@@ -39,7 +43,7 @@ void main()
     MaterialData material = b_Materials.Materials[v_In.MaterialIndex];
     vec2 uv = v_In.TexCoords;
 
-    g_Position = vec4(v_In.FragPos, 0.0);
+    g_Position = vec4(v_In.FragPos, 1.0);
 
     // Albedo
     if (material.AlbedoIndex != 0)

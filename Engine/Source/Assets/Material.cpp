@@ -2,10 +2,10 @@
 #include "Assets/Metadata/MaterialMetadata.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
-#include "ShaderStructs.hpp"
-#include "VK_BindlessManager.hpp"
-#include "VK_Texture.hpp"
-#include "VulkanUtility.hpp"
+#include "Backend/Renderer/ShaderStructs.hpp"
+#include "Backend/Renderer/Vulkan/VK_BindlessManager.hpp"
+#include "Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp"
+#include "../Backend/Renderer/Vulkan/Helpers/VulkanUtility.hpp"
 
 #include <filesystem>
 

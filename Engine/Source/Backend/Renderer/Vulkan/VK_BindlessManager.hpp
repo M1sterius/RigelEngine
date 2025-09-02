@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "ShaderStructs.hpp"
+#include "../ShaderStructs.hpp"
 #include "Assets/Texture2D.hpp"
 #include "Handles/AssetHandle.hpp"
 

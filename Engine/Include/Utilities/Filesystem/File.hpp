@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core.hpp"
-#include "json_fwd.hpp"
+
+#include "nlohmann_json/json_fwd.hpp"
 
 #include <filesystem>
 #include <string>

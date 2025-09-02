@@ -1,7 +1,7 @@
 #include "VK_Surface.hpp"
-#include "VulkanUtility.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/WindowManager/WindowManager.hpp"
+#include "Backend/Renderer/Vulkan/Helpers/VulkanUtility.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"

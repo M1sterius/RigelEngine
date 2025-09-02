@@ -1,7 +1,6 @@
 #include "VK_MemoryBuffer.hpp"
 #include "VK_CmdBuffer.hpp"
-#include "VulkanUtility.hpp"
-#include "Vertex.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

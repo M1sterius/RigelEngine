@@ -1,5 +1,5 @@
 #include "Assets/Shader.hpp"
-#include "VK_ShaderModule.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VK_ShaderModule.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Utilities/Filesystem/File.hpp"

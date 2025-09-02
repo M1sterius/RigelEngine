@@ -1,5 +1,5 @@
 #include "VK_Fence.hpp"
-#include "VulkanUtility.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

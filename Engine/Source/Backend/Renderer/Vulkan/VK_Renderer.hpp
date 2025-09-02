@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "ShaderStructs.hpp"
+#include "../ShaderStructs.hpp"
 
 #include "vulkan/vulkan.h"
 

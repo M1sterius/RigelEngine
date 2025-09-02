@@ -1,8 +1,7 @@
 #include "VK_Image.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VK_CmdBuffer.hpp"
-#include "VulkanUtility.hpp"
-#include "VK_Fence.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

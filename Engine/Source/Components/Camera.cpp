@@ -1,9 +1,10 @@
 #include "Components/Camera.hpp"
-#include "json.hpp"
 #include "ECS/GameObject.hpp"
 #include "Subsystems/WindowManager/WindowManager.hpp"
 #include "Subsystems/EventSystem/EventManager.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
+
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {
@@ -16,6 +17,17 @@ namespace Rigel
     Camera::Camera(const float32_t fov, const float32_t nearPlane, const float32_t farPlane)
         : m_ViewportSize(GetWindowManager()->GetWindowSize()), m_FOV(fov), m_Near(nearPlane), m_Far(farPlane)
     {
+        CalcProjection();
+    }
+
+    void Camera::OnStart()
+    {
+        SubscribeEvent<WindowResizeEvent>(&Camera::OnWindowResize);
+    }
+
+    void Camera::OnWindowResize()
+    {
+        m_ViewportSize = GetWindowManager()->GetWindowSize();
         CalcProjection();
     }
 
@@ -46,17 +58,6 @@ namespace Rigel
     {
         m_Near = nearPlane;
         m_Far = farPlane;
-        CalcProjection();
-    }
-
-    void Camera::OnStart()
-    {
-        SubscribeEvent<WindowResizeEvent>(&Camera::OnWindowResize);
-    }
-
-    void Camera::OnWindowResize()
-    {
-        m_ViewportSize = GetWindowManager()->GetWindowSize();
         CalcProjection();
     }
 

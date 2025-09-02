@@ -1,9 +1,9 @@
 #include "VK_GeometryPass.hpp"
-#include "VulkanWrapper.hpp"
-#include "VulkanUtility.hpp"
-#include "ShaderStructs.hpp"
-#include "VK_BindlessManager.hpp"
-#include "VK_GBuffer.hpp"
+#include "../VK_BindlessManager.hpp"
+#include "../VK_GBuffer.hpp"
+#include "../Wrapper/VulkanWrapper.hpp"
+#include "../Helpers/VulkanUtility.hpp"
+#include "../../ShaderStructs.hpp"
 #include "Assets/Model.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/Renderer/SceneRenderInfo.hpp"
@@ -158,7 +158,7 @@ namespace Rigel::Backend::Vulkan
                         .VertexOffset = vertexOffset
                     });
 
-                    vertexOffset = mesh.FirstVertex + mesh.VertexCount;
+                    vertexOffset = static_cast<int32_t>(mesh.FirstVertex) + static_cast<int32_t>(mesh.VertexCount);
                     ++meshIndex;
                 }
             }

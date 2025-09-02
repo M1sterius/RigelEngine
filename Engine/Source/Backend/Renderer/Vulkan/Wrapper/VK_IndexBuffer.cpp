@@ -1,7 +1,7 @@
 #include "VK_IndexBuffer.hpp"
 #include "VK_MemoryBuffer.hpp"
-#include "VK_StagingManager.hpp"
-#include "VulkanUtility.hpp"
+#include "../VK_StagingManager.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

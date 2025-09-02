@@ -6,7 +6,7 @@
 #include "Handles/GOHandle.hpp"
 #include "Utilities/Serialization/ISerializable.hpp"
 
-#include "plf_colony.h"
+#include "plf/plf_colony.h"
 
 #include <memory>
 #include <string>

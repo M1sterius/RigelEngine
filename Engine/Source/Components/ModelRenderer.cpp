@@ -1,8 +1,9 @@
 #include "Components/ModelRenderer.hpp"
-#include "json.hpp"
 #include "Engine.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
+
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {

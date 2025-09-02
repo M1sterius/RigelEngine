@@ -1,13 +1,13 @@
 #include "ECS/Scene.hpp"
 #include "ECS/GameObject.hpp"
-#include "InternalEvents.hpp"
+#include "Backend/InternalEvents.hpp"
 #include "Components/Transform.hpp"
 #include "Handles/HandleValidator.hpp"
 #include "Handles/GOHandle.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/EventSystem/EventManager.hpp"
 
-#include "json.hpp"
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {

@@ -1,10 +1,10 @@
 #include "VK_Texture.hpp"
-#include "VK_Image.hpp"
-#include "VK_MemoryBuffer.hpp"
-#include "VK_CmdBuffer.hpp"
-#include "VulkanUtility.hpp"
-#include "VK_BindlessManager.hpp"
-#include "VK_StagingManager.hpp"
+#include "../Wrapper/VK_Image.hpp"
+#include "../Wrapper/VK_MemoryBuffer.hpp"
+#include "../Wrapper/VK_CmdBuffer.hpp"
+#include "../Helpers/VulkanUtility.hpp"
+#include "../VK_BindlessManager.hpp"
+#include "../VK_StagingManager.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

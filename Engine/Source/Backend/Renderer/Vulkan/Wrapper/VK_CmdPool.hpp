@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "QueueType.hpp"
+#include "../Helpers/QueueType.hpp"
 
 #include "vulkan/vulkan.h"
 

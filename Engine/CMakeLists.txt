@@ -20,7 +20,7 @@ add_library(RigelEngine STATIC
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp
 
-        # Ecs
+    # Ecs
     Source/ECS/Scene.cpp
     Source/ECS/GameObject.cpp
     Source/ECS/Component.cpp
@@ -71,7 +71,7 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorSet.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_DescriptorPool.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Instance.cpp
-    Source/Backend/Renderer/Vulkan/MakeInfo.cpp
+    Source/Backend/Renderer/Vulkan/Helpers/MakeInfo.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Device.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Surface.cpp
     Source/Backend/Renderer/Vulkan/Wrapper/VK_Swapchain.cpp
@@ -126,20 +126,17 @@ target_precompile_headers(RigelEngine PRIVATE
     Include/Utilities/PCH/RGE_PCH.hpp
 )
 
-set(VULKAN_SDK $ENV{VULKAN_SDK})
-set(VULKAN_SDK_PATH "${VULKAN_SDK}")
-
-# Include paths that should be available outside to the projects linking the engine
-# TODO: Make sure that publicly available dependencies headers ship with the engine
+# Include paths that should be available to projects linking the engine
 target_include_directories(RigelEngine PUBLIC
-    ${DEPENDENCIES_DIR}/nlohmann_json
-    ${DEPENDENCIES_DIR}/glm
-    ${DEPENDENCIES_DIR}/plf
+    Include/Vendor # TODO: Add imgui to vendor
 
     Include
     Include/Debug
     Include/Utilities/Math
 )
+
+set(VULKAN_SDK $ENV{VULKAN_SDK})
+set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
 # Include paths that will only be visible inside the library
 target_include_directories(RigelEngine PRIVATE
@@ -149,11 +146,7 @@ target_include_directories(RigelEngine PRIVATE
     ${DEPENDENCIES_DIR}/assimp/include
     ${DEPENDENCIES_DIR}/imgui
 
-    Source/Backend
-    Source/Backend/Renderer
-    Source/Backend/Renderer/Vulkan
-    Source/Backend/Renderer/Vulkan/Wrapper
-    Source/Backend/Renderer/Vulkan/AssetBackends
+    Source
 )
 
 # compile dependencies from source

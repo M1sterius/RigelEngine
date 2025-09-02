@@ -1,7 +1,5 @@
 #pragma once
 
-#include <json.hpp>
-
 #include "RigelSubsystem.hpp"
 #include "Core.hpp"
 #include "Handles/SceneHandle.hpp"

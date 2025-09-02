@@ -1,8 +1,8 @@
 #include "VK_StagingManager.hpp"
-#include "VK_Device.hpp"
-#include "VK_MemoryBuffer.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VK_Device.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VK_MemoryBuffer.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

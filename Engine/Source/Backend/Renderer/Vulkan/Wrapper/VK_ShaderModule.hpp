@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "ShaderStage.hpp"
+#include "Backend/Renderer/ShaderStage.hpp"
 
 #include "vulkan/vulkan.h"
 

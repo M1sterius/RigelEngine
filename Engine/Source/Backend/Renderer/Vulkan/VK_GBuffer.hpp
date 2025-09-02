@@ -17,8 +17,8 @@ namespace Rigel::Backend::Vulkan
     class VK_GBuffer
     {
     public:
-        static constexpr VkFormat POSITION_ATTACHMENT_FORMAT = VK_FORMAT_R32G32B32A32_SFLOAT;
-        static constexpr VkFormat NORMAL_ROUGHNESS_ATTACHMENT_FORMAT = VK_FORMAT_R32G32B32A32_SFLOAT;
+        static constexpr VkFormat POSITION_ATTACHMENT_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
+        static constexpr VkFormat NORMAL_ROUGHNESS_ATTACHMENT_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
         static constexpr VkFormat ALBEDO_METALLIC_ATTACHMENT_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
         static constexpr VkFormat DEPTH_STENCIL_ATTACHMENT_FORMAT = VK_FORMAT_D32_SFLOAT_S8_UINT;
 

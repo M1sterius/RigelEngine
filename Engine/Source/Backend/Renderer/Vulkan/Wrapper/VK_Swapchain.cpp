@@ -1,6 +1,6 @@
 #include "VK_Swapchain.hpp"
 #include "VK_Semaphore.hpp"
-#include "VulkanUtility.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 #include "Subsystems/Time.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/WindowManager/WindowManager.hpp"

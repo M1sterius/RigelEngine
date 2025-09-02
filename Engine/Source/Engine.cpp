@@ -1,6 +1,6 @@
 #include "Engine.hpp"
-#include "InternalEvents.hpp"
 #include "Debug.hpp"
+#include "Backend/InternalEvents.hpp"
 #include "Subsystems/Time.hpp"
 #include "Subsystems/InputManager/InputManager.hpp"
 #include "Subsystems/SceneManager.hpp"
@@ -205,11 +205,10 @@ namespace Rigel
     void Engine::DrawDebugGUI()
     {
         ImGui::Begin("Debug GUI");
-        ImGui::SetWindowFontScale(1.5);
 
         ImGui::Text("FPS: %.1f", 1.0 / Time::GetDeltaTime());
         ImGui::Text("Frametime: %.3f",  Time::GetDeltaTime());
-        ImGui::Text("Frame count: %u", Time::GetFrameCount());
+        ImGui::Text("Frame count: %llu", Time::GetFrameCount());
 
         if (ImGui::Button("Shutdown"))
             m_Running = false;

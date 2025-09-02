@@ -1,10 +1,10 @@
 #include "Components/Transform.hpp"
-#include "Utilities/Serialization/Serializer.hpp"
-#include "InternalEvents.hpp"
 #include "Debug.hpp"
 #include "ECS/Scene.hpp"
+#include "Backend/InternalEvents.hpp"
+#include "Utilities/Serialization/Serializer.hpp"
 
-#include "json.hpp"
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {

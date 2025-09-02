@@ -80,6 +80,10 @@
 #include "Utilities/Math/Random.hpp"
 #include "Utilities/ScopeGuard.hpp"
 #include "Utilities/Ref.hpp"
-#include "json.hpp"
+
+// Vendor
+#include "nlohmann_json/json.hpp"
+#include "glm/glm.hpp"
+#include "plf/plf_colony.h"
 
 #endif

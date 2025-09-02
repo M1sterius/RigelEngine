@@ -1,6 +1,6 @@
 #include "Assets/Texture2D.hpp"
 #include "Utilities/ScopeGuard.hpp"
-#include "VK_Texture.hpp"
+#include "Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp"
 
 #include "stb_image/stb_image.h"
 

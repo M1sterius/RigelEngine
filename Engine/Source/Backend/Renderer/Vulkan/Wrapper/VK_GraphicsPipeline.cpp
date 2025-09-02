@@ -1,9 +1,9 @@
 #include "VK_GraphicsPipeline.hpp"
-#include "VulkanUtility.hpp"
-#include "Vertex.hpp"
-#include "VK_DescriptorSet.hpp"
-#include "VK_GBuffer.hpp"
 #include "VK_ShaderModule.hpp"
+#include "VK_DescriptorSet.hpp"
+#include "../VK_GBuffer.hpp"
+#include "../Helpers/VulkanUtility.hpp"
+#include "../Helpers/Vertex.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

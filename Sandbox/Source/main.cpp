@@ -2,8 +2,6 @@
 #include "RigelEngine.hpp"
 #include "FreeCamController.hpp"
 
-#include <print>
-
 int32_t main(int32_t argc, char** argv)
 {
     auto settings = Rigel::ProjectSettings();
@@ -11,7 +9,7 @@ int32_t main(int32_t argc, char** argv)
     settings.argv = argv;
     settings.GameName = "Sandbox";
     settings.GameVersion = RIGEL_MAKE_VERSION(0, 0, 1);
-    settings.TargetFPS = 165;
+    settings.TargetFPS = 0;
     settings.WindowTitle = "Sandbox";
     settings.WindowSize = glm::vec2(1600, 900);
     settings.AssetManagerThreadPoolSize = 8;

@@ -1,12 +1,9 @@
 #include "VK_ImGUI_Renderer.hpp"
-#include "VK_Renderer.hpp"
-#include "VK_Config.hpp"
-#include "MakeInfo.hpp"
-#include "VulkanWrapper.hpp"
-#include "Debug.hpp"
-#include "Engine.hpp"
-#include "Subsystems/EventSystem/EventManager.hpp"
+#include "Backend/Renderer/Vulkan/VK_Renderer.hpp"
+#include "Backend/Renderer/Vulkan/Helpers/VK_Config.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VulkanWrapper.hpp"
 #include "Subsystems/WindowManager/WindowManager.hpp"
+#include "Subsystems/EventSystem/EventManager.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 
 #include "vulkan/vulkan.h"
@@ -28,7 +25,6 @@ namespace Rigel::Backend::Vulkan
         ImGui::StyleColorsDark();
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.Fonts->AddFontDefault();
 
         ImGui_ImplGlfw_InitForVulkan(GetWindowManager()->GetGLFWWindowPtr(), true);
 

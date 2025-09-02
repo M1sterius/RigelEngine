@@ -1,7 +1,7 @@
 #include "VK_GBuffer.hpp"
-#include "VK_Device.hpp"
-#include "VK_Image.hpp"
-#include "VulkanUtility.hpp"
+#include "Wrapper/VK_Device.hpp"
+#include "Wrapper/VK_Image.hpp"
+#include "Helpers/VulkanUtility.hpp"
 
 namespace Rigel::Backend::Vulkan
 {

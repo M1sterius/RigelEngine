@@ -1,7 +1,7 @@
 #include "VK_Device.hpp"
-#include "VulkanUtility.hpp"
 #include "VK_MemoryBuffer.hpp"
 #include "VK_CmdPool.hpp"
+#include "../Helpers/VulkanUtility.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 

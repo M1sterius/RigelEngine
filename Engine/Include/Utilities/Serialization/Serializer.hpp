@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Math.hpp"
-#include "json.hpp"
 #include "Core.hpp"
+#include "Math.hpp"
+
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {

@@ -1,10 +1,10 @@
 #include "Assets/Model.hpp"
-#include "Vertex.hpp"
-#include "VK_VertexBuffer.hpp"
-#include "VK_IndexBuffer.hpp"
 #include "Assets/Metadata/MaterialMetadata.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
+#include "../Backend/Renderer/Vulkan/Helpers/Vertex.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.hpp"
+#include "Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"

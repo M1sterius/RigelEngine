@@ -1,6 +1,6 @@
 #include "Utilities/Serialization/Serializer.hpp"
 
-#include "json.hpp"
+#include "nlohmann_json/json.hpp"
 
 namespace Rigel
 {

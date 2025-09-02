@@ -2,7 +2,6 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "QueueType.hpp"
 
 #include "vulkan/vulkan.h"
 #include "vma/vk_mem_alloc.h"
