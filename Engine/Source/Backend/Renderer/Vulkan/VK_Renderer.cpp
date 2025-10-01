@@ -27,7 +27,7 @@ namespace Rigel::Backend::Vulkan
 
     ErrorCode VK_Renderer::Startup()
     {
-        Debug::Trace("Starting up Vulkan renderer backend.");
+        Debug::Trace("Starting up vulkan rendering backend.");
 
         m_Instance = std::make_unique<VK_Instance>();
         m_Surface = std::make_unique<VK_Surface>(m_Instance->Get());
@@ -35,14 +35,12 @@ namespace Rigel::Backend::Vulkan
         m_Swapchain = std::make_unique<VK_Swapchain>(*m_Device, m_Surface->Get(), GetWindowManager()->GetWindowSize());
         m_BindlessManager = std::make_unique<VK_BindlessManager>(*this, *m_Device);
         m_StagingManager = std::make_unique<VK_StagingManager>(*m_Device);
-        m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
 
+        m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
         m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer);
         m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer);
 
-        const auto framesInFlight = m_Swapchain->GetFramesInFlightCount();
-
-        for (uint32_t i = 0; i < framesInFlight; ++i)
+        for (uint32_t i = 0; i < m_Swapchain->GetFramesInFlightCount(); ++i)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
@@ -71,7 +69,7 @@ namespace Rigel::Backend::Vulkan
         // this shutdown method is called inside Renderer::Shutdown()!
         m_Device->WaitIdle();
 
-        Debug::Trace("Shutting down Vulkan renderer.");
+        Debug::Trace("Shutting down vulkan rendering backend.");
 
         return ErrorCode::OK;
     }
@@ -150,7 +148,7 @@ namespace Rigel::Backend::Vulkan
 
         m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, fence->Get());
 
-        VkSemaphore presentWaitSemaphore = m_LightingPassFinishedSemaphores[frameIndex]->Get();
+        const auto presentWaitSemaphore = m_LightingPassFinishedSemaphores[frameIndex]->Get();
 
         m_Swapchain->Present(swapchainImage.imageIndex, presentWaitSemaphore);
     }

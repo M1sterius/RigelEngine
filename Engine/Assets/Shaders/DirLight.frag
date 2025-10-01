@@ -17,7 +17,7 @@ const float AMBIENT_INTENSITY = 0.15;
 
 const vec3 LIGHT_DIR = vec3(1.0, -1.0, 0.0);
 const vec3 LIGHT_COLOR = vec3(1.0);
-const float LIGHT_INTENSITY = 1.0;
+const float LIGHT_INTENSITY = 0.7;
 
 vec3 CalcLight(vec3 normal, vec3 viewDir, vec3 diffuse, float specular)
 {

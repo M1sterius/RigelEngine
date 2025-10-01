@@ -19,8 +19,8 @@ namespace Rigel::Backend::Vulkan
     struct PhysicalDeviceInfo
     {
         VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-        VkPhysicalDeviceProperties Properties = {};
-        VkPhysicalDeviceMemoryProperties MemoryProperties {};
+        VkPhysicalDeviceProperties Properties{};
+        VkPhysicalDeviceMemoryProperties MemoryProperties{};
         VkDeviceSize DedicatedMemorySize;
         std::vector<VkExtensionProperties> SupportedExtensions;
 

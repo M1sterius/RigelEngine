@@ -20,7 +20,7 @@ namespace Rigel::Backend::Vulkan
     VK_Swapchain::VK_Swapchain(VK_Device& device, VkSurfaceKHR surface, const glm::uvec2 size)
         : m_Device(device), m_Surface(surface), m_ImageSize(size)
     {
-        Debug::Trace("Creating Vulkan swapchain.");
+        Debug::Trace("Creating vulkan swapchain.");
         m_SwapchainSupportDetails = m_Device.GetSwapchainSupportDetails();
         m_FramesInFlight = m_SwapchainSupportDetails.Capabilities.minImageCount + 1;
 
@@ -76,7 +76,7 @@ namespace Rigel::Backend::Vulkan
             else
             {
                 Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                std::format("Failed to present Vulkan image! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
+                std::format("Failed to present vulkan image! VkResult: {}.", static_cast<int32_t>(result)), __FILE__, __LINE__);
             }
         }
     }
@@ -85,7 +85,7 @@ namespace Rigel::Backend::Vulkan
     {
         m_Device.WaitIdle();
 
-        // NEVER!! cache the swapchain support details because they can change after a window resize
+        // NEVER!! cache swapchain support details because they can change after a window resize
         const auto& supportDetails = m_Device.GetSwapchainSupportDetails();
 
         const auto format = ChooseSwapchainSurfaceFormat(supportDetails.Formats);
@@ -139,7 +139,7 @@ namespace Rigel::Backend::Vulkan
         createInfo.oldSwapchain = oldSwapchain;
 
         VK_CHECK_RESULT(vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_Swapchain),
-            "Failed to create Vulkan swapchain!");
+            "Failed to create vulkan swapchain!");
 
         // Clean up old swapchain and associated resources if needed
         if (oldSwapchain != VK_NULL_HANDLE)
@@ -184,7 +184,7 @@ namespace Rigel::Backend::Vulkan
 
         if (imageCount == 0)
         {
-            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "Vulkan swapchain image count is 0!", __FILE__, __LINE__);
+            Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR, "vulkan swapchain image count is 0!", __FILE__, __LINE__);
         }
 
         auto images = std::vector<VkImage>(imageCount);
@@ -229,7 +229,7 @@ namespace Rigel::Backend::Vulkan
 
     VkSurfaceFormatKHR VK_Swapchain::ChooseSwapchainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
-        ASSERT(!availableFormats.empty(), "No Vulkan swapchain surface formats available!");
+        ASSERT(!availableFormats.empty(), "No vulkan swapchain surface formats available!");
 
         // If the device supports only one format with `VK_FORMAT_UNDEFINED`, we can use the preferred format.
         if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)

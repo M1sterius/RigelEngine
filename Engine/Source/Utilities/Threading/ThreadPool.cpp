@@ -14,7 +14,7 @@ namespace Rigel
         const auto _numThreads = numThreads == 0 ? std::thread::hardware_concurrency() : numThreads;
 
         for (size_t i = 0; i < _numThreads; ++i)
-            m_WorkerThreads.emplace_back(std::thread([this] { this->ThreadLoop(); }));
+            m_WorkerThreads.emplace_back([this] { this->ThreadLoop(); });
     }
 
     ThreadPool::~ThreadPool()

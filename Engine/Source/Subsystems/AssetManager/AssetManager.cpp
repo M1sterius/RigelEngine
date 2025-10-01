@@ -16,7 +16,7 @@ namespace Rigel
         m_EnableAssetLifetimeLogging = settings.EnableAssetLifetimeLogging;
         m_ThreadPool = std::make_unique<ThreadPool>(settings.AssetManagerThreadPoolSize);
 
-        Debug::Trace("AssetManager::Created thread pool with {} threads.", m_ThreadPool->GetSize());
+        Debug::Trace("Created asset manager thread pool with {} threads.", m_ThreadPool->GetSize());
 
         m_Initialized = true;
         return ErrorCode::OK;
@@ -60,7 +60,7 @@ namespace Rigel
             assetPtr->WaitReady();
 
             if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Destroying an asset at path: {}.", path.string());
+                Debug::Trace("Destroying an asset: {}.", path.string());
 
             assetPtr.reset(); // explicitly delete the object just for clarity
         });

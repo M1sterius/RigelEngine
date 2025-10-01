@@ -63,6 +63,7 @@ namespace Rigel
             Shutdown();
         }
 
+        Debug::Trace("Destroying rigel engine instance.");
         s_Instance = nullptr; // Reset the global instance so that a new one can be properly created
     }
 
@@ -100,7 +101,7 @@ namespace Rigel
 
         Debug::Trace("Starting up Rigel engine.");
         Debug::Trace("Engine working directory: {}", Directory::WorkingDirectory().string());
-        Debug::Trace("Starting up subsystems:");
+        Debug::Trace("Starting up subsystems.");
 
         // Create subsystem instances, no startup logic in constructors
         m_Time = std::make_unique<Time>();

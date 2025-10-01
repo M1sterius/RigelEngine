@@ -50,7 +50,7 @@ namespace Rigel::Backend::Vulkan
 
     VK_Instance::VK_Instance()
     {
-        Debug::Trace("Creating Vulkan instance.");
+        Debug::Trace("Creating vulkan instance.");
 
         constexpr auto requiredVersion = VK_Config::MinimalRequiredAPIVersion;
         const auto supportedVersion = GetVulkanVersion();

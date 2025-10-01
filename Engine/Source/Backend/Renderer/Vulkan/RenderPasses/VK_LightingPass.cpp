@@ -15,9 +15,9 @@ namespace Rigel::Backend::Vulkan
     VK_LightingPass::VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer)
         : m_Device(device), m_Swapchain(swapchain), m_GBuffer(gBuffer)
     {
-        const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
+        Debug::Trace("Initializing lighting pass.");
 
-        for (uint32_t i = 0; i < framesInFlight; ++i)
+        for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); ++i)
         {
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device, QueueType::Graphics));
         }
@@ -31,6 +31,8 @@ namespace Rigel::Backend::Vulkan
 
     VK_LightingPass::~VK_LightingPass()
     {
+        Debug::Trace("Destroying lighting pass.");
+
         vkDestroySampler(m_Device.Get(), m_GBufferSampler, nullptr);
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }

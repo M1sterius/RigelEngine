@@ -14,9 +14,9 @@ namespace Rigel::Backend::Vulkan
     VK_GeometryPass::VK_GeometryPass(VK_Device& device, VK_Swapchain& swapchain, VK_BindlessManager& bindlessManager, VK_GBuffer& gBuffer)
         : m_Device(device), m_Swapchain(swapchain), m_BindlessManager(bindlessManager), m_GBuffer(gBuffer)
     {
-        const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
+        Debug::Trace("Initializing geometry pass.");
 
-        for (uint32_t i = 0; i < framesInFlight; ++i)
+        for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); ++i)
         {
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device, QueueType::Graphics));
             m_MeshBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(MeshData) * MAX_MESHES,
@@ -31,11 +31,14 @@ namespace Rigel::Backend::Vulkan
 
     VK_GeometryPass::~VK_GeometryPass()
     {
+        Debug::Trace("Destroying geometry pass.");
+
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }
 
     void VK_GeometryPass::CreateDescriptorSet()
     {
+        // Layout
         std::vector<VkDescriptorSetLayoutBinding> bindings(1);
 
         bindings[0].binding = 0;
@@ -49,6 +52,7 @@ namespace Rigel::Backend::Vulkan
 
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout), "Failed to create descriptor set layout!");
 
+        // Set
         const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
 
         std::vector<VkDescriptorPoolSize> poolSizes(1);

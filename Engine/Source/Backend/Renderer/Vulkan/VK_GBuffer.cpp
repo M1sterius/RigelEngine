@@ -8,10 +8,15 @@ namespace Rigel::Backend::Vulkan
     VK_GBuffer::VK_GBuffer(VK_Device& device, const glm::uvec2 size)
         : m_Device(device), m_Size(size)
     {
+        Debug::Trace("Creating G-Buffer with 4 attachments.");
+
         Recreate(m_Size);
     }
 
-    VK_GBuffer::~VK_GBuffer() = default;
+    VK_GBuffer::~VK_GBuffer()
+    {
+        Debug::Trace("Destroying G-Buffer.");
+    }
 
     void VK_GBuffer::Recreate(const glm::uvec2 size)
     {

@@ -89,6 +89,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_StagingManager.cpp
     Source/Backend/Renderer/Vulkan/RenderPasses/VK_GeometryPass.cpp
     Source/Backend/Renderer/Vulkan/RenderPasses/VK_LightingPass.cpp
+        Source/Backend/Renderer/Vulkan/VK_GPUScene.cpp
+        Source/Backend/Renderer/Vulkan/VK_GPUScene.hpp
 )
 
 set_target_properties(RigelEngine PROPERTIES
@@ -145,6 +147,10 @@ target_include_directories(RigelEngine PRIVATE
     ${DEPENDENCIES_DIR}/glfw/include
     ${DEPENDENCIES_DIR}/assimp/include
     ${DEPENDENCIES_DIR}/imgui
+    ${DEPENDENCIES_DIR}/stb_image
+    ${DEPENDENCIES_DIR}/tiny_gltf
+
+    Include/Vendor/nlohmann_json # required for tiny_gltf
 
     Source
 )

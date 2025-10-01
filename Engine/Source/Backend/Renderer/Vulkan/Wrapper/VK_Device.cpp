@@ -13,7 +13,7 @@ namespace Rigel::Backend::Vulkan
     VK_Device::VK_Device(VkInstance instance, VkSurfaceKHR surface)
         : m_Instance(instance), m_Surface(surface)
     {
-        Debug::Trace("Searching for GPUs with Vulkan support.");
+        Debug::Trace("Searching for GPUs with vulkan support.");
         const auto availableDevices = FindPhysicalDevices(m_Instance);
         Debug::Trace("Detected GPUs:");
         for (const auto& device : availableDevices)
@@ -32,7 +32,7 @@ namespace Rigel::Backend::Vulkan
         const auto patch = VK_VERSION_PATCH(version);
 
         Debug::Trace("Selected GPU: {}.", m_SelectedPhysicalDevice.Properties.deviceName);
-        Debug::Trace("GPU supported API version: {}.{}.{}", major, minor, patch);
+        Debug::Trace("GPU supported vulkan API version: {}.{}.{}", major, minor, patch);
         Debug::Trace("Available dedicated VRAM: {}mb.", m_SelectedPhysicalDevice.DedicatedMemorySize / (1024 * 1024));
 
         m_QueueFamilyIndices = FindQueueFamilies(m_SelectedPhysicalDevice.PhysicalDevice, m_Surface);
@@ -57,7 +57,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Device::CreateLogicalDevice()
     {
-        Debug::Trace("Creating logical Vulkan device.");
+        Debug::Trace("Creating logical vulkan device.");
 
         auto queueCreateInfos = std::vector<VkDeviceQueueCreateInfo>();
 
@@ -208,6 +208,8 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Device::SubmitToQueue(const QueueType queueType, const uint32_t submitCount, const VkSubmitInfo* submitInfo, VkFence fence) const
     {
+        // This sync logic will fail if a gpu doesn't have a dedicated transfer queue
+
         if (queueType == QueueType::Graphics)
         {
             std::unique_lock lock(m_GraphicsQueueMutex);
@@ -241,7 +243,7 @@ namespace Rigel::Backend::Vulkan
         if (deviceCount == 0)
         {
             Debug::Crash(ErrorCode::VULKAN_UNRECOVERABLE_ERROR,
-                "Failed to find GPUs with Vulkan support!", __FILE__, __LINE__);
+                "Failed to find GPUs with vulkan support!", __FILE__, __LINE__);
         }
 
         devices.resize(deviceCount);
@@ -361,8 +363,8 @@ namespace Rigel::Backend::Vulkan
 
     QueueFamilyIndices VK_Device::FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
-        // Searches for support of graphics, transfer and present queue families on a device,
-        // corresponding std::optional in QueueFamilyIndices won't have a value if the queue isn't supported
+        // Searches for support of graphics, transfer and present queue families on a device.
+        // Corresponding std::optional in QueueFamilyIndices won't have a value if a queue isn't supported
 
         QueueFamilyIndices indices;
 
@@ -375,13 +377,14 @@ namespace Rigel::Backend::Vulkan
         uint32_t i = 0;
         for (const auto& queueFamily : queueFamilies)
         {
+            // Graphics queue
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT && !indices.GraphicsFamily.has_value())
                 indices.GraphicsFamily = i;
 
-            // dedicated transfer queue
+            // Dedicated transfer queue
             if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) &&
                 !(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
-                !(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))
+                !(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) && !indices.TransferFamily.has_value())
             {
                 indices.TransferFamily = i;
             }
@@ -389,6 +392,7 @@ namespace Rigel::Backend::Vulkan
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
+            // Present queue
             if (presentSupport && !indices.PresentFamily.has_value())
                 indices.PresentFamily = i;
 

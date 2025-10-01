@@ -56,7 +56,7 @@ namespace Rigel
                 return existing;
 
             if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Loading an asset: {}.", path.string());
+                Debug::Trace("Loading an asset: {}.", path.string());
 
             auto entry = AssetRegistryEntry{
                 .AssetID = ++m_NextID,
@@ -124,7 +124,7 @@ namespace Rigel
                 return existing;
 
             if (m_EnableAssetLifetimeLogging)
-                Debug::Trace("AssetManager::Loading an asset: {}.", path.string());
+                Debug::Trace("Loading an asset: {}.", path.string());
 
             auto entry = AssetRegistryEntry{
                 .AssetID = ++m_NextID,
