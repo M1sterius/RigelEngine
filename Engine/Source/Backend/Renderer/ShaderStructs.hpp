@@ -72,10 +72,14 @@ namespace Rigel::Backend::Vulkan
 
     struct SceneData
     {
-        MeshData Meshes[2048];
+        static constexpr uint32_t MAX_MESHES = 2048;
+        static constexpr uint32_t MAX_DIR_LIGHTS = 4;
+        static constexpr uint32_t MAX_POINT_LIGHTS = 256;
+        static constexpr uint32_t MAX_SPOT_LIGHTS = 256;
 
-        DirectionalLightData DirLights[4];
-        PointLightData PointLights[256];
-        SpotLightData SpotLights[256];
+        MeshData Meshes[MAX_MESHES];
+        // DirectionalLightData DirLights[MAX_DIR_LIGHTS];
+        // PointLightData PointLights[MAX_POINT_LIGHTS];
+        // SpotLightData SpotLights[MAX_SPOT_LIGHTS];
     };
 }

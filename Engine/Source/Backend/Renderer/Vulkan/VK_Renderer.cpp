@@ -89,6 +89,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_Renderer::Render()
     {
+        // Swapchain resize
         if (GetWindowManager()->GetWindowResizeFlag())
         {
             GetWindowManager()->ResetWindowResizeFlag();
