@@ -14,6 +14,8 @@ namespace Rigel
     public:
         ~Material() override;
     INTERNAL:
+        NODISCARD bool IsTwoSided() const { return m_TwoSided; }
+
         NODISCARD uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
     private:
         Material(const std::filesystem::path& path, const uid_t id);

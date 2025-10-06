@@ -77,6 +77,12 @@ namespace Rigel::Backend::Vulkan
         static constexpr uint32_t MAX_POINT_LIGHTS = 256;
         static constexpr uint32_t MAX_SPOT_LIGHTS = 256;
 
+        glm::vec3 CameraPosition;
+        uint32_t MeshCount;
+        // uint32_t DirLightCount;
+        // uint32_t PointLightCount;
+        // uint32_t SpotLightCount;
+
         MeshData Meshes[MAX_MESHES];
         // DirectionalLightData DirLights[MAX_DIR_LIGHTS];
         // PointLightData PointLights[MAX_POINT_LIGHTS];

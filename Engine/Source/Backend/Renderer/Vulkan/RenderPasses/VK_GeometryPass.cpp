@@ -84,7 +84,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_GeometryPass::CreateGraphicsPipeline()
     {
-        const std::vector descriptorSetLayouts = {
+        const std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {
             m_BindlessManager.GetDescriptorSetLayout(),
             m_DescriptorSetLayout
         };

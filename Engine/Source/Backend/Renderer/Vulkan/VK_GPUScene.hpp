@@ -48,6 +48,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
         NODISCARD VkDescriptorSet GetDescriptorSet(const uint32_t frameIndex) const { return m_DescriptorSets[frameIndex]; }
 
+        NODISCARD const SceneData* GetSceneData() const { return m_SceneData.get(); }
         NODISCARD const std::vector<DrawBatch>& GetDeferredDrawBatches() const { return m_DeferredDrawBatches; }
         NODISCARD const std::vector<DrawBatch>& GetForwardDrawBatches() const { return m_ForwardDrawBatches; }
 

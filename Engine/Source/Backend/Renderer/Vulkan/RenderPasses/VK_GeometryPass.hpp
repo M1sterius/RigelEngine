@@ -49,7 +49,8 @@ namespace Rigel::Backend::Vulkan
     class VK_GeometryPass
     {
     public:
-        VK_GeometryPass(VK_Device& device, VK_Swapchain& swapchain, VK_BindlessManager& bindlessManager, VK_GBuffer& gBuffer);
+        VK_GeometryPass(VK_Device& device, VK_Swapchain& swapchain, VK_BindlessManager& bindlessManager,
+            VK_GBuffer& gBuffer);
         ~VK_GeometryPass();
 
         VK_GeometryPass(const VK_GeometryPass&) = delete;

@@ -35,8 +35,9 @@ namespace Rigel::Backend::Vulkan
     class VK_DescriptorPool;
     class VK_MemoryBuffer;
     class VK_Image;
-    class VK_GBuffer;
     class VK_StagingManager;
+    class VK_GBuffer;
+    class VK_GPUScene;
     class VK_GeometryPass;
     class VK_LightingPass;
 
@@ -80,6 +81,7 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_BindlessManager> m_BindlessManager;
 
         std::unique_ptr<VK_GBuffer> m_GBuffer;
+        std::unique_ptr<VK_GPUScene> m_GPUScene;
         std::unique_ptr<VK_GeometryPass> m_GeometryPass;
         std::unique_ptr<VK_LightingPass> m_LightingPass;
 

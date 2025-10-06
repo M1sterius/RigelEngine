@@ -195,6 +195,7 @@ namespace Rigel::Backend::Vulkan
 
     void VK_LightingPass::CreateDescriptorSet()
     {
+        // Layout
         std::array<VkDescriptorSetLayoutBinding, 3> bindings{};
 
         for (uint32_t i = 0; i < bindings.size(); ++i)
@@ -211,6 +212,7 @@ namespace Rigel::Backend::Vulkan
 
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout), "Failed to create descriptor set layout!");
 
+        // Set
         std::vector<VkDescriptorPoolSize> poolSizes(1);
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         poolSizes[0].descriptorCount = 3;
@@ -221,6 +223,10 @@ namespace Rigel::Backend::Vulkan
 
     void VK_LightingPass::CreateGraphicsPipeline()
     {
+        const std::array<VkDescriptorSetLayout, 1> setLayouts = {
+            m_DescriptorSetLayout
+        };
+
         VkPushConstantRange pushConstants = {};
         pushConstants.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstants.offset = 0;
@@ -229,9 +235,8 @@ namespace Rigel::Backend::Vulkan
         auto pipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
         pipelineLayout.pushConstantRangeCount = 1;
         pipelineLayout.pPushConstantRanges = &pushConstants;
-        pipelineLayout.setLayoutCount = 0;
-        pipelineLayout.setLayoutCount = 1;
-        pipelineLayout.pSetLayouts = &m_DescriptorSetLayout;
+        pipelineLayout.setLayoutCount = setLayouts.size();
+        pipelineLayout.pSetLayouts = setLayouts.data();
 
         auto lightingPassShaderMetadata = ShaderMetadata();
         lightingPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";

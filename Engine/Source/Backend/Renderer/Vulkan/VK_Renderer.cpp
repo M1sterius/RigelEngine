@@ -2,6 +2,7 @@
 #include "Assets/Shader.hpp"
 #include "Assets/Model.hpp"
 #include "VK_BindlessManager.hpp"
+#include "VK_GPUScene.hpp"
 #include "VK_GBuffer.hpp"
 #include "VK_StagingManager.hpp"
 #include "Backend/Renderer/Vulkan/Wrapper/VulkanWrapper.hpp"
@@ -37,6 +38,7 @@ namespace Rigel::Backend::Vulkan
         m_StagingManager = std::make_unique<VK_StagingManager>(*m_Device);
 
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
+        m_GPUScene = std::make_unique<VK_GPUScene>(*m_Device, *m_Swapchain);
         m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer);
         m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer);
 

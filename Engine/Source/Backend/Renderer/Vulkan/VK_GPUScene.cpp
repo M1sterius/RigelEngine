@@ -35,7 +35,7 @@ namespace Rigel::Backend::Vulkan
         m_DeferredDrawBatches.clear();
         m_ForwardDrawBatches.clear();
 
-        // Skip rendering altogether
+        // Skip rendering altogether if there is no main camera in the scene
         if (!sceneRenderInfo->CameraPresent)
             return;
 
@@ -46,9 +46,13 @@ namespace Rigel::Backend::Vulkan
             const auto& modelAsset = sceneRenderInfo->Models[i];
             const auto& modelTransform = sceneRenderInfo->Transforms[i];
 
-            auto batch = DrawBatch();
-            batch.VertexBuffer = modelAsset->GetVertexBuffer();
-            batch.IndexBuffer = modelAsset->GetIndexBuffer();
+            auto deferredBatch = DrawBatch();
+            deferredBatch.VertexBuffer = modelAsset->GetVertexBuffer();
+            deferredBatch.IndexBuffer = modelAsset->GetIndexBuffer();
+
+            auto forwardBatch = DrawBatch();
+            forwardBatch.VertexBuffer = modelAsset->GetVertexBuffer();
+            forwardBatch.IndexBuffer = modelAsset->GetIndexBuffer();
 
             int32_t vertexOffset = 0;
             for (auto node = modelAsset->GetNodeIterator(); node.Valid(); ++node)
@@ -59,6 +63,8 @@ namespace Rigel::Backend::Vulkan
 
                 for (const auto& mesh : node->Meshes)
                 {
+                    const auto meshMaterial = mesh.Material;
+
                     m_SceneData->Meshes[meshIndex] = MeshData{
                         .MaterialIndex = mesh.Material->GetBindlessIndex(),
                         .MVP = MVP,
@@ -66,20 +72,40 @@ namespace Rigel::Backend::Vulkan
                         .Normal = normalMat,
                     };
 
-                    batch.DrawCalls.push_back({
-                        .MeshIndex = meshIndex,
-                        .IndexCount = mesh.IndexCount,
-                        .FirstIndex = mesh.FirstIndex,
-                        .VertexOffset = vertexOffset
-                    });
+                    if (meshMaterial->IsTwoSided())
+                    {
+                        forwardBatch.DrawCalls.push_back({
+                            .MeshIndex = meshIndex,
+                            .IndexCount = mesh.IndexCount,
+                            .FirstIndex = mesh.FirstIndex,
+                            .VertexOffset = vertexOffset
+                        });
+                    }
+                    else
+                    {
+                        deferredBatch.DrawCalls.push_back({
+                            .MeshIndex = meshIndex,
+                            .IndexCount = mesh.IndexCount,
+                            .FirstIndex = mesh.FirstIndex,
+                            .VertexOffset = vertexOffset
+                        });
+                    }
 
-                    vertexOffset = static_cast<int32_t>(mesh.FirstVertex) + static_cast<int32_t>(mesh.VertexCount);
-                    ++meshIndex;
+                    vertexOffset = (int32_t)mesh.FirstVertex + (int32_t)mesh.VertexCount;
+                    meshIndex++;
                 }
             }
 
-            m_DeferredDrawBatches.push_back(batch);
+            if (!deferredBatch.DrawCalls.empty())
+                m_DeferredDrawBatches.push_back(deferredBatch);
+
+            if (!forwardBatch.DrawCalls.empty())
+                m_ForwardDrawBatches.push_back(forwardBatch);
         }
+
+        m_SceneData->MeshCount = meshIndex;
+        m_SceneData->CameraPosition = sceneRenderInfo->CamPos;
+        // lights, other graphics objects?
 
         // Update current frame's mesh buffer
         const auto& buffer = m_Buffers[frameIndex];
