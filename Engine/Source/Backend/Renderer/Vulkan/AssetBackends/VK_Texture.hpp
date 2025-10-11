@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
-#include "../../../../../Include/Assets/Texture2D.hpp"
+#include "../../../../../Include/Assets/Texture.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -10,7 +10,7 @@
 
 namespace Rigel
 {
-    class Texture2D;
+    class Texture;
 }
 
 namespace Rigel::Backend::Vulkan
@@ -26,12 +26,12 @@ namespace Rigel::Backend::Vulkan
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD VK_Image& GetImage() const { return *m_Image; }
         NODISCARD uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
-        NODISCARD const Texture2D::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
+        NODISCARD const Texture::SamplerProperties& GetSamplerProperties() const { return m_SamplerProperties; }
     private:
         void GenerateMipMaps() const;
 
         std::unique_ptr<VK_Image> m_Image;
-        Texture2D::SamplerProperties m_SamplerProperties{};
+        Texture::SamplerProperties m_SamplerProperties{};
 
         uint32_t m_BindlessIndex = UINT32_MAX;
     };

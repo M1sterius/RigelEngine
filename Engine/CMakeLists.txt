@@ -31,7 +31,7 @@ add_library(RigelEngine STATIC
 
     # Assets
     Source/Assets/Model.cpp
-    Source/Assets/Texture2D.cpp
+    Source/Assets/Texture.cpp
     Source/Assets/Material.cpp
     Source/Assets/Shader.cpp
 
@@ -89,8 +89,8 @@ add_library(RigelEngine STATIC
     Source/Backend/Renderer/Vulkan/VK_StagingManager.cpp
     Source/Backend/Renderer/Vulkan/RenderPasses/VK_GeometryPass.cpp
     Source/Backend/Renderer/Vulkan/RenderPasses/VK_LightingPass.cpp
-        Source/Backend/Renderer/Vulkan/VK_GPUScene.cpp
-        Source/Backend/Renderer/Vulkan/VK_GPUScene.hpp
+    Source/Backend/Renderer/Vulkan/VK_GPUScene.cpp
+    Source/Backend/Renderer/Vulkan/RenderPasses/VK_ForwardPass.cpp
 )
 
 set_target_properties(RigelEngine PROPERTIES

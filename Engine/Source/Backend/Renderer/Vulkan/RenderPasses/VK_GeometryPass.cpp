@@ -1,8 +1,11 @@
 #include "VK_GeometryPass.hpp"
 #include "../VK_BindlessManager.hpp"
 #include "../VK_GBuffer.hpp"
+#include "../VK_GPUScene.hpp"
 #include "../Wrapper/VulkanWrapper.hpp"
 #include "../Helpers/VulkanUtility.hpp"
+#include "../Helpers/Vertex.hpp"
+#include "../Wrapper/VK_ShaderModule.hpp"
 #include "../../ShaderStructs.hpp"
 #include "Assets/Model.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
@@ -11,95 +14,26 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_GeometryPass::VK_GeometryPass(VK_Device& device, VK_Swapchain& swapchain, VK_BindlessManager& bindlessManager, VK_GBuffer& gBuffer)
-        : m_Device(device), m_Swapchain(swapchain), m_BindlessManager(bindlessManager), m_GBuffer(gBuffer)
+    VK_GeometryPass::VK_GeometryPass(VK_Device& device, VK_Swapchain& swapchain, VK_BindlessManager& bindlessManager, VK_GBuffer& gBuffer, VK_GPUScene& gpuScene)
+        : m_Device(device), m_Swapchain(swapchain), m_BindlessManager(bindlessManager), m_GBuffer(gBuffer), m_GPUScene(gpuScene)
     {
         Debug::Trace("Initializing geometry pass.");
 
         for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); ++i)
         {
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device, QueueType::Graphics));
-            m_MeshBuffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(MeshData) * MAX_MESHES,
-                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU));
         }
 
-        m_Meshes.resize(MAX_MESHES);
-
-        CreateDescriptorSet();
         CreateGraphicsPipeline();
     }
 
     VK_GeometryPass::~VK_GeometryPass()
     {
         Debug::Trace("Destroying geometry pass.");
-
-        vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
-    }
-
-    void VK_GeometryPass::CreateDescriptorSet()
-    {
-        // Layout
-        std::vector<VkDescriptorSetLayoutBinding> bindings(1);
-
-        bindings[0].binding = 0;
-        bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        bindings[0].descriptorCount = 1;
-        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
-        setLayoutInfo.bindingCount = bindings.size();
-        setLayoutInfo.pBindings = bindings.data();
-
-        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &setLayoutInfo, nullptr, &m_DescriptorSetLayout), "Failed to create descriptor set layout!");
-
-        // Set
-        const auto framesInFlight = m_Swapchain.GetFramesInFlightCount();
-
-        std::vector<VkDescriptorPoolSize> poolSizes(1);
-        poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        poolSizes[0].descriptorCount = framesInFlight;
-
-        m_DescriptorPool = std::make_unique<VK_DescriptorPool>(m_Device, poolSizes, framesInFlight, 0);
-        for (uint32_t i = 0; i < framesInFlight; ++i)
-        {
-            const auto set = m_DescriptorPool->Allocate(m_DescriptorSetLayout);
-            m_DescriptorSets.push_back(set);
-
-            VkDescriptorBufferInfo bufferInfo {};
-            bufferInfo.buffer = m_MeshBuffers[i]->Get();
-            bufferInfo.offset = 0;
-            bufferInfo.range = VK_WHOLE_SIZE;
-
-            auto write = MakeInfo<VkWriteDescriptorSet>();
-            write.dstSet = set;
-            write.dstBinding = 0;
-            write.dstArrayElement = 0;
-            write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-            write.descriptorCount = 1;
-            write.pBufferInfo = &bufferInfo;
-
-            vkUpdateDescriptorSets(m_Device.Get(), 1, &write, 0, nullptr);
-        }
     }
 
     void VK_GeometryPass::CreateGraphicsPipeline()
     {
-        const std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {
-            m_BindlessManager.GetDescriptorSetLayout(),
-            m_DescriptorSetLayout
-        };
-
-        VkPushConstantRange pushConstants = {};
-        pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        pushConstants.offset = 0;
-        pushConstants.size = sizeof(uint32_t);
-
-        auto pipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
-        pipelineLayout.pushConstantRangeCount = 1;
-        pipelineLayout.pPushConstantRanges = &pushConstants;
-        pipelineLayout.setLayoutCount = descriptorSetLayouts.size();
-        pipelineLayout.pSetLayouts = descriptorSetLayouts.data();
-
         auto shaderMetadata = ShaderMetadata();
         shaderMetadata.Paths[0] = "Assets/Engine/Shaders/GeometryPass.vert.spv";
         shaderMetadata.Paths[1] = "Assets/Engine/Shaders/GeometryPass.frag.spv";
@@ -113,66 +47,56 @@ namespace Rigel::Backend::Vulkan
                 "Failed to load geometry pass shader!", __FILE__, __LINE__);
         }
 
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateGeometryPassPipeline(
-            m_Device,
-            pipelineLayout,
-            shader->GetVariant("Main")
-        );
-    }
+        const auto shaderVariant = shader->GetVariant("Main");
 
-    void VK_GeometryPass::SetMeshData(const Ref<SceneRenderInfo> sceneRenderInfo, const uint32_t frameIndex)
-    {
-        m_DrawBatches.clear();
+        auto configInfo = GraphicsPipelineConfigInfo::Make();
 
-        if (!sceneRenderInfo->CameraPresent)
-            return;
+        configInfo.ShaderStages.resize(2);
+        configInfo.ShaderStages[0] = shaderVariant.VertexModule->GetStageInfo();
+        configInfo.ShaderStages[1] = shaderVariant.FragmentModule->GetStageInfo();
 
-        uint32_t meshIndex = 0;
-        const auto projView = sceneRenderInfo->ProjView;
+        configInfo.ColorAttachmentFormats = {
+            VK_GBuffer::POSITION_ATTACHMENT_FORMAT,
+            VK_GBuffer::NORMAL_ROUGHNESS_ATTACHMENT_FORMAT,
+            VK_GBuffer::ALBEDO_METALLIC_ATTACHMENT_FORMAT
+        };
 
-        for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
-        {
-            const auto& modelAsset = sceneRenderInfo->Models[i];
-            const auto& modelTransform = sceneRenderInfo->Transforms[i];
+        configInfo.DepthAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
+        configInfo.StencilAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
 
-            auto batch = BakedDrawBatch();
-            batch.VertexBuffer = modelAsset->GetVertexBuffer();
-            batch.IndexBuffer = modelAsset->GetIndexBuffer();
+        configInfo.VertexBindingDescription = Vertex3p2t3n4g::GetBindingDescription();
+        configInfo.VertexAttributeDescriptions = Vertex3p2t3n4g::GetAttributeDescriptions();
 
-            int32_t vertexOffset = 0;
-            for (auto node = modelAsset->GetNodeIterator(); node.Valid(); ++node)
-            {
-                const auto modelMat = modelTransform * node->Transform;
-                const auto normalMat = glm::mat3(glm::transpose(glm::inverse(modelMat)));
-                const auto MVP = projView * modelMat;
+        configInfo.BlendAttachments.resize(3);
+        configInfo.BlendAttachments[0].blendEnable = VK_FALSE;
+        configInfo.BlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        configInfo.BlendAttachments[1].blendEnable = VK_FALSE;
+        configInfo.BlendAttachments[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        configInfo.BlendAttachments[2].blendEnable = VK_FALSE;
+        configInfo.BlendAttachments[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
-                for (const auto& mesh : node->Meshes)
-                {
-                    m_Meshes[meshIndex] = MeshData{
-                        .MaterialIndex = mesh.Material->GetBindlessIndex(),
-                        .MVP = MVP,
-                        .Model = modelMat,
-                        .Normal = normalMat,
-                    };
+        const std::array descriptorSetLayouts = {
+            m_BindlessManager.GetDescriptorSetLayout(),
+            m_GPUScene.GetDescriptorSetLayout()
+        };
 
-                    batch.DrawCalls.push_back({
-                        .MeshIndex = meshIndex,
-                        .IndexCount = mesh.IndexCount,
-                        .FirstIndex = mesh.FirstIndex,
-                        .VertexOffset = vertexOffset
-                    });
+        VkPushConstantRange pushConstants = {};
+        pushConstants.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        pushConstants.offset = 0;
+        pushConstants.size = sizeof(uint32_t);
 
-                    vertexOffset = static_cast<int32_t>(mesh.FirstVertex) + static_cast<int32_t>(mesh.VertexCount);
-                    ++meshIndex;
-                }
-            }
+        auto pipelineLayoutCreateInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstants;
+        pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
+        pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
 
-            m_DrawBatches.push_back(batch);
-        }
+        const auto pipelineLayout = VK_GraphicsPipeline::CreateLayout(m_Device, pipelineLayoutCreateInfo);
 
-        // Update current frame's mesh buffer
-        const auto& buffer = m_MeshBuffers[frameIndex];
-        buffer->UploadData(0, sizeof(MeshData) * m_Meshes.size(), m_Meshes.data());
+        m_GraphicsPipeline = std::make_unique<VK_GraphicsPipeline>(m_Device, configInfo, pipelineLayout);
     }
 
     VkCommandBuffer VK_GeometryPass::RecordCommandBuffer(const uint32_t frameIndex)
@@ -192,7 +116,7 @@ namespace Rigel::Backend::Vulkan
 
         const std::array descriptorSets = {
             m_BindlessManager.GetDescriptorSet(),
-            m_DescriptorSets[frameIndex]
+            m_GPUScene.GetDescriptorSet(frameIndex)
         };
 
         vkCmdBindDescriptorSets(
@@ -204,7 +128,7 @@ namespace Rigel::Backend::Vulkan
             0, nullptr
         );
 
-        for (const auto& batch : m_DrawBatches)
+        for (const auto& batch : m_GPUScene.GetDeferredDrawBatches())
         {
             batch.VertexBuffer->CmdBind(commandBuffer);
             batch.IndexBuffer->CmdBind(commandBuffer);

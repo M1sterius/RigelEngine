@@ -23,15 +23,15 @@ namespace Rigel
         if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
-        auto LoadTexture = [metadata](const std::filesystem::path& path) -> AssetHandle<Texture2D>
+        auto LoadTexture = [metadata](const std::filesystem::path& path) -> AssetHandle<Texture>
         {
             if (metadata->PermitAsyncTextureLoading)
-                return GetAssetManager()->LoadAsync<Texture2D>(path);
+                return GetAssetManager()->LoadAsync<Texture>(path);
             else
-                return GetAssetManager()->Load<Texture2D>(path);
+                return GetAssetManager()->Load<Texture>(path);
         };
 
-        auto SetIndex = [](const AssetHandle<Texture2D>& texture, const uint32_t fallbackIndex) -> uint32_t
+        auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t
         {
             if (texture.IsNull())
                 return fallbackIndex;

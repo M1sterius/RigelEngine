@@ -27,13 +27,14 @@ namespace Rigel::Backend::Vulkan
     class VK_IndexBuffer;
     class VK_DescriptorPool;
     class VK_Swapchain;
+    class VK_GPUScene;
 
     struct AcquireImageInfo;
 
     class VK_LightingPass 
     {
     public:
-        VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer);
+        VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer, VK_GPUScene& gpuScene);
         ~VK_LightingPass();
 
         VK_LightingPass(const VK_LightingPass&) = delete;
@@ -42,14 +43,12 @@ namespace Rigel::Backend::Vulkan
         void Recreate();
         void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
-        void SetLightData(const Ref<SceneRenderInfo> sceneRenderInfo, const uint32_t frameIndex);
         NODISCARD VkCommandBuffer RecordCommandBuffer(const AcquireImageInfo& swapchainImage, const uint32_t frameIndex);
     private:
         VK_Device& m_Device;
         VK_Swapchain& m_Swapchain;
         VK_GBuffer& m_GBuffer;
-
-        glm::vec3 m_CamPos{0.0};
+        VK_GPUScene& m_GPUScene;
 
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
         std::unique_ptr<VK_GraphicsPipeline> m_GraphicsPipeline;

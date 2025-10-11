@@ -2,7 +2,7 @@
 
 #include "Core.hpp"
 #include "../ShaderStructs.hpp"
-#include "Assets/Texture2D.hpp"
+#include "Assets/Texture.hpp"
 #include "Handles/AssetHandle.hpp"
 
 #include "vulkan/vulkan.h"
@@ -48,7 +48,7 @@ namespace Rigel::Backend::Vulkan
 
         NODISCARD uint32_t AddTexture(const Ref<VK_Texture> texture);
         void RemoveTexture(const uint32_t textureIndex);
-        void SetTextureSampler(const Ref<VK_Texture> texture, const Texture2D::SamplerProperties& samplerProperties);
+        void SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties);
 
         NODISCARD uint32_t AddMaterial(const Ref<MaterialData> material);
         void RemoveMaterial(const uint32_t materialIndex);
@@ -59,7 +59,7 @@ namespace Rigel::Backend::Vulkan
         void CreateMaterialsBuffer();
         void CreateDescriptorSetLayout();
 
-        NODISCARD VkSampler GetSamplerByProperties(const Texture2D::SamplerProperties& properties);
+        NODISCARD VkSampler GetSamplerByProperties(const Texture::SamplerProperties& properties);
         void UpdateTextureDescriptor(VkImageView imageView, VkSampler sampler, const uint32_t slot) const;
 
         VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
@@ -67,7 +67,7 @@ namespace Rigel::Backend::Vulkan
 
         std::unique_ptr<VK_DescriptorPool> m_DescriptorPool;
 
-        std::vector<std::pair<Texture2D::SamplerProperties, VkSampler>> m_Samplers;
+        std::vector<std::pair<Texture::SamplerProperties, VkSampler>> m_Samplers;
         std::mutex m_SamplersMutex;
 
         std::vector<Ref<VK_Texture>> m_Textures;

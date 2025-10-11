@@ -46,9 +46,9 @@ namespace Rigel::Backend::Vulkan
             return bindingDescription;
         }
 
-        NODISCARD static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions()
+        NODISCARD static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
         {
-            std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions {};
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(4);
 
             // a_Position (location = 0)
             attributeDescriptions[0].binding = 0;
@@ -78,48 +78,48 @@ namespace Rigel::Backend::Vulkan
         }
     };
 
-    struct Vertex3p2t
-    {
-        glm::vec3 Position;
-        glm::vec2 TexCoords;
-
-         Vertex3p2t() = default;
-        Vertex3p2t(const glm::vec3 pos, const glm::vec2 texCoords)
-            : Position(pos), TexCoords(texCoords) { }
-
-        NODISCARD static VkVertexInputBindingDescription GetBindingDescription()
-        {
-            /*
-             * Apparently it specifies how many vertex buffers will be used inside the shader
-             * Something like bind multiple VBOs to a single VAO in OpenGL
-             * There we use only one vertex buffer in the shader so we have a single binding description
-             */
-
-            VkVertexInputBindingDescription bindingDescription {};
-            bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex3p2t);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            return bindingDescription;
-        }
-
-        NODISCARD static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
-        {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
-
-            // a_Position (location = 0)
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[0].offset = offsetof(Vertex3p2t, Position);
-
-            // a_TexCoords (location = 1)
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex3p2t, TexCoords);
-
-            return attributeDescriptions;
-        }
-    };
+    // struct Vertex3p2t
+    // {
+    //     glm::vec3 Position;
+    //     glm::vec2 TexCoords;
+    //
+    //      Vertex3p2t() = default;
+    //     Vertex3p2t(const glm::vec3 pos, const glm::vec2 texCoords)
+    //         : Position(pos), TexCoords(texCoords) { }
+    //
+    //     NODISCARD static VkVertexInputBindingDescription GetBindingDescription()
+    //     {
+    //         /*
+    //          * Apparently it specifies how many vertex buffers will be used inside the shader
+    //          * Something like bind multiple VBOs to a single VAO in OpenGL
+    //          * There we use only one vertex buffer in the shader so we have a single binding description
+    //          */
+    //
+    //         VkVertexInputBindingDescription bindingDescription {};
+    //         bindingDescription.binding = 0;
+    //         bindingDescription.stride = sizeof(Vertex3p2t);
+    //         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    //
+    //         return bindingDescription;
+    //     }
+    //
+    //     NODISCARD static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+    //     {
+    //         std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
+    //
+    //         // a_Position (location = 0)
+    //         attributeDescriptions[0].binding = 0;
+    //         attributeDescriptions[0].location = 0;
+    //         attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    //         attributeDescriptions[0].offset = offsetof(Vertex3p2t, Position);
+    //
+    //         // a_TexCoords (location = 1)
+    //         attributeDescriptions[1].binding = 0;
+    //         attributeDescriptions[1].location = 1;
+    //         attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+    //         attributeDescriptions[1].offset = offsetof(Vertex3p2t, TexCoords);
+    //
+    //         return attributeDescriptions;
+    //     }
+    // };
 }

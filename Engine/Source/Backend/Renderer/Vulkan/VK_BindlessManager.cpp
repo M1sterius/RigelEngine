@@ -100,7 +100,7 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(m_Device.Get(), &createInfo, nullptr, &m_DescriptorSetLayout), "Failed to create bindless descriptor set layout");
     }
 
-    VkSampler VK_BindlessManager::GetSamplerByProperties(const Texture2D::SamplerProperties& properties)
+    VkSampler VK_BindlessManager::GetSamplerByProperties(const Texture::SamplerProperties& properties)
     {
         // check if a sampler with that properties already exists
         {
@@ -198,7 +198,7 @@ namespace Rigel::Backend::Vulkan
         static Ref<VK_Texture> defaultTexture = nullptr;
         if (!defaultTexture)
         {
-            const auto hTex = GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError);
+            const auto hTex = GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError);
             defaultTexture = hTex->GetImpl();
         }
 
@@ -222,7 +222,7 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_BindlessManager::SetTextureSampler(const Ref<VK_Texture> texture, const Texture2D::SamplerProperties& samplerProperties)
+    void VK_BindlessManager::SetTextureSampler(const Ref<VK_Texture> texture, const Texture::SamplerProperties& samplerProperties)
     {
         const auto textureIndex = texture->GetBindlessIndex();
 

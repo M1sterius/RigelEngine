@@ -20,6 +20,9 @@ layout(location = 0) out Varying_T
 
 layout(set = 1, binding = 0, scalar) readonly buffer MeshBuffer_T
 {
+    vec3 CameraPosition;
+    uint MeshCount;
+
     MeshData Meshes[];
 } b_MeshBuffer;
 

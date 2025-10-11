@@ -17,6 +17,68 @@ namespace Rigel::Backend::Vulkan
         VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_Device.Get(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline), "Failed to create graphics pipeline!");
     }
 
+    VK_GraphicsPipeline::VK_GraphicsPipeline(VK_Device& device, const GraphicsPipelineConfigInfo& configInfo,
+        VkPipelineLayout pipelineLayout)
+            : m_Device(device), m_PipelineLayout(pipelineLayout)
+    {
+        // Dynamic rendering info
+        auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
+        renderingCreateInfo.colorAttachmentCount = configInfo.ColorAttachmentFormats.size();
+        renderingCreateInfo.pColorAttachmentFormats = configInfo.ColorAttachmentFormats.data();
+        renderingCreateInfo.depthAttachmentFormat = configInfo.DepthAttachmentFormat;
+        renderingCreateInfo.stencilAttachmentFormat = configInfo.StencilAttachmentFormat;
+
+        // Vertex input info
+        auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
+        if (configInfo.NoVertexInput)
+        {
+            vertexInputInfo.vertexBindingDescriptionCount = 0;
+            vertexInputInfo.vertexAttributeDescriptionCount = 0;
+            vertexInputInfo.pVertexBindingDescriptions = nullptr;
+            vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+        }
+        else
+        {
+            vertexInputInfo.vertexBindingDescriptionCount = 1;
+            vertexInputInfo.pVertexBindingDescriptions = &configInfo.VertexBindingDescription;
+            vertexInputInfo.vertexAttributeDescriptionCount = configInfo.VertexAttributeDescriptions.size();
+            vertexInputInfo.pVertexAttributeDescriptions = configInfo.VertexAttributeDescriptions.data();
+        }
+
+        // Viewport and scissor. They are always dynamic!
+        auto viewportState = MakeInfo<VkPipelineViewportStateCreateInfo>();
+        viewportState.viewportCount = 1;
+        viewportState.scissorCount = 1;
+
+        // Color blending
+        auto colorBlending = MakeInfo<VkPipelineColorBlendStateCreateInfo>();
+        colorBlending.attachmentCount = configInfo.BlendAttachments.size();
+        colorBlending.pAttachments = configInfo.BlendAttachments.data();
+
+        // Dynamic states
+        auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
+        dynamicState.dynamicStateCount = configInfo.DynamicStates.size();
+        dynamicState.pDynamicStates = configInfo.DynamicStates.data();
+
+        auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
+        pipelineInfo.stageCount = configInfo.ShaderStages.size();
+        pipelineInfo.pStages = configInfo.ShaderStages.data();
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &configInfo.InputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &configInfo.Rasterizer;
+        pipelineInfo.pMultisampleState = &configInfo.Multisampling;
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDepthStencilState = &configInfo.DepthStencil;
+        pipelineInfo.pDynamicState = &dynamicState;
+        pipelineInfo.layout = pipelineLayout;
+        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
+        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
+
+        VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_Device.Get(), VK_NULL_HANDLE,
+            1, &pipelineInfo, nullptr, &m_GraphicsPipeline), "Failed to create vulkan graphics pipeline!");
+    }
+
     VK_GraphicsPipeline::~VK_GraphicsPipeline()
     {
         vkDestroyPipelineLayout(m_Device.Get(), m_PipelineLayout, nullptr);
@@ -69,205 +131,11 @@ namespace Rigel::Backend::Vulkan
         vkCmdSetCullMode(commandBuffer, mode);
     }
 
-    std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateGeometryPassPipeline(VK_Device& device,
-        const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const Shader::Variant& shader)
+    VkPipelineLayout VK_GraphicsPipeline::CreateLayout(VK_Device& device, const VkPipelineLayoutCreateInfo& layoutCreateInfo)
     {
-        const std::array shaderStages = {
-            shader.VertexModule->GetStageInfo(),
-            shader.FragmentModule->GetStageInfo()
-        };
+        VkPipelineLayout pipelineLayout;
+        VK_CHECK_RESULT(vkCreatePipelineLayout(device.Get(), &layoutCreateInfo, nullptr, &pipelineLayout), "Failed to create vulkan pipeline layout!");
 
-        constexpr VkFormat colorAttachmentFormats[] = {
-            VK_GBuffer::POSITION_ATTACHMENT_FORMAT,
-            VK_GBuffer::NORMAL_ROUGHNESS_ATTACHMENT_FORMAT,
-            VK_GBuffer::ALBEDO_METALLIC_ATTACHMENT_FORMAT
-        };
-
-        // Dynamic rendering attachments info
-        auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
-        renderingCreateInfo.colorAttachmentCount = 3;
-        renderingCreateInfo.pColorAttachmentFormats = colorAttachmentFormats;
-        renderingCreateInfo.depthAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
-        renderingCreateInfo.stencilAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
-
-        // Pipeline vertex input
-        const auto bindingDescription = Vertex3p2t3n4g::GetBindingDescription();
-        const auto attributeDescription = Vertex3p2t3n4g::GetAttributeDescriptions();
-
-        auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.vertexAttributeDescriptionCount = attributeDescription.size();
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
-
-        // Input Assembly
-        auto inputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        // Viewport & Scissor
-        auto viewportState = MakeInfo<VkPipelineViewportStateCreateInfo>();
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-
-        // Rasterizer
-        auto rasterizer = MakeInfo<VkPipelineRasterizationStateCreateInfo>();
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-
-        // Multisampling
-        auto multisampling = MakeInfo<VkPipelineMultisampleStateCreateInfo>();
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        // Blending
-        std::array<VkPipelineColorBlendAttachmentState, 3> colorBlendAttachments {};
-
-        colorBlendAttachments[0].blendEnable = VK_FALSE;
-        colorBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachments[1].blendEnable = VK_FALSE;
-        colorBlendAttachments[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachments[2].blendEnable = VK_FALSE;
-        colorBlendAttachments[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-        auto colorBlending = MakeInfo<VkPipelineColorBlendStateCreateInfo>();
-        colorBlending.attachmentCount = colorBlendAttachments.size();
-        colorBlending.pAttachments = colorBlendAttachments.data();
-
-        // Depth and stencil
-        auto depthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
-        depthStencil.depthTestEnable = VK_TRUE;
-        depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencil.depthBoundsTestEnable = VK_FALSE;
-        depthStencil.stencilTestEnable = VK_FALSE;
-
-        constexpr VkDynamicState dynamicStates[] = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR,
-            // VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
-            // VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE,
-            // VK_DYNAMIC_STATE_CULL_MODE
-        };
-
-        auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
-        dynamicState.pDynamicStates = dynamicStates;
-
-        auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
-        pipelineInfo.stageCount = shaderStages.size();
-        pipelineInfo.pStages = shaderStages.data();
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
-        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
-        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
-
-        return std::make_unique<VK_GraphicsPipeline>(device, pipelineLayoutInfo, pipelineInfo);
-    }
-
-    std::unique_ptr<VK_GraphicsPipeline> VK_GraphicsPipeline::CreateLightingPassPipeline(VK_Device& device,
-        const VkPipelineLayoutCreateInfo& pipelineLayoutInfo, const VkFormat colorAttachmentFormat, const Shader::Variant& shader)
-    {
-        const std::array shaderStages = {
-            shader.VertexModule->GetStageInfo(),
-            shader.FragmentModule->GetStageInfo()
-        };
-
-        const VkFormat colorAttachmentsFormats[] = {colorAttachmentFormat};
-
-        auto renderingCreateInfo = MakeInfo<VkPipelineRenderingCreateInfo>();
-        renderingCreateInfo.colorAttachmentCount = 1;
-        renderingCreateInfo.pColorAttachmentFormats = colorAttachmentsFormats;
-
-        // Pipeline vertex input
-        auto vertexInputInfo = MakeInfo<VkPipelineVertexInputStateCreateInfo>();
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-
-        // Input Assembly
-        auto inputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        // Viewport & Scissor
-        auto viewportState = MakeInfo<VkPipelineViewportStateCreateInfo>();
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-
-        // Rasterizer
-        auto rasterizer = MakeInfo<VkPipelineRasterizationStateCreateInfo>();
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_NONE;
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-
-        // Multisampling
-        auto multisampling = MakeInfo<VkPipelineMultisampleStateCreateInfo>();
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        // Blending
-        std::array<VkPipelineColorBlendAttachmentState, 1> colorBlendAttachments {};
-        colorBlendAttachments[0].blendEnable = VK_TRUE;
-        colorBlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-        auto colorBlending = MakeInfo<VkPipelineColorBlendStateCreateInfo>();
-        colorBlending.attachmentCount = colorBlendAttachments.size();
-        colorBlending.pAttachments = colorBlendAttachments.data();
-
-        // Depth and stencil
-        auto depthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
-        depthStencil.depthTestEnable = VK_FALSE;
-        depthStencil.depthWriteEnable = VK_FALSE;
-
-        constexpr VkDynamicState dynamicStates[] = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR,
-        };
-
-        auto dynamicState = MakeInfo<VkPipelineDynamicStateCreateInfo>();
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
-        dynamicState.pDynamicStates = dynamicStates;
-
-        auto pipelineInfo = MakeInfo<VkGraphicsPipelineCreateInfo>();
-        pipelineInfo.stageCount = shaderStages.size();
-        pipelineInfo.pStages = shaderStages.data();
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = VK_NULL_HANDLE; // Layout is set inside the pipeline class constructor
-        pipelineInfo.renderPass = VK_NULL_HANDLE;  // No traditional render pass, dynamic rendering used
-        pipelineInfo.pNext = &renderingCreateInfo; // Attach dynamic rendering info
-
-        return std::make_unique<VK_GraphicsPipeline>(device, pipelineLayoutInfo, pipelineInfo);
+        return pipelineLayout;
     }
 }

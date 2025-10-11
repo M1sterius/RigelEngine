@@ -16,7 +16,7 @@ namespace Rigel
     /**
      * Asset that represents 2-dimensional GPU texture
      */
-    class Texture2D final : public RigelAsset
+    class Texture final : public RigelAsset
     {
     public:
         enum class Filter : int32_t
@@ -67,7 +67,7 @@ namespace Rigel
             }
         };
 
-        ~Texture2D() override;
+        ~Texture() override;
 
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD const SamplerProperties& GetSamplerProperties() const;
@@ -78,7 +78,7 @@ namespace Rigel
             return m_Impl.get();
         }
     private:
-        Texture2D(const std::filesystem::path& path, const uid_t id) noexcept;
+        Texture(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
         std::unique_ptr<Backend::Vulkan::VK_Texture> m_Impl;

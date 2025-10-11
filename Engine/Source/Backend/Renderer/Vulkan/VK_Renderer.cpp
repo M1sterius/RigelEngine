@@ -39,8 +39,8 @@ namespace Rigel::Backend::Vulkan
 
         m_GBuffer = std::make_unique<VK_GBuffer>(*m_Device, GetWindowManager()->GetWindowSize());
         m_GPUScene = std::make_unique<VK_GPUScene>(*m_Device, *m_Swapchain);
-        m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer);
-        m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer);
+        m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer, *m_GPUScene);
+        m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer, *m_GPUScene);
 
         for (uint32_t i = 0; i < m_Swapchain->GetFramesInFlightCount(); ++i)
         {
@@ -59,9 +59,9 @@ namespace Rigel::Backend::Vulkan
 
         m_LightingPass->SetImGuiBackend(m_ImGuiBackend);
 
-        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureError, true);
-        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureBlack, true);
-        GetAssetManager()->Load<Texture2D>(BuiltInAssets::TextureWhite, true);
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError, true);
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureBlack, true);
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureWhite, true);
 
         return ErrorCode::OK;
     }
@@ -106,12 +106,10 @@ namespace Rigel::Backend::Vulkan
         fence->Reset();
 
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
-        const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo();
 
-        m_GeometryPass->SetMeshData(sceneRenderInfo, frameIndex);
+        m_GPUScene->Update(frameIndex);
+
         const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
-
-        m_LightingPass->SetLightData(sceneRenderInfo, frameIndex);
         const auto lightingPassCommandBuffer = m_LightingPass->RecordCommandBuffer(swapchainImage, frameIndex);
 
         const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer};

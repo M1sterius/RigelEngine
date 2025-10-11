@@ -1,4 +1,4 @@
-#include "Assets/Texture2D.hpp"
+#include "Assets/Texture.hpp"
 #include "Utilities/ScopeGuard.hpp"
 #include "Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp"
 
@@ -6,16 +6,17 @@
 
 namespace Rigel
 {
-    Texture2D::Texture2D(const std::filesystem::path& path, const uid_t id) noexcept
+    Texture::Texture(const std::filesystem::path& path, const uid_t id) noexcept
         : RigelAsset(path, id) { }
-    Texture2D::~Texture2D() = default;
+    Texture::~Texture() = default;
 
-    ErrorCode Texture2D::Init()
+    ErrorCode Texture::Init()
     {
         stbi_set_flip_vertically_on_load(true);
 
         int texWidth, texHeight, texChannels;
         auto pixels = stbi_load(m_Path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
         const auto size = glm::uvec2(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
         const auto mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.x, size.y))) + 1);
 
@@ -30,12 +31,12 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
-    glm::uvec2 Texture2D::GetSize() const
+    glm::uvec2 Texture::GetSize() const
     {
         return m_Impl->GetSize();
     }
 
-    const Texture2D::SamplerProperties& Texture2D::GetSamplerProperties() const
+    const Texture::SamplerProperties& Texture::GetSamplerProperties() const
     {
         return m_Impl->GetSamplerProperties();
     }

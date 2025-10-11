@@ -1,19 +1,20 @@
 #include "VK_LightingPass.hpp"
 #include "../Wrapper/VulkanWrapper.hpp"
+#include "../Wrapper/VK_ShaderModule.hpp"
 #include "../Helpers/VulkanUtility.hpp"
 #include "../../ShaderStructs.hpp"
 #include "../ImGui/VK_ImGUI_Renderer.hpp"
 #include "../VK_BindlessManager.hpp"
 #include "../VK_GBuffer.hpp"
 #include "Assets/Model.hpp"
+#include "Backend/Renderer/Vulkan/VK_GPUScene.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
-#include "Subsystems/Renderer/SceneRenderInfo.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 
 namespace Rigel::Backend::Vulkan
 {
-    VK_LightingPass::VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer)
-        : m_Device(device), m_Swapchain(swapchain), m_GBuffer(gBuffer)
+    VK_LightingPass::VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer, VK_GPUScene& gpuScene)
+        : m_Device(device), m_Swapchain(swapchain), m_GBuffer(gBuffer), m_GPUScene(gpuScene)
     {
         Debug::Trace("Initializing lighting pass.");
 
@@ -92,11 +93,6 @@ namespace Rigel::Backend::Vulkan
         );
     }
 
-    void VK_LightingPass::SetLightData(const Ref<SceneRenderInfo> sceneRenderInfo, const uint32_t frameIndex)
-    {
-        m_CamPos = sceneRenderInfo->CamPos;
-    }
-
     VkCommandBuffer VK_LightingPass::RecordCommandBuffer(const AcquireImageInfo& swapchainImage, const uint32_t frameIndex)
     {
         const auto commandBuffer = m_CommandBuffers[frameIndex]->Get();
@@ -128,12 +124,16 @@ namespace Rigel::Backend::Vulkan
         m_GraphicsPipeline->CmdSetViewport(commandBuffer, glm::vec2(0.0f), m_Swapchain.GetSize());
         m_GraphicsPipeline->CmdSetScissor(commandBuffer, glm::ivec2(0), m_Swapchain.GetExtent());
 
+        const std::array descriptorSets = {
+            m_DescriptorSet
+        };
+
         vkCmdBindDescriptorSets(
             commandBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             m_GraphicsPipeline->GetLayout(),
-            0, 1,
-            &m_DescriptorSet,
+            0, descriptorSets.size(),
+            descriptorSets.data(),
             0, nullptr
         );
 
@@ -143,13 +143,13 @@ namespace Rigel::Backend::Vulkan
             VK_SHADER_STAGE_FRAGMENT_BIT,
             0,
             sizeof(glm::vec3),
-            &m_CamPos
+            &m_GPUScene.GetSceneData()->CameraPosition
         );
 
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
         vkCmdEndRendering(commandBuffer);
 
-        // Until forward pass is implemented UI drawing stays here
+        // UI drawing stays here until forward pass is implemented
         auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
         uiColorAttachment.imageView = swapchainImage.imageView;
         uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -223,8 +223,48 @@ namespace Rigel::Backend::Vulkan
 
     void VK_LightingPass::CreateGraphicsPipeline()
     {
-        const std::array<VkDescriptorSetLayout, 1> setLayouts = {
-            m_DescriptorSetLayout
+        auto shaderMetadata = ShaderMetadata();
+        shaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";
+        shaderMetadata.Paths[1] = "Assets/Engine/Shaders/DirLight.frag.spv";
+        shaderMetadata.AddVariant("Main", 0, 1);
+
+        auto shader = GetAssetManager()->Load<Shader>("LightingPassShader", &shaderMetadata, true);
+
+        if (!shader->IsOK())
+        {
+            Debug::Crash(ErrorCode::BUILT_IN_ASSET_NOT_LOADED,
+                "Failed to load lighting pass shader!", __FILE__, __LINE__);
+        }
+
+        const auto shaderVariant = shader->GetVariant("Main");
+
+        auto configInfo = GraphicsPipelineConfigInfo::Make();
+
+        configInfo.ShaderStages.resize(2);
+        configInfo.ShaderStages[0] = shaderVariant.VertexModule->GetStageInfo();
+        configInfo.ShaderStages[1] = shaderVariant.FragmentModule->GetStageInfo();
+
+        configInfo.ColorAttachmentFormats = {
+            m_Swapchain.GetImageFormat()
+        };
+
+        configInfo.BlendAttachments.resize(1);
+        configInfo.BlendAttachments[0].blendEnable = VK_TRUE;
+        configInfo.BlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        configInfo.BlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        configInfo.BlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+        configInfo.BlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+        configInfo.Rasterizer.cullMode = VK_CULL_MODE_NONE;
+
+        configInfo.DepthStencil.depthTestEnable = VK_FALSE;
+        configInfo.DepthStencil.depthWriteEnable = VK_FALSE;
+
+        configInfo.NoVertexInput = true;
+
+        const std::array descriptorSetLayouts = {
+            m_DescriptorSetLayout,
         };
 
         VkPushConstantRange pushConstants = {};
@@ -232,24 +272,14 @@ namespace Rigel::Backend::Vulkan
         pushConstants.offset = 0;
         pushConstants.size = sizeof(glm::vec3);
 
-        auto pipelineLayout = MakeInfo<VkPipelineLayoutCreateInfo>();
-        pipelineLayout.pushConstantRangeCount = 1;
-        pipelineLayout.pPushConstantRanges = &pushConstants;
-        pipelineLayout.setLayoutCount = setLayouts.size();
-        pipelineLayout.pSetLayouts = setLayouts.data();
+        auto pipelineLayoutCreateInfo = MakeInfo<VkPipelineLayoutCreateInfo>();
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstants;
+        pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
+        pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
 
-        auto lightingPassShaderMetadata = ShaderMetadata();
-        lightingPassShaderMetadata.Paths[0] = "Assets/Engine/Shaders/DirLight.vert.spv";
-        lightingPassShaderMetadata.Paths[1] = "Assets/Engine/Shaders/DirLight.frag.spv";
-        lightingPassShaderMetadata.AddVariant("Main", 0, 1);
+        const auto pipelineLayout = VK_GraphicsPipeline::CreateLayout(m_Device, pipelineLayoutCreateInfo);
 
-        auto lightingPassShader = GetAssetManager()->Load<Shader>("LightingPassShader", &lightingPassShaderMetadata, true);
-
-        m_GraphicsPipeline = VK_GraphicsPipeline::CreateLightingPassPipeline(
-            m_Device,
-            pipelineLayout,
-            m_Swapchain.GetImageFormat(),
-            lightingPassShader->GetVariant("Main")
-        );
+        m_GraphicsPipeline = std::make_unique<VK_GraphicsPipeline>(m_Device, configInfo, pipelineLayout);
     }
 }

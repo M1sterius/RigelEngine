@@ -36,10 +36,12 @@ namespace Rigel::Backend::Vulkan
     class VK_MemoryBuffer;
     class VK_Image;
     class VK_StagingManager;
+
     class VK_GBuffer;
     class VK_GPUScene;
     class VK_GeometryPass;
     class VK_LightingPass;
+    class VK_ForwardPass;
 
     class VK_ImGUI_Renderer;
     class VK_BindlessManager;

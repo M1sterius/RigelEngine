@@ -12,6 +12,8 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Initializing GPU scene.");
 
+        m_SceneData = std::make_unique<SceneData>();
+
         for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); ++i)
         {
             m_Buffers.emplace_back(std::make_unique<VK_MemoryBuffer>(m_Device, sizeof(SceneData),
@@ -72,6 +74,8 @@ namespace Rigel::Backend::Vulkan
                         .Normal = normalMat,
                     };
 
+                    // Separate draw calls into those that need to be done in forward pass (e.g. transparent objects)
+                    // and those that can be done in deferred pass
                     if (meshMaterial->IsTwoSided())
                     {
                         forwardBatch.DrawCalls.push_back({
@@ -120,7 +124,7 @@ namespace Rigel::Backend::Vulkan
         bindings[0].binding = 0;
         bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         bindings[0].descriptorCount = 1;
-        bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        bindings[0].stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
 
         auto setLayoutInfo = MakeInfo<VkDescriptorSetLayoutCreateInfo>();
         setLayoutInfo.bindingCount = bindings.size();

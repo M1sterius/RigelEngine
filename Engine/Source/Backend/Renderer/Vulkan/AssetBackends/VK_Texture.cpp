@@ -23,7 +23,6 @@ namespace Rigel::Backend::Vulkan
 
         m_Image->TransitionLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_Image::AllMips);
         m_Image->CopyFromBuffer(stagingBuffer);
-
         GenerateMipMaps();
 
         m_BindlessIndex = GetVKRenderer().GetBindlessManager().AddTexture(this);
