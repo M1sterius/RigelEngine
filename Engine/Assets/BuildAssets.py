@@ -10,6 +10,9 @@ shaders = [
     "GeometryPass.vert",
     "GeometryPass.frag",
 
+    "ForwardPass.vert",
+    "ForwardPass.frag",
+
     "DirLight.vert",
     "DirLight.frag"
 ]

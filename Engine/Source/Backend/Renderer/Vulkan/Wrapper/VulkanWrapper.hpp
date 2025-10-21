@@ -15,3 +15,4 @@
 #include "VK_Device.hpp"
 #include "VK_Swapchain.hpp"
 #include "VK_Image.hpp"
+#include "VK_ShaderModule.hpp"

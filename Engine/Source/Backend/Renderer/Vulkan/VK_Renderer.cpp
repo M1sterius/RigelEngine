@@ -8,6 +8,7 @@
 #include "Backend/Renderer/Vulkan/Wrapper/VulkanWrapper.hpp"
 #include "RenderPasses/VK_GeometryPass.hpp"
 #include "RenderPasses/VK_LightingPass.hpp"
+#include "RenderPasses/VK_ForwardPass.hpp"
 #include "Helpers/MakeInfo.hpp"
 #include "Debug.hpp"
 #include "Engine.hpp"
@@ -41,12 +42,14 @@ namespace Rigel::Backend::Vulkan
         m_GPUScene = std::make_unique<VK_GPUScene>(*m_Device, *m_Swapchain);
         m_GeometryPass = std::make_unique<VK_GeometryPass>(*m_Device, *m_Swapchain, *m_BindlessManager, *m_GBuffer, *m_GPUScene);
         m_LightingPass = std::make_unique<VK_LightingPass>(*m_Device, *m_Swapchain, *m_GBuffer, *m_GPUScene);
+        m_ForwardPass = std::make_unique<VK_ForwardPass>(*m_Device, *m_Swapchain, *m_GBuffer, *m_BindlessManager, *m_GPUScene);
 
-        for (uint32_t i = 0; i < m_Swapchain->GetFramesInFlightCount(); ++i)
+        for (uint32_t i = 0; i < m_Swapchain->GetFramesInFlightCount(); i++)
         {
             m_InFlightFences.emplace_back(std::make_unique<VK_Fence>(*m_Device, true));
             m_GeometryPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
             m_LightingPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
+            m_ForwardPassFinishedSemaphores.emplace_back(std::make_unique<VK_Semaphore>(*m_Device));
         }
 
         return ErrorCode::OK;
@@ -111,7 +114,9 @@ namespace Rigel::Backend::Vulkan
 
         const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
         const auto lightingPassCommandBuffer = m_LightingPass->RecordCommandBuffer(swapchainImage, frameIndex);
+        const auto forwardPassCommandBuffer = m_ForwardPass->RecordCommandBuffer(swapchainImage, frameIndex);
 
+#pragma region GeometryPass
         const VkCommandBuffer geometryPassSubmitBuffers[] = {geometryPassCommandBuffer};
         const VkSemaphore geometryPassSignalSemaphores[] = {m_GeometryPassFinishedSemaphores[frameIndex]->Get()};
 
@@ -124,7 +129,9 @@ namespace Rigel::Backend::Vulkan
         geometryPassSubmitInfo.pSignalSemaphores = geometryPassSignalSemaphores;
 
         m_Device->SubmitToQueue(QueueType::Graphics, 1, &geometryPassSubmitInfo, nullptr);
+#pragma endregion
 
+#pragma region LightingPass
         const VkCommandBuffer lightingPassSubmitBuffers[] = {lightingPassCommandBuffer};
         const VkSemaphore lightingPassWaitSemaphores[] = {
             m_GeometryPassFinishedSemaphores[frameIndex]->Get(),
@@ -138,7 +145,6 @@ namespace Rigel::Backend::Vulkan
         };
 
         auto lightingPassSubmitInfo = MakeInfo<VkSubmitInfo>();
-
         lightingPassSubmitInfo.pWaitDstStageMask = lightingPassWaitStages;
         lightingPassSubmitInfo.commandBufferCount = 1;
         lightingPassSubmitInfo.pCommandBuffers = lightingPassSubmitBuffers;
@@ -147,10 +153,29 @@ namespace Rigel::Backend::Vulkan
         lightingPassSubmitInfo.signalSemaphoreCount = 1;
         lightingPassSubmitInfo.pSignalSemaphores = lightingPassSignalSemaphores;
 
-        m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, fence->Get());
+        m_Device->SubmitToQueue(QueueType::Graphics, 1, &lightingPassSubmitInfo, nullptr);
+#pragma endregion
 
-        const auto presentWaitSemaphore = m_LightingPassFinishedSemaphores[frameIndex]->Get();
+#pragma region ForwardPass
+        const VkCommandBuffer forwardPassSubmitBuffers[] = {forwardPassCommandBuffer};
+        const VkSemaphore forwardPassWaitSemaphores[] = {m_LightingPassFinishedSemaphores[frameIndex]->Get()};
+        const VkSemaphore forwardPassSignalSemaphores[] = {m_ForwardPassFinishedSemaphores[frameIndex]->Get()};
 
+        constexpr VkPipelineStageFlags forwardPassWaitStages[] = {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT};
+
+        auto forwardPassSubmitInfo = MakeInfo<VkSubmitInfo>();
+        forwardPassSubmitInfo.pWaitDstStageMask = forwardPassWaitStages;
+        forwardPassSubmitInfo.commandBufferCount = 1;
+        forwardPassSubmitInfo.pCommandBuffers = forwardPassSubmitBuffers;
+        forwardPassSubmitInfo.waitSemaphoreCount = 1;
+        forwardPassSubmitInfo.pWaitSemaphores = forwardPassWaitSemaphores;
+        forwardPassSubmitInfo.signalSemaphoreCount = 1;
+        forwardPassSubmitInfo.pSignalSemaphores = forwardPassSignalSemaphores;
+
+        m_Device->SubmitToQueue(QueueType::Graphics, 1, &forwardPassSubmitInfo, fence->Get());
+#pragma endregion
+
+        const auto presentWaitSemaphore = m_ForwardPassFinishedSemaphores[frameIndex]->Get();
         m_Swapchain->Present(swapchainImage.imageIndex, presentWaitSemaphore);
     }
 

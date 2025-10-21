@@ -19,7 +19,7 @@ namespace Rigel::Backend::Vulkan
     {
         Debug::Trace("Initializing geometry pass.");
 
-        for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); ++i)
+        for (uint32_t i = 0; i < m_Swapchain.GetFramesInFlightCount(); i++)
         {
             m_CommandBuffers.emplace_back(std::make_unique<VK_CmdBuffer>(m_Device, QueueType::Graphics));
         }
@@ -107,7 +107,6 @@ namespace Rigel::Backend::Vulkan
         m_CommandBuffers[frameIndex]->BeginRecording(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
         m_GBuffer.CmdTransitionToRender(commandBuffer);
-
         vkCmdBeginRendering(commandBuffer, m_GBuffer.GetRenderingInfo());
 
         m_GraphicsPipeline->CmdBind(commandBuffer);

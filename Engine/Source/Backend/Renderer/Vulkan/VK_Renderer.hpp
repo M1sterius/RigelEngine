@@ -2,7 +2,6 @@
 
 #include "Core.hpp"
 #include "Math.hpp"
-#include "../ShaderStructs.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -86,9 +85,11 @@ namespace Rigel::Backend::Vulkan
         std::unique_ptr<VK_GPUScene> m_GPUScene;
         std::unique_ptr<VK_GeometryPass> m_GeometryPass;
         std::unique_ptr<VK_LightingPass> m_LightingPass;
+        std::unique_ptr<VK_ForwardPass> m_ForwardPass;
 
         std::vector<std::unique_ptr<VK_Semaphore>> m_GeometryPassFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Semaphore>> m_LightingPassFinishedSemaphores;
+        std::vector<std::unique_ptr<VK_Semaphore>> m_ForwardPassFinishedSemaphores;
         std::vector<std::unique_ptr<VK_Fence>> m_InFlightFences;
 
         VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
