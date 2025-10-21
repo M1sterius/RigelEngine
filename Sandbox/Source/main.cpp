@@ -37,11 +37,11 @@ int32_t main(int32_t argc, char** argv)
     model->GetTransform()->SetLocalScale(glm::vec3(1.0f));
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza old/Sponza.gltf");
 
-    auto model1 = scene->Instantiate("Model1");
-    model1->GetTransform()->SetLocalScale(glm::vec3(0.5f));
-    model1->GetTransform()->SetLocalPosition(glm::vec3(0.0, -1.0, 0.0));
-    model1->GetTransform()->SetLocalRotation(glm::vec3(0.0, glm::radians(90.0f), 0.0));
-    model1->AddComponent<Rigel::ModelRenderer>("Assets/Models/UAZ/UAZ.obj");
+    // auto model1 = scene->Instantiate("Model1");
+    // model1->GetTransform()->SetLocalScale(glm::vec3(0.5f));
+    // model1->GetTransform()->SetLocalPosition(glm::vec3(0.0, -1.0, 0.0));
+    // model1->GetTransform()->SetLocalRotation(glm::vec3(0.0, glm::radians(90.0f), 0.0));
+    // model1->AddComponent<Rigel::ModelRenderer>("Assets/Models/UAZ/UAZ.obj");
 
     sceneManager->LoadScene(scene);
 

@@ -63,7 +63,7 @@ namespace Rigel::Backend::Vulkan
         configInfo.BlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
         configInfo.BlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         configInfo.BlendAttachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        configInfo.BlendAttachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA
+        configInfo.BlendAttachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         configInfo.BlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD;
         configInfo.BlendAttachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
         configInfo.BlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |

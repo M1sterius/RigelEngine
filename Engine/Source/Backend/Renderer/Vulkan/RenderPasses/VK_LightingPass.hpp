@@ -15,8 +15,6 @@ namespace Rigel::Backend
 
 namespace Rigel::Backend::Vulkan
 {
-    class VK_ImGUI_Renderer;
-
     class VK_Renderer;
     class VK_Device;
     class VK_GBuffer;
@@ -31,7 +29,7 @@ namespace Rigel::Backend::Vulkan
 
     struct AcquireImageInfo;
 
-    class VK_LightingPass 
+    class VK_LightingPass
     {
     public:
         VK_LightingPass(VK_Device& device, VK_Swapchain& swapchain, VK_GBuffer& gBuffer, VK_GPUScene& gpuScene);
@@ -41,7 +39,6 @@ namespace Rigel::Backend::Vulkan
         VK_LightingPass operator = (const VK_LightingPass&) = delete;
 
         void Recreate();
-        void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
         NODISCARD VkCommandBuffer RecordCommandBuffer(const AcquireImageInfo& swapchainImage, const uint32_t frameIndex);
     private:
@@ -57,8 +54,6 @@ namespace Rigel::Backend::Vulkan
         VkSampler m_GBufferSampler = VK_NULL_HANDLE;
         VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
         VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
-
-        VK_ImGUI_Renderer* m_ImGuiBackend = nullptr;
 
         void CreateSampler();
         void CreateDescriptorSet();

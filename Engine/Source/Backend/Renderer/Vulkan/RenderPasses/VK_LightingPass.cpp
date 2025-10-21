@@ -2,7 +2,6 @@
 #include "../Wrapper/VulkanWrapper.hpp"
 #include "../Helpers/VulkanUtility.hpp"
 #include "../../ShaderStructs.hpp"
-#include "../ImGui/VK_ImGUI_Renderer.hpp"
 #include "../VK_BindlessManager.hpp"
 #include "../VK_GBuffer.hpp"
 #include "Assets/Model.hpp"
@@ -146,28 +145,8 @@ namespace Rigel::Backend::Vulkan
         );
 
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
         vkCmdEndRendering(commandBuffer);
-
-        // UI drawing stays here until forward pass is implemented
-        // auto uiColorAttachment = MakeInfo<VkRenderingAttachmentInfo>();
-        // uiColorAttachment.imageView = swapchainImage.imageView;
-        // uiColorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        // uiColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        // uiColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        //
-        // auto uiRenderingInfo = MakeInfo<VkRenderingInfo>();
-        // uiRenderingInfo.renderArea.offset = {0, 0};
-        // uiRenderingInfo.renderArea.extent = m_Swapchain.GetExtent();
-        // uiRenderingInfo.layerCount = 1;
-        // uiRenderingInfo.colorAttachmentCount = 1;
-        // uiRenderingInfo.pColorAttachments = &uiColorAttachment;
-
-        // vkCmdBeginRendering(commandBuffer, &uiRenderingInfo);
-        // m_ImGuiBackend->RenderFrame(commandBuffer);
-        // vkCmdEndRendering(commandBuffer);
-        //
-        // VK_Image::CmdTransitionLayout(commandBuffer, swapchainImage.image, VK_IMAGE_ASPECT_COLOR_BIT,
-        //     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
 
         m_CommandBuffers[frameIndex]->EndRecording();
         return commandBuffer;

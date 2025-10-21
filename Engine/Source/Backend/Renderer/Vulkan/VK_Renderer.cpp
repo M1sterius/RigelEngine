@@ -60,7 +60,7 @@ namespace Rigel::Backend::Vulkan
         Debug::Trace("Vulkan renderer late startup.");
         ASSERT(m_ImGuiBackend, "ImGui backend was a nullptr");
 
-        m_LightingPass->SetImGuiBackend(m_ImGuiBackend);
+        m_ForwardPass->SetImGuiBackend(m_ImGuiBackend);
 
         GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError, true);
         GetAssetManager()->Load<Texture>(BuiltInAssets::TextureBlack, true);
