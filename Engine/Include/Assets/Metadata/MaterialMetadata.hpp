@@ -25,6 +25,8 @@ namespace Rigel
         glm::vec2 Offset{0.0};
 
         bool TwoSided{false};
+        bool HasTransparency{false};
+
         bool PermitAsyncTextureLoading{false};
     };
 }

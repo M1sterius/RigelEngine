@@ -159,12 +159,11 @@ target_include_directories(RigelEngine PRIVATE
 
 # compile dependencies from source
 add_subdirectory(${DEPENDENCIES_DIR}/glfw ${CMAKE_CURRENT_BINARY_DIR}/glfw)
-add_subdirectory(${DEPENDENCIES_DIR}/assimp ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 
 find_package(Vulkan REQUIRED)
 
 target_link_libraries(RigelEngine PUBLIC
-    ${LINK_LIBRARIES} glfw Vulkan::Vulkan assimp
+    ${LINK_LIBRARIES} glfw Vulkan::Vulkan
 )
 
 add_custom_target(RunBuildAssets ALL

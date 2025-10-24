@@ -70,6 +70,7 @@ namespace Rigel
         m_Tiling = metadata->Tiling;
         m_Offset = metadata->Offset;
         m_TwoSided = metadata->TwoSided;
+        m_HasTransparency = metadata->HasTransparency;
 
         auto shaderData = MaterialData{
             .AlbedoIndex = SetIndex(m_AlbedoTex, 0),

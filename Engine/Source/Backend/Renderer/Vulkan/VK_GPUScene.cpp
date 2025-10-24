@@ -76,7 +76,7 @@ namespace Rigel::Backend::Vulkan
 
                     // Separate draw calls into those that need to be done in forward pass (e.g. transparent objects)
                     // and those that can be done in deferred pass
-                    if (meshMaterial->IsTwoSided())
+                    if (meshMaterial->HasTransparency())
                     {
                         forwardBatch.DrawCalls.push_back({
                             .MeshIndex = meshIndex,

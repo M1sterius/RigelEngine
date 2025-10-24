@@ -102,12 +102,6 @@ namespace Rigel
         Model(const std::filesystem::path& path, const uid_t id) noexcept;
         ErrorCode Init() override;
 
-        void ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::ModelNode>& curNode,
-            std::vector<Backend::Vulkan::Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices);
-        Backend::ModelMesh ProcessMesh(const aiMesh* mesh, std::vector<Backend::Vulkan::Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices);
-
-        AssetHandle<Material> ProcessMaterial(const aiMaterial* aiMaterial);
-
         std::unique_ptr<Backend::Vulkan::VK_VertexBuffer> m_VertexBuffer;
         std::unique_ptr<Backend::Vulkan::VK_IndexBuffer> m_IndexBuffer;
 

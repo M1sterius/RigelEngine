@@ -15,6 +15,7 @@ namespace Rigel
         ~Material() override;
     INTERNAL:
         NODISCARD bool IsTwoSided() const { return m_TwoSided; }
+        NODISCARD bool HasTransparency() const { return m_HasTransparency; }
 
         NODISCARD uint32_t GetBindlessIndex() const { return m_BindlessIndex; }
     private:
@@ -37,6 +38,7 @@ namespace Rigel
         glm::vec2 m_Offset{0.0};
 
         bool m_TwoSided{false};
+        bool m_HasTransparency{false};
 
         uint32_t m_BindlessIndex = UINT32_MAX;
 

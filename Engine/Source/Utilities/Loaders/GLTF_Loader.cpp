@@ -64,6 +64,9 @@ namespace Rigel::Backend
             return false;
         }
 
+        if (!result)
+            return result;
+
         for (int32_t i = 0; i < m_Model.materials.size(); i++)
             materials.emplace_back(ProcessMaterial(i));
 
@@ -189,7 +192,7 @@ namespace Rigel::Backend
             vertex.Position = {positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]};
 
             if (texCoords)
-                vertex.TexCoords = {texCoords[i * 2], texCoords[i * 2 + 1]};
+                vertex.TexCoords = {texCoords[i * 2], 1 - texCoords[i * 2 + 1]}; // Flip UVs!
 
             if (normals)
                 vertex.Normal = {normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]};
@@ -335,6 +338,7 @@ namespace Rigel::Backend
         }
 
         metadata.TwoSided = gltfMaterial.doubleSided;
+        metadata.HasTransparency = gltfMaterial.alphaMode == "MASK" || gltfMaterial.alphaMode == "BLEND";
 
         return GetAssetManager()->LoadAsync<Material>(materialName, &metadata);
     }

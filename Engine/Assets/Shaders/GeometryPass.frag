@@ -64,8 +64,11 @@ void main()
         g_NormalRoughness.a = material.Roughness;
 
     // Normal
-    if (material.NormalIndex != 1)
-        g_NormalRoughness.rgb = ObtainNormal(material.NormalIndex, uv);
-    else
-        g_NormalRoughness.rgb = v_In.Normal;
+//    if (material.NormalIndex != 1)
+//        g_NormalRoughness.rgb = ObtainNormal(material.NormalIndex, uv);
+//    else
+//        g_NormalRoughness.rgb = v_In.Normal;
+
+    // TODO: Fix normal mapping!
+    g_NormalRoughness.rgb = v_In.Normal;
 }
