@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.hpp"
 #include "AssetMetadata.hpp"
 
 #include <filesystem>

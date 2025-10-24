@@ -34,8 +34,8 @@ int32_t main(int32_t argc, char** argv)
 
     auto model = scene->Instantiate("Model");
     model->GetTransform()->SetLocalPosition({0, -1.0, 0});
-    model->GetTransform()->SetLocalScale(glm::vec3(1.0f));
-    model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza old/Sponza.gltf");
+    model->GetTransform()->SetLocalScale(glm::vec3(0.01f));
+    model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Backstreet/scene.gltf");
 
     // auto model1 = scene->Instantiate("Model1");
     // model1->GetTransform()->SetLocalScale(glm::vec3(0.5f));

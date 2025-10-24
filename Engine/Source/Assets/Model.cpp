@@ -5,13 +5,11 @@
 #include "Backend/Renderer/Vulkan/Helpers/Vertex.hpp"
 #include "Backend/Renderer/Vulkan/Wrapper/VK_VertexBuffer.hpp"
 #include "Backend/Renderer/Vulkan/Wrapper/VK_IndexBuffer.hpp"
+#include "Utilities/Loaders/GLTF_Loader.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-
-#define TINYGLTF_IMPLEMENTATION
-#include "tiny_gltf/tiny_gltf.h"
 
 inline glm::mat4 ConvertMat4(const aiMatrix4x4& aiMat)
 {
@@ -53,6 +51,19 @@ namespace Rigel
 
     ErrorCode Model::Init()
     {
+        auto vertices = std::vector<Vertex3p2t3n4g>();
+        auto indices = std::vector<uint32_t>();
+
+        m_RootNode = std::make_shared<Backend::ModelNode>();
+
+        // Backend::GLTF_Loader gltfLoader;
+        //
+        // if (const auto result = gltfLoader.LoadModel(m_Path, m_RootNode, m_Materials, vertices, indices); !result)
+        // {
+        //     Debug::Error("GLTF loading error error: {}", gltfLoader.GetErrorString());
+        //     return ErrorCode::FAILED_TO_OPEN_FILE;
+        // }
+
         Assimp::Importer importer;
         const auto scene = importer.ReadFile(m_Path.string(), aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
@@ -66,10 +77,7 @@ namespace Rigel
         for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
             m_Materials.emplace_back(ProcessMaterial(scene->mMaterials[i]));
 
-        auto vertices = std::vector<Vertex3p2t3n4g>();
-        auto indices = std::vector<uint32_t>();
 
-        m_RootNode = std::make_shared<Node>();
         ProcessAiNode(scene->mRootNode, scene, m_RootNode, vertices, indices);
 
         m_VertexBuffer = std::make_unique<VK_VertexBuffer>(vertices);
@@ -79,7 +87,7 @@ namespace Rigel
         return ErrorCode::OK;
     }
 
-    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Node>& curNode,
+    void Model::ProcessAiNode(const aiNode* node, const aiScene* scene, const std::shared_ptr<Backend::ModelNode>& curNode,
         std::vector<Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices)
     {
         curNode->Name = node->mName.C_Str();
@@ -94,7 +102,7 @@ namespace Rigel
 
         for (uint32_t i = 0; i < node->mNumChildren; ++i)
         {
-            auto childNode = std::make_shared<Node>();
+            auto childNode = std::make_shared<Backend::ModelNode>();
 
             childNode->Parent = curNode;
             curNode->Children.push_back(childNode);
@@ -103,12 +111,12 @@ namespace Rigel
         }
     }
 
-    Model::Mesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices)
+    Backend::ModelMesh Model::ProcessMesh(const aiMesh* mesh, std::vector<Vertex3p2t3n4g>& vertices, std::vector<uint32_t>& indices)
     {
         const auto numVertices = mesh->mNumVertices;
         const auto numIndices = mesh->mNumFaces * 3; // aiProcess_Triangulate guarantees that each face is a triangle
 
-        auto resMesh = Mesh();
+        auto resMesh = Backend::ModelMesh();
         resMesh.Name = mesh->mName.C_Str();
         resMesh.FirstVertex = vertices.size();
         resMesh.VertexCount = numVertices;

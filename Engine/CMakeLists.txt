@@ -14,6 +14,7 @@ add_library(RigelEngine STATIC
     ${IMGUI_SOURCES}
     ${DEPENDENCIES_DIR}/stb_image/stb_image.cpp
     ${DEPENDENCIES_DIR}/vma/vma.cpp
+    ${DEPENDENCIES_DIR}/tiny_gltf/tiny_gltf.cpp
 
     # Misc
     Source/Engine.cpp
@@ -48,6 +49,7 @@ add_library(RigelEngine STATIC
     Source/Utilities/Filesystem/File.cpp
     Source/Utilities/Threading/SleepUtility.cpp
     Source/Utilities/Serialization/Serializer.cpp
+    Source/Utilities/Loaders/GLTF_Loader.cpp
 
     # Subsystems
     Source/Subsystems/Time.cpp
@@ -140,7 +142,7 @@ target_include_directories(RigelEngine PUBLIC
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(VULKAN_SDK_PATH "${VULKAN_SDK}")
 
-# Include paths that will only be visible inside the library
+# Include paths that will only be visible inside the engine project
 target_include_directories(RigelEngine PRIVATE
     ${DEPENDENCIES_DIR}
     ${VULKAN_SDK_PATH}/Include
