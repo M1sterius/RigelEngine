@@ -155,7 +155,7 @@ namespace Rigel::Backend
         const auto normIt = primitive.attributes.find("NORMAL");
         const auto tanIt = primitive.attributes.find("TANGENT");
 
-        const float* positions = reinterpret_cast<const float*>(&posBuffer.data[posBufferView.byteOffset + posAccessor.byteOffset]);
+        const auto positions = reinterpret_cast<const float*>(&posBuffer.data[posBufferView.byteOffset + posAccessor.byteOffset]);
         const float* texCoords = nullptr;
         const float* normals = nullptr;
         const float* tangents = nullptr;

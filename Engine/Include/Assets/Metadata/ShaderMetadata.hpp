@@ -29,7 +29,7 @@ namespace Rigel
             Variants[name] = {vertIndex, fragIndex};
         }
 
-        std::array<std::filesystem::path, MAX_PATHS> Paths;
-        std::unordered_map<std::string, VariantIndices> Variants;
+        std::array<std::filesystem::path, MAX_PATHS> Paths{};
+        std::unordered_map<std::string, VariantIndices> Variants{};
     };
 }

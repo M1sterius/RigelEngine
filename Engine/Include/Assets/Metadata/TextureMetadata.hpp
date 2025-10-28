@@ -9,12 +9,12 @@ namespace Rigel
 {
     struct TextureMetadata : public AssetMetadata
     {
-        std::filesystem::path Path;
-        int32_t RequiredComponents;
+        std::filesystem::path Path{};
+        void* Pixels{nullptr};
 
-        void* Pixels;
-        uint32_t Width;
-        uint32_t Height;
-        int32_t Components;
+        uint32_t Width{0};
+        uint32_t Height{0};
+        int32_t Components{0};
+        bool Linear{false};
     };
 }

@@ -25,7 +25,7 @@ namespace Rigel
         if (!pixels)
             return ErrorCode::FAILED_TO_OPEN_FILE;
 
-        m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(pixels, size, mipLevelCount);
+        m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(pixels, size, 4, false, mipLevelCount);
 
         m_Initialized = true;
         return ErrorCode::OK;

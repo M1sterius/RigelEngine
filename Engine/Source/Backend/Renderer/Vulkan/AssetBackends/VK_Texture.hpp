@@ -20,8 +20,12 @@ namespace Rigel::Backend::Vulkan
     class VK_Texture final
     {
     public:
-        VK_Texture(const void* pixelData, const glm::uvec2 size, const uint32_t mipLevelCount);
+        VK_Texture(const void* pixelData, const glm::uvec2 size, const uint32_t components,
+            const bool linear, const uint32_t mipLevelCount);
         ~VK_Texture();
+
+        VK_Texture(const VK_Texture&) = delete;
+        VK_Texture operator = (const VK_Texture&) = delete;
 
         NODISCARD glm::uvec2 GetSize() const;
         NODISCARD VK_Image& GetImage() const { return *m_Image; }
