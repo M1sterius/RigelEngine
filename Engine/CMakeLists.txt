@@ -17,6 +17,8 @@ add_library(RigelEngine STATIC
     ${DEPENDENCIES_DIR}/tiny_gltf/tiny_gltf.cpp
 
     # Misc
+    Source/Utilities/Math/Math.cpp
+    Source/Utilities/Math/Random.cpp
     Source/Engine.cpp
     Source/Debug/Debug.cpp
     Source/Debug/Logger.cpp

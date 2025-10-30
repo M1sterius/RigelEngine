@@ -14,6 +14,9 @@ int32_t main(int32_t argc, char** argv)
     settings.WindowSize = glm::vec2(1600, 900);
     settings.AssetManagerThreadPoolSize = 8;
 
+    auto uuid = Rigel::Random::UUIDv4();
+    std::cout << uuid << '\n';
+
     const auto engine = Rigel::Engine::CreateInstance();
     if (const auto errorCode = engine->Startup(settings); errorCode != Rigel::ErrorCode::OK)
     {

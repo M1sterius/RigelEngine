@@ -49,7 +49,7 @@ namespace Rigel
         template<RigelAssetConcept T>
         AssetHandle<T> Load(const std::filesystem::path& path, const bool persistent = false)
         {
-            const auto pathHash = Hash(path);
+            const auto pathHash = Math::Hash(path);
 
             // Check if already loaded or being loaded at the moment
             if (const auto existing = FindExisting<T>(pathHash); !existing.IsNull())
@@ -117,7 +117,7 @@ namespace Rigel
         template<RigelAssetConcept T>
         AssetHandle<T> LoadAsync(const std::filesystem::path& path, const bool persistent = false)
         {
-            const auto pathHash = Hash(path);
+            const auto pathHash = Math::Hash(path);
 
             // Check if already loaded or being loaded at the moment
             if (const auto existing = FindExisting<T>(pathHash); !existing.IsNull())
@@ -187,7 +187,7 @@ namespace Rigel
             {
                 std::shared_lock lock(m_MetadataMutex);
 
-                const auto hash = Hash(path);
+                const auto hash = Math::Hash(path);
                 if (!m_Metadata.contains(hash))
                 {
                     Debug::Error("Cannot find metadata for the asset at path: {}!", path.string());
@@ -207,7 +207,7 @@ namespace Rigel
                 return;
 
             std::unique_lock lock(m_MetadataMutex);
-            m_Metadata[Hash(path)] = std::make_unique<T>(*metadata);
+            m_Metadata[Math::Hash(path)] = std::make_unique<T>(*metadata);
         }
     INTERNAL:
         AssetManager() = default;

@@ -1,81 +1,57 @@
 #pragma once
 
-#include <iostream>
 #include <random>
-#include <cstdint>
 
-/**
- * @brief Generates a random 64-bit unsigned integer in the specified min, max range
- * @param min The lower bound
- * @param max The upper bound
- * @return A random 64-bit unsigned integer
- */
-inline uint64_t GenerateRandomUint64(const uint64_t min, const uint64_t max)
+namespace Rigel
 {
-    if (min > max)
-        throw std::invalid_argument("Min cannot be greater than Max.");
+    class Random
+    {
+    public:
+        /**
+         * Generates a random numerical value using std::mt19937_64 generator
+         */
+        template<typename T>
+        static T Numeric(T min, T max)
+        {
+            thread_local std::random_device rd;
+            thread_local std::mt19937_64 generator(rd());
 
-    static std::random_device rd;
-    std::mt19937_64 generator(rd());
+            if (min > max)
+                std::swap(min, max);
 
-    std::uniform_int_distribution<uint64_t> distribution(min, max);
+            if constexpr(std::is_floating_point_v<T>)
+            {
+                std::uniform_real_distribution<T> distribution(min, max);
+                return distribution(generator);
+            }
+            else
+            {
+                std::uniform_int_distribution<T> distribution(min, max);
+                return distribution(generator);
+            }
+        }
 
-    return distribution(generator);
-}
+        /**
+         * Generates random UUIDv4 as a std::string using std::mt19937_64 generator
+         */
+        static std::string UUIDv4();
+    };
 
-/**
- * @brief Generates a random 64-bit signed integer in the specified min, max range
- * @param min The lower bound
- * @param max The upper bound
- * @return A random 64-bit signed integer
- */
-inline int64_t GenerateRandomInt64(const int64_t min, const int64_t max)
-{
-    if (min > max)
-        throw std::invalid_argument("Min cannot be greater than Max.");
+    inline std::string get_uuid() {
+        static std::random_device dev;
+        static std::mt19937 rng(dev());
 
-    static std::random_device rd;
-    std::mt19937_64 generator(rd());
+        std::uniform_int_distribution<int> dist(0, 15);
 
-    std::uniform_int_distribution<int64_t> distribution(min, max);
+        const char *v = "0123456789abcdef";
+        const bool dash[] = { 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0 };
 
-    return distribution(generator);
-}
-
-/**
- * @brief Generates a random 64-bit floating point number in the specified min, max range
- * @param min The lower bound
- * @param max The upper bound
- * @return A random 64-bit floating point number
- */
-inline double GenerateRandomDouble(const double min, const double max)
-{
-    if (min > max)
-        throw std::invalid_argument("Min cannot be greater than Max.");
-
-    static std::random_device rd;
-    std::mt19937_64 generator(rd());
-
-    std::uniform_real_distribution<double> distribution(min, max);
-
-    return distribution(generator);
-}
-
-/**
- * @brief Generates a random 32-bit floating point number in the specified min, max range
- * @param min The lower bound
- * @param max The upper bound
- * @return A random 32-bit floating point number
- */
-inline float GenerateRandomFloat(const float min, const float max)
-{
-    if (min > max)
-        throw std::invalid_argument("Min cannot be greater than Max.");
-
-    static std::random_device rd;
-    std::mt19937_64 generator(rd());
-
-    std::uniform_real_distribution<float> distribution(min, max);
-
-    return distribution(generator);
+        std::string res;
+        for (int i = 0; i < 16; i++) {
+            if (dash[i]) res += "-";
+            res += v[dist(rng)];
+            res += v[dist(rng)];
+        }
+        return res;
+    }
 }
