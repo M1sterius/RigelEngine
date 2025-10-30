@@ -4,6 +4,7 @@
 #include "RigelAsset.hpp"
 #include "Handles/AssetHandle.hpp"
 #include "Assets/Texture.hpp"
+#include "Metadata/MaterialMetadata.hpp"
 
 #include <filesystem>
 

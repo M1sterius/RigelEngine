@@ -18,7 +18,7 @@ namespace Rigel::Backend::Vulkan
     #endif
 
         // RenderDoc does not support versions higher than 1.3!
-        static constexpr auto MinimalRequiredAPIVersion = VK_API_VERSION_1_4;
+        static constexpr auto MinimalRequiredAPIVersion = VK_API_VERSION_1_3;
 
         inline static const std::vector<const char*> ValidationLayers = {
             "VK_LAYER_KHRONOS_validation"

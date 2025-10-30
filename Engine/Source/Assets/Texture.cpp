@@ -1,8 +1,11 @@
 #include "Assets/Texture.hpp"
 #include "Utilities/ScopeGuard.hpp"
+#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/AssetManager/AssetManager.hpp"
 #include "Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp"
 
 #include "stb_image/stb_image.h"
+
 
 namespace Rigel
 {
@@ -14,18 +17,62 @@ namespace Rigel
     {
         stbi_set_flip_vertically_on_load(true);
 
-        int texWidth, texHeight, texChannels;
-        auto pixels = stbi_load(m_Path.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        const auto metadata = GetAssetManager()->GetMetadata<TextureMetadata>(this->GetPath());
 
-        const auto size = glm::uvec2(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+        if (!metadata)
+            return ErrorCode::ASSET_METADATA_NOT_FOUND;
+
+        if (metadata->Path.empty() && !metadata->Pixels)
+        {
+            Debug::Error("Texture metadata must have either path or pixels pointer set to valid values!");
+            return ErrorCode::INVALID_ASSET_METADATA;
+        }
+
+        if (!metadata->Path.empty() && metadata->Pixels)
+        {
+            Debug::Error("Texture metadata must not have both path and pixels fields set at the same time!");
+            return ErrorCode::INVALID_ASSET_METADATA;
+        }
+
+        glm::uvec2 size;
+        int32_t components;
+        stbi_uc* pixels;
+
+        if (!metadata->Path.empty()) // Load texture from file
+        {
+            int width, height;
+            if (!stbi_info(m_Path.string().c_str(), &width, &height, &components))
+                return ErrorCode::FAILED_TO_OPEN_FILE;
+
+            // Force 4 channels if the image has only RGB (most GPUs don't support RGB)
+            const bool needsAlpha = (components == 3);
+            const int desiredComponents = needsAlpha ? STBI_rgb_alpha : 0;
+
+            pixels = stbi_load(m_Path.string().c_str(), &width, &height, &components, desiredComponents);
+
+            if (!pixels)
+                return ErrorCode::FAILED_TO_OPEN_FILE;
+
+            if (needsAlpha)
+                components = 4;
+
+            size = glm::uvec2(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+        }
+        else // Load texture from existing pixels buffer
+        {
+            if (metadata->Width == 0 || metadata->Height == 0 || metadata->Components == 0)
+                return ErrorCode::INVALID_ASSET_METADATA;
+
+            pixels = static_cast<stbi_uc*>(metadata->Pixels);
+            size = glm::uvec2(metadata->Width, metadata->Height);
+            components = metadata->Components;
+        }
+
         const auto mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.x, size.y))) + 1);
+        m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(pixels, size, components, metadata->Linear, mipLevelCount);
 
-        auto freeGuard = ScopeGuard([pixels] { stbi_image_free(pixels); });
-
-        if (!pixels)
-            return ErrorCode::FAILED_TO_OPEN_FILE;
-
-        m_Impl = std::make_unique<Backend::Vulkan::VK_Texture>(pixels, size, 4, false, mipLevelCount);
+        if (!metadata->Path.empty())
+            stbi_image_free(pixels);
 
         m_Initialized = true;
         return ErrorCode::OK;

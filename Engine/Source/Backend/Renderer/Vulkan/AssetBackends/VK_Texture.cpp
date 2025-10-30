@@ -16,7 +16,7 @@ inline VkFormat DeduceFormat(const uint32_t components, const bool linear)
         {
         case 1: return VK_FORMAT_R8_UNORM;
         case 2: return VK_FORMAT_R8G8_UNORM;
-        case 3: return VK_FORMAT_R8G8B8_UNORM;
+        case 3: return VK_FORMAT_R8G8B8A8_UNORM; // Because most GPUs don't support 24-bit textures
         default: return VK_FORMAT_R8G8B8A8_UNORM;
         }
     }
@@ -26,7 +26,7 @@ inline VkFormat DeduceFormat(const uint32_t components, const bool linear)
         {
         case 1: return VK_FORMAT_R8_SRGB;
         case 2: return VK_FORMAT_R8G8_SRGB;
-        case 3: return VK_FORMAT_R8G8B8_SRGB;
+        case 3: return VK_FORMAT_R8G8B8A8_SRGB; // Because most GPUs don't support 24-bit textures
         default: return VK_FORMAT_R8G8B8A8_SRGB;
         }
     }

@@ -3,6 +3,7 @@
 #include "Core.hpp"
 #include "Math.hpp"
 #include "RigelAsset.hpp"
+#include "Metadata/TextureMetadata.hpp"
 
 #include <memory>
 

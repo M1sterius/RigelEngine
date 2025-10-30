@@ -25,10 +25,13 @@ namespace Rigel
 
         auto LoadTexture = [metadata](const std::filesystem::path& path) -> AssetHandle<Texture>
         {
+            auto textureMetadata = TextureMetadata();
+            textureMetadata.Path = path;
+
             if (metadata->PermitAsyncTextureLoading)
-                return GetAssetManager()->LoadAsync<Texture>(path);
+                return GetAssetManager()->LoadAsync<Texture>(path, &textureMetadata);
             else
-                return GetAssetManager()->Load<Texture>(path);
+                return GetAssetManager()->Load<Texture>(path, &textureMetadata);
         };
 
         auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t

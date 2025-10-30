@@ -62,9 +62,16 @@ namespace Rigel::Backend::Vulkan
 
         m_ForwardPass->SetImGuiBackend(m_ImGuiBackend);
 
-        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError, true);
-        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureBlack, true);
-        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureWhite, true);
+        auto textureMetadata = TextureMetadata();
+
+        textureMetadata.Path = BuiltInAssets::TextureError;
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureError, &textureMetadata, true);
+
+        textureMetadata.Path = BuiltInAssets::TextureBlack;
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureWhite, &textureMetadata, true);
+
+        textureMetadata.Path = BuiltInAssets::TextureWhite;
+        GetAssetManager()->Load<Texture>(BuiltInAssets::TextureWhite, &textureMetadata, true);
 
         return ErrorCode::OK;
     }
