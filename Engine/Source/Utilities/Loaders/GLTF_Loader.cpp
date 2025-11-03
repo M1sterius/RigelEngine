@@ -69,7 +69,8 @@ namespace Rigel::Backend
 
         // Create implicit root node because gltf doesn't have the concept of single root node per scene
         rootNode->Name = "RootNode";
-        rootNode->Transform = glm::mat4(1.0f);
+        rootNode->LocalTransform = glm::mat4(1.0f);
+        rootNode->WorldTransform = glm::mat4(1.0f);
 
         const auto& scene = m_Model.scenes[m_Model.defaultScene >= 0 ? m_Model.defaultScene : 0];
         for (const auto nodeIdx : scene.nodes)
@@ -89,7 +90,7 @@ namespace Rigel::Backend
 
         if (node.matrix.size() == 16)
         {
-            childNode->Transform = ConvertMat4(node.matrix);
+            childNode->LocalTransform = ConvertMat4(node.matrix);
         }
         else
         {
@@ -112,7 +113,7 @@ namespace Rigel::Backend
             if (node.scale.size() == 3)
                 transform = glm::scale(transform, ConvertVec3(node.scale));
 
-            childNode->Transform = transform;
+            childNode->LocalTransform = transform;
         }
 
         if (node.mesh >= 0)

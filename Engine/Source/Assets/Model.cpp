@@ -9,8 +9,41 @@ namespace Rigel
 {
     using namespace Backend::Vulkan;
 
+    Model::NodeIterator::NodeIterator(std::shared_ptr<Backend::ModelNode> root)
+        : m_RootNode(std::move(root)), m_CurrentNode(m_RootNode)
+    {
+        m_Queue.push(m_RootNode);
+    }
+
+    Model::NodeIterator& Model::NodeIterator::operator ++ (int)
+    {
+        if (m_Queue.empty())
+            return *this;
+
+        auto& parent = m_Queue.front();
+
+        for (auto& child : parent->Children)
+        {
+            child->WorldTransform = parent->WorldTransform * child->LocalTransform;
+            m_Queue.push(child);
+        }
+
+        m_Queue.pop();
+
+        if (!m_Queue.empty())
+            m_CurrentNode = m_Queue.front();
+
+        return *this;
+    }
+
+    bool Model::NodeIterator::Valid() const
+    {
+        return !m_Queue.empty() && m_CurrentNode;
+    }
+
     Model::Model(const std::filesystem::path& path, const uid_t id) noexcept
         : RigelAsset(path, id) { }
+
     Model::~Model() = default;
 
     ErrorCode Model::Init()

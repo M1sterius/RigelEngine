@@ -37,7 +37,7 @@ namespace Rigel::Backend::Vulkan
         m_DeferredDrawBatches.clear();
         m_ForwardDrawBatches.clear();
 
-        // Skip rendering altogether if there is no main camera in the scene
+        // Skip rendering altogether if there is no main camera
         if (!sceneRenderInfo->CameraPresent)
             return;
 
@@ -57,13 +57,13 @@ namespace Rigel::Backend::Vulkan
             forwardBatch.IndexBuffer = modelAsset->GetIndexBuffer();
 
             int32_t vertexOffset = 0;
-            for (auto node = modelAsset->GetNodeIterator(); node.Valid(); ++node)
+            for (auto nodeIt = modelAsset->GetNodeIterator(); nodeIt.Valid(); nodeIt++)
             {
-                const auto modelMat = modelTransform * node->Transform;
+                const auto modelMat = modelTransform * nodeIt->WorldTransform;
                 const auto normalMat = glm::mat3(glm::transpose(glm::inverse(modelMat)));
                 const auto MVP = sceneRenderInfo->ProjView * modelMat;
 
-                for (const auto& mesh : node->Meshes)
+                for (const auto& mesh : nodeIt->Meshes)
                 {
                     const auto meshMaterial = mesh.Material;
 

@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <queue>
 
 struct aiNode;
 struct aiScene;
@@ -34,7 +35,8 @@ namespace Rigel
         struct ModelNode
         {
             std::string Name;
-            glm::mat4 Transform; // TODO: transform is relative to parent!
+            glm::mat4 LocalTransform;
+            glm::mat4 WorldTransform;
 
             std::vector<ModelMesh> Meshes;
 
@@ -60,36 +62,16 @@ namespace Rigel
         class NodeIterator
         {
         public:
-            explicit NodeIterator(std::shared_ptr<Backend::ModelNode> node)
-                : m_RootNode(std::move(node))
-            {
-                TraverseNode(m_RootNode);
-            }
+            explicit NodeIterator(std::shared_ptr<Backend::ModelNode> root);
 
-            const Backend::ModelNode* operator -> () const { return m_Nodes[m_CurrentIndex].get(); }
+            const Backend::ModelNode* operator -> () const { return m_CurrentNode.get(); }
 
-            NodeIterator& operator ++ ()
-            {
-                ++m_CurrentIndex;
-                return *this;
-            }
-
-            NODISCARD bool Valid() const
-            {
-                return m_CurrentIndex < m_Nodes.size();
-            }
+            NodeIterator& operator ++ (int);
+            NODISCARD bool Valid() const;
         private:
-            void TraverseNode(const std::shared_ptr<Backend::ModelNode>& node)
-            {
-                m_Nodes.push_back(node);
-
-                for (const auto& child : node->Children)
-                    TraverseNode(child);
-            }
-
-            uint32_t m_CurrentIndex = 0;
             std::shared_ptr<Backend::ModelNode> m_RootNode;
-            std::vector<std::shared_ptr<Backend::ModelNode>> m_Nodes;
+            std::shared_ptr<Backend::ModelNode> m_CurrentNode;
+            std::queue<std::shared_ptr<Backend::ModelNode>> m_Queue;
         };
     public:
         ~Model() override;
