@@ -54,10 +54,7 @@ namespace Rigel::Backend
         if (extension == ".gltf")
             result = m_Loader.LoadASCIIFromFile(&m_Model, &m_LoadError, &m_LoadWarning, m_Path.string());
         else if (extension == ".glb")
-        {
-            m_LoadError = ".glb format isn't supported yet!";
-            return false;
-        }
+            result = m_Loader.LoadBinaryFromFile(&m_Model, &m_LoadError, &m_LoadWarning, m_Path.string());
         else
         {
             m_LoadError = "Unsupported model format!";
@@ -249,15 +246,22 @@ namespace Rigel::Backend
         return resMesh;
     }
 
-    std::filesystem::path GLTF_Loader::ProcessTexture(const tinygltf::Image& image, const std::filesystem::path& texturesDir)
+    TextureMetadata GLTF_Loader::ProcessTexture(const tinygltf::Image& image, const std::filesystem::path& texturesDir, const bool linear)
     {
+        auto texMetadata = TextureMetadata();
+        texMetadata.Linear = linear;
+
         if (!image.uri.empty())
-            return texturesDir / image.uri;
+            texMetadata.Path = texturesDir / image.uri;
         else
         {
-            Debug::Error(".glb embedded textures aren't supported yet!");
-            return {};
+            texMetadata.Pixels = const_cast<unsigned char*>(image.image.data());
+            texMetadata.Width = image.width;
+            texMetadata.Height = image.height;
+            texMetadata.Components = image.component;
         }
+
+        return texMetadata;
     }
 
     AssetHandle<Material> GLTF_Loader::ProcessMaterial(const int materialIdx)
@@ -268,7 +272,7 @@ namespace Rigel::Backend
         const auto& gltfMaterial = m_Model.materials[materialIdx];
         const auto& pbr = gltfMaterial.pbrMetallicRoughness;
 
-        auto metadata = MaterialMetadata();
+        auto materialMetadata = MaterialMetadata();
 
         // Albedo
         if (pbr.baseColorTexture.index >= 0)
@@ -277,12 +281,12 @@ namespace Rigel::Backend
             if (texture.source >= 0)
             {
                 const auto& image = m_Model.images[texture.source];
-                metadata.AlbedoTex = ProcessTexture(image, texturesDir);
+                materialMetadata.AlbedoTex = ProcessTexture(image, texturesDir, false);
             }
         }
         else
         {
-            metadata.Color = ConvertColor(pbr.baseColorFactor);
+            materialMetadata.Color = ConvertColor(pbr.baseColorFactor);
         }
 
         // Metallic
@@ -292,12 +296,12 @@ namespace Rigel::Backend
             if (texture.source >= 0)
             {
                 const auto& image = m_Model.images[texture.source];
-                metadata.MetallicTex = ProcessTexture(image, texturesDir);
+                materialMetadata.MetallicTex = ProcessTexture(image, texturesDir, true);
             }
         }
         else
         {
-            metadata.Metalness = static_cast<float>(pbr.metallicFactor);
+            materialMetadata.Metalness = static_cast<float>(pbr.metallicFactor);
         }
 
         // Roughness
@@ -307,12 +311,12 @@ namespace Rigel::Backend
             if (texture.source >= 0)
             {
                 const auto& image = m_Model.images[texture.source];
-                metadata.RoughnessTex = ProcessTexture(image, texturesDir);
+                materialMetadata.RoughnessTex = ProcessTexture(image, texturesDir, true);
             }
         }
         else
         {
-            metadata.Roughness = static_cast<float>(pbr.roughnessFactor);
+            materialMetadata.Roughness = static_cast<float>(pbr.roughnessFactor);
         }
 
         // Normal
@@ -322,7 +326,7 @@ namespace Rigel::Backend
             if (texture.source >= 0)
             {
                 const auto& image = m_Model.images[texture.source];
-                metadata.NormalTex = ProcessTexture(image, texturesDir);
+                materialMetadata.NormalTex = ProcessTexture(image, texturesDir, true);
             }
         }
 
@@ -333,13 +337,13 @@ namespace Rigel::Backend
             if (texture.source >= 0)
             {
                 const auto& image = m_Model.images[texture.source];
-                metadata.AmbientOcclusionTex = ProcessTexture(image, texturesDir);
+                materialMetadata.AmbientOcclusionTex = ProcessTexture(image, texturesDir, true);
             }
         }
 
-        metadata.TwoSided = gltfMaterial.doubleSided;
-        metadata.HasTransparency = gltfMaterial.alphaMode == "MASK" || gltfMaterial.alphaMode == "BLEND";
+        materialMetadata.TwoSided = gltfMaterial.doubleSided;
+        materialMetadata.HasTransparency = gltfMaterial.alphaMode == "MASK" || gltfMaterial.alphaMode == "BLEND";
 
-        return GetAssetManager()->LoadAsync<Material>(materialName, &metadata);
+        return GetAssetManager()->LoadAsync<Material>(materialName, &materialMetadata);
     }
 }

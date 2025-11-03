@@ -42,6 +42,6 @@ namespace Rigel::Backend
 
         AssetHandle<Material> ProcessMaterial(const int materialIdx);
 
-        std::filesystem::path ProcessTexture(const tinygltf::Image& image, const std::filesystem::path& texturesDir);
+        TextureMetadata ProcessTexture(const tinygltf::Image& image, const std::filesystem::path& texturesDir, const bool linear);
     };
 }

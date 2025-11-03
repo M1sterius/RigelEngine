@@ -37,6 +37,11 @@ int32_t main(int32_t argc, char** argv)
     model->GetTransform()->SetLocalScale(glm::vec3(1.0f));
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
 
+    auto model1 = scene->Instantiate("Model1");
+    model1->GetTransform()->SetLocalPosition({0.0, 1.0, 0});
+    model1->GetTransform()->SetLocalScale(glm::vec3(1.0f));
+    model1->AddComponent<Rigel::ModelRenderer>("Assets/Models/spear.glb");
+
     sceneManager->LoadScene(scene);
 
     engine->Run();

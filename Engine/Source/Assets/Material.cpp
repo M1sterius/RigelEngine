@@ -5,13 +5,36 @@
 #include "Backend/Renderer/ShaderStructs.hpp"
 #include "Backend/Renderer/Vulkan/VK_BindlessManager.hpp"
 #include "Backend/Renderer/Vulkan/AssetBackends/VK_Texture.hpp"
-#include "../Backend/Renderer/Vulkan/Helpers/VulkanUtility.hpp"
+#include "Backend/Renderer/Vulkan/Helpers/VulkanUtility.hpp"
 
 #include <filesystem>
 
 namespace Rigel
 {
     using namespace Backend::Vulkan;
+
+    static AssetHandle<Texture> LoadTexture(const TextureMetadata& textureMetadata, const bool async)
+    {
+        const auto name = textureMetadata.Path.empty() ? Random::UUIDv4() : textureMetadata.Path;
+
+        if (async)
+            return GetAssetManager()->LoadAsync<Texture>(name, &textureMetadata);
+        else
+            return GetAssetManager()->Load<Texture>(name, &textureMetadata);
+    }
+
+    static uint32_t SetBindlessIndex(const AssetHandle<Texture>& texture, const uint32_t fallbackIndex)
+    {
+        if (texture.IsNull())
+            return fallbackIndex;
+
+        texture->WaitReady();
+
+        if (texture->IsOK())
+            return texture->GetImpl()->GetBindlessIndex();
+
+        return fallbackIndex;
+    }
 
     Material::Material(const std::filesystem::path& path, const uid_t id)
         : RigelAsset(path, id) { }
@@ -23,52 +46,30 @@ namespace Rigel
         if (!metadata)
             return ErrorCode::ASSET_METADATA_NOT_FOUND;
 
-        auto LoadTexture = [metadata](const std::filesystem::path& path) -> AssetHandle<Texture>
-        {
-            auto textureMetadata = TextureMetadata();
-            textureMetadata.Path = path;
-
-            if (metadata->PermitAsyncTextureLoading)
-                return GetAssetManager()->LoadAsync<Texture>(path, &textureMetadata);
-            else
-                return GetAssetManager()->Load<Texture>(path, &textureMetadata);
-        };
-
-        auto SetIndex = [](const AssetHandle<Texture>& texture, const uint32_t fallbackIndex) -> uint32_t
-        {
-            if (texture.IsNull())
-                return fallbackIndex;
-
-            texture->WaitReady();
-
-            if (texture->IsOK())
-                return texture->GetImpl()->GetBindlessIndex();
-
-            return fallbackIndex;
-        };
+        const auto permitAsync = metadata->PermitAsyncTextureLoading;
 
         // Albedo
-        if (!metadata->AlbedoTex.empty())
-            m_AlbedoTex = LoadTexture(metadata->AlbedoTex);
+        if (!metadata->AlbedoTex.Path.empty() || metadata->AlbedoTex.Pixels)
+            m_AlbedoTex = LoadTexture(metadata->AlbedoTex, permitAsync);
         m_Color = metadata->Color;
 
         // Metallic
-        if (!metadata->MetallicTex.empty())
-            m_MetallicTex = LoadTexture(metadata->MetallicTex);
+        if (!metadata->MetallicTex.Path.empty() || metadata->MetallicTex.Pixels)
+            m_MetallicTex = LoadTexture(metadata->MetallicTex, permitAsync);
         m_Metalness = metadata->Metalness;
 
         // Roughness
-        if (!metadata->RoughnessTex.empty())
-            m_RoughnessTex = LoadTexture(metadata->RoughnessTex);
+        if (!metadata->RoughnessTex.Path.empty() || metadata->RoughnessTex.Pixels)
+            m_RoughnessTex = LoadTexture(metadata->RoughnessTex, permitAsync);
         m_Roughness = metadata->Roughness;
 
         // Normal
-        if (!metadata->NormalTex.empty())
-            m_NormalTex = LoadTexture(metadata->NormalTex);
+        if (!metadata->NormalTex.Path.empty() || metadata->NormalTex.Pixels)
+            m_NormalTex = LoadTexture(metadata->NormalTex, permitAsync);
 
         // Ambient occlusion
-        if (!metadata->AmbientOcclusionTex.empty())
-            m_AmbientOcclusionTex = LoadTexture(metadata->AmbientOcclusionTex);
+        if (!metadata->AmbientOcclusionTex.Path.empty() || metadata->AlbedoTex.Pixels)
+            m_AmbientOcclusionTex = LoadTexture(metadata->AmbientOcclusionTex, permitAsync);
 
         m_Tiling = metadata->Tiling;
         m_Offset = metadata->Offset;
@@ -76,14 +77,14 @@ namespace Rigel
         m_HasTransparency = metadata->HasTransparency;
 
         auto shaderData = MaterialData{
-            .AlbedoIndex = SetIndex(m_AlbedoTex, 0),
+            .AlbedoIndex = SetBindlessIndex(m_AlbedoTex, 0),
             .Color = m_Color,
-            .MetallicIndex = SetIndex(m_MetallicTex, 1),
+            .MetallicIndex = SetBindlessIndex(m_MetallicTex, 1),
             .Metalness = m_Metalness,
-            .RoughnessIndex = SetIndex(m_RoughnessTex, 1),
+            .RoughnessIndex = SetBindlessIndex(m_RoughnessTex, 1),
             .Roughness = m_Roughness,
-            .NormalIndex = SetIndex(m_NormalTex, 1),
-            .AmbientOcclusionIndex = SetIndex(m_AmbientOcclusionTex, 1),
+            .NormalIndex = SetBindlessIndex(m_NormalTex, 1),
+            .AmbientOcclusionIndex = SetBindlessIndex(m_AmbientOcclusionTex, 1),
             .Tiling = m_Tiling,
             .Offset = m_Offset
         };

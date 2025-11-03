@@ -10,7 +10,7 @@ namespace Rigel
     struct TextureMetadata : public AssetMetadata
     {
         std::filesystem::path Path{};
-        void* Pixels{nullptr};
+        unsigned char* Pixels{nullptr};
 
         uint32_t Width{0};
         uint32_t Height{0};

@@ -63,7 +63,7 @@ namespace Rigel
             if (metadata->Width == 0 || metadata->Height == 0 || metadata->Components == 0)
                 return ErrorCode::INVALID_ASSET_METADATA;
 
-            pixels = static_cast<stbi_uc*>(metadata->Pixels);
+            pixels = metadata->Pixels;
             size = glm::uvec2(metadata->Width, metadata->Height);
             components = metadata->Components;
         }

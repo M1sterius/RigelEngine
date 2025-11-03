@@ -87,13 +87,15 @@ void FreeCamController::OnUpdate()
     if (inputManager->GetKeyPressed(Rigel::KeyCode::D))
         dir += rv;
 
+    const auto flySpeed = inputManager->GetKeyPressed(Rigel::KeyCode::LEFT_SHIFT) ? Speed * 2.0f : Speed;
+
     if (glm::length(dir) > 0.001f)
-        pos += glm::normalize(dir) * Speed * dt;
+        pos += glm::normalize(dir) * flySpeed * dt;
 
     if (inputManager->GetKeyPressed(Rigel::KeyCode::Q))
-        pos += Rigel::Transform::WORLD_UP * Speed * dt;
+        pos += Rigel::Transform::WORLD_UP * flySpeed * dt;
     if (inputManager->GetKeyPressed(Rigel::KeyCode::E))
-        pos -= Rigel::Transform::WORLD_UP * Speed * dt;
+        pos -= Rigel::Transform::WORLD_UP * flySpeed * dt;
 
     transform->SetLocalPosition(pos);
     transform->SetLocalRotation(glm::quat(glm::vec3(m_Pitch, m_Yaw, 0.0f)));
