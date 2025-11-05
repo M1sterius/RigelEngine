@@ -5,8 +5,6 @@
 
 namespace Rigel::Backend::Vulkan
 {
-    // ShaderStructs
-
     struct MaterialData
     {
         uint32_t AlbedoIndex{0};

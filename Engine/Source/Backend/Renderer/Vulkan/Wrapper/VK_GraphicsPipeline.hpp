@@ -2,6 +2,7 @@
 
 #include "Core.hpp"
 #include "Assets/Shader.hpp"
+#include "Handles/AssetHandle.hpp"
 #include "../Helpers/MakeInfo.hpp"
 
 #include "vulkan/vulkan.h"
@@ -16,6 +17,8 @@ namespace Rigel::Backend::Vulkan
 
     struct GraphicsPipelineConfigInfo
     {
+        NODISCARD static GraphicsPipelineConfigInfo Make();
+
         std::vector<VkPipelineShaderStageCreateInfo> ShaderStages;
 
         std::vector<VkFormat> ColorAttachmentFormats;
@@ -37,49 +40,6 @@ namespace Rigel::Backend::Vulkan
         VkPipelineDepthStencilStateCreateInfo DepthStencil;
 
         std::vector<VkDynamicState> DynamicStates;
-
-        NODISCARD static GraphicsPipelineConfigInfo Make()
-        {
-            auto configInfo = GraphicsPipelineConfigInfo();
-
-            // Input assembly
-            configInfo.InputAssembly = MakeInfo<VkPipelineInputAssemblyStateCreateInfo>();
-            configInfo.InputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            configInfo.InputAssembly.primitiveRestartEnable = VK_FALSE;
-
-            // Rasterizer
-            configInfo.Rasterizer = MakeInfo<VkPipelineRasterizationStateCreateInfo>();
-            configInfo.Rasterizer.depthClampEnable = VK_FALSE;
-            configInfo.Rasterizer.rasterizerDiscardEnable = VK_FALSE;
-            configInfo.Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-            configInfo.Rasterizer.lineWidth = 1.0f;
-            configInfo.Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-            configInfo.Rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-            configInfo.Rasterizer.depthBiasEnable = VK_FALSE;
-
-            // Multisampling
-            configInfo.Multisampling = MakeInfo<VkPipelineMultisampleStateCreateInfo>();
-            configInfo.Multisampling.sampleShadingEnable = VK_FALSE;
-            configInfo.Multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-            // Depth and stencil
-            configInfo.DepthStencil = MakeInfo<VkPipelineDepthStencilStateCreateInfo>();
-            configInfo.DepthStencil.depthTestEnable = VK_TRUE;
-            configInfo.DepthStencil.depthWriteEnable = VK_TRUE;
-            configInfo.DepthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-            configInfo.DepthStencil.depthBoundsTestEnable = VK_FALSE;
-            configInfo.DepthStencil.stencilTestEnable = VK_FALSE;
-
-            // Always-enabled dynamic states
-            configInfo.DynamicStates = {
-                VK_DYNAMIC_STATE_VIEWPORT,
-                VK_DYNAMIC_STATE_SCISSOR,
-            };
-
-            configInfo.NoVertexInput = false;
-
-            return configInfo;
-        }
     private:
         GraphicsPipelineConfigInfo() = default;
     };
@@ -87,7 +47,6 @@ namespace Rigel::Backend::Vulkan
     class VK_GraphicsPipeline 
     {
     public:
-        VK_GraphicsPipeline(VK_Device& device, const VkPipelineLayoutCreateInfo& layoutInfo, VkGraphicsPipelineCreateInfo& pipelineInfo);
         VK_GraphicsPipeline(VK_Device& device, const GraphicsPipelineConfigInfo& configInfo, VkPipelineLayout pipelineLayout);
         ~VK_GraphicsPipeline();
 

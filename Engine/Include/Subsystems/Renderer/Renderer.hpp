@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core.hpp"
-#include "Subsystems/RigelSubsystem.hpp"
 #include "SceneRenderInfo.hpp"
+#include "Subsystems/RigelSubsystem.hpp"
 
 #include <memory>
 

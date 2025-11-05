@@ -35,7 +35,7 @@ namespace Rigel::Backend::Vulkan
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
             VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
             VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME,
-            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
+            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
         };
 
         inline static const std::vector<const char*> OptionalPhysicalDeviceExtensions = {

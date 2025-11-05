@@ -52,10 +52,7 @@ namespace Rigel::Backend::Vulkan
         configInfo.ShaderStages[0] = shaderVariant.VertexModule->GetStageInfo();
         configInfo.ShaderStages[1] = shaderVariant.FragmentModule->GetStageInfo();
 
-        configInfo.ColorAttachmentFormats = {
-            m_Swapchain.GetImageFormat()
-        };
-
+        configInfo.ColorAttachmentFormats = { m_Swapchain.GetImageFormat() };
         configInfo.DepthAttachmentFormat = VK_GBuffer::DEPTH_STENCIL_ATTACHMENT_FORMAT;
 
         configInfo.BlendAttachments.resize(1);

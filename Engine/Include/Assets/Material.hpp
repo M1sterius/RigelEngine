@@ -15,6 +15,7 @@ namespace Rigel
     public:
         ~Material() override;
     INTERNAL:
+        NODISCARD bool RequiresForwardPass() const;
         NODISCARD bool IsTwoSided() const { return m_TwoSided; }
         NODISCARD bool HasTransparency() const { return m_HasTransparency; }
 

@@ -3,6 +3,7 @@
 #include "Handles/ComponentHandle.hpp"
 #include "Components/Camera.hpp"
 #include "Components/ModelRenderer.hpp"
+#include "Components/DirectionalLight.hpp"
 #include "Subsystems/SceneManager.hpp"
 #include "Subsystems/EventSystem/EventManager.hpp"
 #include "Subsystems/EventSystem/EngineEvents.hpp"
@@ -88,6 +89,11 @@ namespace Rigel
                 m_SceneRenderInfo.Models.push_back(asset);
                 m_SceneRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
             }
+        }
+
+        for (const auto& dirLight : scene->FindComponentsOfType<DirectionalLight>())
+        {
+
         }
 
         m_ImGuiImpl->BeginNewFrame();

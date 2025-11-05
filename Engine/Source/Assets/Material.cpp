@@ -98,4 +98,9 @@ namespace Rigel
     {
         GetVKRenderer().GetBindlessManager().RemoveMaterial(m_BindlessIndex);
     }
+
+    bool Material::RequiresForwardPass() const
+    {
+        return m_TwoSided || m_HasTransparency;
+    }
 }

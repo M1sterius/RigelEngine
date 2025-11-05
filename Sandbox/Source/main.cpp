@@ -38,9 +38,14 @@ int32_t main(int32_t argc, char** argv)
     model->AddComponent<Rigel::ModelRenderer>("Assets/Models/Sponza/Sponza.gltf");
 
     auto model1 = scene->Instantiate("Model1");
-    model1->GetTransform()->SetLocalPosition({0.0, 1.0, 0});
+    model1->GetTransform()->SetLocalPosition({0.0, 1.0, -0.5});
     model1->GetTransform()->SetLocalScale(glm::vec3(3.0f));
     model1->AddComponent<Rigel::ModelRenderer>("Assets/Models/spear.glb");
+
+    auto model2 = scene->Instantiate("Model2");
+    model2->GetTransform()->SetLocalPosition({-1.0, 1.0, 0.5});
+    model2->GetTransform()->SetLocalScale(glm::vec3(2.0f));
+    model2->AddComponent<Rigel::ModelRenderer>("Assets/Models/helmet.glb");
     
     sceneManager->LoadScene(scene);
 

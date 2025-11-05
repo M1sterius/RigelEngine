@@ -67,6 +67,9 @@
 #include "Components/Transform.hpp"
 #include "Components/Camera.hpp"
 #include "Components/ModelRenderer.hpp"
+#include "Components/DirectionalLight.hpp"
+#include "Components/PointLight.hpp"
+#include "Components/SpotLight.hpp"
 
 // Utility
 #include "Utilities/Reflection/TypeUtility.hpp"
