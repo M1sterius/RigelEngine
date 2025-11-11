@@ -1,9 +1,5 @@
 #include "Subsystems/Renderer/Renderer.hpp"
-#include "ECS/Scene.hpp"
-#include "Handles/ComponentHandle.hpp"
-#include "Components/Camera.hpp"
-#include "Components/ModelRenderer.hpp"
-#include "Components/DirectionalLight.hpp"
+#include "Subsystems/Renderer/RenderScene.hpp"
 #include "Subsystems/SceneManager.hpp"
 #include "Subsystems/EventSystem/EventManager.hpp"
 #include "Subsystems/EventSystem/EngineEvents.hpp"
@@ -53,8 +49,6 @@ namespace Rigel
         m_ImGuiImpl.reset();
         m_Impl.reset();
 
-        m_SceneRenderInfo.Reset();
-
         return ErrorCode::OK;
     }
 
@@ -65,42 +59,13 @@ namespace Rigel
 
     void Renderer::Render()
     {
-        m_SceneRenderInfo.Reset();
-
-        auto scene = GetSceneManager()->GetLoadedScene();
-        if (scene.IsNull())
-            return;
-
-        auto cameras = scene->FindComponentsOfType<Camera>();
-        if (cameras.empty())
-        {
-            Debug::Warning("No main camera present on the scene. Rendering will not be performed!");
-            return;
-        }
-
-        m_SceneRenderInfo.CameraPresent = true;
-        m_SceneRenderInfo.ProjView = cameras[0]->GetProjection() * cameras[0]->GetView();
-        m_SceneRenderInfo.CamPos = cameras[0]->GetGameObject()->GetTransform()->GetPosition();
-
-        for (const auto& mr : scene->FindComponentsOfType<ModelRenderer>())
-        {
-            if (const auto asset = mr->GetModelAsset(); !asset.IsNull() && asset->IsOK())
-            {
-                m_SceneRenderInfo.Models.push_back(asset);
-                m_SceneRenderInfo.Transforms.push_back(mr->GetGameObject()->GetTransform()->GetWorldMatrix());
-            }
-        }
-
-        for (const auto& dirLight : scene->FindComponentsOfType<DirectionalLight>())
-        {
-
-        }
-
         m_ImGuiImpl->BeginNewFrame();
         GetEventManager()->Dispatch(DrawGUIEvent());
         ImGui::Render();
 
-        m_Impl->Render();
+        // It's more optimal to cache RenderScene and just update it instead of creating a new instance every frame
+        const auto renderScene = RenderScene::Extract(GetSceneManager()->GetLoadedScene());
+        m_Impl->Render(renderScene);
     }
 
     void Renderer::WaitForFinish() const

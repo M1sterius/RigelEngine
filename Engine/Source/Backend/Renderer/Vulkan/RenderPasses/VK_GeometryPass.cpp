@@ -6,10 +6,8 @@
 #include "../Helpers/VulkanUtility.hpp"
 #include "../Helpers/Vertex.hpp"
 #include "../Wrapper/VK_ShaderModule.hpp"
-#include "../../ShaderStructs.hpp"
 #include "Assets/Model.hpp"
 #include "Subsystems/SubsystemGetters.hpp"
-#include "Subsystems/Renderer/SceneRenderInfo.hpp"
 #include "Subsystems/AssetManager/AssetManager.hpp"
 
 namespace Rigel::Backend::Vulkan

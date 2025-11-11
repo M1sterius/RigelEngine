@@ -57,6 +57,7 @@ add_library(RigelEngine STATIC
     Source/Subsystems/Time.cpp
     Source/Subsystems/SceneManager.cpp
     Source/Subsystems/Renderer/Renderer.cpp
+    Source/Subsystems/Renderer/RenderScene.cpp
     Source/Subsystems/AssetManager/AssetDeleter.cpp
     Source/Subsystems/SubsystemGetters.cpp
     Source/Subsystems/AssetManager/AssetManager.cpp

@@ -59,7 +59,7 @@ namespace Rigel
          * @return A list of components of the specified type found in the scene.
          */
         template<ComponentConcept T>
-        NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max())
+        NODISCARD std::vector<ComponentHandle<T>> FindComponentsOfType(const size_t maxComponents = std::numeric_limits<size_t>::max()) const
         {
             auto components = std::vector<ComponentHandle<T>>();
 

@@ -99,7 +99,7 @@ namespace Rigel::Backend::Vulkan
         m_LightingPass->Recreate();
     }
 
-    void VK_Renderer::Render()
+    void VK_Renderer::Render(const RenderScene& scene)
     {
         if (GetWindowManager()->GetWindowResizeFlag())
         {
@@ -116,7 +116,7 @@ namespace Rigel::Backend::Vulkan
 
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
 
-        m_GPUScene->Update(frameIndex);
+        m_GPUScene->Update(frameIndex, scene);
 
         const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
         const auto lightingPassCommandBuffer = m_LightingPass->RecordCommandBuffer(swapchainImage, frameIndex);

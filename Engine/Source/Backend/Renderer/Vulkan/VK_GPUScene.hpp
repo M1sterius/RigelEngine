@@ -7,6 +7,11 @@
 #include <memory>
 #include <vector>
 
+namespace Rigel
+{
+    class RenderScene;
+}
+
 namespace Rigel::Backend::Vulkan
 {
     class VK_Device;
@@ -52,7 +57,7 @@ namespace Rigel::Backend::Vulkan
         NODISCARD const std::vector<DrawBatch>& GetDeferredDrawBatches() const { return m_DeferredDrawBatches; }
         NODISCARD const std::vector<DrawBatch>& GetForwardDrawBatches() const { return m_ForwardDrawBatches; }
 
-        void Update(const uint32_t frameIndex);
+        void Update(const uint32_t frameIndex, const RenderScene& scene);
     private:
         VK_Device& m_Device;
         VK_Swapchain& m_Swapchain;

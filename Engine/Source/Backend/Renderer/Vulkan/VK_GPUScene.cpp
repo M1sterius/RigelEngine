@@ -1,8 +1,7 @@
 #include "VK_GPUScene.hpp"
 #include "Wrapper/VulkanWrapper.hpp"
 #include "Helpers/VulkanUtility.hpp"
-#include "Subsystems/Renderer/Renderer.hpp"
-#include "Subsystems/SubsystemGetters.hpp"
+#include "Subsystems/Renderer/RenderScene.hpp"
 #include "../ShaderStructs.hpp"
 
 namespace Rigel::Backend::Vulkan
@@ -30,23 +29,21 @@ namespace Rigel::Backend::Vulkan
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }
 
-    void VK_GPUScene::Update(const uint32_t frameIndex)
+    void VK_GPUScene::Update(const uint32_t frameIndex, const RenderScene& scene)
     {
-        const auto sceneRenderInfo = GetRenderer()->GetSceneRenderInfo();
-
         m_DeferredDrawBatches.clear();
         m_ForwardDrawBatches.clear();
 
         // Skip rendering altogether if there is no main camera
-        if (!sceneRenderInfo->CameraPresent)
+        if (!scene.Camera.has_value())
             return;
 
         // Process models
         uint32_t meshIndex = 0;
-        for (uint32_t i = 0; i < sceneRenderInfo->Models.size(); ++i)
+        for (uint32_t i = 0; i < scene.Models.size(); ++i)
         {
-            const auto& modelAsset = sceneRenderInfo->Models[i];
-            const auto& modelTransform = sceneRenderInfo->Transforms[i];
+            const auto& modelAsset = scene.Models[i].Model;
+            const auto& modelTransform = scene.Models[i].Transform;
 
             auto deferredBatch = DrawBatch();
             deferredBatch.VertexBuffer = modelAsset->GetVertexBuffer();
@@ -61,7 +58,7 @@ namespace Rigel::Backend::Vulkan
             {
                 const auto modelMat = modelTransform * nodeIt->WorldTransform;
                 const auto normalMat = glm::mat3(glm::transpose(glm::inverse(modelMat)));
-                const auto MVP = sceneRenderInfo->ProjView * modelMat;
+                const auto MVP = scene.Camera->ProjView * modelMat;
 
                 for (const auto& mesh : nodeIt->Meshes)
                 {
@@ -108,10 +105,10 @@ namespace Rigel::Backend::Vulkan
         }
 
         m_SceneData->MeshCount = meshIndex;
-        m_SceneData->CameraPosition = sceneRenderInfo->CamPos;
+        m_SceneData->CameraPosition = scene.Camera->Position;
         // lights, other graphics objects?
 
-        // Update current frame's mesh buffer
+        // Update current frame's scene data buffer
         const auto& buffer = m_Buffers[frameIndex];
         buffer->UploadData(0, sizeof(SceneData), m_SceneData.get());
     }

@@ -11,6 +11,7 @@ namespace Rigel
 {
     class WindowManager;
     class AssetManager;
+    class RenderScene;
 
     namespace Backend
     {
@@ -61,7 +62,7 @@ namespace Rigel::Backend::Vulkan
         ErrorCode Shutdown();
         ErrorCode LateStartup();
 
-        void Render();
+        void Render(const RenderScene& scene);
         void WaitForFinish() const;
         void SetImGuiBackend(VK_ImGUI_Renderer* backend) { m_ImGuiBackend = backend; }
 
