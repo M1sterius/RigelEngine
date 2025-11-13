@@ -22,6 +22,7 @@ namespace Rigel::Backend::Vulkan
 
         void Reset() const;
         void Wait(const uint64_t timeout = std::numeric_limits<uint64_t>::max()) const;
+        void WaitAndReset(const uint64_t timeout = std::numeric_limits<uint64_t>::max());
     private:
         const VK_Device& m_Device;
         VkFence m_Fence = VK_NULL_HANDLE;

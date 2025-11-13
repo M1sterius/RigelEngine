@@ -26,4 +26,10 @@ namespace Rigel::Backend::Vulkan
     {
         VK_CHECK_RESULT(vkWaitForFences(m_Device.Get(), 1, &m_Fence, VK_TRUE, timeout), "Failed to wait for fence!");
     }
+
+    void VK_Fence::WaitAndReset(const uint64_t timeout)
+    {
+        Wait(timeout);
+        Reset();
+    }
 }

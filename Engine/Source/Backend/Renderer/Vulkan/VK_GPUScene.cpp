@@ -29,7 +29,7 @@ namespace Rigel::Backend::Vulkan
         vkDestroyDescriptorSetLayout(m_Device.Get(), m_DescriptorSetLayout, nullptr);
     }
 
-    void VK_GPUScene::Update(const uint32_t frameIndex, const RenderScene& scene)
+    void VK_GPUScene::Update(const RenderScene& scene, const uint32_t frameIndex)
     {
         m_DeferredDrawBatches.clear();
         m_ForwardDrawBatches.clear();

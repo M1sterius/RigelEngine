@@ -1,8 +1,11 @@
 #include "Subsystems/Renderer/RenderScene.hpp"
 #include "ECS/Scene.hpp"
-#include "Components/Camera.hpp"
 #include "Handles/SceneHandle.hpp"
+#include "Components/Camera.hpp"
 #include "Components/ModelRenderer.hpp"
+#include "Components/DirectionalLight.hpp"
+#include "Components/PointLight.hpp"
+#include "Components/SpotLight.hpp"
 
 namespace Rigel
 {
@@ -32,6 +35,12 @@ namespace Rigel
             {
                 renderScene.Models.emplace_back(asset, mr->GetGameObject()->GetTransform()->GetWorldMatrix());
             }
+        }
+
+        // Directional light
+        for (const auto& dirLight : scene->FindComponentsOfType<DirectionalLight>())
+        {
+            renderScene.DirectionalLights.emplace_back(dirLight->Direction, dirLight->Color, dirLight->Intensity, dirLight->CastShadows);
         }
 
         return renderScene;

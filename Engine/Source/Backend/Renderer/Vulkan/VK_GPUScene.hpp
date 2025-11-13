@@ -54,10 +54,11 @@ namespace Rigel::Backend::Vulkan
         NODISCARD VkDescriptorSet GetDescriptorSet(const uint32_t frameIndex) const { return m_DescriptorSets[frameIndex]; }
 
         NODISCARD const SceneData* GetSceneData() const { return m_SceneData.get(); }
+
         NODISCARD const std::vector<DrawBatch>& GetDeferredDrawBatches() const { return m_DeferredDrawBatches; }
         NODISCARD const std::vector<DrawBatch>& GetForwardDrawBatches() const { return m_ForwardDrawBatches; }
 
-        void Update(const uint32_t frameIndex, const RenderScene& scene);
+        void Update(const RenderScene& scene, const uint32_t frameIndex);
     private:
         VK_Device& m_Device;
         VK_Swapchain& m_Swapchain;

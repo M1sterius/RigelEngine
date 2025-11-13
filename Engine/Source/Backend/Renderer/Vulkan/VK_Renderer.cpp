@@ -109,14 +109,13 @@ namespace Rigel::Backend::Vulkan
         }
 
         const auto frameIndex = Time::GetFrameCount() % m_Swapchain->GetFramesInFlightCount();
-        const auto& fence = m_InFlightFences[frameIndex];
 
-        fence->Wait();
-        fence->Reset();
+        const auto& fence = m_InFlightFences[frameIndex];
+        fence->WaitAndReset();
 
         const auto swapchainImage = m_Swapchain->AcquireNextImage();
 
-        m_GPUScene->Update(frameIndex, scene);
+        m_GPUScene->Update(scene, frameIndex);
 
         const auto geometryPassCommandBuffer = m_GeometryPass->RecordCommandBuffer(frameIndex);
         const auto lightingPassCommandBuffer = m_LightingPass->RecordCommandBuffer(swapchainImage, frameIndex);
