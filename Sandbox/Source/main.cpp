@@ -21,9 +21,9 @@ int32_t main(int32_t argc, char** argv)
         return 1;
     }
 
-    auto sceneManager = engine->GetSceneManager();
-    auto assetManager = engine->GetAssetManager();
-    auto windowManager = engine->GetWindowManager();
+    auto sceneManager = Rigel::GetSceneManager();
+    auto assetManager = Rigel::GetAssetManager();
+    auto windowManager = Rigel::GetWindowManager();
 
     auto scene = sceneManager->CreateScene();
 
@@ -46,7 +46,7 @@ int32_t main(int32_t argc, char** argv)
     model2->GetTransform()->SetLocalPosition({-1.0, 1.0, 0.5});
     model2->GetTransform()->SetLocalScale(glm::vec3(2.0f));
     model2->AddComponent<Rigel::ModelRenderer>("Assets/Models/helmet.glb");
-    
+
     sceneManager->LoadScene(scene);
 
     engine->Run();
