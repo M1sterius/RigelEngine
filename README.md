@@ -65,6 +65,8 @@ int32_t main(int32_t argc, char** argv)
         Rigel::Debug::Error("Failed to initialize Rigel engine! Error code: {}.", static_cast<int32_t>(errorCode));
         return 1;
     }
+    
+    auto sceneManager = Rigel::GetSceneManager();
 
     auto scene = sceneManager->CreateScene();
     sceneManager->LoadScene(scene);
